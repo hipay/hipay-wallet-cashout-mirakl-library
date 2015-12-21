@@ -1,0 +1,17 @@
+{
+  "name": "mirakl/hipay-connector",
+  "description": "Library to ease the connection between Mirakl and Hipay",
+  "minimum-stability": "stable",
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "Ivanis Kouamé",
+      "email": "ivanis.kouame@smile.fr"
+    }
+  ],
+  "require": {
+    "php": ">=5.4.0",
+    "guzzlehttp/guzzle": "5.3.x-dev",
+    "psr/log": "1.0"
+  }
+}
