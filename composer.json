@@ -1,5 +1,5 @@
 {
-  "name": "mirakl/hipay-connector",
+  "name": "hipay/mirakl-connector",
   "description": "Library to ease the connection between Mirakl and Hipay",
   "minimum-stability": "stable",
   "license": "proprietary",
