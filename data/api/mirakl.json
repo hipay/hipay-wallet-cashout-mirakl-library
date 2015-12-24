@@ -1,0 +1,227 @@
+{
+  "name": "Mirakl",
+  "apiVersion": 3.20,
+  "description": "",
+  "operations": {
+    "GetVendors": {
+      "httpMethod": "GET",
+      "uri": "/api/shops",
+      "summary": "Fetch all shops from Mirakl",
+      "parameters": {
+        "updatedSince": {
+          "type": "object",
+          "instanceOf" : "DateTimeInterface",
+          "location": "query",
+          "sentAs": "updated_since",
+          "filters" : [
+            {
+              "method": "date_format",
+              "arguments" : ["@value", "Y-m-d"]
+            }
+          ]
+        }
+      }
+    },
+    "GetDocuments": {
+      "httpMethod": "GET",
+      "uri": "/api/shops/documents",
+      "summary": "List documents from Mirakl",
+      "parameters": {
+        "shopIds": {
+          "type": "array",
+          "required": true,
+          "description": "",
+          "location": "query",
+          "sentAs": "shop_ids",
+          "filters" : [
+            {
+              "method": "join",
+              "arguments" : [",", "@value"]
+            }
+          ]
+        }
+      }
+    },
+    "DownloadDocuments": {
+      "httpMethod": "GET",
+      "uri": "/api/shops/documents/downloads",
+      "summary": "Download documents from Mirakl",
+      "parameters" : {
+        "shopIds": {
+          "type": "array",
+          "location": "query",
+          "sentAs": "shop_ids",
+          "filters" : [
+            {
+              "method": "join",
+              "arguments" : [",", "@value"]
+            }
+          ]
+        },
+        "documentIds": {
+          "type": "array",
+          "location": "query",
+          "sentAs": "document_ids",
+          "filters" : [
+            {
+              "method": "join",
+              "arguments" : [",", "@value"]
+            }
+          ]
+        },
+        "typeCodes": {
+          "type": "array",
+          "location": "query",
+          "sentAs": "type_codes",
+          "filters" : [
+            {
+              "method": "join",
+              "arguments" : [",", "@value"]
+            }
+          ]
+        }
+      }
+    },
+    "GetTransactions": {
+      "httpMethod": "GET",
+      "uri": "	/api/transactions_logs",
+      "summary": "Get transactions from Mirakl",
+      "parameters": {
+        "shopId": {
+          "type": "int",
+          "description": "",
+          "location": "query",
+          "sentAs": "shop_id"
+        },
+        "startDate": {
+          "type": "object",
+          "instanceOf" : "DateTimeInterface",
+          "description": "creation date for filtering. Format: 'yyyy-MM-dd'T'HH:mm:ss'",
+          "location": "query",
+          "sentAs": "start_date",
+          "filters" : [
+            {
+              "method": "date_format",
+              "arguments" : ["@value", "Y-m-d"]
+            }
+          ]
+        },
+        "endDate": {
+          "type": "object",
+          "instanceOf" : "DateTimeInterface",
+          "description": "creation date for filtering. Format: 'yyyy-MM-dd'T'HH:mm:ss'",
+          "location": "query",
+          "sentAs": "end_date",
+          "filters" : [
+            {
+              "method": "date_format",
+              "arguments" : ["@value", "Y-m-d"]
+            }
+          ]
+        },
+        "startTransactionDate": {
+          "type": "object",
+          "instanceOf" : "DateTimeInterface",
+          "location": "query",
+          "sentAs": "start_transaction_date",
+          "filters" : [
+            {
+              "method": "date_format",
+              "arguments" : ["@value", "Y-m-d"]
+            }
+          ]
+        },
+        "endTransactionDate": {
+          "type": "object",
+          "instanceOf" : "DateTimeInterface",
+          "location": "query",
+          "sentAs": "end_transaction_date",
+          "filters" : [
+            {
+              "method": "date_format",
+              "arguments" : ["@value", "Y-m-d"]
+            }
+          ]
+        },
+        "updatedSince": {
+          "type": "object",
+          "instanceOf" : "DateTimeInterface",
+          "location": "query",
+          "sentAs": "updated_since",
+          "filters" : [
+            {
+              "method": "date_format",
+              "arguments" : ["@value", "Y-m-d"]
+            }
+          ]
+        },
+        "paymentVoucher": {
+          "type": "int",
+          "description": "",
+          "location": "query",
+          "sentAs": "payment_voucher"
+        },
+        "paymentStates": {
+          "type": "array",
+          "description": "",
+          "location": "query",
+          "sentAs": "payment_states",
+          "filters" : [
+            {
+              "method": "join",
+              "arguments" : [",", "@value"]
+            }
+          ]
+        },
+        "transactionTypes": {
+          "type": "array",
+          "description": "",
+          "location": "query",
+          "sentAs": "transaction_types",
+          "filters" : [
+            {
+              "method": "join",
+              "arguments" : [",", "@value"]
+            }
+          ]
+        },
+        "paginate": {
+          "type": "int",
+          "description": "",
+          "location": "query",
+          "sentAs": "paginate"
+        },
+        "accountingDocumentNumber": {
+          "type": "int",
+          "description": "",
+          "location": "query",
+          "sentAs": "accounting_document_number"
+        },
+        "orderIds": {
+          "type": "array",
+          "description": "",
+          "location": "query",
+          "sentAs": "order_ids",
+          "filters" : [
+            {
+              "method": "join",
+              "arguments" : [",", "@value"]
+            }
+          ]
+        },
+        "orderLineIds": {
+          "type": "array",
+          "description": "",
+          "location": "query",
+          "sentAs": "order_line_ids",
+          "filters" : [
+            {
+              "method": "join",
+              "arguments" : [",", "@value"]
+            }
+          ]
+        }
+      }
+    }
+  }
+}
