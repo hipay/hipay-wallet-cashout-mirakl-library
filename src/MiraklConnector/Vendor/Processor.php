@@ -8,21 +8,20 @@
  * @copyright 2015 Smile
  */
 
-namespace Hipay\MiraklConector\Vendor;
+namespace Hipay\MiraklConnector\Vendor;
 
-use Hipay\MiraklConector\Api\Hipay\Model\MerchantData;
-use Hipay\MiraklConector\Api\Hipay\Model\UserAccountBasic;
-use Hipay\MiraklConector\Api\Hipay\Model\UserAccountDetails;
-use Hipay\MiraklConector\Common\AbstractProcessor;
-use Hipay\MiraklConector\Service\Ftp;
-use Hipay\MiraklConector\Service\Ftp\ConfigurationInterface as FtpConfiguration;
-use Hipay\MiraklConector\Service\Zip;
-use Hipay\MiraklConector\Vendor\Event\CreateWalletEvent;
-use Mirakl\Hipay\Vendor\VendorInterface;
-use Hipay\MiraklConector\Api\Mirakl;
-use Hipay\MiraklConector\Api\Mirakl\ConfigurationInterface as MiraklConfiguration;
-use Hipay\MiraklConector\Api\Hipay;
-use Hipay\MiraklConector\Api\Hipay\ConfigurationInterface as HipayConfiguration;
+use Hipay\MiraklConnector\Api\Hipay\Model\MerchantData;
+use Hipay\MiraklConnector\Api\Hipay\Model\UserAccountBasic;
+use Hipay\MiraklConnector\Api\Hipay\Model\UserAccountDetails;
+use Hipay\MiraklConnector\Common\AbstractProcessor;
+use Hipay\MiraklConnector\Service\Ftp;
+use Hipay\MiraklConnector\Service\Ftp\ConfigurationInterface as FtpConfiguration;
+use Hipay\MiraklConnector\Service\Zip;
+use Hipay\MiraklConnector\Vendor\Event\CreateWalletEvent;
+use Hipay\MiraklConnector\Api\Mirakl;
+use Hipay\MiraklConnector\Api\Mirakl\ConfigurationInterface as MiraklConfiguration;
+use Hipay\MiraklConnector\Api\Hipay;
+use Hipay\MiraklConnector\Api\Hipay\ConfigurationInterface as HipayConfiguration;
 
 
 /**

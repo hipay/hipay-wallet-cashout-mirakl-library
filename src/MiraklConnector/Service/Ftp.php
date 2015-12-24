@@ -8,7 +8,7 @@
  * @copyright 2015 Smile
  */
 
-namespace Hipay\MiraklConector\Service;
+namespace Hipay\MiraklConnector\Service;
 
 /**
  * Class FileManager

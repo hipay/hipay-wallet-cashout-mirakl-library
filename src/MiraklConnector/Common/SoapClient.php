@@ -1,5 +1,5 @@
 <?php
-namespace Hipay\MiraklConector\Common;
+namespace Hipay\MiraklConnector\Common;
 use Exception;
 use SoapClient;
 use SoapFault;

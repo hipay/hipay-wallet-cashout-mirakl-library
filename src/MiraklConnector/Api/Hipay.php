@@ -1,10 +1,10 @@
 <?php
-namespace Hipay\MiraklConector\Api;
+namespace Hipay\MiraklConnector\Api;
 
-use Hipay\MiraklConector\Api\Hipay\Model\MerchantData;
-use Hipay\MiraklConector\Api\Hipay\Model\UserAccountBasic;
-use Hipay\MiraklConector\Api\Hipay\Model\UserAccountDetails;
-use Hipay\MiraklConector\Common\Smile_Soap_Client as SoapClient;
+use Hipay\MiraklConnector\Api\Hipay\Model\MerchantData;
+use Hipay\MiraklConnector\Api\Hipay\Model\UserAccountBasic;
+use Hipay\MiraklConnector\Api\Hipay\Model\UserAccountDetails;
+use Hipay\MiraklConnector\Common\Smile_Soap_Client as SoapClient;
 /**
  * Class Hipay
  * Make the SOAP call to the Hipay API

@@ -1,7 +1,7 @@
 <?php
-namespace Hipay\MiraklConector\Api\Mirakl;
+namespace Hipay\MiraklConnector\Api\Mirakl;
 
-use Hipay\MiraklConector\Api\ConfigurationInterface as BaseConfigurationInterface;
+use Hipay\MiraklConnector\Api\ConfigurationInterface as BaseConfigurationInterface;
 /**
  * The Mirakl configuration object interface
  *

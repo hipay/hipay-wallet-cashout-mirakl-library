@@ -1,5 +1,5 @@
 <?php
-namespace Hipay\MiraklConector\Api;
+namespace Hipay\MiraklConnector\Api;
 
 use Guzzle\Http\Exception\RequestException;
 use Guzzle\Service\Client;

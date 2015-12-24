@@ -1,8 +1,8 @@
 <?php
-namespace Hipay\MiraklConector\Vendor\Event;
-use Hipay\MiraklConector\Api\Hipay\Model\MerchantData;
-use Hipay\MiraklConector\Api\Hipay\Model\UserAccountBasic;
-use Hipay\MiraklConector\Api\Hipay\Model\UserAccountDetails;
+namespace Hipay\MiraklConnector\Vendor\Event;
+use Hipay\MiraklConnector\Api\Hipay\Model\MerchantData;
+use Hipay\MiraklConnector\Api\Hipay\Model\UserAccountBasic;
+use Hipay\MiraklConnector\Api\Hipay\Model\UserAccountDetails;
 use Symfony\Component\EventDispatcher\Event;
 
 /**

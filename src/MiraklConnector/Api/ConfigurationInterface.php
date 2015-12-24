@@ -8,13 +8,13 @@
  * @copyright 2015 Smile
  */
 
-namespace Hipay\MiraklConector\Api;
+namespace Hipay\MiraklConnector\Api;
 
 /**
  * Interface ConfigurationInterface
  * Base Interface for the configuration of the Api class
  *
- * @package Hipay\MiraklConector\Api
+ * @package Hipay\MiraklConnector\Api
  */
 interface ConfigurationInterface
 {

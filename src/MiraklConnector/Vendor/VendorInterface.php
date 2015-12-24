@@ -8,7 +8,7 @@
  * @copyright 2015 Smile
  */
 
-namespace Mirakl\Hipay\Vendor;
+namespace Hipay\MiraklConnector\Vendor;
 
 
 use DateTime;

@@ -1,5 +1,5 @@
 <?php
-namespace Hipay\MiraklConector\Service\Ftp;
+namespace Hipay\MiraklConnector\Service\Ftp;
 /**
  * File Config.php
  *
