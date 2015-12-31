@@ -27,22 +27,13 @@ interface VendorInterface
      * @return string
      */
     public function getMiraklShopId();
-    /**
-     * @param string $miraklShopId
-     */
-    public function setMiraklShopId($miraklShopId);
-
 
     /**
      * Returns the date of the last modification
      *
      * @return DateTime
      */
-    public function getLastModifcation();
-    /**
-     * @param DateTime $lastModifcation
-     */
-    public function setLastModifcation($lastModifcation);
+    public function getLastModification();
 
     /**
      * Returns the email recored by hipay
@@ -50,21 +41,11 @@ interface VendorInterface
      * @return string
      */
     public function getEmail();
-    /**
-     * @param string $email
-     */
-    public function setEmail($email);
 
     /**
      * @return string
      */
     public function getHipayAccountId();
-    /**
-     * Returns the hipay account Id
-     *
-     * @param string $hipayAccountId
-     */
-    public function setHipayAccountId($hipayAccountId);
 
     /**
      * Returns the Hipay login
@@ -72,24 +53,4 @@ interface VendorInterface
      * @return string
      */
     public function getHipayLogin();
-    /**
-     * @param string $hipayLogin
-     */
-    public function setHipayLogin($hipayLogin);
-
-    /**
-     * Save the vendor (in a database, file or anything you want)
-     *
-     * @return true if the vendor was saved, false otherwise
-     */
-    public function save();
-
-    /**
-     * Create the vendor from an array
-     *
-     * @param array $data
-     *
-     * @return self
-     */
-    public static function fromArray(array $data);
 }
