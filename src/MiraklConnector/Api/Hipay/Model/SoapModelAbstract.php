@@ -5,14 +5,11 @@ use Hipay\MiraklConnector\Vendor\VendorInterface;
 /**
  * File ModelInterface.php
  *
- * @category
- * @package
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
  */
 abstract class SoapModelAbstract
 {
-
     /**
      * ModelAbstract constructor.
      *
