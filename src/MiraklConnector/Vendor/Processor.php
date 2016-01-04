@@ -10,6 +10,7 @@
 
 namespace Hipay\MiraklConnector\Vendor;
 
+use Hipay\MiraklConnector\Api\Hipay\Model\BankInfo;
 use Hipay\MiraklConnector\Api\Hipay\Model\MerchantData;
 use Hipay\MiraklConnector\Api\Hipay\Model\UserAccountBasic;
 use Hipay\MiraklConnector\Api\Hipay\Model\UserAccountDetails;
@@ -45,7 +46,9 @@ class Processor extends AbstractProcessor
     public function __construct(
         MiraklConfiguration $miraklConfig,
         HipayConfiguration $hipayConfig,
-        FtpConfiguration $ftpConfiguration
+        FtpConfiguration $ftpConfiguration,
+        $locale,
+        $timeZone
     )
     {
         parent::__construct($miraklConfig, $hipayConfig);
@@ -166,5 +169,39 @@ class Processor extends AbstractProcessor
                 };
             }
         }
+    }
+
+    /**
+     * Check that the bank information is the same in the two services
+     *
+     * @param VendorInterface $vendor
+     * @param array $shopData
+     *
+     * @return bool
+     */
+    public function checkBankInformation(
+        VendorInterface $vendor,
+        array $shopData
+    )
+    {
+        $bankInfo = $this->hipay->bankInfosCheck($vendor);
+        return $bankInfo->getIban() == $shopData['payment_info']['iban'];
+    }
+
+    /**
+     * Add bank account information to Hipay
+     * Dispatch the event <b>before.bankAccount.add</b>
+     *
+     * @param VendorInterface $vendor
+     * @param array $shopData
+     *
+     * @return bool
+     */
+    public function addBankAccount(VendorInterface $vendor, array $shopData)
+    {
+        $bankInfo = new BankInfo();
+        $bankInfo->setData($vendor, $shopData);
+        $this->dispatcher->dispatch('before.bankAccount.add');
+        return $this->hipay->bankInfoRegister($vendor, $bankInfo);
     }
 }
