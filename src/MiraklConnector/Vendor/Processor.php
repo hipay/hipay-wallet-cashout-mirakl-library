@@ -105,7 +105,8 @@ class Processor extends AbstractProcessor
             new CreateWalletEvent(
                 $userAccountBasic,
                 $userAccountDetails,
-                $merchantData)
+                $merchantData
+            )
         );
 
         return $this->hipay->createFullUserAccount(
@@ -146,7 +147,9 @@ class Processor extends AbstractProcessor
 
         while (($shopDirectoryPath = readdir($tmpExtractDirectory)) !== false) {
             if (!is_dir($shopDirectoryPath)) {
-                throw new \RuntimeException("$shopDirectoryPath should be a directory");
+                throw new \RuntimeException(
+                    "$shopDirectoryPath should be a directory"
+                );
             }
             $shopId = basename($shopDirectoryPath);
             $ftpShopDirectory = $ftpShopsPath . DIRECTORY_SEPARATOR . $shopId;

@@ -20,6 +20,7 @@ namespace Hipay\MiraklConnector\Service;
  */
 class Zip
 {
+    /** @var  string the path to the zip file */
     protected $filePath;
 
     /**
