@@ -11,12 +11,17 @@ use Hipay\MiraklConnector\Vendor\VendorInterface;
 abstract class SoapModelAbstract
 {
     /**
-     * ModelAbstract constructor.
+     * Populate the fields with data
      *
      * @param VendorInterface $vendor
-     * @param array $shopData
+     * @param array $miraklShopData
+     *
+     * @return self
      */
-    public abstract function __construct(VendorInterface $vendor, array $shopData);
+    public abstract function setData(
+        VendorInterface $vendor,
+        array $miraklShopData
+    );
 
     /**
      * @return string
@@ -32,5 +37,31 @@ abstract class SoapModelAbstract
     public function getSoapParameterData()
     {
         return get_object_vars($this);
+    }
+
+    /**
+     * Add the object data in the parameters array
+     * @param array $parameters
+     *
+     * @return array
+     */
+    public function mergeIntoParameters(array $parameters)
+    {
+        return $parameters + $this->getSoapParameterData();
+    }
+
+    /**
+     * Add the class data to the parameters under a key
+     * based on the class name
+     *
+     * @param array $parameters
+     *
+     * @return array
+     */
+    public function addToParameters(array $parameters)
+    {
+        return $parameters + array(
+            $this->getSoapParameterKey() => $this->getSoapParameterData()
+        );
     }
 }

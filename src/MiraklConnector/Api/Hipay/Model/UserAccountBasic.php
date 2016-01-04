@@ -4,9 +4,8 @@ use Hipay\MiraklConnector\Vendor\VendorInterface;
 
 /**
  * File AccountBasic.php
+ * Value object for basic account data
  *
- * @category
- * @package
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
  */
@@ -25,100 +24,40 @@ class UserAccountBasic extends SoapModelAbstract
      * UserAccountBasic constructor.
      *
      * @param VendorInterface $vendor
-     * @param array $shopData
+     * @param array $miraklShopData
+     * @param string $locale
+     *
+     * @return UserAccountBasic
      */
-    public function __construct(VendorInterface $vendor, array $shopData)
+    public function setData(
+        VendorInterface $vendor,
+        array $miraklShopData,
+        $locale = 'fr_FR'
+    )
     {
-        parent::__construct($vendor, $shopData);
         $this->email = $vendor->getEmail();
-        $this->title = $this->setTitle($shopData['contact_informations']['civility']);
-        $this->firstname = $shopData['contact_informations']['civility'];
-        $this->lastname = $shopData['contact_informations']['civility'];
-        $this->currency = $shopData['currency_iso_code'];
-        $this->locale = 'fr_FR';
+        $this->title = self::formatTitle(
+            $miraklShopData['contact_informations']['civility']
+        );
+        $this->firstname = $miraklShopData['contact_informations']['civility'];
+        $this->lastname = $miraklShopData['contact_informations']['civility'];
+        $this->currency = $miraklShopData['currency_iso_code'];
+        $this->locale = $locale;
         $this->ipAddress = $_SERVER['SERVER_ADDR'];
         $this->entity = $vendor->getMiraklShopId();
-    }
 
-
-    /**
-     * @param string $email
-     * @return UserAccountBasic
-     */
-    public function setEmail($email)
-    {
-        $this->email = $email;
         return $this;
     }
 
     /**
-     * @param mixed $title
-     * @return UserAccountBasic
+     * Format the title (civility) for Hipay
+     *
+     * @param $civility
+     *
+     * @return mixed
      */
-    public function setTitle($title)
+    private static function formatTitle($civility)
     {
-        $this->title = $title;
-        return $this;
+        return $civility;
     }
-
-    /**
-     * @param mixed $firstname
-     * @return UserAccountBasic
-     */
-    public function setFirstname($firstname)
-    {
-        $this->firstname = $firstname;
-        return $this;
-    }
-
-    /**
-     * @param mixed $lastname
-     * @return UserAccountBasic
-     */
-    public function setLastname($lastname)
-    {
-        $this->lastname = $lastname;
-        return $this;
-    }
-
-    /**
-     * @param mixed $currency
-     * @return UserAccountBasic
-     */
-    public function setCurrency($currency)
-    {
-        $this->currency = $currency;
-        return $this;
-    }
-
-    /**
-     * @param mixed $locale
-     * @return UserAccountBasic
-     */
-    public function setLocale($locale)
-    {
-        $this->locale = $locale;
-        return $this;
-    }
-
-    /**
-     * @param mixed $ipAddress
-     * @return UserAccountBasic
-     */
-    public function setIpAddress($ipAddress)
-    {
-        $this->ipAddress = $ipAddress;
-        return $this;
-    }
-
-    /**
-     * @param mixed $entity
-     * @return UserAccountBasic
-     */
-    public function setEntity($entity)
-    {
-        $this->entity = $entity;
-        return $this;
-    }
-
 }

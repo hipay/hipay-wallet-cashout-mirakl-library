@@ -3,23 +3,22 @@ namespace Hipay\MiraklConnector\Api\Hipay\Model;
 use Hipay\MiraklConnector\Vendor\VendorInterface;
 
 /**
- * File Data.php
+ * File MerchantData.php
+ * Value object for merchant data
  *
- * @category
- * @package
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
  */
 class MerchantData extends SoapModelAbstract
 {
     /**
-     * MerchantData constructor.
-     *
      * @param VendorInterface $vendor
-     * @param array $shopData
+     * @param array $miraklShopData
+     *
+     * @return SoapModelAbstract
      */
-    public function __construct(VendorInterface $vendor, array $shopData)
+    public function setData(VendorInterface $vendor, array $miraklShopData)
     {
-        parent::__construct($vendor, $shopData);
+        return new MerchantData();
     }
 }
