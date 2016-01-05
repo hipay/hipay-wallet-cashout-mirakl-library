@@ -43,7 +43,7 @@ class Mirakl
     )
     {
         $this->restClient = new Client($config);
-        $description = ServiceDescription::factory('data/api/mirakl.json');
+        $description = ServiceDescription::factory(__DIR__ . '../../../data/api/mirakl.json');
         $description->setBaseUrl($baseUrl);
         $this->frontKey = $frontKey;
         $this->shopKey = $shopKey;

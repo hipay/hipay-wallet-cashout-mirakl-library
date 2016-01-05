@@ -84,7 +84,7 @@
     },
     "GetTransactions": {
       "httpMethod": "GET",
-      "uri": "	/api/transactions_logs",
+      "uri": "/api/transactions_logs",
       "summary": "Get transactions from Mirakl",
       "parameters": {
         "shopId": {
