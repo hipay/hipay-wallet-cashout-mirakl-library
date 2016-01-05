@@ -11,6 +11,7 @@
   ],
   "require": {
     "php": ">=5.3.0",
+    "ext-soap": "*",
     "guzzlehttp/guzzle": "^3.8",
     "symfony/event-dispatcher": "2.6.*"
   },

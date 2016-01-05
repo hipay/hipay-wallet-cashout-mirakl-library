@@ -1,8 +1,8 @@
 <?php
 namespace Hipay\MiraklConnector\Common;
 use Exception;
-use SoapClient;
-use SoapFault;
+use \SoapClient;
+use \SoapFault;
 
 /**
  * SoapClient with protection on fatal error
@@ -83,7 +83,7 @@ class SmileSoapClient extends SoapClient
     static public function startErrorHandlerForFatal($defaultCode)
     {
         self::$_defaultCode = $defaultCode;
-        set_error_handler('Smile_Soap_Client::errorHandlerForFatal', E_ALL);
+        set_error_handler('SmileSoapClient::errorHandlerForFatal', E_ALL);
     }
 
     /**
