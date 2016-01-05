@@ -5,7 +5,7 @@ use Hipay\MiraklConnector\Api\Hipay\Model\BankInfo;
 use Hipay\MiraklConnector\Api\Hipay\Model\MerchantData;
 use Hipay\MiraklConnector\Api\Hipay\Model\UserAccountBasic;
 use Hipay\MiraklConnector\Api\Hipay\Model\UserAccountDetails;
-use Hipay\MiraklConnector\Common\Smile_Soap_Client as SoapClient;
+use Hipay\MiraklConnector\Common\SmileSoapClient;
 use Hipay\MiraklConnector\Vendor\VendorInterface;
 
 /**
@@ -29,7 +29,7 @@ class Hipay
     /** @var  array the soapClient options */
     protected $options;
 
-    /** @var  SoapClient the user account client */
+    /** @var  SmileSoapClient the user account client */
     protected $userAccountClient;
 
     /**
@@ -46,7 +46,7 @@ class Hipay
         $this->login = $login;
         $this->password = $password;
         $this->options = $options;
-        $this->userAccountClient = new SoapClient(
+        $this->userAccountClient = new SmileSoapClient(
             $this->baseUrl . 'soap/user-account-v2?wsdl', $this->options
         );
 
@@ -206,7 +206,8 @@ class Hipay
      * Add sub account informations
      *
      * @param array $parameters the parameters array to add the info to
-     * @param VendorInterface $vendor the vendor from which subaccount info is fetched from
+     * @param VendorInterface $vendor the vendor
+     * from which subaccount info is fetched from
      *
      * @return array
      */

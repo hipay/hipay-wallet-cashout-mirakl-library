@@ -28,7 +28,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 abstract class AbstractProcessor
 {
-    /** @var Mirakl $miraklClient */
+    /** @var Mirakl $mirakl */
     protected $mirakl;
 
     /** @var Hipay $hipay */

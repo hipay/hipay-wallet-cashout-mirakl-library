@@ -13,7 +13,7 @@ use SoapFault;
  * @copyright 2015 Smile
  *
  */
-class Smile_Soap_Client extends SoapClient
+class SmileSoapClient extends SoapClient
 {
     /**
      * construct
@@ -21,7 +21,7 @@ class Smile_Soap_Client extends SoapClient
      * @param string $wsdl    wsdl url to use
      * @param array  $options table of options
      *
-     * @return Smile_Soap_Client
+     * @return SmileSoapClient
      *
      * @link http://www.php.net/manual/en/soapclient.soapclient.php
      */
