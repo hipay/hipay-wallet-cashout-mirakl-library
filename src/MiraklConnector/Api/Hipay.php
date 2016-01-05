@@ -77,7 +77,7 @@ class Hipay
      * @param UserAccountDetails $accountDetails
      * @param MerchantData $merchantData
      *
-     * @return bool
+     * @return mixed
      * @throws \Exception
      */
     public function createFullUserAccount(
@@ -91,7 +91,9 @@ class Hipay
         $parameters = $accountDetails->addToParameters($parameters);
         $parameters = $merchantData->addToParameters($parameters);
         $parameters = $this->mergeLoginParameters($parameters);
-        $response = $this->userAccountClient->createFullUserAccount($parameters);
+        $response = $this->userAccountClient->createFullUserAccount(
+            $parameters
+        );
         return !$this->hasError($response) ? $response : false;
     }
 
@@ -116,15 +118,16 @@ class Hipay
      *
      * @param VendorInterface $vendor
      *
-     * @return bool
+     * @return mixed
      *
      * @throws \Exception
      */
-    public function bankInfosStatus(VendorInterface $vendor)
+    public function bankInfosStatus(VendorInterface $vendor, $locale)
     {
         $parameters = array();
         $parameters = $this->mergeLoginParameters($parameters);
         $parameters = $this->mergeSubAccountParameters($parameters, $vendor);
+        $parameters['locale'] = $locale;
         $response = $this->userAccountClient->bankInfosStatus($parameters);
         return !$this->hasError($response) ? $response['status'] : false;
     }
@@ -172,11 +175,12 @@ class Hipay
      *
      * @throws \Exception
      */
-    protected function hasError (array $response)
+    protected function hasError(array $response)
     {
         if ($response['code'] > 0) {
             throw new \Exception(
-                "There was an error with the soap call\n" . $response['description']
+                "There was an error with the soap call\n" .
+                $response['description']
             );
         }
         return false;
