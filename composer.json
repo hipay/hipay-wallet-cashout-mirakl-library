@@ -16,7 +16,7 @@
   },
   "autoload": {
     "psr-4": {
-      "Hipay\\": "src"
+      "Hipay\\MiraklConnector\\": "src"
     }
   }
 }
