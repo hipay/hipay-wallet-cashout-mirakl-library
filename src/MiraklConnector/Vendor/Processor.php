@@ -18,6 +18,7 @@ use Hipay\MiraklConnector\Common\AbstractProcessor;
 use Hipay\MiraklConnector\Service\Ftp;
 use Hipay\MiraklConnector\Service\Ftp\ConfigurationInterface as FtpConfiguration;
 use Hipay\MiraklConnector\Service\Zip;
+use Hipay\MiraklConnector\Vendor\Event\AddBankAccountEvent;
 use Hipay\MiraklConnector\Vendor\Event\CreateWalletEvent;
 use Hipay\MiraklConnector\Api\Mirakl;
 use Hipay\MiraklConnector\Api\Mirakl\ConfigurationInterface as MiraklConfiguration;
@@ -46,9 +47,7 @@ class Processor extends AbstractProcessor
     public function __construct(
         MiraklConfiguration $miraklConfig,
         HipayConfiguration $hipayConfig,
-        FtpConfiguration $ftpConfiguration,
-        $locale,
-        $timeZone
+        FtpConfiguration $ftpConfiguration
     )
     {
         parent::__construct($miraklConfig, $hipayConfig);
@@ -93,14 +92,25 @@ class Processor extends AbstractProcessor
      * Dispatch the event <b>before.wallet.create</b> before sending the data to Hipay
      *
      * @param VendorInterface $vendor
-     *
      * @param array $shopData
-     * @return int the created account id|false
+     * @param string $locale the locale in the format 'language_territory'
+     * @param string $timeZone the timezone in the tz format
+     *
+     * @return int the created account id|false if the creation failed
      */
-    public function createWallet(VendorInterface $vendor, array $shopData)
+    public function createWallet(
+        VendorInterface $vendor,
+        array $shopData,
+        $locale = 'fr_FR',
+        $timeZone = 'Europe/Paris'
+    )
     {
-        $userAccountBasic = new UserAccountBasic($vendor, $shopData);
-        $userAccountDetails = new UserAccountDetails($vendor, $shopData);
+        $userAccountBasic = new UserAccountBasic($vendor, $shopData, $locale);
+        $userAccountDetails = new UserAccountDetails(
+            $vendor,
+            $shopData,
+            $timeZone
+        );
         $merchantData = new MerchantData($vendor, $shopData);
 
         $this->dispatcher->dispatch(
@@ -216,7 +226,10 @@ class Processor extends AbstractProcessor
     {
         $bankInfo = new BankInfo();
         $bankInfo->setData($vendor, $shopData);
-        $this->dispatcher->dispatch('before.bankAccount.add');
+        $this->dispatcher->dispatch(
+            'before.bankAccount.add',
+            new AddBankAccountEvent($bankInfo)
+        );
         return $this->hipay->bankInfoRegister($vendor, $bankInfo);
     }
 }
