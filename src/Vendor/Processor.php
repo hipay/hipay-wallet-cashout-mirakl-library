@@ -68,7 +68,7 @@ class Processor extends AbstractProcessor
      */
     public function getVendors(\DateTime $lastUpdate = null)
     {
-        return json_decode($this->mirakl->getVendors($lastUpdate));
+        return $this->mirakl->getVendors($lastUpdate);
     }
 
     /**

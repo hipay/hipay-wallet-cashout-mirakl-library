@@ -56,7 +56,7 @@ class Mirakl
      *
      * @param \DateTimeInterface $updatedSince date of the last Update
      *
-     * @return string the JSON response
+     * @return array the response
      *
      * @throws RequestException on a request error
      */
@@ -70,7 +70,7 @@ class Mirakl
             'GetVendors',
             array('updatedSince' => $updatedSince)
         );
-        return $this->restClient->execute($command)->getBody();
+        return $this->restClient->execute($command);
     }
 
     /**
