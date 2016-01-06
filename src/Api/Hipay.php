@@ -59,7 +59,7 @@ class Hipay
      */
     public function isAvailable($email, $entity)
     {
-        $parameters = array('email' => $email,'entity' => $entity);
+        $parameters = array('email' => $email, 'entity' => $entity);
         return $this->callSoap("isAvailable", $parameters);
     }
 
@@ -73,7 +73,7 @@ class Hipay
      * @return mixed
      * @throws \Exception
      */
-    public function createFullUserAccount(
+    public function createFullUseraccount(
         UserAccountBasic $accountBasic,
         UserAccountDetails $accountDetails,
         MerchantData $merchantData
@@ -82,7 +82,7 @@ class Hipay
         $parameters = $accountBasic->mergeIntoParameters();
         $parameters = $accountDetails->mergeIntoParameters($parameters);
         $parameters = $merchantData->mergeIntoParameters($parameters);
-        return $this->callSoap("createFullUserAccount", $parameters);
+        return $this->callSoap("createFullUseraccount", $parameters);
     }
 
     /**
