@@ -216,7 +216,7 @@ class Hipay
 
         //Parse the response
         $response = (array) $response;
-        $response = current($response);
+        $response = (array) current($response);
         if ($response['code'] > 0) {
             throw new \Exception(
                 "There was an error with the soap call $name\n" .
