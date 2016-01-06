@@ -7,7 +7,6 @@ use Hipay\MiraklConnector\Api\Hipay\Model\UserAccountBasic;
 use Hipay\MiraklConnector\Api\Hipay\Model\UserAccountDetails;
 use Hipay\MiraklConnector\Common\SmileSoapClient;
 use Hipay\MiraklConnector\Vendor\VendorInterface;
-use Ladybug\Dumper;
 
 /**
  * Class Hipay
@@ -219,12 +218,11 @@ class Hipay
         $response = (array) $response;
         $response = (array) current($response);
         if ($response['code'] > 0) {
-            $dumper = new Dumper();
             throw new \Exception(
                 "There was an error with the soap call $name\n" .
                 $response['description'] . "\n" .
                 "Parameters : \n" .
-                $dumper->dump($parameters)
+                print_r($parameters, true)
             );
         } else {
             unset($response['code']);
