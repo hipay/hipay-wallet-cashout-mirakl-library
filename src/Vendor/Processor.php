@@ -80,10 +80,11 @@ class Processor extends AbstractProcessor
      */
     public function hasWallet(VendorInterface $vendor)
     {
-        return $this->hipay->isAvailable(
+        $result = $this->hipay->isAvailable(
             $vendor->getEmail(),
             $vendor->getMiraklShopId()
         );
+        return $result['isAvailable'];
     }
 
     /**
@@ -122,12 +123,14 @@ class Processor extends AbstractProcessor
             )
         );
 
-        return $this->hipay->createFullUserAccount(
+        $result = $this->hipay->createFullUserAccount(
             $userAccountBasic,
             $userAccountDetails,
             $merchantData
         );
+        $result['userAccountId'];
     }
+
     /**
      * Transfer the files from Mirakl to Hipay using ftp
      *
@@ -187,14 +190,15 @@ class Processor extends AbstractProcessor
      * @param VendorInterface $vendor
      * @param string $locale
      *
-     * @return bool
+     * @return string
      */
     public function getBankInfoStatus(
         VendorInterface $vendor,
         $locale = 'fr_FR'
     )
     {
-        return $this->hipay->bankInfosStatus($vendor, $locale);
+        $result = $this->hipay->bankInfosStatus($vendor, $locale);
+        return $result['status'];
     }
     /**
      * Check that the bank information is the same in the two services
@@ -209,7 +213,7 @@ class Processor extends AbstractProcessor
         array $shopData
     )
     {
-        $bankInfo = $this->hipay->bankInfosCheck($vendor);
+        $bankInfo = new BankInfo($this->hipay->bankInfosCheck($vendor));
         return $bankInfo->getIban() == $shopData['payment_info']['iban'];
     }
 

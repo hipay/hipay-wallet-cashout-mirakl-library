@@ -202,7 +202,7 @@ class Hipay
     /**
      * @param string $name
      * @param array $parameters
-     * @return array|mixed
+     * @return array
      * @throws \Exception
      */
     private function callSoap($name, array $parameters)
@@ -227,6 +227,6 @@ class Hipay
             unset($response['description']);
         }
 
-        return $response;
+        return $response ?: true;
     }
 }

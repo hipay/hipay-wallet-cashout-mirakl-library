@@ -108,7 +108,7 @@ class Mirakl
     )
     {
         $command = $this->restClient->getCommand(
-            'DownloadsDocuments',
+            'DownloadDocuments',
             array(
                 'shopIds' => $shopIds,
                 'documentIds' => $documentIds,
