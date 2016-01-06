@@ -46,11 +46,4 @@ interface VendorInterface
      * @return string
      */
     public function getHipayAccountId();
-
-    /**
-     * Returns the Hipay login
-     *
-     * @return string
-     */
-    public function getHipayLogin();
 }
