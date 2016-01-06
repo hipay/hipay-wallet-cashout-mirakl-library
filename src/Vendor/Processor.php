@@ -85,7 +85,7 @@ class Processor extends AbstractProcessor
             $vendor->getEmail(),
             $entity
         );
-        return $result['isAvailable'];
+        return !$result['isAvailable'];
     }
 
     /**
