@@ -17,20 +17,17 @@ use Hipay\MiraklConnector\Vendor\VendorInterface;
  */
 class Hipay
 {
-    /** @var  string the base url to make call from and get wsdl from */
-    protected $baseUrl;
-
     /** @var  string the hipay webservice login */
     protected $login;
 
     /** @var  string the hipay webservice password */
     protected $password;
 
-    /** @var  array the soapClient options */
-    protected $options;
-
-    /** @var  SmileSoapClient the user account client */
+    /** @var  SmileSoapClient the user account webservice client */
     protected $userAccountClient;
+
+    /** @var  SmileSoapClient the transaction webservice client */
+    protected $transactionClient;
 
     /**
      * Constructor
@@ -42,15 +39,14 @@ class Hipay
      */
     public function __construct($baseUrl, $login, $password, $options)
     {
-        $this->baseUrl = $baseUrl;
         $this->login = $login;
         $this->password = $password;
-        $this->options = $options;
         $this->userAccountClient = new SmileSoapClient(
-            $this->baseUrl . 'soap/user-account-v2?wsdl', $this->options
+            $baseUrl . 'soap/user-account-v2?wsdl', $options
         );
-
-
+        $this->transactionClient = new SmileSoapClient(
+            $baseUrl . 'soap/transaction?wsdl', $options
+        );
     }
 
     /**
@@ -63,11 +59,8 @@ class Hipay
      */
     public function isAvailable($email, $entity)
     {
-        $parameters = $this->mergeLoginParameters(
-            array('email' => $email,'entity' => $entity)
-        );
-        $response = $this->userAccountClient->isAvailable($parameters);
-        return !$this->hasError($response) ? $response['isAvailable'] : false;
+        $parameters = array('email' => $email,'entity' => $entity);
+        return $this->callSoap("isAvailable", $parameters);
     }
 
     /**
@@ -86,15 +79,10 @@ class Hipay
         MerchantData $merchantData
     )
     {
-        $parameters = array();
-        $parameters = $accountBasic->addToParameters($parameters);
-        $parameters = $accountDetails->addToParameters($parameters);
-        $parameters = $merchantData->addToParameters($parameters);
-        $parameters = $this->mergeLoginParameters($parameters);
-        $response = $this->userAccountClient->createFullUserAccount(
-            $parameters
-        );
-        return !$this->hasError($response) ? $response : false;
+        $parameters = $accountBasic->mergeIntoParameters();
+        $parameters = $accountDetails->mergeIntoParameters($parameters);
+        $parameters = $merchantData->mergeIntoParameters($parameters);
+        return $this->callSoap("createFullUserAccount", $parameters);
     }
 
     /**
@@ -102,34 +90,28 @@ class Hipay
      *
      * @param VendorInterface $vendor
      *
-     * @return BankInfo
+     * @return array
      */
     public function bankInfosCheck(VendorInterface $vendor)
     {
-        $parameters = array();
-        $parameters = $this->mergeLoginParameters($parameters);
-        $parameters = $this->mergeSubAccountParameters($parameters, $vendor);
-        $response = $this->userAccountClient->bankInfosCheck($parameters);
-        return new BankInfo($response);
+        $parameters = $this->mergeSubAccountParameters($vendor);
+        return $this->callSoap("bankInfosCheck", $parameters);
     }
 
     /**
      * Retrieve from Hipay the bank account status
      *
      * @param VendorInterface $vendor
+     * @param $locale
      *
      * @return mixed
-     *
      * @throws \Exception
      */
     public function bankInfosStatus(VendorInterface $vendor, $locale)
     {
-        $parameters = array();
-        $parameters = $this->mergeLoginParameters($parameters);
-        $parameters = $this->mergeSubAccountParameters($parameters, $vendor);
+        $parameters = $this->mergeSubAccountParameters($vendor);
         $parameters['locale'] = $locale;
-        $response = $this->userAccountClient->bankInfosStatus($parameters);
-        return !$this->hasError($response) ? $response['status'] : false;
+        return $this->callSoap("bankInfosStatus", $parameters);
     }
 
     /**
@@ -147,18 +129,13 @@ class Hipay
         BankInfo $bankInfo
     )
     {
-        $parameters = array();
-        $parameters = $this->mergeLoginParameters($parameters);
-        $parameters = $this->mergeSubAccountParameters($parameters, $vendor);
+        $parameters = $this->mergeSubAccountParameters($vendor);
         $parameters = $bankInfo->mergeIntoParameters($parameters);
-        $response = $this->userAccountClient->bankInfoRegister($parameters);
-        return !$this->hasError($response);
+        return $this->callSoap("bankInfoRegister", $parameters);
     }
 
     public function getAccountInfos()
     {
-        $parameters = array();
-        $response = $this->userAccountClient->getAccountInfos($parameters);
     }
 
     public function getBalance()
@@ -166,25 +143,6 @@ class Hipay
 
     }
 
-    /**
-     * Return false if there wasn't an error, throw an exception otherwise
-     *
-     * @param array $response the response from Hipay
-     *
-     * @return false
-     *
-     * @throws \Exception
-     */
-    protected function hasError(array $response)
-    {
-        if ($response['code'] > 0) {
-            throw new \Exception(
-                "There was an error with the soap call\n" .
-                $response['description']
-            );
-        }
-        return false;
-    }
 
     /**
      * Add the api login parameters to the parameters
@@ -193,7 +151,7 @@ class Hipay
      *
      * @return array
      */
-    protected function mergeLoginParameters(array $parameters)
+    protected function mergeLoginParameters(array $parameters = array())
     {
         $parameters = $parameters + array(
                 'wsLogin' => $this->login,
@@ -212,8 +170,8 @@ class Hipay
      * @return array
      */
     protected function mergeSubAccountParameters(
-        array $parameters,
-        VendorInterface $vendor
+        VendorInterface $vendor,
+        $parameters = array()
     )
     {
         $parameters += array(
@@ -221,5 +179,54 @@ class Hipay
             'wsSubAccountId' => $vendor->getHipayAccountId()
         );
         return $parameters;
+    }
+
+    /**
+     * Return the correct soap client to use
+     *
+     * @param string $name the called method name
+     *
+     * @return SmileSoapClient
+     */
+    protected function getClient($name)
+    {
+        switch ($name) {
+            case 'direct':
+            case 'transfert':
+                return $this->transactionClient;
+            default:
+                return $this->userAccountClient;
+        }
+    }
+
+    /**
+     * @param string $name
+     * @param array $parameters
+     * @return array|mixed
+     * @throws \Exception
+     */
+    private function callSoap($name, array $parameters)
+    {
+        $parameters = $this->mergeLoginParameters($parameters);
+
+        //Make the call
+        $response = $this->getClient($name)->$name(
+            array('parameters' => $parameters)
+        );
+
+        //Parse the response
+        $response = (array) $response;
+        $response = current($response);
+        if ($response['code'] > 0) {
+            throw new \Exception(
+                "There was an error with the soap call $name\n" .
+                $response['description']
+            );
+        } else {
+            unset($response['code']);
+            unset($response['description']);
+        }
+
+        return $response;
     }
 }

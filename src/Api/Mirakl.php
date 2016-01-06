@@ -70,7 +70,8 @@ class Mirakl
             'GetVendors',
             array('updatedSince' => $updatedSince)
         );
-        return $this->restClient->execute($command);
+        $result = $this->restClient->execute($command);
+        return $result['shops'];
     }
 
     /**

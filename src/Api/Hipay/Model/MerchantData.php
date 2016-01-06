@@ -21,4 +21,19 @@ class MerchantData extends SoapModelAbstract
     {
         return new MerchantData();
     }
+
+    /**
+     * Add the class data to the parameters
+     * based on the class name
+     *
+     * @param array $parameters
+     *
+     * @return array
+     */
+    public function mergeIntoParameters(array $parameters = array())
+    {
+        return $parameters + array(
+            $this->getSoapParameterKey() => $this->getSoapParameterData()
+        );
+    }
 }

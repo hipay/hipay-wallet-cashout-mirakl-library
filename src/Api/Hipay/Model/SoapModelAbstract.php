@@ -45,23 +45,8 @@ abstract class SoapModelAbstract
      *
      * @return array
      */
-    public function mergeIntoParameters(array $parameters)
+    public function mergeIntoParameters(array $parameters = array())
     {
         return $parameters + $this->getSoapParameterData();
-    }
-
-    /**
-     * Add the class data to the parameters under a key
-     * based on the class name
-     *
-     * @param array $parameters
-     *
-     * @return array
-     */
-    public function addToParameters(array $parameters)
-    {
-        return $parameters + array(
-            $this->getSoapParameterKey() => $this->getSoapParameterData()
-        );
     }
 }

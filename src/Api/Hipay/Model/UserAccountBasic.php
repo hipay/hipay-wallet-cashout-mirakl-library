@@ -60,4 +60,19 @@ class UserAccountBasic extends SoapModelAbstract
     {
         return $civility;
     }
+
+    /**
+     * Add the class data to the parameters under a key
+     * based on the class name
+     *
+     * @param array $parameters
+     *
+     * @return array
+     */
+    public function mergeIntoParameters(array $parameters = array())
+    {
+        return $parameters + array(
+            $this->getSoapParameterKey() => $this->getSoapParameterData()
+        );
+    }
 }
