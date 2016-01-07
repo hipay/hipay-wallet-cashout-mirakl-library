@@ -240,6 +240,7 @@ class Hipay
      * @param array $parameters
      * @return array
      * @throws \Exception
+     * @throws \SoapFault
      */
     private function callSoap($name, array $parameters)
     {

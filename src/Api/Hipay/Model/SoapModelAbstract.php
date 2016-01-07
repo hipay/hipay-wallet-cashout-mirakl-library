@@ -28,7 +28,7 @@ abstract class SoapModelAbstract
      */
     public function getSoapParameterKey()
     {
-        return lcfirst(get_class($this));
+        return lcfirst(substr(strrchr(get_called_class(), '\\'), 1));
     }
 
     /**

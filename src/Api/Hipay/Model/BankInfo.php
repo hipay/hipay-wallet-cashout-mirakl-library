@@ -133,4 +133,84 @@ class BankInfo extends SoapModelAbstract
     {
         return $this->transit_num;
     }
+
+    /**
+     * @param mixed $bankName
+     */
+    public function setBankName($bankName)
+    {
+        $this->bankName = $bankName;
+    }
+
+    /**
+     * @param mixed $bankAddress
+     */
+    public function setBankAddress($bankAddress)
+    {
+        $this->bankAddress = $bankAddress;
+    }
+
+    /**
+     * @param mixed $bankZipCode
+     */
+    public function setBankZipCode($bankZipCode)
+    {
+        $this->bankZipCode = $bankZipCode;
+    }
+
+    /**
+     * @param mixed $bankCity
+     */
+    public function setBankCity($bankCity)
+    {
+        $this->bankCity = $bankCity;
+    }
+
+    /**
+     * @param mixed $bankCountry
+     */
+    public function setBankCountry($bankCountry)
+    {
+        $this->bankCountry = $bankCountry;
+    }
+
+    /**
+     * @param mixed $iban
+     */
+    public function setIban($iban)
+    {
+        $this->iban = $iban;
+    }
+
+    /**
+     * @param mixed $swift
+     */
+    public function setSwift($swift)
+    {
+        $this->swift = $swift;
+    }
+
+    /**
+     * @param mixed $acct_num
+     */
+    public function setAcctNum($acct_num)
+    {
+        $this->acct_num = $acct_num;
+    }
+
+    /**
+     * @param mixed $aba_num
+     */
+    public function setAbaNum($aba_num)
+    {
+        $this->aba_num = $aba_num;
+    }
+
+    /**
+     * @param mixed $transit_num
+     */
+    public function setTransitNum($transit_num)
+    {
+        $this->transit_num = $transit_num;
+    }
 }
