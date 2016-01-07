@@ -5,6 +5,7 @@ use Hipay\MiraklConnector\Vendor\VendorInterface;
 /**
  * File MerchantData.php
  * Value object for merchant data
+ * Set the properties directly
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
@@ -19,7 +20,7 @@ class MerchantData extends SoapModelAbstract
      */
     public function setData(VendorInterface $vendor, array $miraklShopData)
     {
-        return new MerchantData();
+        return $this;
     }
 
     /**

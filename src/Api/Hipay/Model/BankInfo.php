@@ -22,15 +22,34 @@ use Hipay\MiraklConnector\Vendor\VendorInterface;
  */
 class BankInfo extends SoapModelAbstract
 {
+    /** @var string */
     protected $bankName;
+
+    /** @var string */
     protected $bankAddress;
+
+    /** @var string */
     protected $bankZipCode;
+
+    /** @var string */
     protected $bankCity;
+
+    /** @var string */
     protected $bankCountry;
+
+    /** @var string */
     protected $iban;
+
+    /** @var string */
     protected $swift;
+
+    /** @var string */
     protected $acct_num;
+
+    /** @var string */
     protected $aba_num;
+
+    /** @var string */
     protected $transit_num;
 
 
