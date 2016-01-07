@@ -84,7 +84,7 @@ class SmileClient extends SoapClient
     {
         self::$_defaultCode = $defaultCode;
         set_error_handler(
-            'Hipay\\MiraklConnector\\Common\\SmileClient::errorHandlerForFatal',
+            'Hipay\\MiraklConnector\\Api\\Soap\\SmileClient::errorHandlerForFatal',
             E_ALL
         );
     }
