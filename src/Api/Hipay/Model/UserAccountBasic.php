@@ -79,13 +79,11 @@ class UserAccountBasic extends SoapModelAbstract
      * @param VendorInterface $vendor
      * @param array $miraklData
      * @param string $locale
-     * @param string $entity
      */
     public function __construct(
         VendorInterface $vendor,
         array $miraklData,
-        $locale,
-        $entity
+        $locale
     )
     {
         parent::__construct($vendor, $miraklData);
@@ -97,7 +95,6 @@ class UserAccountBasic extends SoapModelAbstract
         $this->lastname = $miraklData['contact_informations']['civility'];
         $this->currency = $miraklData['currency_iso_code'];
         $this->locale = $locale;
-        $this->entity = $entity;
     }
 
     /**

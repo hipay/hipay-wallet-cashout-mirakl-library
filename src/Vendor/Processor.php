@@ -75,15 +75,13 @@ class Processor extends AbstractProcessor
      * Check if the vendor already has a wallet
      *
      * @param VendorInterface $vendor
-     * @param bool|string $entity the entity given to the client by Hipay
      *
      * @return bool
      */
-    public function hasWallet(VendorInterface $vendor, $entity = false)
+    public function hasWallet(VendorInterface $vendor)
     {
         $result = $this->hipay->isAvailable(
-            $vendor->getEmail(),
-            $entity
+            $vendor->getEmail()
         );
         return !$result['isAvailable'];
     }
@@ -95,7 +93,6 @@ class Processor extends AbstractProcessor
      *
      * @param VendorInterface $vendor
      * @param array $shopData
-     * @param $entity
      * @param string $locale the locale in the format 'language_territory'
      * @param string $timeZone the timezone in the tz format
      * @return int the created account id|false if the creation failed
@@ -103,7 +100,6 @@ class Processor extends AbstractProcessor
     public function createWallet(
         VendorInterface $vendor,
         array $shopData,
-        $entity,
         $locale = 'fr_FR',
         $timeZone = 'Europe/Paris'
     )
@@ -111,8 +107,7 @@ class Processor extends AbstractProcessor
         $userAccountBasic = new UserAccountBasic(
             $vendor,
             $shopData,
-            $locale,
-            $entity
+            $locale
         );
         $userAccountDetails = new UserAccountDetails(
             $vendor,

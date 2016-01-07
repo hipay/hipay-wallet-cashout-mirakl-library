@@ -56,26 +56,25 @@ class Hipay
 
     /**
      * Check if given email can be used to create an Hipay wallet
+     * Enforce the entity to the one configured with the one given to the constructor
      *
      * @param string $email
-     * @param bool|string $entity the entity given to the merchant by Hipay
+     *
      * Will be replaced by the entity given on construction if false
      *
      * @return array|bool if array is empty
      *
      * @throws \Exception
      */
-    public function isAvailable($email, $entity = false)
+    public function isAvailable($email)
     {
-        if (!$entity) {
-            $entity = $this->entity;
-        }
-        $parameters = array('email' => $email, 'entity' => $entity);
+        $parameters = array('email' => $email, 'entity' => $this->entity);
         return $this->callSoap("isAvailable", $parameters);
     }
 
     /**
      * Create an new account on Hipay wallet
+     * Enforce the entity to the one configured with the one given to the constructor
      *
      * @param UserAccountBasic $accountBasic
      * @param UserAccountDetails $accountDetails
@@ -92,6 +91,7 @@ class Hipay
     )
     {
         $parameters = $accountBasic->mergeIntoParameters();
+        $accountBasic->setEntity($this->entity);
         $parameters = $accountDetails->mergeIntoParameters($parameters);
         $parameters = $merchantData->mergeIntoParameters($parameters);
         return $this->callSoap("createFullUseraccount", $parameters);
@@ -212,7 +212,7 @@ class Hipay
     {
         $parameters += array(
             'wsSubAccountLogin' => $vendor->getEmail(),
-            'wsSubAccountId' => $vendor->getHipayAccountId()
+            'wsSubAccountId' => $vendor->getHipayId()
         );
         return $parameters;
     }
