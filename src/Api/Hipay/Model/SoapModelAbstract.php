@@ -16,7 +16,7 @@ use Symfony\Component\Validator\Validator;
 abstract class SoapModelAbstract extends stdClass
 {
     /** @var Validator Validate the model */
-    protected $validator;
+    protected static $validator;
 
     /**
      * SoapModelAbstract constructor.
@@ -31,7 +31,7 @@ abstract class SoapModelAbstract extends stdClass
         array $miraklData
     )
     {
-        $this->validator = Validation::createValidatorBuilder()
+        self::$validator = Validation::createValidatorBuilder()
             ->enableAnnotationMapping()
             ->getValidator();
     }
@@ -71,12 +71,7 @@ abstract class SoapModelAbstract extends stdClass
      */
     public function validate()
     {
-        if (!$this->validator) {
-            $this->validator = Validation::createValidatorBuilder()
-                ->enableAnnotationMapping()
-                ->getValidator();
-        }
-        $violations = $this->validator->validate($this);
+        $violations = self::$validator->validate($this);
         if ($violations->count() != 0) {
             $message = "";
             foreach ($violations as $violation) {
