@@ -5,7 +5,7 @@ use Hipay\MiraklConnector\Api\Hipay\Model\BankInfo;
 use Hipay\MiraklConnector\Api\Hipay\Model\MerchantData;
 use Hipay\MiraklConnector\Api\Hipay\Model\UserAccountBasic;
 use Hipay\MiraklConnector\Api\Hipay\Model\UserAccountDetails;
-use Hipay\MiraklConnector\Common\SmileSoapClient;
+use Hipay\MiraklConnector\Api\Soap\SmileClient;
 use Hipay\MiraklConnector\Vendor\VendorInterface;
 
 /**
@@ -23,10 +23,10 @@ class Hipay
     /** @var  string the hipay webservice password */
     protected $password;
 
-    /** @var  SmileSoapClient the user account webservice client */
+    /** @var  SmileClient the user account webservice client */
     protected $userAccountClient;
 
-    /** @var  SmileSoapClient the transaction webservice client */
+    /** @var  SmileClient the transaction webservice client */
     protected $transactionClient;
 
     /** @var string the entity given to the merchant by Hipay */
@@ -46,10 +46,10 @@ class Hipay
         $this->login = $login;
         $this->password = $password;
         $this->entity = $entity;
-        $this->userAccountClient = new SmileSoapClient(
+        $this->userAccountClient = new SmileClient(
             $baseUrl . 'soap/user-account-v2?wsdl', $options
         );
-        $this->transactionClient = new SmileSoapClient(
+        $this->transactionClient = new SmileClient(
             $baseUrl . 'soap/transaction?wsdl', $options
         );
     }
@@ -222,7 +222,7 @@ class Hipay
      *
      * @param string $name the called method name
      *
-     * @return SmileSoapClient
+     * @return SmileClient
      */
     protected function getClient($name)
     {

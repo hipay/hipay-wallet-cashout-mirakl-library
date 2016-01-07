@@ -1,5 +1,5 @@
 <?php
-namespace Hipay\MiraklConnector\Common;
+namespace Hipay\MiraklConnector\Api\Soap;
 use Exception;
 use \SoapClient;
 use \SoapFault;
@@ -13,7 +13,7 @@ use \SoapFault;
  * @copyright 2015 Smile
  *
  */
-class SmileSoapClient extends SoapClient
+class SmileClient extends SoapClient
 {
     /**
      * construct
@@ -21,7 +21,7 @@ class SmileSoapClient extends SoapClient
      * @param string $wsdl    wsdl url to use
      * @param array  $options table of options
      *
-     * @return SmileSoapClient
+     * @return SmileClient
      *
      * @link http://www.php.net/manual/en/soapclient.soapclient.php
      */
@@ -84,7 +84,7 @@ class SmileSoapClient extends SoapClient
     {
         self::$_defaultCode = $defaultCode;
         set_error_handler(
-            'Hipay\\MiraklConnector\\Common\\SmileSoapClient::errorHandlerForFatal',
+            'Hipay\\MiraklConnector\\Common\\SmileClient::errorHandlerForFatal',
             E_ALL
         );
     }
