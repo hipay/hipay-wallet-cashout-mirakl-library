@@ -20,7 +20,7 @@ use Symfony\Component\EventDispatcher\Event;
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
  */
-class AddBankAccountEvent extends Event
+class AddBankAccountEvent extends AbstractEvent
 {
     /** @var  BankInfo */
     protected $bankInfo;
@@ -30,8 +30,9 @@ class AddBankAccountEvent extends Event
      *
      * @param $bankInfo
      */
-    public function __construct(BankInfo $bankInfo)
+    public function __construct($miraklData, BankInfo $bankInfo)
     {
+        parent::__construct($miraklData);
         $this->bankInfo = $bankInfo;
     }
 

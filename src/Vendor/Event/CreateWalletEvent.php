@@ -13,7 +13,7 @@ use Symfony\Component\EventDispatcher\Event;
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
  */
-class CreateWalletEvent extends Event
+class CreateWalletEvent extends AbstractEvent
 {
     /** @var  UserAccountBasic */
     protected $userAccountBasic;
@@ -27,16 +27,19 @@ class CreateWalletEvent extends Event
     /**
      * CreateWalletEvent constructor.
      *
+     * @param array $miraklData
      * @param UserAccountBasic $userAccountBasic
      * @param UserAccountDetails $userAccountDetails
      * @param MerchantData $merchantData
      */
     public function __construct(
+        array $miraklData,
         UserAccountBasic $userAccountBasic,
         UserAccountDetails $userAccountDetails,
         MerchantData $merchantData
     )
     {
+        parent::__construct($miraklData);
         $this->userAccountBasic = $userAccountBasic;
         $this->userAccountDetails = $userAccountDetails;
         $this->merchantData = $merchantData;

@@ -95,19 +95,25 @@ class Processor extends AbstractProcessor
      *
      * @param VendorInterface $vendor
      * @param array $shopData
+     * @param $entity
      * @param string $locale the locale in the format 'language_territory'
      * @param string $timeZone the timezone in the tz format
-     *
      * @return int the created account id|false if the creation failed
      */
     public function createWallet(
         VendorInterface $vendor,
         array $shopData,
+        $entity,
         $locale = 'fr_FR',
         $timeZone = 'Europe/Paris'
     )
     {
-        $userAccountBasic = new UserAccountBasic($vendor, $shopData, $locale);
+        $userAccountBasic = new UserAccountBasic(
+            $vendor,
+            $shopData,
+            $locale,
+            $entity
+        );
         $userAccountDetails = new UserAccountDetails(
             $vendor,
             $shopData,
@@ -115,19 +121,22 @@ class Processor extends AbstractProcessor
         );
         $merchantData = new MerchantData($vendor, $shopData);
 
-        $this->dispatcher->dispatch(
-            'before.wallet.create',
-            new CreateWalletEvent(
-                $userAccountBasic,
-                $userAccountDetails,
-                $merchantData
-            )
-        );
-
-        $result = $this->hipay->createFullUseraccount(
+        $event =  new CreateWalletEvent(
+            $shopData,
             $userAccountBasic,
             $userAccountDetails,
             $merchantData
+        );
+
+        $this->dispatcher->dispatch(
+            'before.wallet.create',
+            $event
+        );
+
+        $result = $this->hipay->createFullUseraccount(
+            $event->getUserAccountBasic(),
+            $event->getUserAccountDetails(),
+            $event->getMerchantData()
         );
         $result['userAccountId'];
     }
@@ -230,10 +239,14 @@ class Processor extends AbstractProcessor
     public function addBankAccount(VendorInterface $vendor, array $shopData)
     {
         $bankInfo = new BankInfo($vendor, $shopData);
+
+        $event = new AddBankAccountEvent($shopData, $bankInfo);
+
         $this->dispatcher->dispatch(
             'before.bankAccount.add',
-            new AddBankAccountEvent($bankInfo)
+            $event
         );
-        return $this->hipay->bankInfoRegister($vendor, $bankInfo);
+
+        return $this->hipay->bankInfoRegister($vendor, $event->getBankInfo());
     }
 }
