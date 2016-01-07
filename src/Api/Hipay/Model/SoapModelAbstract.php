@@ -85,8 +85,9 @@ abstract class SoapModelAbstract extends stdClass
                 $violations,
                 function(ConstraintViolation $violation, &$message) {
                     $message .= $violation->getMessage() . "\n";
+                    return true;
                 },
-                array($violations->getIterator(), $message)
+                array($violations->getIterator(), &$message)
             );
             throw new InvalidArgumentException($message);
         }
