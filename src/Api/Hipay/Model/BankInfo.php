@@ -10,9 +10,8 @@
 
 namespace Hipay\MiraklConnector\Api\Hipay\Model;
 
-
 use Hipay\MiraklConnector\Vendor\VendorInterface;
-
+use Symfony\Component\Validator\Constraints as Assert;
 /**
  * Class BankInfo
  * Value object for bank data

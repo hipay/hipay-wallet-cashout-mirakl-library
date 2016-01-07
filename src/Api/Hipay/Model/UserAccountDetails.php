@@ -1,7 +1,7 @@
 <?php
 namespace Hipay\MiraklConnector\Api\Hipay\Model;
 use Hipay\MiraklConnector\Vendor\VendorInterface;
-
+use Symfony\Component\Validator\Constraints as Assert;
 /**
  * File AccountDetail.php
  * Value object for detailled account data
