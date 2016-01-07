@@ -49,6 +49,7 @@ class UserAccountBasic extends SoapModelAbstract
      * @var string
      *
      * @Assert\NotBlank
+     * @Assert\Currency
      */
     protected $currency;
 
@@ -56,6 +57,7 @@ class UserAccountBasic extends SoapModelAbstract
      * @var string
      *
      * @Assert\NotBlank
+     * @Assert\Locale
      */
     protected $locale;
 

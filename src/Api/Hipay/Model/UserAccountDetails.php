@@ -1,5 +1,6 @@
 <?php
 namespace Hipay\MiraklConnector\Api\Hipay\Model;
+use Hipay\MiraklConnector\Service\Country;
 use Hipay\MiraklConnector\Vendor\VendorInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 /**
@@ -107,6 +108,7 @@ class UserAccountDetails extends SoapModelAbstract
      * @var string
      *
      * @Assert\NotBlank
+     * @Assert\Country
      */
     protected $country;
 
@@ -163,7 +165,9 @@ class UserAccountDetails extends SoapModelAbstract
             " " . $miraklData['contact_informations']['street2'];
         $this->zipCode = $miraklData['contact_informations']['zip_code'];
         $this->city = $miraklData['contact_informations']['city'];
-        $this->country = $miraklData['contact_informations']['country'];
+        $this->country = $this->formatCountryCode(
+            $miraklData['contact_informations']['country']
+        );
         $this->timeZone = $timeZone;
         $this->contactEmail = $miraklData['contact_informations']['email'];
         $this->phoneNumber = $miraklData['contact_informations']['phone'];
@@ -588,5 +592,13 @@ class UserAccountDetails extends SoapModelAbstract
     public function setCompanyName($companyName)
     {
         $this->companyName = $companyName;
+    }
+
+    /**
+     * Format the country code
+     */
+    public function formatCountryCode($countryCode)
+    {
+        return Country::toISO1366Alpha2($countryCode);
     }
 }
