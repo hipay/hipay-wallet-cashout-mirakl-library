@@ -29,18 +29,23 @@ class Hipay
     /** @var  SmileSoapClient the transaction webservice client */
     protected $transactionClient;
 
+    /** @var string the entity given to the merchant by Hipay */
+    protected $entity;
     /**
      * Constructor
      *
      * @param string $baseUrl
      * @param string $login
      * @param string $password
+     * @param string $entity
+     *
      * @param array $options
      */
-    public function __construct($baseUrl, $login, $password, $options)
+    public function __construct($baseUrl, $login, $password, $entity, $options)
     {
         $this->login = $login;
         $this->password = $password;
+        $this->entity = $entity;
         $this->userAccountClient = new SmileSoapClient(
             $baseUrl . 'soap/user-account-v2?wsdl', $options
         );
@@ -53,12 +58,18 @@ class Hipay
      * Check if given email can be used to create an Hipay wallet
      *
      * @param string $email
-     * @param string $entity
+     * @param bool|string $entity the entity given to the merchant by Hipay
+     * Will be replaced by the entity given on construction if false
      *
-     * @return bool
+     * @return array|bool if array is empty
+     *
+     * @throws \Exception
      */
-    public function isAvailable($email, $entity)
+    public function isAvailable($email, $entity = false)
     {
+        if (!$entity) {
+            $entity = $this->entity;
+        }
         $parameters = array('email' => $email, 'entity' => $entity);
         return $this->callSoap("isAvailable", $parameters);
     }
@@ -70,7 +81,8 @@ class Hipay
      * @param UserAccountDetails $accountDetails
      * @param MerchantData $merchantData
      *
-     * @return mixed
+     * @return array|bool if array is empty
+     *
      * @throws \Exception
      */
     public function createFullUseraccount(
@@ -90,7 +102,9 @@ class Hipay
      *
      * @param VendorInterface $vendor
      *
-     * @return array
+     * @return array|bool if array is empty
+     *
+     * @throws \Exception
      */
     public function bankInfosCheck(VendorInterface $vendor)
     {
@@ -104,7 +118,8 @@ class Hipay
      * @param VendorInterface $vendor
      * @param $locale
      *
-     * @return mixed
+     * @return array|bool if array is empty
+     *
      * @throws \Exception
      */
     public function bankInfosStatus(VendorInterface $vendor, $locale)
@@ -120,7 +135,7 @@ class Hipay
      * @param VendorInterface $vendor
      * @param BankInfo $bankInfo
      *
-     * @return bool
+     * @return array|bool if array is empty
      *
      * @throws \Exception
      */
@@ -134,13 +149,34 @@ class Hipay
         return $this->callSoap("bankInfoRegister", $parameters);
     }
 
-    public function getAccountInfos()
+    /**
+     * Return the account information
+     *
+     * @param VendorInterface $vendor
+     *
+     * @return array|bool if array is empty
+     *
+     * @throws \Exception
+     */
+    public function getAccountInfos(VendorInterface $vendor)
     {
+        $parameters = $this->mergeSubAccountParameters($vendor);
+        return $this->callSoap("getAccountInfos", $parameters);
     }
 
-    public function getBalance()
+    /**
+     * Return the account information
+     *
+     * @param VendorInterface $vendor
+     *
+     * @return array|bool if array is empty
+     *
+     * @throws \Exception
+     */
+    public function getBalance(VendorInterface $vendor)
     {
-
+        $parameters = $this->mergeSubAccountParameters($vendor);
+        return $this->callSoap("getBalance", $parameters);
     }
 
 

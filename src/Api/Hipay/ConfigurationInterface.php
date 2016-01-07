@@ -21,4 +21,10 @@ interface ConfigurationInterface extends BaseConfigurationInterface
      * @return string
      */
     public function getWebServicePassword();
+
+    /**
+     * Return the entity given to the merchant by Hipay
+     * @return string
+     */
+    public function getEntity();
 }

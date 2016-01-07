@@ -59,6 +59,7 @@ abstract class AbstractProcessor
             $hipayConfig->getBaseUrl(),
             $hipayConfig->getWebServiceLogin(),
             $hipayConfig->getWebServicePassword(),
+            $hipayConfig->getEntity(),
             $hipayConfig->getOptions()
         );
 

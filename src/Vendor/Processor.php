@@ -75,11 +75,11 @@ class Processor extends AbstractProcessor
      * Check if the vendor already has a wallet
      *
      * @param VendorInterface $vendor
-     * @param string $entity the entity given to the client by Hipay
+     * @param bool|string $entity the entity given to the client by Hipay
      *
      * @return bool
      */
-    public function hasWallet(VendorInterface $vendor, $entity)
+    public function hasWallet(VendorInterface $vendor, $entity = false)
     {
         $result = $this->hipay->isAvailable(
             $vendor->getEmail(),
