@@ -1,7 +1,6 @@
 <?php
 namespace Hipay\MiraklConnector\Api\Hipay\Model;
 use Hipay\MiraklConnector\Service\Country;
-use Hipay\MiraklConnector\Vendor\VendorInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 /**
  * File AccountDetail.php
@@ -150,17 +149,15 @@ class UserAccountDetails extends SoapModelAbstract
 
     /**
      * UserAccountDetails constructor.
-     * @param VendorInterface $vendor
      * @param array $miraklData
      * @param string $timeZone
      */
     public function __construct(
-        VendorInterface $vendor,
         array $miraklData,
         $timeZone = 'Europe/Paris'
     )
     {
-        parent::__construct($vendor, $miraklData);
+        parent::__construct($miraklData);
         $this->address = $miraklData['contact_informations']['street1'] .
             " " . $miraklData['contact_informations']['street2'];
         $this->zipCode = $miraklData['contact_informations']['zip_code'];

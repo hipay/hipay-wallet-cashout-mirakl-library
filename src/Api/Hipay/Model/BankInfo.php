@@ -10,7 +10,6 @@
 
 namespace Hipay\MiraklConnector\Api\Hipay\Model;
 
-use Hipay\MiraklConnector\Vendor\VendorInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 /**
  * Class BankInfo
@@ -84,12 +83,11 @@ class BankInfo extends SoapModelAbstract
     /**
      * Populate the fields with data
      *
-     * @param VendorInterface $vendor
      * @param array $miraklData
      */
-    public function __construct(VendorInterface $vendor, array $miraklData)
+    public function __construct(array $miraklData)
     {
-        parent::__construct($vendor, $miraklData);
+        parent::__construct($miraklData);
         $this->bankName = $miraklData['paymentInfo']['bank_name'];
         $this->bankAddress = $miraklData['paymentInfo']['bank_street'];
         $this->bankZipCode = $miraklData['paymentInfo']['bank_zip'];

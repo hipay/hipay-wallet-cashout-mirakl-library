@@ -1,6 +1,5 @@
 <?php
 namespace Hipay\MiraklConnector\Api\Hipay\Model;
-use Hipay\MiraklConnector\Vendor\VendorInterface;
 use InvalidArgumentException;
 use stdClass;
 use Symfony\Component\Validator\ConstraintViolation;
@@ -23,13 +22,9 @@ abstract class SoapModelAbstract extends stdClass
      *
      * Instanciate the validator
      *
-     * @param VendorInterface $vendor
      * @param array $miraklData
      */
-    public function __construct(
-        VendorInterface $vendor,
-        array $miraklData
-    )
+    public function __construct(array $miraklData)
     {
         self::$validator = Validation::createValidatorBuilder()
             ->enableAnnotationMapping()

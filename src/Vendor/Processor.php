@@ -91,30 +91,26 @@ class Processor extends AbstractProcessor
      *
      * Dispatch the event <b>before.wallet.create</b> before sending the data to Hipay
      *
-     * @param VendorInterface $vendor
      * @param array $shopData
      * @param string $locale the locale in the format 'language_territory'
      * @param string $timeZone the timezone in the tz format
      * @return int the created account id|false if the creation failed
      */
     public function createWallet(
-        VendorInterface $vendor,
         array $shopData,
         $locale = 'fr_FR',
         $timeZone = 'Europe/Paris'
     )
     {
         $userAccountBasic = new UserAccountBasic(
-            $vendor,
             $shopData,
             $locale
         );
         $userAccountDetails = new UserAccountDetails(
-            $vendor,
             $shopData,
             $timeZone
         );
-        $merchantData = new MerchantData($vendor, $shopData);
+        $merchantData = new MerchantData($shopData);
 
         $event =  new CreateWalletEvent(
             $shopData,
@@ -214,11 +210,10 @@ class Processor extends AbstractProcessor
      * @return bool
      */
     public function checkIban(
-        VendorInterface $vendor,
         array $shopData
     )
     {
-        $bankInfo = new BankInfo($vendor, $shopData);
+        $bankInfo = new BankInfo($shopData);
         return $bankInfo->getIban() == $shopData['payment_info']['iban'];
     }
 
@@ -233,7 +228,7 @@ class Processor extends AbstractProcessor
      */
     public function addBankAccount(VendorInterface $vendor, array $shopData)
     {
-        $bankInfo = new BankInfo($vendor, $shopData);
+        $bankInfo = new BankInfo($shopData);
 
         $event = new AddBankAccountEvent($shopData, $bankInfo);
 

@@ -1,7 +1,5 @@
 <?php
 namespace Hipay\MiraklConnector\Api\Hipay\Model;
-
-use Hipay\MiraklConnector\Vendor\VendorInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 /**
  * File AccountBasic.php
@@ -78,18 +76,16 @@ class UserAccountBasic extends SoapModelAbstract
     /**
      * UserAccountBasic constructor.
      *
-     * @param VendorInterface $vendor
      * @param array $miraklData
      * @param string $locale
      */
     public function __construct(
-        VendorInterface $vendor,
         array $miraklData,
         $locale
     )
     {
-        parent::__construct($vendor, $miraklData);
-        $this->email = $vendor->getEmail();
+        parent::__construct($miraklData);
+        $this->email = $miraklData['contact_informations']['email'];
         $this->title = self::formatTitle(
             $miraklData['contact_informations']['civility']
         );
