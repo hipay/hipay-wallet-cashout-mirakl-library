@@ -16,6 +16,11 @@ class UserAccountDetails extends SoapModelAbstract
     /** @var int
      * 0=>personal account,
      * 1=>business account
+     *
+     * @Assert\Range(
+     *      min = 1,
+     *      max = 3
+     * )
      */
     protected $legalStatus;
 
@@ -34,7 +39,7 @@ class UserAccountDetails extends SoapModelAbstract
     /** @var string For Brazilian accounts. */
     protected $identificationNumber;
 
-    /** @var string*/
+    /** @var string */
     protected $state;
 
     /** @var string */
@@ -55,41 +60,88 @@ class UserAccountDetails extends SoapModelAbstract
     /** @var string Antiphishing string. */
     protected $antiPhishingKey;
 
-    /** @var bool false or true if user agrees. */
+    /**
+     * @var bool false or true if user agrees.
+     *
+     * @Assert\Type(type="bool")
+     */
     protected $receiveHipayInformation;
 
-    /** @var bool false or true if user agrees. */
+    /**
+     * @var bool false or true if user agrees.
+     *
+     * @Assert\Type(type="bool")
+     */
     protected $receiveCommercialInformation;
 
-    /* @var string URL where the notifications concerning this account will be sent */
+    /**
+     * @var string URL where the notifications concerning this account will be sent
+     */
     protected $callbackUrl;
 
     //Mandatory properties
-    /** @var string Street address. */
+    /**
+     * @var string
+     *
+     * @Assert\NotBlank
+     */
     protected $address;
 
-    /** @var string */
+    /**
+     * @var string
+     *
+     * @Assert\NotBlank
+     */
     protected $zipCode;
 
-    /** @var string */
+    /**
+     * @var string
+     *
+     * @Assert\NotBlank
+     */
     protected $city;
 
-    /** @var string */
+    /**
+     * @var string
+     *
+     * @Assert\NotBlank
+     */
     protected $country;
 
-    /** @var string */
+    /**
+     * @var string
+     *
+     * @Assert\NotBlank
+     */
     protected $timeZone;
 
-    /** @var string */
+    /**
+     * @var string
+     *
+     * @Assert\NotBlank
+     */
     protected $contactEmail;
 
-    /** @var string */
+    /**
+     * @var string
+     *
+     * @Assert\NotBlank
+     */
     protected $phoneNumber;
 
-    /** @var bool */
+    /**
+     * @var string
+     *
+     * @Assert\NotBlank
+     * @Assert\IsTrue
+     */
     protected $termsAgreed;
 
-    /** @var string */
+    /**
+     * @var string
+     *
+     * @Assert\NotBlank
+     */
     protected $companyName;
 
     /**

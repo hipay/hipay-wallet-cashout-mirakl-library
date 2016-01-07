@@ -62,7 +62,6 @@ class UserAccountBasic extends SoapModelAbstract
     /**
      * @var string
      *
-     * @Assert\NotBlank
      * @Assert\Ip
      */
     protected $ipAddress;
@@ -80,13 +79,13 @@ class UserAccountBasic extends SoapModelAbstract
      * @param VendorInterface $vendor
      * @param array $miraklData
      * @param string $locale
-     * @param $entity
+     * @param string $entity
      */
     public function __construct(
         VendorInterface $vendor,
         array $miraklData,
-        $locale = 'fr_FR',
-        $entity = ""
+        $locale,
+        $entity
     )
     {
         parent::__construct($vendor, $miraklData);
@@ -98,7 +97,6 @@ class UserAccountBasic extends SoapModelAbstract
         $this->lastname = $miraklData['contact_informations']['civility'];
         $this->currency = $miraklData['currency_iso_code'];
         $this->locale = $locale;
-        $this->ipAddress = $_SERVER['SERVER_ADDR'];
         $this->entity = $entity;
     }
 
