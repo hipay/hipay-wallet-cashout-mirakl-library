@@ -76,6 +76,8 @@ class UserAccountDetails extends SoapModelAbstract
 
     /**
      * @var string URL where the notifications concerning this account will be sent
+     *
+     * @Assert\Url()
      */
     protected $callbackUrl;
 

@@ -90,8 +90,9 @@ class Hipay
         MerchantData $merchantData
     )
     {
-        $parameters = $accountBasic->mergeIntoParameters();
         $accountBasic->setEntity($this->entity);
+
+        $parameters = $accountBasic->mergeIntoParameters();
         $parameters = $accountDetails->mergeIntoParameters($parameters);
         $parameters = $merchantData->mergeIntoParameters($parameters);
         return $this->callSoap("createFullUseraccount", $parameters);
