@@ -2,7 +2,6 @@
 namespace Hipay\MiraklConnector\Api\Hipay\Model;
 use Hipay\MiraklConnector\Vendor\VendorInterface;
 use InvalidArgumentException;
-use Iterator;
 use stdClass;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\Validation;
@@ -23,26 +22,19 @@ abstract class SoapModelAbstract extends stdClass
      * SoapModelAbstract constructor.
      *
      * Instanciate the validator
+     *
+     * @param VendorInterface $vendor
+     * @param array $miraklData
      */
-    public function __construct()
+    public function __construct(
+        VendorInterface $vendor,
+        array $miraklData
+    )
     {
         $this->validator = Validation::createValidatorBuilder()
             ->enableAnnotationMapping()
             ->getValidator();
     }
-
-    /**
-     * Populate the fields with data
-     *
-     * @param VendorInterface $vendor
-     * @param array $miraklShopData
-     *
-     * @return self
-     */
-    public abstract function setData(
-        VendorInterface $vendor,
-        array $miraklShopData
-    );
 
     /**
      * @return string
@@ -83,7 +75,8 @@ abstract class SoapModelAbstract extends stdClass
         if ($violations->count() != 0) {
             $message = "";
             foreach ($violations as $violation) {
-                $message .= $violation->getMessage() . "\n";
+                /** @var ConstraintViolation $violation*/
+                $message .= ucfirst($violation->getPropertyPath()) . ":\t". $violation->getMessage() . "\n";
             }
             throw new InvalidArgumentException($message);
         }

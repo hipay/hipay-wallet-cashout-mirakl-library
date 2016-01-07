@@ -214,7 +214,7 @@ class Processor extends AbstractProcessor
         array $shopData
     )
     {
-        $bankInfo = new BankInfo($this->hipay->bankInfosCheck($vendor));
+        $bankInfo = new BankInfo($vendor, $shopData);
         return $bankInfo->getIban() == $shopData['payment_info']['iban'];
     }
 
@@ -229,8 +229,7 @@ class Processor extends AbstractProcessor
      */
     public function addBankAccount(VendorInterface $vendor, array $shopData)
     {
-        $bankInfo = new BankInfo();
-        $bankInfo->setData($vendor, $shopData);
+        $bankInfo = new BankInfo($vendor, $shopData);
         $this->dispatcher->dispatch(
             'before.bankAccount.add',
             new AddBankAccountEvent($bankInfo)

@@ -57,20 +57,17 @@ class BankInfo extends SoapModelAbstract
      * Populate the fields with data
      *
      * @param VendorInterface $vendor
-     * @param array $miraklShopData
-     *
-     * @return self
+     * @param array $miraklData
      */
-    public function setData(VendorInterface $vendor, array $miraklShopData)
+    public function __construct(VendorInterface $vendor, array $miraklData)
     {
-        $this->bankName = $miraklShopData['paymentInfo']['bank_name'];
-        $this->bankAddress = $miraklShopData['paymentInfo']['bank_street'];
-        $this->bankZipCode = $miraklShopData['paymentInfo']['bank_zip'];
-        $this->bankCity = $miraklShopData['paymentInfo']['bank_city'];
-        $this->swift = $miraklShopData['paymentInfo']['bic'];
-        $this->iban = $miraklShopData['paymentInfo']['iban'];
-
-        return $this;
+        parent::__construct($vendor, $miraklData);
+        $this->bankName = $miraklData['paymentInfo']['bank_name'];
+        $this->bankAddress = $miraklData['paymentInfo']['bank_street'];
+        $this->bankZipCode = $miraklData['paymentInfo']['bank_zip'];
+        $this->bankCity = $miraklData['paymentInfo']['bank_city'];
+        $this->swift = $miraklData['paymentInfo']['bic'];
+        $this->iban = $miraklData['paymentInfo']['iban'];
     }
 
     /**

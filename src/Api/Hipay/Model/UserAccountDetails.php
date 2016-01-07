@@ -95,32 +95,29 @@ class UserAccountDetails extends SoapModelAbstract
     /**
      * UserAccountDetails constructor.
      * @param VendorInterface $vendor
-     * @param array $miraklShopData
+     * @param array $miraklData
      * @param string $timeZone
-     *
-     * @return $this|SoapModelAbstract
      */
-    public function setData(
+    public function __construct(
         VendorInterface $vendor,
-        array $miraklShopData,
+        array $miraklData,
         $timeZone = 'Europe/Paris'
     )
     {
-        $this->address = $miraklShopData['contact_informations']['street1'] .
-            " " . $miraklShopData['contact_informations']['street2'];
-        $this->zipCode = $miraklShopData['contact_informations']['zip_code'];
-        $this->city = $miraklShopData['contact_informations']['city'];
-        $this->country = $miraklShopData['contact_informations']['country'];
+        parent::__construct($vendor, $miraklData);
+        $this->address = $miraklData['contact_informations']['street1'] .
+            " " . $miraklData['contact_informations']['street2'];
+        $this->zipCode = $miraklData['contact_informations']['zip_code'];
+        $this->city = $miraklData['contact_informations']['city'];
+        $this->country = $miraklData['contact_informations']['country'];
         $this->timeZone = $timeZone;
-        $this->contactEmail = $miraklShopData['contact_informations']['email'];
-        $this->phoneNumber = $miraklShopData['contact_informations']['phone'];
-        $this->companyName = $miraklShopData['shop_name'];
+        $this->contactEmail = $miraklData['contact_informations']['email'];
+        $this->phoneNumber = $miraklData['contact_informations']['phone'];
+        $this->companyName = $miraklData['shop_name'];
         $this->termsAgreed = true;
         $this->receiveCommercialInformation = false;
         $this->receiveHipayInformation = false;
         $this->legalStatus = 1;
-
-        return $this;
     }
 
     /**

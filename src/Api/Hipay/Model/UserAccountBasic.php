@@ -78,31 +78,28 @@ class UserAccountBasic extends SoapModelAbstract
      * UserAccountBasic constructor.
      *
      * @param VendorInterface $vendor
-     * @param array $miraklShopData
+     * @param array $miraklData
      * @param string $locale
      * @param $entity
-     *
-     * @return UserAccountBasic
      */
-    public function setData(
+    public function __construct(
         VendorInterface $vendor,
-        array $miraklShopData,
+        array $miraklData,
         $locale = 'fr_FR',
         $entity = ""
     )
     {
+        parent::__construct($vendor, $miraklData);
         $this->email = $vendor->getEmail();
         $this->title = self::formatTitle(
-            $miraklShopData['contact_informations']['civility']
+            $miraklData['contact_informations']['civility']
         );
-        $this->firstname = $miraklShopData['contact_informations']['civility'];
-        $this->lastname = $miraklShopData['contact_informations']['civility'];
-        $this->currency = $miraklShopData['currency_iso_code'];
+        $this->firstname = $miraklData['contact_informations']['civility'];
+        $this->lastname = $miraklData['contact_informations']['civility'];
+        $this->currency = $miraklData['currency_iso_code'];
         $this->locale = $locale;
         $this->ipAddress = $_SERVER['SERVER_ADDR'];
         $this->entity = $entity;
-
-        return $this;
     }
 
     /**
