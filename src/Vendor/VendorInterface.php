@@ -26,7 +26,7 @@ interface VendorInterface
      *
      * @return string
      */
-    public function getMiraklShopId();
+    public function getMiraklId();
 
     /**
      * Returns the date of the last modification
@@ -43,7 +43,9 @@ interface VendorInterface
     public function getEmail();
 
     /**
+     * Return the hipay account id
+     *
      * @return string
      */
-    public function getHipayAccountId();
+    public function getHipayId();
 }
