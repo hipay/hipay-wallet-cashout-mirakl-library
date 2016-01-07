@@ -31,7 +31,7 @@ class Country
             $file = fopen(__DIR__ . '../../../data/countries.csv', 'r');
             while (!feof($file)) {
                 $line = fgetcsv($file);
-                $data[reset($line)] = end($line);
+                static::$data[reset($line)] = end($line);
             }
         }
         return isset(static::$data[$countryCode]) ? static::$data[$countryCode]: false;
