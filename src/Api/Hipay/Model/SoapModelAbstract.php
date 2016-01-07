@@ -71,6 +71,11 @@ abstract class SoapModelAbstract extends stdClass
      */
     public function validate()
     {
+        if (!$this->validator) {
+            $this->validator = Validation::createValidatorBuilder()
+                ->enableAnnotationMapping()
+                ->getValidator();
+        }
         $violations = $this->validator->validate($this);
         if ($violations->count() != 0) {
             $message = "";
