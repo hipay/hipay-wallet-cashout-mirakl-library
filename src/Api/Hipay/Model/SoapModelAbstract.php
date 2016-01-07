@@ -2,6 +2,7 @@
 namespace Hipay\MiraklConnector\Api\Hipay\Model;
 use Hipay\MiraklConnector\Vendor\VendorInterface;
 use InvalidArgumentException;
+use Iterator;
 use stdClass;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\Validation;
@@ -81,14 +82,9 @@ abstract class SoapModelAbstract extends stdClass
         $violations = $this->validator->validate($this);
         if ($violations->count() != 0) {
             $message = "";
-            iterator_apply(
-                $violations,
-                function(ConstraintViolation $violation, &$message) {
-                    $message .= $violation->getMessage() . "\n";
-                    return true;
-                },
-                array($violations->getIterator(), &$message)
-            );
+            foreach ($violations as $violation) {
+                $message .= $violation->getMessage() . "\n";
+            }
             throw new InvalidArgumentException($message);
         }
     }
