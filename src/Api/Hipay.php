@@ -5,7 +5,7 @@ use Hipay\MiraklConnector\Api\Hipay\Model\BankInfo;
 use Hipay\MiraklConnector\Api\Hipay\Model\MerchantData;
 use Hipay\MiraklConnector\Api\Hipay\Model\UserAccountBasic;
 use Hipay\MiraklConnector\Api\Hipay\Model\UserAccountDetails;
-use Hipay\MiraklConnector\Api\Hipay\ConfigurationInterface;
+use Hipay\MiraklConnector\Api\Hipay\ConfigurationInterface as HipayConfigurationInterface;
 use Hipay\MiraklConnector\Api\Soap\SmileClient;
 use Hipay\MiraklConnector\Vendor\VendorInterface;
 
@@ -75,11 +75,11 @@ class Hipay
     }
 
     /**
-     * @param ConfigurationInterface $configuration
+     * @param HipayConfigurationInterface $configuration
      *
      * @return Hipay
      */
-    public static function factory (ConfigurationInterface $configuration)
+    public static function factory (HipayConfigurationInterface $configuration)
     {
         return new Hipay(
             $configuration->getBaseUrl(),
