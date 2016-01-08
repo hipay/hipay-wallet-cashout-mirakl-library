@@ -13,14 +13,13 @@ namespace Hipay\MiraklConnector\Vendor\Event;
 use Hipay\MiraklConnector\Api\Hipay\Model\BankInfo;
 use Symfony\Component\EventDispatcher\Event;
 
-
 /**
  * Class AddBankAccountEvent
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
  */
-class AddBankAccountEvent extends AbstractEvent
+class AddBankAccount extends Event
 {
     /** @var  BankInfo */
     protected $bankInfo;
@@ -30,9 +29,8 @@ class AddBankAccountEvent extends AbstractEvent
      *
      * @param $bankInfo
      */
-    public function __construct($miraklData, BankInfo $bankInfo)
+    public function __construct(BankInfo $bankInfo)
     {
-        parent::__construct($miraklData);
         $this->bankInfo = $bankInfo;
     }
 
@@ -46,9 +44,11 @@ class AddBankAccountEvent extends AbstractEvent
 
     /**
      * @param BankInfo $bankInfo
+     * @return $this
      */
     public function setBankInfo($bankInfo)
     {
         $this->bankInfo = $bankInfo;
+        return $this;
     }
 }

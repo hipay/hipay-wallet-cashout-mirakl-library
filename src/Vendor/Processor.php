@@ -18,8 +18,9 @@ use Hipay\MiraklConnector\Common\AbstractProcessor;
 use Hipay\MiraklConnector\Service\Ftp;
 use Hipay\MiraklConnector\Service\Ftp\ConfigurationInterface as FtpConfiguration;
 use Hipay\MiraklConnector\Service\Zip;
-use Hipay\MiraklConnector\Vendor\Event\AddBankAccountEvent;
-use Hipay\MiraklConnector\Vendor\Event\CreateWalletEvent;
+use Hipay\MiraklConnector\Vendor\Event\AddBankAccount;
+use Hipay\MiraklConnector\Vendor\Event\CheckAvailability;
+use Hipay\MiraklConnector\Vendor\Event\CreateWallet;
 use Hipay\MiraklConnector\Api\Mirakl;
 use Hipay\MiraklConnector\Api\Mirakl\ConfigurationInterface as MiraklConfiguration;
 use Hipay\MiraklConnector\Api\Hipay;
@@ -74,14 +75,20 @@ class Processor extends AbstractProcessor
     /**
      * Check if the vendor already has a wallet
      *
-     * @param VendorInterface $vendor
+     * Dispatch the event <b>before.availability.check</b> before sending the data to Hipay
+     *
+     * @param string $email
+     * @param bool $entity
      *
      * @return bool
      */
-    public function hasWallet(VendorInterface $vendor)
+    public function hasWallet($email, $entity = false)
     {
+        $event = new CheckAvailability($email, $entity);
+        $this->dispatcher->dispatch('before.availability.check', $event);
         $result = $this->hipay->isAvailable(
-            $vendor->getEmail()
+            $event->getEmail(),
+            $event->getEntity()
         );
         return !$result['isAvailable'];
     }
@@ -112,8 +119,7 @@ class Processor extends AbstractProcessor
         );
         $merchantData = new MerchantData($shopData);
 
-        $event = new CreateWalletEvent(
-            $shopData,
+        $event = new CreateWallet(
             $userAccountBasic,
             $userAccountDetails,
             $merchantData
@@ -233,7 +239,7 @@ class Processor extends AbstractProcessor
     {
         $bankInfo = new BankInfo($shopData);
 
-        $event = new AddBankAccountEvent($shopData, $bankInfo);
+        $event = new AddBankAccount($bankInfo);
 
         $this->dispatcher->dispatch(
             'before.bankAccount.add',

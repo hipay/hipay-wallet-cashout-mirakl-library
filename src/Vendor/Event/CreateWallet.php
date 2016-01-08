@@ -8,12 +8,10 @@ use Symfony\Component\EventDispatcher\Event;
 /**
  * File CreateWallet.php
  *
- * @category
- * @package
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
  */
-class CreateWalletEvent extends AbstractEvent
+class CreateWallet extends Event
 {
     /** @var  UserAccountBasic */
     protected $userAccountBasic;
@@ -27,19 +25,16 @@ class CreateWalletEvent extends AbstractEvent
     /**
      * CreateWalletEvent constructor.
      *
-     * @param array $miraklData
      * @param UserAccountBasic $userAccountBasic
      * @param UserAccountDetails $userAccountDetails
      * @param MerchantData $merchantData
      */
     public function __construct(
-        array $miraklData,
         UserAccountBasic $userAccountBasic,
         UserAccountDetails $userAccountDetails,
         MerchantData $merchantData
     )
     {
-        parent::__construct($miraklData);
         $this->userAccountBasic = $userAccountBasic;
         $this->userAccountDetails = $userAccountDetails;
         $this->merchantData = $merchantData;
@@ -55,7 +50,7 @@ class CreateWalletEvent extends AbstractEvent
 
     /**
      * @param UserAccountBasic $userAccountBasic
-     * @return CreateWalletEvent
+     * @return CreateWallet
      */
     public function setUserAccountBasic($userAccountBasic)
     {
@@ -73,7 +68,7 @@ class CreateWalletEvent extends AbstractEvent
 
     /**
      * @param UserAccountDetails $userAccountDetails
-     * @return CreateWalletEvent
+     * @return CreateWallet
      */
     public function setUserAccountDetails($userAccountDetails)
     {
@@ -91,7 +86,7 @@ class CreateWalletEvent extends AbstractEvent
 
     /**
      * @param MerchantData $merchantData
-     * @return CreateWalletEvent
+     * @return CreateWallet
      */
     public function setMerchantData($merchantData)
     {

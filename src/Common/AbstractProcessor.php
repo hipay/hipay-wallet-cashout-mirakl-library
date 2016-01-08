@@ -16,6 +16,7 @@ use Hipay\MiraklConnector\Api\Hipay;
 use Hipay\MiraklConnector\Api\Hipay\ConfigurationInterface as HipayConfiguration;
 
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -34,7 +35,7 @@ abstract class AbstractProcessor
     /** @var Hipay $hipay */
     protected $hipay;
 
-    /** @var EventDispatcher event */
+    /** @var EventDispatcherInterface event */
     protected $dispatcher;
 
     /**
@@ -55,13 +56,7 @@ abstract class AbstractProcessor
             $miraklConfig->getOptions()
         );
 
-        $this->hipay = new Hipay(
-            $hipayConfig->getBaseUrl(),
-            $hipayConfig->getWebServiceLogin(),
-            $hipayConfig->getWebServicePassword(),
-            $hipayConfig->getEntity(),
-            $hipayConfig->getOptions()
-        );
+        $this->hipay = Hipay::factory($hipayConfig);
 
         $this->dispatcher = new EventDispatcher();
     }
@@ -72,7 +67,7 @@ abstract class AbstractProcessor
      * @param $eventName
      * @param callable $function
      *
-     * @see EventDispatcher::addListener
+     * @see EventDispatcherInterface::addListener
      */
     public function addListener($eventName, callable $function)
     {
@@ -84,7 +79,7 @@ abstract class AbstractProcessor
      *
      * @param EventSubscriberInterface $subscriberInterface
      *
-     * @see EventDispatcher::addSubscriber
+     * @see EventDispatcherInterface::addSubscriber
      */
     public function addSubscriber(EventSubscriberInterface $subscriberInterface)
     {
