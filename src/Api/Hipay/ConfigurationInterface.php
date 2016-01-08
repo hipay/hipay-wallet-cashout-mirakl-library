@@ -27,4 +27,14 @@ interface ConfigurationInterface extends BaseConfigurationInterface
      * @return string
      */
     public function getEntity();
+
+    /**
+     * Returns the locale used in the webservice calls
+     */
+    public function getLocale();
+
+    /**
+     * Returns the timezone used in the webservice calls
+     */
+    public function getTimezone();
 }

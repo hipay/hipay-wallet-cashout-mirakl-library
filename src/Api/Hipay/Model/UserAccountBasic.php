@@ -1,5 +1,6 @@
 <?php
 namespace Hipay\MiraklConnector\Api\Hipay\Model;
+
 use Symfony\Component\Validator\Constraints as Assert;
 /**
  * File AccountBasic.php
@@ -77,11 +78,9 @@ class UserAccountBasic extends SoapModelAbstract
      * UserAccountBasic constructor.
      *
      * @param array $miraklData
-     * @param string $locale
      */
     public function __construct(
-        array $miraklData,
-        $locale
+        array $miraklData
     )
     {
         parent::__construct($miraklData);
@@ -92,7 +91,6 @@ class UserAccountBasic extends SoapModelAbstract
         $this->firstname = $miraklData['contact_informations']['civility'];
         $this->lastname = $miraklData['contact_informations']['civility'];
         $this->currency = $miraklData['currency_iso_code'];
-        $this->locale = $locale;
     }
 
     /**

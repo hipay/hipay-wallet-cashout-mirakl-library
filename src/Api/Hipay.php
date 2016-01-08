@@ -5,6 +5,7 @@ use Hipay\MiraklConnector\Api\Hipay\Model\BankInfo;
 use Hipay\MiraklConnector\Api\Hipay\Model\MerchantData;
 use Hipay\MiraklConnector\Api\Hipay\Model\UserAccountBasic;
 use Hipay\MiraklConnector\Api\Hipay\Model\UserAccountDetails;
+use Hipay\MiraklConnector\Api\Hipay\ConfigurationInterface;
 use Hipay\MiraklConnector\Api\Soap\SmileClient;
 use Hipay\MiraklConnector\Vendor\VendorInterface;
 
@@ -31,6 +32,13 @@ class Hipay
 
     /** @var string the entity given to the merchant by Hipay */
     protected $entity;
+
+    /** @var string the entity given to the merchant by Hipay */
+    protected $locale;
+
+    /** @var string the entity given to the merchant by Hipay */
+    protected $timezone;
+
     /**
      * Constructor
      *
@@ -39,13 +47,25 @@ class Hipay
      * @param string $password
      * @param string $entity
      *
+     * @param string $locale
+     * @param string $timeZone
      * @param array $options
      */
-    public function __construct($baseUrl, $login, $password, $entity, $options)
+    public function __construct(
+        $baseUrl,
+        $login,
+        $password,
+        $entity,
+        $locale = "fr_FR",
+        $timeZone = "Europe/Paris",
+        $options = array()
+    )
     {
         $this->login = $login;
         $this->password = $password;
         $this->entity = $entity;
+        $this->timezone = $timeZone;
+        $this->locale = $locale;
         $this->userAccountClient = new SmileClient(
             $baseUrl . 'soap/user-account-v2?wsdl', $options
         );
@@ -55,26 +75,46 @@ class Hipay
     }
 
     /**
+     * @param ConfigurationInterface $configuration
+     *
+     * @return Hipay
+     */
+    public static function factory (ConfigurationInterface $configuration)
+    {
+        return new Hipay(
+            $configuration->getBaseUrl(),
+            $configuration->getWebServiceLogin(),
+            $configuration->getWebServicePassword(),
+            $configuration->getEntity(),
+            $configuration->getLocale(),
+            $configuration->getTimezone(),
+            $configuration->getOptions()
+        );
+    }
+
+    /**
      * Check if given email can be used to create an Hipay wallet
-     * Enforce the entity to the one configured with the one given to the constructor
+     * Enforce the entity to the one given on object construction if false
      *
      * @param string $email
-     *
-     * Will be replaced by the entity given on construction if false
+     * @param bool $entity
      *
      * @return array|bool if array is empty
      *
      * @throws \Exception
      */
-    public function isAvailable($email)
+    public function isAvailable($email, $entity = false)
     {
-        $parameters = array('email' => $email, 'entity' => $this->entity);
+        $entity = $entity ?: $this->entity;
+        $parameters = array('email' => $email, 'entity' => $entity);
         return $this->callSoap("isAvailable", $parameters);
     }
 
     /**
      * Create an new account on Hipay wallet
-     * Enforce the entity to the one configured with the one given to the constructor
+     * Enforce the entity to the one given on object construction if false
+     * Enforce the locale to the one given on object construction if false
+     * Enforce the timezone to the one given on object construction if false
      *
      * @param UserAccountBasic $accountBasic
      * @param UserAccountDetails $accountDetails
@@ -90,7 +130,9 @@ class Hipay
         MerchantData $merchantData
     )
     {
-        $accountBasic->setEntity($this->entity);
+        if (!$accountBasic->getEntity()): $accountBasic->setEntity($this->entity); endif;
+        if (!$accountBasic->getLocale()): $accountBasic->setLocale($this->locale); endif;
+        if (!$accountDetails->getTimeZone()): $accountDetails->setTimeZone($this->timezone); endif;
 
         $parameters = $accountBasic->mergeIntoParameters();
         $parameters = $accountDetails->mergeIntoParameters($parameters);

@@ -112,7 +112,7 @@ class Processor extends AbstractProcessor
         );
         $merchantData = new MerchantData($shopData);
 
-        $event =  new CreateWalletEvent(
+        $event = new CreateWalletEvent(
             $shopData,
             $userAccountBasic,
             $userAccountDetails,
@@ -201,6 +201,7 @@ class Processor extends AbstractProcessor
         $result = $this->hipay->bankInfosStatus($vendor, $locale);
         return $result['status'];
     }
+
     /**
      * Check that the bank information is the same in the two services
      *
@@ -210,10 +211,12 @@ class Processor extends AbstractProcessor
      * @return bool
      */
     public function checkIban(
+        VendorInterface $vendor,
         array $shopData
     )
     {
-        $bankInfo = new BankInfo($shopData);
+        $bankInfo = $this->hipay->bankInfosCheck($vendor);
+        $bankInfo = new BankInfo($bankInfo);
         return $bankInfo->getIban() == $shopData['payment_info']['iban'];
     }
 

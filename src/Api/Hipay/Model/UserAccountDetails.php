@@ -150,11 +150,9 @@ class UserAccountDetails extends SoapModelAbstract
     /**
      * UserAccountDetails constructor.
      * @param array $miraklData
-     * @param string $timeZone
      */
     public function __construct(
-        array $miraklData,
-        $timeZone = 'Europe/Paris'
+        array $miraklData
     )
     {
         parent::__construct($miraklData);
@@ -165,7 +163,6 @@ class UserAccountDetails extends SoapModelAbstract
         $this->country = $this->formatCountryCode(
             $miraklData['contact_informations']['country']
         );
-        $this->timeZone = $timeZone;
         $this->contactEmail = $miraklData['contact_informations']['email'];
         $this->phoneNumber = $miraklData['contact_informations']['phone'];
         $this->companyName = $miraklData['shop_name'];
