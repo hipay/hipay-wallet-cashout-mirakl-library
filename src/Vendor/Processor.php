@@ -99,24 +99,14 @@ class Processor extends AbstractProcessor
      * Dispatch the event <b>before.wallet.create</b> before sending the data to Hipay
      *
      * @param array $shopData
-     * @param string $locale the locale in the format 'language_territory'
-     * @param string $timeZone the timezone in the tz format
      * @return int the created account id|false if the creation failed
      */
     public function createWallet(
-        array $shopData,
-        $locale = 'fr_FR',
-        $timeZone = 'Europe/Paris'
+        array $shopData
     )
     {
-        $userAccountBasic = new UserAccountBasic(
-            $shopData,
-            $locale
-        );
-        $userAccountDetails = new UserAccountDetails(
-            $shopData,
-            $timeZone
-        );
+        $userAccountBasic = new UserAccountBasic($shopData);
+        $userAccountDetails = new UserAccountDetails($shopData);
         $merchantData = new MerchantData($shopData);
 
         $event = new CreateWallet(
