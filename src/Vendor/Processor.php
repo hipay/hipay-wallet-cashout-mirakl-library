@@ -185,16 +185,13 @@ class Processor extends AbstractProcessor
      * Get bank info status from Hipay
      *
      * @param VendorInterface $vendor
-     * @param string $locale
-     *
      * @return string
      */
     public function getBankInfoStatus(
-        VendorInterface $vendor,
-        $locale = 'fr_FR'
+        VendorInterface $vendor
     )
     {
-        $result = $this->hipay->bankInfosStatus($vendor, $locale);
+        $result = $this->hipay->bankInfosStatus($vendor);
         return $result['status'];
     }
 
@@ -206,7 +203,7 @@ class Processor extends AbstractProcessor
      *
      * @return bool
      */
-    public function checkIban(
+    public function isIBANCorrect(
         VendorInterface $vendor,
         array $shopData
     )

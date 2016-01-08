@@ -156,19 +156,20 @@ class Hipay
     }
 
     /**
-     * Retrieve from Hipay the bank account status
+     * Retrieve from Hipay the bank account status in english
+     * To be checked against the constant defined in
+     * Hipay\MiraklConnector\Api\Hipay\Constants
      *
      * @param VendorInterface $vendor
-     * @param $locale
      *
      * @return array|bool if array is empty
      *
      * @throws \Exception
      */
-    public function bankInfosStatus(VendorInterface $vendor, $locale)
+    public function bankInfosStatus(VendorInterface $vendor)
     {
         $parameters = $this->mergeSubAccountParameters($vendor);
-        $parameters['locale'] = $locale;
+        $parameters['locale'] = 'en_GB';
         return $this->callSoap("bankInfosStatus", $parameters);
     }
 
