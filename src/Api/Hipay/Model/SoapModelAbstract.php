@@ -49,6 +49,8 @@ abstract class SoapModelAbstract extends stdClass
 
     /**
      * Add the object data in the parameters array
+     * Validate data before merging
+     *
      * @param array $parameters
      *
      * @return array
@@ -66,12 +68,12 @@ abstract class SoapModelAbstract extends stdClass
      */
     public function validate()
     {
-        $violations = self::$validator->validate($this);
-        if ($violations->count() != 0) {
+        $errors = self::$validator->validate($this);
+        if ($errors->count() != 0) {
             $message = "";
-            foreach ($violations as $violation) {
+            foreach ($errors as $error) {
                 /** @var ConstraintViolation $violation*/
-                $message .= ucfirst($violation->getPropertyPath()) . ":\t". $violation->getMessage() . "\n";
+                $message .= $error . "\n";
             }
             throw new InvalidArgumentException($message);
         }
