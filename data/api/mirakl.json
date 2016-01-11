@@ -19,6 +19,12 @@
               "args" : ["@value", "Y-m-d"]
             }
           ]
+        },
+        "paginate": {
+          "type": "boolean",
+          "default" : "false",
+          "static": true,
+          "location": "query"
         }
       }
     },
