@@ -97,16 +97,14 @@ class Mirakl
     }
 
     /**
-     * Download a zip archive of documents (use S31)
+     * Download a zip archive of documents (use S31) based on the docuements ids
      *
-     * @param array $shopIds
      * @param array $documentIds
      * @param array $typeCodes
      *
      * @return mixed the zip file binary data
      */
-    public function downloadFiles(
-        array $shopIds = array(),
+    public function downloadDocuments(
         array $documentIds = array(),
         array $typeCodes = array()
     )
@@ -118,7 +116,6 @@ class Mirakl
         $command = $this->restClient->getCommand(
             'DownloadDocuments',
             array(
-                'shopIds' => $shopIds,
                 'documentIds' => $documentIds,
                 'typeCodes' => $typeCodes
             )
@@ -127,9 +124,34 @@ class Mirakl
     }
 
     /**
+     * Download a zip archive of documents (use S31) based on the shopsid
+     *
+     * @param array $shopIds
+     * @param array $typeCodes
+     *
+     * @return mixed the zip file binary data
+     */
+    public function downloadShopsDocuments(
+        array $shopIds = array(),
+        array $typeCodes = array()
+    )
+    {
+        $this->restClient->getConfig()->setPath(
+            'request.options/headers/Authorization',
+            $this->frontKey
+        );
+        $command = $this->restClient->getCommand(
+            'DownloadDocuments',
+            array(
+                'shopIds' => $shopIds,
+                'typeCodes' => $typeCodes
+            )
+        );
+        return $this->restClient->execute($command)->getBody();
+    }
+
+    /**
      * List the transaction (use TL01)
-     *
-     *
      */
     public function getTransactions()
     {

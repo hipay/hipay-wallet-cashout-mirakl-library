@@ -146,7 +146,7 @@ class Processor extends AbstractProcessor
         //Downloads the zip file containg the documents
         file_put_contents(
             $tmpZipFilePath,
-            $this->mirakl->downloadFiles($shopIds)
+            $this->mirakl->downloadShopsDocuments($shopIds)
         );
 
         $zip = new Zip($tmpZipFilePath);

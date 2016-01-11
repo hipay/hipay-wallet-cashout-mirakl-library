@@ -50,11 +50,12 @@
     },
     "DownloadDocuments": {
       "httpMethod": "GET",
-      "uri": "/api/shops/documents/downloads",
+      "uri": "/api/shops/documents/download",
       "summary": "Download documents from Mirakl",
       "parameters" : {
         "shopIds": {
           "type": "array",
+          "required": false,
           "location": "query",
           "sentAs": "shop_ids",
           "filters" : [
@@ -66,6 +67,7 @@
         },
         "documentIds": {
           "type": "array",
+          "required": false,
           "location": "query",
           "sentAs": "document_ids",
           "filters" : [
@@ -77,6 +79,7 @@
         },
         "typeCodes": {
           "type": "array",
+          "required": false,
           "location": "query",
           "sentAs": "type_codes",
           "filters" : [
