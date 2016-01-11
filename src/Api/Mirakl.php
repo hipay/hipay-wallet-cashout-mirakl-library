@@ -83,6 +83,10 @@ class Mirakl
      */
     public function getFiles(array $shopIds)
     {
+        $this->restClient->getConfig()->setPath(
+            'request.options/headers/Authorization',
+            $this->frontKey
+        );
         $command = $this->restClient->getCommand(
             'GetDocuments',
             array(
@@ -107,6 +111,10 @@ class Mirakl
         array $typeCodes = array()
     )
     {
+        $this->restClient->getConfig()->setPath(
+            'request.options/headers/Authorization',
+            $this->frontKey
+        );
         $command = $this->restClient->getCommand(
             'DownloadDocuments',
             array(
@@ -125,6 +133,10 @@ class Mirakl
      */
     public function getTransactions()
     {
+        $this->restClient->getConfig()->setPath(
+            'request.options/headers/Authorization',
+            $this->frontKey
+        );
         $command = $this->restClient->getCommand(
             'GetTransactions',
             array(
