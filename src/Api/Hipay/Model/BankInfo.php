@@ -89,7 +89,7 @@ class BankInfo extends SoapModelAbstract
     {
         parent::__construct($miraklData);
         $paymentData = isset($miraklData['payment_info']) ?
-            $miraklData['payment_info'] : $miraklData['billing_data'];
+            $miraklData['payment_info'] : $miraklData['billing_info'];
         $this->bankName = $paymentData['bank_name'];
         $this->bankAddress = $paymentData['bank_street'];
         $this->bankZipCode = $paymentData['bank_zip'];
