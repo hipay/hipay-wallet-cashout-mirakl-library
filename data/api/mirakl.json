@@ -21,7 +21,7 @@
           ]
         },
         "paginate": {
-          "type": "boolean",
+          "type": "string",
           "default" : "false",
           "static": true,
           "location": "query"
