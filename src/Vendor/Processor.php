@@ -26,7 +26,6 @@ use Hipay\MiraklConnector\Api\Mirakl;
 use Hipay\MiraklConnector\Api\Mirakl\ConfigurationInterface as MiraklConfiguration;
 use Hipay\MiraklConnector\Api\Hipay;
 use Hipay\MiraklConnector\Api\Hipay\ConfigurationInterface as HipayConfiguration;
-use Touki\FTP\Connection\Connection;
 use Touki\FTP\FTPFactory;
 use Touki\FTP\FTPInterface;
 use Touki\FTP\Model\Directory;
@@ -49,7 +48,7 @@ class Processor extends AbstractProcessor
      * Processor constructor.
      * @param MiraklConfiguration $miraklConfig
      * @param HipayConfiguration $hipayConfig
-     * @param ConfigurationInterface $ftpConfiguration
+     * @param FtpConfiguration $ftpConfiguration
      */
     public function __construct(
         MiraklConfiguration $miraklConfig,
@@ -59,8 +58,9 @@ class Processor extends AbstractProcessor
     {
         parent::__construct($miraklConfig, $hipayConfig);
 
-        $factory = new \Touki\FTP\FTP();
-        $this->ftp = $factory->build($ftpConfiguration->build());
+        $connectionFactory = new Ftp\ConnectionFactory($ftpConfiguration);
+        $factory = new FTPFactory();
+        $this->ftp = $factory->build($connectionFactory->build());
     }
 
     /**
