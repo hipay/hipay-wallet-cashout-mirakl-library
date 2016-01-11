@@ -167,7 +167,7 @@ class Processor extends AbstractProcessor
                 continue;
             }
 
-            $shopDirectoryPath = $tmpExtractPath . DIRECTORY_SEPARATOR . $shopIds;
+            $shopDirectoryPath = $tmpExtractPath . DIRECTORY_SEPARATOR . $shopId;
 
             //Check if $shopDirectoryPath is a directry
             if (!is_dir($shopDirectoryPath)) {
