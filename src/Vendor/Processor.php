@@ -125,7 +125,8 @@ class Processor extends AbstractProcessor
             $event->getUserAccountDetails(),
             $event->getMerchantData()
         );
-        $result['userAccountId'];
+
+        return $result['userAccountId'];
     }
 
     /**
