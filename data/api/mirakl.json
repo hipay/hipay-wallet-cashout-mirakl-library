@@ -16,7 +16,7 @@
           "filters" : [
             {
               "method": "date_format",
-              "arguments" : ["@value", "Y-m-d"]
+              "args" : ["@value", "Y-m-d"]
             }
           ]
         }
@@ -36,7 +36,7 @@
           "filters" : [
             {
               "method": "join",
-              "arguments" : [",", "@value"]
+              "args" : [",", "@value"]
             }
           ]
         }
@@ -54,7 +54,7 @@
           "filters" : [
             {
               "method": "join",
-              "arguments" : [",", "@value"]
+              "args" : [",", "@value"]
             }
           ]
         },
@@ -65,7 +65,7 @@
           "filters" : [
             {
               "method": "join",
-              "arguments" : [",", "@value"]
+              "args" : [",", "@value"]
             }
           ]
         },
@@ -76,7 +76,7 @@
           "filters" : [
             {
               "method": "join",
-              "arguments" : [",", "@value"]
+              "args" : [",", "@value"]
             }
           ]
         }
@@ -102,7 +102,7 @@
           "filters" : [
             {
               "method": "date_format",
-              "arguments" : ["@value", "Y-m-d"]
+              "args" : ["@value", "Y-m-d"]
             }
           ]
         },
@@ -115,7 +115,7 @@
           "filters" : [
             {
               "method": "date_format",
-              "arguments" : ["@value", "Y-m-d"]
+              "args" : ["@value", "Y-m-d"]
             }
           ]
         },
@@ -127,7 +127,7 @@
           "filters" : [
             {
               "method": "date_format",
-              "arguments" : ["@value", "Y-m-d"]
+              "args" : ["@value", "Y-m-d"]
             }
           ]
         },
@@ -139,7 +139,7 @@
           "filters" : [
             {
               "method": "date_format",
-              "arguments" : ["@value", "Y-m-d"]
+              "args" : ["@value", "Y-m-d"]
             }
           ]
         },
@@ -151,7 +151,7 @@
           "filters" : [
             {
               "method": "date_format",
-              "arguments" : ["@value", "Y-m-d"]
+              "args" : ["@value", "Y-m-d"]
             }
           ]
         },
@@ -169,7 +169,7 @@
           "filters" : [
             {
               "method": "join",
-              "arguments" : [",", "@value"]
+              "args" : [",", "@value"]
             }
           ]
         },
@@ -181,7 +181,7 @@
           "filters" : [
             {
               "method": "join",
-              "arguments" : [",", "@value"]
+              "args" : [",", "@value"]
             }
           ]
         },
@@ -205,7 +205,7 @@
           "filters" : [
             {
               "method": "join",
-              "arguments" : [",", "@value"]
+              "args" : [",", "@value"]
             }
           ]
         },
@@ -217,7 +217,7 @@
           "filters" : [
             {
               "method": "join",
-              "arguments" : [",", "@value"]
+              "args" : [",", "@value"]
             }
           ]
         }
