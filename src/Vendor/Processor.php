@@ -161,13 +161,13 @@ class Processor extends AbstractProcessor
 
         $tmpExtractDirectory = opendir($tmpExtractPath);
 
-        while (($shopDirectoryPath = readdir($tmpExtractDirectory)) !== false) {
+        while (($shopId = readdir($tmpExtractDirectory)) !== false) {
             //Ignore . and .. entries
-            if ($shopDirectoryPath == '.' | $shopDirectoryPath == '..') {
+            if ($shopId == '.' || $shopId == '..' || !in_array($shopId, $shopIds)) {
                 continue;
             }
 
-            $shopDirectoryPath = $tmpExtractPath . DIRECTORY_SEPARATOR . $shopDirectoryPath;
+            $shopDirectoryPath = $tmpExtractPath . DIRECTORY_SEPARATOR . $shopIds;
 
             //Check if $shopDirectoryPath is a directry
             if (!is_dir($shopDirectoryPath)) {
@@ -175,8 +175,6 @@ class Processor extends AbstractProcessor
                     "$shopDirectoryPath should be a directory"
                 );
             }
-            //Get the shop id from the shop directory path
-            $shopId = basename($shopDirectoryPath);
 
             //Construct the path for the ftp
             $ftpShopDirectoryPath = $ftpShopsPath . DIRECTORY_SEPARATOR . $shopId;
