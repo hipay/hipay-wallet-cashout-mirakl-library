@@ -17,6 +17,7 @@ use Hipay\MiraklConnector\Api\Hipay\Model\UserAccountDetails;
 use Hipay\MiraklConnector\Common\AbstractProcessor;
 use Hipay\MiraklConnector\Service\Ftp;
 use Hipay\MiraklConnector\Service\Ftp\ConfigurationInterface as FtpConfiguration;
+use Hipay\MiraklConnector\Service\Ftp\ConfigurationInterface;
 use Hipay\MiraklConnector\Service\Zip;
 use Hipay\MiraklConnector\Vendor\Event\AddBankAccount;
 use Hipay\MiraklConnector\Vendor\Event\CheckAvailability;
@@ -25,40 +26,41 @@ use Hipay\MiraklConnector\Api\Mirakl;
 use Hipay\MiraklConnector\Api\Mirakl\ConfigurationInterface as MiraklConfiguration;
 use Hipay\MiraklConnector\Api\Hipay;
 use Hipay\MiraklConnector\Api\Hipay\ConfigurationInterface as HipayConfiguration;
+use Touki\FTP\Connection\Connection;
+use Touki\FTP\FTPFactory;
+use Touki\FTP\FTPInterface;
+use Touki\FTP\Model\Directory;
+use Touki\FTP\Model\File;
 
 
 /**
  * Class Processor
+ * Vendor processor who contains method to handle the vendors
  *
- * @category
- * @package
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
  */
 class Processor extends AbstractProcessor
 {
+    /** @var  FtpInterface */
     protected $ftp;
 
     /**
      * Processor constructor.
      * @param MiraklConfiguration $miraklConfig
      * @param HipayConfiguration $hipayConfig
-     * @param FtpConfiguration $ftpConfiguration
+     * @param ConfigurationInterface $ftpConfiguration
      */
     public function __construct(
         MiraklConfiguration $miraklConfig,
         HipayConfiguration $hipayConfig,
-        FtpConfiguration $ftpConfiguration
+        ConfigurationInterface $ftpConfiguration
     )
     {
         parent::__construct($miraklConfig, $hipayConfig);
-        $this->ftp = new Ftp(
-            $ftpConfiguration->getHost(),
-            $ftpConfiguration->getPort(),
-            $ftpConfiguration->getConnectionType(),
-            $ftpConfiguration->getUsername(),
-            $ftpConfiguration->getPassword()
-        );
+
+        $factory = new \Touki\FTP\FTP();
+        $this->ftp = $factory->build($ftpConfiguration->build());
     }
 
     /**
@@ -160,20 +162,41 @@ class Processor extends AbstractProcessor
         $tmpExtractDirectory = opendir($tmpExtractPath);
 
         while (($shopDirectoryPath = readdir($tmpExtractDirectory)) !== false) {
+            //Ignore . and .. entries
+            if ($shopDirectoryPath == '.' | $shopDirectoryPath == '..') {
+                continue;
+            }
+
+            $shopDirectoryPath = $tmpExtractPath . DIRECTORY_SEPARATOR . $shopDirectoryPath;
+
+            //Check if $shopDirectoryPath is a directry
             if (!is_dir($shopDirectoryPath)) {
                 throw new \RuntimeException(
                     "$shopDirectoryPath should be a directory"
                 );
             }
+            //Get the shop id from the shop directory path
             $shopId = basename($shopDirectoryPath);
-            $ftpShopDirectory = $ftpShopsPath . DIRECTORY_SEPARATOR . $shopId;
-            $this->ftp->createDirectory($ftpShopDirectory);
+
+            //Construct the path for the ftp
+            $ftpShopDirectoryPath = $ftpShopsPath . DIRECTORY_SEPARATOR . $shopId;
+
+            //Check directory existance
+            $ftpShopDirectory = new Directory($ftpShopDirectoryPath);
+            if (!$this->ftp->directoryExists($ftpShopDirectory)) {
+                //Create the ftp directory for the shop
+                $this->ftp->create($ftpShopDirectory);
+            };
 
             $shopDirectory = opendir($shopDirectoryPath);
             while (($shopDocument = readdir($shopDirectory)) !== false) {
+                if ($shopDocument == '.' | $shopDocument == '..') {
+                    continue;
+                }
                 $source = $shopDirectoryPath . DIRECTORY_SEPARATOR . $shopDocument;
-                $destination = $ftpShopDirectory . DIRECTORY_SEPARATOR . $shopDocument;
-                if ($this->ftp->uploadFile($source, $destination) == false) {
+                $destination = $ftpShopDirectoryPath . DIRECTORY_SEPARATOR . $shopDocument;
+                //Upload the files
+                if ($this->ftp->upload(new File($destination), $source) == false) {
                     throw new \RuntimeException(
                         "The uploading of the document $source has failed."
                     );

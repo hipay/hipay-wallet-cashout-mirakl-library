@@ -81,7 +81,7 @@ class Hipay
      */
     public static function factory (HipayConfigurationInterface $configuration)
     {
-        return new Hipay(
+        return new self(
             $configuration->getBaseUrl(),
             $configuration->getWebServiceLogin(),
             $configuration->getWebServicePassword(),
