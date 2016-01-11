@@ -88,12 +88,14 @@ class BankInfo extends SoapModelAbstract
     public function __construct(array $miraklData)
     {
         parent::__construct($miraklData);
-        $this->bankName = $miraklData['paymentInfo']['bank_name'];
-        $this->bankAddress = $miraklData['paymentInfo']['bank_street'];
-        $this->bankZipCode = $miraklData['paymentInfo']['bank_zip'];
-        $this->bankCity = $miraklData['paymentInfo']['bank_city'];
-        $this->swift = $miraklData['paymentInfo']['bic'];
-        $this->iban = $miraklData['paymentInfo']['iban'];
+        $paymentData = isset($miraklData['payment_info']) ?
+            $miraklData['payment_info'] : $miraklData['billing_data'];
+        $this->bankName = $paymentData['bank_name'];
+        $this->bankAddress = $paymentData['bank_street'];
+        $this->bankZipCode = $paymentData['bank_zip'];
+        $this->bankCity = $paymentData['bank_city'];
+        $this->swift = $paymentData['bic'];
+        $this->iban = $paymentData['iban'];
     }
 
     /**
