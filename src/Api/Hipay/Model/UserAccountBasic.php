@@ -76,6 +76,7 @@ class UserAccountBasic extends SoapModelAbstract
 
     /**
      * UserAccountBasic constructor.
+     * Expects a mirakl based array
      *
      * @param array $miraklData
      */

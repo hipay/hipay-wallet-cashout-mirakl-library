@@ -50,23 +50,18 @@ class BankInfo extends SoapModelAbstract
 
     /**
      * @var string
-     *
-     * @Assert\NotBlank
      */
     protected $bankCountry;
 
     /**
      * @var string
      *
-     * @Assert\NotBlank
      * @Assert\Iban
      */
     protected $iban;
 
     /**
      * @var string
-     *
-     * @Assert\NotBlank
      */
     protected $swift;
 
@@ -88,14 +83,18 @@ class BankInfo extends SoapModelAbstract
     public function __construct(array $miraklData)
     {
         parent::__construct($miraklData);
-        $paymentData = isset($miraklData['payment_info']) ?
+        $paymentData =  array_key_exists('payment_info', $miraklData) ?
             $miraklData['payment_info'] : $miraklData['billing_info'];
         $this->bankName = $paymentData['bank_name'];
         $this->bankAddress = $paymentData['bank_street'];
-        $this->bankZipCode = isset($paymentData['zip_code']) ? $paymentData['zip_code'] : isset($paymentData['bank_zip']) ;
+
+        $this->bankZipCode =  array_key_exists('zip_code', $paymentData) ?
+            $paymentData['zip_code'] : $paymentData['bank_zip'] ;
         $this->bankCity = $paymentData['bank_city'];
         $this->swift = $paymentData['bic'];
         $this->iban = $paymentData['iban'];
+        // Take the first to characters to fill the country
+        $this->bankCountry = substr($this->iban, 0, 2);
     }
 
     /**

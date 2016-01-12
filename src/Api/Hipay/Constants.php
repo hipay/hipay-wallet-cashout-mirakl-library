@@ -28,9 +28,11 @@ abstract class Constants
     const HIPAY_STATUS_ERROR_TECHNICAL_ERROR = 13;
     const HIPAY_STATUS_ERROR_WRONG_BANK_STATUS = 23;
 
-    // Hipay Wallet bankInfosStatus response 'status' values.
+    // Hipay Wallet bankInfosStatus response 'status' values (in en_GB)
     const HIPAY_ACCOUNT_NO_BANK_INFO = 'No bank information';
     const HIPAY_ACCOUNT_BANK_INFO_VALIDATED = 'Validated';
+    const HIPAY_ACCOUNT_BANK_INFO_TO_VALIDATE = 'To validate';
+    const HIPAY_ACCOUNT_BANK_INFO_VALIDATION_PROGRESS = 'Validation in progress';
 
     // Hipay Wallet accountInfosIdentified response 'status' values.
     const HIPAY_ACCOUNT_NOT_IDENTIFIED = 'no';

@@ -149,6 +149,8 @@ class UserAccountDetails extends SoapModelAbstract
 
     /**
      * UserAccountDetails constructor.
+     * Expects a mirakl based array
+     *
      * @param array $miraklData
      */
     public function __construct(

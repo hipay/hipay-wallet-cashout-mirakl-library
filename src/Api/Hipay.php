@@ -190,7 +190,7 @@ class Hipay
     {
         $parameters = $this->mergeSubAccountParameters($vendor);
         $parameters = $bankInfo->mergeIntoParameters($parameters);
-        return $this->callSoap("bankInfoRegister", $parameters);
+        return $this->callSoap("bankInfosRegister", $parameters);
     }
 
     /**
@@ -301,7 +301,7 @@ class Hipay
         if ($response['code'] > 0) {
             throw new \Exception(
                 "There was an error with the soap call $name\n" .
-                $response['description'] . "\n" .
+                $response['code'] . ":" . $response['description'] . "\n" .
                 "Parameters : \n" .
                 print_r($parameters, true)
             );
