@@ -100,7 +100,7 @@ class Hipay
      * @param string $email
      * @param bool $entity
      *
-     * @return array|bool if array is empty
+     * @return bool if array is empty
      *
      * @throws \Exception
      */
@@ -108,7 +108,8 @@ class Hipay
     {
         $entity = $entity ?: $this->entity;
         $parameters = array('email' => $email, 'entity' => $entity);
-        return $this->callSoap("isAvailable", $parameters);
+        $result =  $this->callSoap("isAvailable", $parameters);
+        return $result['isAvailable'];
     }
 
     /**
@@ -121,7 +122,7 @@ class Hipay
      * @param UserAccountDetails $accountDetails
      * @param MerchantData $merchantData
      *
-     * @return array|bool if array is empty
+     * @return int the user account id
      *
      * @throws \Exception
      */
@@ -145,7 +146,8 @@ class Hipay
         $parameters = $accountBasic->mergeIntoParameters();
         $parameters = $accountDetails->mergeIntoParameters($parameters);
         $parameters = $merchantData->mergeIntoParameters($parameters);
-        return $this->callSoap("createFullUseraccount", $parameters);
+        $result = $this->callSoap("createFullUseraccount", $parameters);
+        return $result['userAccountld'];
     }
 
     /**
@@ -153,14 +155,14 @@ class Hipay
      *
      * @param VendorInterface $vendor
      *
-     * @return array|bool if array is empty
+     * @return BankInfo if array is empty
      *
      * @throws \Exception
      */
     public function bankInfosCheck(VendorInterface $vendor)
     {
         $parameters = $this->mergeSubAccountParameters($vendor);
-        return $this->callSoap("bankInfosCheck", $parameters);
+        return new BankInfo($this->callSoap("bankInfosCheck", $parameters));
     }
 
     /**
@@ -178,7 +180,8 @@ class Hipay
     {
         $parameters = $this->mergeSubAccountParameters($vendor);
         $parameters['locale'] = 'en_GB';
-        return $this->callSoap("bankInfosStatus", $parameters);
+        $result = $this->callSoap("bankInfosStatus", $parameters);
+        return $result['status'];
     }
 
     /**

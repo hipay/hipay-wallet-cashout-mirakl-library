@@ -103,7 +103,7 @@ class Processor extends AbstractProcessor
             $event->getEmail(),
             $event->getEntity()
         );
-        return !$result['isAvailable'];
+        return !$result;
     }
 
     /**
@@ -112,7 +112,7 @@ class Processor extends AbstractProcessor
      * Dispatch the event <b>before.wallet.create</b> before sending the data to Hipay
      *
      * @param array $shopData
-     * @return int the created account id|false if the creation failed
+     * @return int the created account id
      */
     public function createWallet(
         array $shopData
@@ -133,13 +133,11 @@ class Processor extends AbstractProcessor
             $event
         );
 
-        $result = $this->hipay->createFullUseraccount(
+        return $this->hipay->createFullUseraccount(
             $event->getUserAccountBasic(),
             $event->getUserAccountDetails(),
             $event->getMerchantData()
         );
-
-        return $result['userAccountId'];
     }
 
     /**
@@ -205,7 +203,10 @@ class Processor extends AbstractProcessor
                 $source = $shopDirectoryPath . DIRECTORY_SEPARATOR . $shopDocument;
                 $destination = $ftpShopDirectoryPath . DIRECTORY_SEPARATOR . $shopDocument;
                 //Upload the files
-                if ($this->ftp->upload(new File($destination), $source) == false) {
+                if ($this->ftp->upload(
+                    new File($destination),
+                    $source
+                ) == false) {
                     throw new \RuntimeException(
                         "The uploading of the document $source has failed."
                     );
@@ -242,7 +243,6 @@ class Processor extends AbstractProcessor
     )
     {
         $bankInfo = $this->hipay->bankInfosCheck($vendor);
-        $bankInfo = new BankInfo($bankInfo);
         return $bankInfo->getIban() == $shopData['payment_info']['iban'];
     }
 
