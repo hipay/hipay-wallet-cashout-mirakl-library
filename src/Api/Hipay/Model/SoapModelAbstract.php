@@ -1,18 +1,17 @@
 <?php
 namespace Hipay\MiraklConnector\Api\Hipay\Model;
-use InvalidArgumentException;
-use stdClass;
-use Symfony\Component\Validator\ConstraintViolation;
-use Symfony\Component\Validator\Validation;
+
+use Hipay\MiraklConnector\Service\ModelValidator;
 use Symfony\Component\Validator\Validator;
 
 /**
- * File SoapModelAbstract.php
+ * Class SoapModelAbstract
+ * Base class for the models used as a request or response of a soap call
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
  */
-abstract class SoapModelAbstract extends stdClass
+abstract class SoapModelAbstract
 {
     /** @var Validator Validate the model */
     protected static $validator;
@@ -26,9 +25,6 @@ abstract class SoapModelAbstract extends stdClass
      */
     public function __construct(array $miraklData)
     {
-        self::$validator = Validation::createValidatorBuilder()
-            ->enableAnnotationMapping()
-            ->getValidator();
     }
 
     /**
@@ -63,19 +59,12 @@ abstract class SoapModelAbstract extends stdClass
 
     /**
      * Validate the model before sending it
+     * Use ModelValidator
      *
-     * @return true if the validation passes
+     * @return void
      */
     public function validate()
     {
-        $errors = self::$validator->validate($this);
-        if ($errors->count() != 0) {
-            $message = "";
-            foreach ($errors as $error) {
-                /** @var ConstraintViolation $violation*/
-                $message .= $error . "\n";
-            }
-            throw new InvalidArgumentException($message);
-        }
+        ModelValidator::validate($this);
     }
 }
