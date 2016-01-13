@@ -11,11 +11,12 @@
 namespace Hipay\MiraklConnector\Common;
 
 use Hipay\MiraklConnector\Api\Mirakl;
-use Hipay\MiraklConnector\Api\Mirakl\ConfigurationInterface as MiraklConfiguration;
+use Hipay\MiraklConnector\Api\Mirakl\ConfigurationInterface
+    as MiraklConfiguration;
 use Hipay\MiraklConnector\Api\Hipay;
-use Hipay\MiraklConnector\Api\Hipay\ConfigurationInterface as HipayConfiguration;
-
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Hipay\MiraklConnector\Api\Hipay\ConfigurationInterface
+    as HipayConfiguration;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -38,14 +39,21 @@ abstract class AbstractProcessor
     /** @var EventDispatcherInterface event */
     protected $dispatcher;
 
+    /** @var LoggerInterface */
+    protected $logger;
+
     /**
      * AbstractProcessor constructor.
      * @param MiraklConfiguration $miraklConfig
      * @param HipayConfiguration $hipayConfig
+     * @param EventDispatcherInterface $dispatcher
+     * @param LoggerInterface $logger
      */
     public function __construct(
         MiraklConfiguration $miraklConfig,
-        HipayConfiguration $hipayConfig
+        HipayConfiguration $hipayConfig,
+        EventDispatcherInterface $dispatcher,
+        LoggerInterface $logger
     )
     {
         $this->mirakl = new Mirakl(
@@ -58,7 +66,9 @@ abstract class AbstractProcessor
 
         $this->hipay = Hipay::factory($hipayConfig);
 
-        $this->dispatcher = new EventDispatcher();
+        $this->dispatcher = $dispatcher;
+
+        $this->logger = $logger;
     }
 
     /**

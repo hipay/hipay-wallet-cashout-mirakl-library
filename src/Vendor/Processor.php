@@ -16,16 +16,18 @@ use Hipay\MiraklConnector\Api\Hipay\Model\UserAccountBasic;
 use Hipay\MiraklConnector\Api\Hipay\Model\UserAccountDetails;
 use Hipay\MiraklConnector\Common\AbstractProcessor;
 use Hipay\MiraklConnector\Service\Ftp;
-use Hipay\MiraklConnector\Service\Ftp\ConfigurationInterface as FtpConfiguration;
 use Hipay\MiraklConnector\Service\Ftp\ConfigurationInterface;
 use Hipay\MiraklConnector\Service\Zip;
 use Hipay\MiraklConnector\Vendor\Event\AddBankAccount;
 use Hipay\MiraklConnector\Vendor\Event\CheckAvailability;
 use Hipay\MiraklConnector\Vendor\Event\CreateWallet;
 use Hipay\MiraklConnector\Api\Mirakl;
-use Hipay\MiraklConnector\Api\Mirakl\ConfigurationInterface as MiraklConfiguration;
 use Hipay\MiraklConnector\Api\Hipay;
+use Hipay\MiraklConnector\Api\Mirakl\ConfigurationInterface as MiraklConfiguration;
+use Hipay\MiraklConnector\Service\Ftp\ConfigurationInterface as FtpConfiguration;
 use Hipay\MiraklConnector\Api\Hipay\ConfigurationInterface as HipayConfiguration;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Touki\FTP\FTPFactory;
 use Touki\FTP\FTPInterface;
 use Touki\FTP\Model\Directory;
@@ -49,14 +51,23 @@ class Processor extends AbstractProcessor
      * @param MiraklConfiguration $miraklConfig
      * @param HipayConfiguration $hipayConfig
      * @param FtpConfiguration $ftpConfiguration
+     * @param EventDispatcherInterface $dispatcherInterface
+     * @param LoggerInterface $logger
      */
     public function __construct(
         MiraklConfiguration $miraklConfig,
         HipayConfiguration $hipayConfig,
-        ConfigurationInterface $ftpConfiguration
+        ConfigurationInterface $ftpConfiguration,
+        EventDispatcherInterface $dispatcherInterface = null,
+        LoggerInterface $logger = null
     )
     {
-        parent::__construct($miraklConfig, $hipayConfig);
+        parent::__construct(
+            $miraklConfig,
+            $hipayConfig,
+            $dispatcherInterface,
+            $logger
+        );
 
         $connectionFactory = new Ftp\ConnectionFactory($ftpConfiguration);
         $factory = new FTPFactory();
