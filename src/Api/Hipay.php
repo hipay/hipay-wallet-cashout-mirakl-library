@@ -5,7 +5,8 @@ use Hipay\MiraklConnector\Api\Hipay\Model\BankInfo;
 use Hipay\MiraklConnector\Api\Hipay\Model\MerchantData;
 use Hipay\MiraklConnector\Api\Hipay\Model\UserAccountBasic;
 use Hipay\MiraklConnector\Api\Hipay\Model\UserAccountDetails;
-use Hipay\MiraklConnector\Api\Hipay\ConfigurationInterface as HipayConfigurationInterface;
+use Hipay\MiraklConnector\Api\Hipay\ConfigurationInterface
+    as HipayConfigurationInterface;
 use Hipay\MiraklConnector\Api\Soap\SmileClient;
 use Hipay\MiraklConnector\Vendor\VendorInterface;
 
@@ -130,9 +131,16 @@ class Hipay
         MerchantData $merchantData
     )
     {
-        if (!$accountBasic->getEntity()): $accountBasic->setEntity($this->entity); endif;
-        if (!$accountBasic->getLocale()): $accountBasic->setLocale($this->locale); endif;
-        if (!$accountDetails->getTimeZone()): $accountDetails->setTimeZone($this->timezone); endif;
+        if (!$accountBasic->getEntity()) {
+            $accountBasic->setEntity($this->entity);
+        }
+        if (!$accountBasic->getLocale()) {
+            $accountBasic->setLocale($this->locale);
+        }
+
+        if (!$accountDetails->getTimeZone()) {
+            $accountDetails->setTimeZone($this->timezone);
+        }
 
         $parameters = $accountBasic->mergeIntoParameters();
         $parameters = $accountDetails->mergeIntoParameters($parameters);
@@ -194,18 +202,33 @@ class Hipay
     }
 
     /**
-     * Return the account information
+     * Return the hipay account id
      *
-     * @param VendorInterface $vendor
+     * @param string $email
      *
      * @return array|bool if array is empty
      *
      * @throws \Exception
      */
-    public function getAccountInfos(VendorInterface $vendor)
+    public function getWalletId($email)
     {
-        $parameters = $this->mergeSubAccountParameters($vendor);
-        return $this->callSoap("getAccountInfos", $parameters);
+        $parameters = array('accountLogin' => $email);
+        $result = $this->callSoap("getAccountInfos", $parameters);
+        return $result['accountId'];
+    }
+
+    /**
+     * Return the identified status of the account
+     *
+     * @param $hipayId
+     *
+     * @return boolean
+     */
+    public function isIdentified($hipayId)
+    {
+        $parameters = array('accountId' => $hipayId);
+        $result = $this->callSoap("getAccountInfos", $parameters);
+        return $result['identified'] == 'yes' ? true : false;
     }
 
     /**
@@ -213,14 +236,15 @@ class Hipay
      *
      * @param VendorInterface $vendor
      *
-     * @return array|bool if array is empty
+     * @return int
      *
      * @throws \Exception
      */
     public function getBalance(VendorInterface $vendor)
     {
         $parameters = $this->mergeSubAccountParameters($vendor);
-        return $this->callSoap("getBalance", $parameters);
+        $result = $this->callSoap("getBalance", $parameters);
+        return $result['balance'];
     }
 
 
