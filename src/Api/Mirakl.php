@@ -1,9 +1,10 @@
 <?php
 namespace Hipay\MiraklConnector\Api;
 
-use Guzzle\Http\Exception\RequestException;
 use Guzzle\Service\Client;
 use Guzzle\Service\Description\ServiceDescription;
+use Symfony\Component\Validator\Constraints\DateTime;
+
 /**
  * Class Mirakl
  * Make the calls the Mirakl Rest API
@@ -56,11 +57,14 @@ class Mirakl
      *
      * @param \DateTimeInterface $updatedSince date of the last Update
      *
+     * @param bool $paginate
      * @return array the response
      *
-     * @throws RequestException on a request error
      */
-    public function getVendors(\DateTimeInterface $updatedSince = null)
+    public function getVendors(
+        \DateTimeInterface $updatedSince = null,
+        $paginate = false
+    )
     {
         $this->restClient->getConfig()->setPath(
             'request.options/headers/Authorization',
@@ -68,7 +72,10 @@ class Mirakl
         );
         $command = $this->restClient->getCommand(
             'GetVendors',
-            array('updatedSince' => $updatedSince)
+            array(
+                'updatedSince' => $updatedSince,
+                'paginate' => $paginate
+            )
         );
         $result = $this->restClient->execute($command);
         return $result['shops'];
@@ -152,8 +159,37 @@ class Mirakl
 
     /**
      * List the transaction (use TL01)
+     * @param $shopId
+     * @param $startDate
+     * @param $endDate
+     * @param $startTransactionDate
+     * @param $endTransactionDate
+     * @param $updatedSince
+     * @param $paymentVoucher
+     * @param $paymentStates
+     * @param $transactionTypes
+     * @param $paginate
+     * @param $accountingDocumentNumber
+     * @param $orderIds
+     * @param $orderLineIds
+     *
+     * @return \Guzzle\Http\EntityBodyInterface|string
      */
-    public function getTransactions()
+    public function getTransactions(
+        $shopId = null,
+        DateTime $startDate = null,
+        DateTime $endDate = null,
+        DateTime $startTransactionDate = null,
+        DateTime $endTransactionDate = null,
+        DateTime $updatedSince = null,
+        $paymentVoucher = null,
+        $paymentStates = null,
+        array $transactionTypes = array(),
+        $paginate = false,
+        $accountingDocumentNumber = null,
+        array $orderIds = array(),
+        array $orderLineIds = array()
+    )
     {
         $this->restClient->getConfig()->setPath(
             'request.options/headers/Authorization',
@@ -162,8 +198,22 @@ class Mirakl
         $command = $this->restClient->getCommand(
             'GetTransactions',
             array(
+                'shopId' => $shopId,
+                'startDate' => $startDate,
+                'endDate' => $endDate,
+                'startTransactionDate' => $startTransactionDate,
+                'endTransactionDate' => $endTransactionDate,
+                'updatedSince' => $updatedSince,
+                'paymentVoucher' => $paymentVoucher,
+                'paymentStates' => $paymentStates,
+                'transactionTypes' => $transactionTypes,
+                'paginate' => $paginate,
+                'accountingDocumentNumber' => $accountingDocumentNumber,
+                'orderIds' => $orderIds,
+                'orderLineIds' => $orderLineIds
             )
         );
-        return $this->restClient->execute($command)->getBody();
+        $result = $this->restClient->execute($command)->getBody();
+        return $result['lines'];
     }
 }
