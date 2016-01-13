@@ -12,23 +12,21 @@ use Symfony\Component\EventDispatcher\Event;
  */
 class ValidateTransactions extends Event
 {
-    protected $paymentVoucher;
 
+    /** @var  array */
     protected $transactions;
 
     /**
      * ValidateTransactions constructor.
-     * @param $paymentVoucher
      * @param $transactions
      */
-    public function __construct($paymentVoucher, $transactions)
+    public function __construct($transactions)
     {
-        $this->paymentVoucher = $paymentVoucher;
         $this->transactions = $transactions;
     }
 
     /**
-     * @return mixed
+     * @return array
      */
     public function getTransactions()
     {
@@ -36,26 +34,10 @@ class ValidateTransactions extends Event
     }
 
     /**
-     * @param mixed $transactions
+     * @param array $transactions
      */
     public function setTransactions($transactions)
     {
         $this->transactions = $transactions;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getPaymentVoucher()
-    {
-        return $this->paymentVoucher;
-    }
-
-    /**
-     * @param mixed $paymentVoucher
-     */
-    public function setPaymentVoucher($paymentVoucher)
-    {
-        $this->paymentVoucher = $paymentVoucher;
     }
 }
