@@ -10,11 +10,8 @@
 
 namespace Hipay\MiraklConnector\Vendor;
 
-
-use DateTime;
-
 /**
- * Interface Payable
+ * Interface VendorInterface
  * Represent an entity that is able to receive money from Hipay
  *
  * @package Mirakl\Hipay\Vendor
@@ -23,20 +20,20 @@ interface VendorInterface
 {
     /**
      * Return the Mirakl shop id
+     * @Assert\NotBlank()
+     * @Assert\Type(type="integer")
+     * @Assert\GreaterThan(value = 0)
      *
-     * @return string
+     * @return int
      */
     public function getMiraklId();
 
     /**
-     * Returns the date of the last modification
-     *
-     * @return DateTime
-     */
-    public function getLastModification();
-
-    /**
      * Returns the email recored by hipay
+     *
+     * @Assert\NotBlank()
+     * @Assert\Type(type="string")
+     * @Assert\Email
      *
      * @return string
      */
@@ -45,7 +42,11 @@ interface VendorInterface
     /**
      * Return the hipay account id
      *
-     * @return string
+     * @Assert\NotBlank()
+     * @Assert\Type(type="integer")
+     * @Assert\GreaterThan(value = 0)
+     *
+     * @return int
      */
     public function getHipayId();
 }
