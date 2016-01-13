@@ -136,6 +136,7 @@ class UserAccountDetails extends SoapModelAbstract
      * @var string
      *
      * @Assert\NotBlank
+     * @Assert\Type(type="boolean")
      * @Assert\IsTrue
      */
     protected $termsAgreed;
