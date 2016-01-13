@@ -14,10 +14,11 @@
     "ext-soap": "*",
     "guzzlehttp/guzzle": "^3.8",
     "symfony/event-dispatcher": "^2.6",
-    "symfony/validator": "^2.6",
+    "symfony/validator": "^2.8",
     "doctrine/annotations": "^1.2",
     "symfony/intl": "^2.6",
-    "touki/ftp": "^1.2"
+    "touki/ftp": "^1.2",
+    "psr/log": "*"
   },
   "require-dev": {
     "phpunit/phpunit" : "^4.8"
