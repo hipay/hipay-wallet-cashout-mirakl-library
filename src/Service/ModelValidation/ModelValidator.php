@@ -1,17 +1,7 @@
 <?php
-/**
- * File ModelValidator.php
- *
- * @category
- * @package
- * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
- * @copyright 2015 Smile
- */
-
 namespace Hipay\MiraklConnector\Service;
 
-use InvalidArgumentException;
-use Symfony\Component\Validator\ConstraintViolation;
+use Hipay\MiraklConnector\Exception\ValidationFailedException;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Validator;
@@ -35,23 +25,29 @@ abstract class ModelValidator
      *
      * @return ConstraintViolationListInterface
      *
-     * @throws InvalidArgumentException
+     * @throws ValidationFailedException
      */
     public static function validate($object)
+    {
+        self::initialize();
+        $errors = static::$validator->validate($object);
+        if ($errors->count() != 0) {
+            //Throw new exception containg the errors
+            throw new ValidationFailedException($errors);
+        }
+
+        return $errors;
+    }
+
+    /**
+     * Initialize the validator
+     */
+    public static function initialize()
     {
         if (!static::$validator) {
             static::$validator = Validation::createValidatorBuilder()
                 ->enableAnnotationMapping()
                 ->getValidator();
-        }
-        $errors = static::$validator->validate($object);
-        if ($errors->count() != 0) {
-            $message = "";
-            foreach ($errors as $error) {
-                /** @var ConstraintViolation $violation*/
-                $message .= $error . "\n";
-            }
-            throw new InvalidArgumentException($message);
         }
     }
 }
