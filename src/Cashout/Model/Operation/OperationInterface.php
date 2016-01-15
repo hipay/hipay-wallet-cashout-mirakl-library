@@ -68,4 +68,15 @@ interface OperationInterface
      * @return DateTime
      */
     public function getCycleEndDate();
+
+    /**
+     * @return int
+     */
+    public function getAmount();
+
+    /**
+     * @param int $amount
+     * @return void
+     */
+    public function setAmount($amount);
 }

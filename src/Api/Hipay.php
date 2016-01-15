@@ -4,6 +4,8 @@ namespace Hipay\MiraklConnector\Api;
 use Exception;
 use Hipay\MiraklConnector\Api\Hipay\Model\Soap\MerchantData;
 use Hipay\MiraklConnector\Api\Hipay\Model\Soap\BankInfo;
+use Hipay\MiraklConnector\Api\Hipay\Model\Soap\Transfer;
+use Hipay\MiraklConnector\Api\Hipay\Model\Soap\Transfert;
 use Hipay\MiraklConnector\Api\Hipay\Model\Soap\UserAccountBasic;
 use Hipay\MiraklConnector\Api\Hipay\Model\Soap\UserAccountDetails;
 use Hipay\MiraklConnector\Api\Hipay\ConfigurationInterface
@@ -30,15 +32,15 @@ class Hipay
     protected $userAccountClient;
 
     /** @var  SmileClient the transaction webservice client */
-    protected $transactionClient;
+    protected $transferClient;
 
     /** @var string the entity given to the merchant by Hipay */
     protected $entity;
 
-    /** @var string the entity given to the merchant by Hipay */
+    /** @var string the locale  */
     protected $locale;
 
-    /** @var string the entity given to the merchant by Hipay */
+    /** @var string the timezone */
     protected $timezone;
 
     /**
@@ -71,8 +73,11 @@ class Hipay
         $this->userAccountClient = new SmileClient(
             $baseUrl . 'soap/user-account-v2?wsdl', $options
         );
-        $this->transactionClient = new SmileClient(
+        $this->transferClient = new SmileClient(
             $baseUrl . 'soap/transaction?wsdl', $options
+        );
+        $this->withdrawalClient = new SmileClient(
+            $baseUrl . 'soap/withdrawal?wsdl', $options
         );
     }
 
@@ -99,23 +104,21 @@ class Hipay
      * Enforce the entity to the one given on object construction if false
      *
      * @param string $email
-     * @param bool $entity
      *
      * @return bool if array is empty
      *
      * @throws Exception
      */
-    public function isAvailable($email, $entity = false)
+    public function isAvailable($email)
     {
-        $entity = $entity ?: $this->entity;
-        $parameters = array('email' => $email, 'entity' => $entity);
+        $parameters = array('email' => $email, 'entity' => $this->entity);
         $result =  $this->callSoap("isAvailable", $parameters);
         return $result['isAvailable'];
     }
 
     /**
      * Create an new account on Hipay wallet
-     * Enforce the entity to the one given on object construction if false
+     * Enforce the entity to the one given on object construction
      * Enforce the locale to the one given on object construction if false
      * Enforce the timezone to the one given on object construction if false
      *
@@ -133,9 +136,8 @@ class Hipay
         MerchantData $merchantData
     )
     {
-        if (!$accountBasic->getEntity()) {
-            $accountBasic->setEntity($this->entity);
-        }
+        $accountBasic->setEntity($this->entity);
+
         if (!$accountBasic->getLocale()) {
             $accountBasic->setLocale($this->locale);
         }
@@ -254,7 +256,41 @@ class Hipay
         return $result['balance'];
     }
 
+    /**
+     * Make a transfer
+     *
+     * @param Transfer $transfer
+     * @param VendorInterface $vendor
+     *
+     * @return array
+     * @throws Exception
+     */
+    public function direct(Transfer $transfer, VendorInterface $vendor = null)
+    {
+        $parameters = $transfer->mergeIntoParameters();
+        if ($vendor) {
+            $parameters = $this->mergeSubAccountParameters($vendor);
+        }
+        $result = $this->callSoap("direct", $parameters);
+        return $result;
+    }
 
+    /**
+     * Make a withdrawal
+     *
+     * @param VendorInterface $vendor
+     * @param $amount
+     * @param $label
+     * @return array
+     * @throws Exception
+     */
+    public function withdraw(VendorInterface $vendor, $amount, $label)
+    {
+        $parameters = array('amount' => $amount, 'label' => $label);
+        $parameters = $this->mergeSubAccountParameters($vendor, $parameters);
+        $result = $this->callSoap("create", $parameters);
+        return $result;
+    }
     /**
      * Add the api login parameters to the parameters
      *
@@ -303,8 +339,9 @@ class Hipay
     {
         switch ($name) {
             case 'direct':
-            case 'transfert':
-                return $this->transactionClient;
+                return $this->transferClient;
+            case 'create':
+                return $this->withdrawalClient;
             default:
                 return $this->userAccountClient;
         }

@@ -13,9 +13,6 @@ use Symfony\Component\Validator\Validator;
  */
 abstract class ModelAbstract
 {
-    /** @var Validator Validate the model */
-    protected static $validator;
-
     /**
      * @return string
      */
