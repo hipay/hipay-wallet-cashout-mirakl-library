@@ -10,7 +10,6 @@
 
 namespace Hipay\MiraklConnector\Common;
 
-
 use ReflectionClass;
 
 /**
@@ -21,7 +20,7 @@ use ReflectionClass;
  */
 abstract class AbstractEnumeration
 {
-    /** @var  mixed */
+    /** @var mixed */
     protected $value;
 
     /**
