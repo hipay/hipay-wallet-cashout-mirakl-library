@@ -10,7 +10,7 @@
 
 namespace Hipay\MiraklConnector\Vendor\Event;
 
-use Hipay\MiraklConnector\Api\Hipay\Model\BankInfo;
+use Hipay\MiraklConnector\Api\Hipay\Model\Soap\BankInfo;
 use Symfony\Component\EventDispatcher\Event;
 
 /**

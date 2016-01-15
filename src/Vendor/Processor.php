@@ -10,22 +10,32 @@
 
 namespace Hipay\MiraklConnector\Vendor;
 
-use Hipay\MiraklConnector\Api\Hipay\Model\BankInfo;
-use Hipay\MiraklConnector\Api\Hipay\Model\MerchantData;
-use Hipay\MiraklConnector\Api\Hipay\Model\UserAccountBasic;
-use Hipay\MiraklConnector\Api\Hipay\Model\UserAccountDetails;
+use Exception;
+use Hipay\MiraklConnector\Api\Hipay\Constant\BankInfo as BankInfoStatus;
+use Hipay\MiraklConnector\Api\Hipay\Model\Soap\MerchantData;
+use Hipay\MiraklConnector\Api\Hipay\Model\Soap\BankInfo;
+use Hipay\MiraklConnector\Api\Hipay\Model\Soap\UserAccountBasic;
+use Hipay\MiraklConnector\Api\Hipay\Model\Soap\UserAccountDetails;
 use Hipay\MiraklConnector\Common\AbstractProcessor;
+use Hipay\MiraklConnector\Exception\BankAccountCreationFailedException;
+use Hipay\MiraklConnector\Exception\DispatchableException;
+use Hipay\MiraklConnector\Exception\Event\ThrowException;
+use Hipay\MiraklConnector\Exception\InvalidBankInfoException;
+use Hipay\MiraklConnector\Exception\UnauthorizedModificationException;
 use Hipay\MiraklConnector\Service\Ftp;
-use Hipay\MiraklConnector\Service\Ftp\ConfigurationInterface;
+use Hipay\MiraklConnector\Service\ModelValidator;
 use Hipay\MiraklConnector\Service\Zip;
 use Hipay\MiraklConnector\Vendor\Event\AddBankAccount;
 use Hipay\MiraklConnector\Vendor\Event\CheckAvailability;
 use Hipay\MiraklConnector\Vendor\Event\CreateWallet;
 use Hipay\MiraklConnector\Api\Mirakl;
 use Hipay\MiraklConnector\Api\Hipay;
-use Hipay\MiraklConnector\Api\Mirakl\ConfigurationInterface as MiraklConfiguration;
-use Hipay\MiraklConnector\Service\Ftp\ConfigurationInterface as FtpConfiguration;
-use Hipay\MiraklConnector\Api\Hipay\ConfigurationInterface as HipayConfiguration;
+use Hipay\MiraklConnector\Api\Mirakl\ConfigurationInterface
+    as MiraklConfiguration;
+use Hipay\MiraklConnector\Service\Ftp\ConfigurationInterface
+    as FtpConfiguration;
+use Hipay\MiraklConnector\Api\Hipay\ConfigurationInterface as
+    HipayConfiguration;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Touki\FTP\FTPFactory;
@@ -46,20 +56,24 @@ class Processor extends AbstractProcessor
     /** @var  FtpInterface */
     protected $ftp;
 
+    protected $vendorManager;
+
     /**
      * Processor constructor.
      * @param MiraklConfiguration $miraklConfig
      * @param HipayConfiguration $hipayConfig
-     * @param FtpConfiguration $ftpConfiguration
      * @param EventDispatcherInterface $dispatcherInterface
      * @param LoggerInterface $logger
+     * @param FtpConfiguration $ftpConfiguration
+     * @param VendorManager $vendorManager
      */
     public function __construct(
         MiraklConfiguration $miraklConfig,
         HipayConfiguration $hipayConfig,
-        ConfigurationInterface $ftpConfiguration,
-        EventDispatcherInterface $dispatcherInterface = null,
-        LoggerInterface $logger = null
+        EventDispatcherInterface $dispatcherInterface,
+        LoggerInterface $logger,
+        FtpConfiguration $ftpConfiguration,
+        VendorManager $vendorManager
     )
     {
         parent::__construct(
@@ -72,6 +86,8 @@ class Processor extends AbstractProcessor
         $connectionFactory = new Ftp\ConnectionFactory($ftpConfiguration);
         $factory = new FTPFactory();
         $this->ftp = $factory->build($connectionFactory->build());
+
+        $this->vendorManager = $vendorManager;
     }
 
     /**
@@ -233,17 +249,29 @@ class Processor extends AbstractProcessor
      * Check that the bank information is the same in the two services
      *
      * @param VendorInterface $vendor
-     * @param array $shopData
+     * @param BankInfo $miraklBankInfo
      *
      * @return bool
+     *
      */
     public function isIBANCorrect(
         VendorInterface $vendor,
-        array $shopData
+        BankInfo $miraklBankInfo
     )
     {
-        $bankInfo = $this->hipay->bankInfosCheck($vendor);
-        return $bankInfo->getIban() == $shopData['payment_info']['iban'];
+        $hipayBankInfo = $this->getBankInfo($vendor);
+        return $hipayBankInfo->getIban() == $miraklBankInfo->getIban();
+    }
+
+    /**
+     * Return the bank info from Hipay
+     *
+     * @param VendorInterface $vendor
+     * @return BankInfo
+     */
+    public function getBankInfo(VendorInterface $vendor)
+    {
+        return $this->hipay->bankInfosCheck($vendor);
     }
 
     /**
@@ -251,14 +279,12 @@ class Processor extends AbstractProcessor
      * Dispatch the event <b>before.bankAccount.add</b>
      *
      * @param VendorInterface $vendor
-     * @param array $shopData
-     *
+     * @param BankInfo $bankInfo
      * @return bool
+     *
      */
-    public function addBankAccount(VendorInterface $vendor, array $shopData)
+    public function addBankAccount(VendorInterface $vendor, BankInfo $bankInfo)
     {
-        $bankInfo = new BankInfo($shopData);
-
         $event = new AddBankAccount($bankInfo);
 
         $this->dispatcher->dispatch(
@@ -267,5 +293,165 @@ class Processor extends AbstractProcessor
         );
 
         return $this->hipay->bankInfoRegister($vendor, $event->getBankInfo());
+    }
+
+    /**
+     * @param \DateTime $lastUpdate
+     * @param $zipPath
+     * @param $ftpPath
+     */
+    public function process(\DateTime $lastUpdate, $zipPath, $ftpPath)
+    {
+        $this->logger->info("Vendor Processing");
+
+        $vendorCollection = array();
+        $miraklDataCollection = array();
+
+        $this->logger->info("Vendors fetching from Mirakl");
+
+        $miraklData = $this->getVendors($lastUpdate);
+
+        $this->logger->info(
+            "Successfully fetched vendors from mirakl : " . count($miraklData)
+        );
+
+        //Wallet creation
+        $this->logger->info("Wallet creation");
+        foreach ($miraklData as $vendorData) {
+            $this->logger->debug(
+                "Shop id : {shopId}",
+                array("shopId" => $vendorData['shop_id'])
+            );
+
+            try {
+                //Vendor recording
+                $vendor = $this->vendorManager->findByMiraklId(
+                    $vendorData['shop_id']
+                );
+                if (!$vendor && !$this->hasWallet(
+                    $vendorData['contact_informations']['email']
+                )
+                ) {
+                    //Wallet create (call to Hipay)
+                    $hipayId = $this->createWallet($vendorData);
+                    $this->logger->info(
+                        "[OK] Created wallet for : " . $vendor->getMiraklId(),
+                        array("shopId" => $vendor->getMiraklId())
+                    );
+                    $vendor = $this->vendorManager->create(
+                        $vendorData['contact_informations']['email'],
+                        $vendorData['shop_id'],
+                        $hipayId
+                    );
+                }
+
+                $previousValues['email'] = $vendor->getEmail();
+                $previousValues['hipayId'] = $vendor->getHipayId();
+                $previousValues['miraklId'] = $vendor->getMiraklId();
+
+                //Put more data into the vendor
+                $this->vendorManager->update($vendor, $vendorData);
+
+                ModelValidator::validate($vendor);
+
+                $exception = new UnauthorizedModificationException($vendor);
+
+                foreach ($previousValues as $key => $previousValue) {
+                    $methodName = "get" . ucfirst($key);
+                    if ($previousValue != $vendor->$methodName()) {
+                        $exception->addModifiedProperty($key);
+                    }
+                }
+
+                if ($exception->hasModifiedProperty()) {
+                    throw $exception;
+                }
+
+                $vendorCollection[$vendor->getMiraklId()] = $vendor;
+                $miraklDataCollection[$vendor->getMiraklId()] = $vendorData;
+
+            } catch (DispatchableException $e) {
+                $this->logger->warning(
+                    $e->getMessage(),
+                    array("shopId" => $vendorData['shop_id'])
+                );
+                $this->dispatcher->dispatch(
+                    $e->getEventName(), new ThrowException($e)
+                );
+            } catch (Exception $e) {
+                $this->logger->critical(
+                    $e->getMessage(),
+                    array("shopId" => $vendorData['shop_id'])
+                );
+            }
+        }
+
+        $this->vendorManager->saveAll($vendorCollection);
+
+        $this->logger->info("Transfer files");
+        $this->transferFiles(
+            array_keys($vendorCollection),
+            $zipPath,
+            $ftpPath
+        );
+        $this->logger->info("[OK] Files transferred");
+
+        $this->logger->info("Update bank data");
+        /** @var VendorInterface $vendor */
+        foreach ($vendorCollection as $vendor) {
+            $this->logger->debug(
+                "Shop id : " . $vendor->getMiraklId(),
+                array("shopId" => $vendor->getMiraklId())
+            );
+
+            $bankInfoStatus = $this->getBankInfoStatus($vendor);
+
+            $miraklBankInfo = new BankInfo();
+            $miraklBankInfo->setMiraklData(
+                $miraklDataCollection[$vendor->getMiraklId()]
+            );
+
+            $this->logger->info($bankInfoStatus);
+            try {
+                if ($bankInfoStatus == BankInfoStatus::BLANK) {
+                    if ($this->addBankAccount($vendor, $miraklBankInfo)) {
+                        $this->logger->info(
+                            "[OK] Successfully created bank account for : ". $vendor->getMiraklId(),
+                            array("shopId" => $vendor->getMiraklId())
+                        );
+                    } else {
+                        throw new BankAccountCreationFailedException(
+                            $vendor,
+                            $miraklBankInfo,
+                            "Failed to create bank account for : " . $vendor->getMiraklId()
+                        );
+                    }
+                }
+                if ($bankInfoStatus == BankInfoStatus::VALIDATED) {
+                    if (!$this->isIBANCorrect($vendor, $miraklBankInfo)) {
+                        throw new InvalidBankInfoException(
+                            $vendor,
+                            $miraklBankInfo,
+                            $vendor->getMiraklId() . " has different IBAN between Mirakl and Hipay"
+                        );
+                    } else {
+                        $this->logger->info("[OK] The bank information is synchronized");
+                    }
+                }
+            } catch (DispatchableException $e) {
+                $this->logger->warning(
+                    $e->getMessage(),
+                    array("shopId" => $vendor->getMiraklId())
+                );
+                $this->dispatcher->dispatch(
+                    $e->getEventName(), new ThrowException($e)
+                );
+            } catch (Exception $e) {
+                $this->logger->critical(
+                    $e->getMessage(),
+                    array("shopId" => $vendor->getMiraklId())
+                );
+            }
+        }
     }
 }
