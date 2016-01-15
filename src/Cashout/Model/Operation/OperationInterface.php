@@ -12,6 +12,12 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
  */
+
+/**
+ * Interface OperationInterface
+ * @package Hipay\MiraklConnector\Cashout\Model\Operation
+ *
+ */
 interface OperationInterface
 {
     /**

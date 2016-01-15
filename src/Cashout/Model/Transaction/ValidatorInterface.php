@@ -13,16 +13,7 @@ interface ValidatorInterface
      *
      * @param array $transaction
      *
-     * @return array
+     * @return boolean
      */
-    public function validate(array $transaction);
-
-    /**
-     * Validate a transaction
-     *
-     * @param array $errors
-     *
-     * @return void
-     */
-    public function handleErrors(array $errors);
+    public function isValid(array $transaction);
 }

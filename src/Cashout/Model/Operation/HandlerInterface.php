@@ -1,15 +1,5 @@
 <?php
-/**
- * File Handler.php
- *
- * @category
- * @package
- * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
- * @copyright 2015 Smile
- */
-
 namespace Hipay\MiraklConnector\Cashout\Model\Operation;
-
 
 use DateTime;
 
@@ -21,14 +11,22 @@ interface HandlerInterface
 {
 
     /**
-     * Save a operation
+     * Save a batch of operation
+     *
+     * @param OperationInterface[] $operation
+     *
+     * @return bool
+     */
+    public function saveAll(array $operation);
+
+    /**
+     * Save a single operation
      *
      * @param OperationInterface $operation
      *
      * @return bool
      */
-    public function save(OperationInterface $operation);
-
+    public function save($operation);
     /**
      * Create an operation
      *
@@ -47,8 +45,21 @@ interface HandlerInterface
     );
 
     /**
+     * Check if an operation is saveable
+     *
      * @param OperationInterface $operation
+     *
      * @return bool
      */
-    public function isValid(OperationInterface $operation);
+    public function isSaveable(OperationInterface $operation);
+
+    /**
+     * Finds operations
+     *
+     * @param Status $status status to filter upon
+     * @param DateTime $date optional date to filter upon
+     *
+     * @return OperationInterface[]
+     */
+    public function find(Status $status, DateTime $date = null);
 }
