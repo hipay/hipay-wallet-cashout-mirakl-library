@@ -1,5 +1,5 @@
 <?php
-namespace Hipay\MiraklConnector\Api\Hipay\Model;
+namespace Hipay\MiraklConnector\Api\Hipay\Model\Soap;
 
 use Symfony\Component\Validator\Constraints as Assert;
 /**
@@ -9,7 +9,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
  */
-class UserAccountBasic extends SoapModelAbstract
+class UserAccountBasic extends ModelAbstract
 {
     /**
      * @var string
@@ -84,7 +84,6 @@ class UserAccountBasic extends SoapModelAbstract
         array $miraklData
     )
     {
-        parent::__construct($miraklData);
         $this->email = $miraklData['contact_informations']['email'];
         $this->title = self::formatTitle(
             $miraklData['contact_informations']['civility']

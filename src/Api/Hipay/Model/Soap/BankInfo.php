@@ -8,7 +8,7 @@
  * @copyright 2015 Smile
  */
 
-namespace Hipay\MiraklConnector\Api\Hipay\Model;
+namespace Hipay\MiraklConnector\Api\Hipay\Model\Soap;
 
 use Symfony\Component\Validator\Constraints as Assert;
 /**
@@ -18,7 +18,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
  */
-class BankInfo extends SoapModelAbstract
+class BankInfo extends ModelAbstract
 {
     /**
      * @var string
@@ -74,15 +74,12 @@ class BankInfo extends SoapModelAbstract
     /** @var string */
     protected $transit_num;
 
-
     /**
-     * Populate the fields with data
-     *
      * @param array $miraklData
+     * @return self $this
      */
-    public function __construct(array $miraklData)
+    public function setMiraklData(array $miraklData)
     {
-        parent::__construct($miraklData);
         $paymentData =  array_key_exists('payment_info', $miraklData) ?
             $miraklData['payment_info'] : $miraklData['billing_info'];
         $this->bankName = $paymentData['bank_name'];
@@ -95,6 +92,29 @@ class BankInfo extends SoapModelAbstract
         $this->iban = $paymentData['iban'];
         // Take the first to characters to fill the country
         $this->bankCountry = substr($this->iban, 0, 2);
+
+        return $this;
+    }
+
+    /**
+     * @param array $hipayData
+     * @return self $this
+     */
+    public function setHipayData(array $hipayData)
+    {
+        $this->bankName = $hipayData['bankName'];
+        $this->bankAddress = $hipayData['bankAddress'];
+        $this->bankZipCode =  $hipayData['bankZipCode'];
+        $this->bankCity = $hipayData['bankCity'];
+        $this->swift = $hipayData['swift'];
+        $this->iban = $hipayData['iban'];
+        // Take the first to characters to fill the country
+        $this->bankCountry = substr($this->iban, 0, 2);
+        $this->aba_num = $hipayData['aba_num'];
+        $this->transit_num = $hipayData['transit_num'];
+        $this->acct_num = $hipayData['acct_num'];
+
+        return $this;
     }
 
     /**

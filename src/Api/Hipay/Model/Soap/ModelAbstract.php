@@ -1,5 +1,5 @@
 <?php
-namespace Hipay\MiraklConnector\Api\Hipay\Model;
+namespace Hipay\MiraklConnector\Api\Hipay\Model\Soap;
 
 use Hipay\MiraklConnector\Service\ModelValidator;
 use Symfony\Component\Validator\Validator;
@@ -11,21 +11,10 @@ use Symfony\Component\Validator\Validator;
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
  */
-abstract class SoapModelAbstract
+abstract class ModelAbstract
 {
     /** @var Validator Validate the model */
     protected static $validator;
-
-    /**
-     * SoapModelAbstract constructor.
-     *
-     * Instanciate the validator
-     *
-     * @param array $miraklData
-     */
-    public function __construct(array $miraklData)
-    {
-    }
 
     /**
      * @return string

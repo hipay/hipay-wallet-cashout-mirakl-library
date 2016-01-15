@@ -1,5 +1,5 @@
 <?php
-namespace Hipay\MiraklConnector\Api\Hipay\Model;
+namespace Hipay\MiraklConnector\Api\Hipay\Model\Soap;
 
 /**
  * File MerchantData.php
@@ -9,7 +9,7 @@ namespace Hipay\MiraklConnector\Api\Hipay\Model;
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
  */
-class MerchantData extends SoapModelAbstract
+class MerchantData extends ModelAbstract
 {
     /**
      * Add the class data to the parameters
