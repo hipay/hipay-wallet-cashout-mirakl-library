@@ -1,8 +1,7 @@
 <?php
 namespace Hipay\MiraklConnector\Cashout\Model\Operation;
 
-use Prophecy\Argument;
-use ReflectionClass;
+use Hipay\MiraklConnector\Common\AbstractEnumeration;
 
 /**
  * Status class
@@ -10,47 +9,20 @@ use ReflectionClass;
  *
  * @package Hipay\MiraklConnector\Cashout\Model\Operation
  */
-class Status
+class Status extends AbstractEnumeration
 {
+    //Initial status of the operation
     const CREATED = 1;
-    const TRANSFERED = 2;
-    const WITHDRAWED = 3;
 
-    /** @var  mixed */
-    protected $value;
+    //Transfert status
+    const TRANSFER_START = 2;
+    const TRANSFER_SUCCESS = 3;
+    const TRANSFER_FAILED = -9;
 
-    /**
-     * Status constructor.
-     * @param $value
-     */
-    public function __construct($value)
-    {
-        if (!in_array($value, $this->getConstList(), true)) {
-            throw new \InvalidArgumentException(
-                $value . "is not a possible value for status"
-            );
-        }
-        $this->value = $value;
-    }
-
-
-    /**
-     * Return the constant list
-     * @return array
-     */
-    public function getConstList()
-    {
-        $reflect = new ReflectionClass(get_class($this));
-        return $reflect->getConstants();
-    }
-
-    /**
-     * Return the value
-     *
-     * @return mixed
-     */
-    public function getValue()
-    {
-        return $this->value;
-    }
+    //Withdraw statuses
+    const WITHDRAW_START = 4;
+    const WITHDRAW_REQUESTED = 5;
+    const WITHDRAW_SUCCESS = 6;
+    const WITHDRAW_FAILED = -7;
+    const WITHDRAW_CANCELED = -8;
 }
