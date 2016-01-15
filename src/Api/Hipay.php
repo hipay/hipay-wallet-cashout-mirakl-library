@@ -1,10 +1,11 @@
 <?php
 namespace Hipay\MiraklConnector\Api;
 
-use Hipay\MiraklConnector\Api\Hipay\Model\BankInfo;
-use Hipay\MiraklConnector\Api\Hipay\Model\MerchantData;
-use Hipay\MiraklConnector\Api\Hipay\Model\UserAccountBasic;
-use Hipay\MiraklConnector\Api\Hipay\Model\UserAccountDetails;
+use Exception;
+use Hipay\MiraklConnector\Api\Hipay\Model\Soap\MerchantData;
+use Hipay\MiraklConnector\Api\Hipay\Model\Soap\BankInfo;
+use Hipay\MiraklConnector\Api\Hipay\Model\Soap\UserAccountBasic;
+use Hipay\MiraklConnector\Api\Hipay\Model\Soap\UserAccountDetails;
 use Hipay\MiraklConnector\Api\Hipay\ConfigurationInterface
     as HipayConfigurationInterface;
 use Hipay\MiraklConnector\Api\Soap\SmileClient;
@@ -102,7 +103,7 @@ class Hipay
      *
      * @return bool if array is empty
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function isAvailable($email, $entity = false)
     {
@@ -124,7 +125,7 @@ class Hipay
      *
      * @return int the user account id
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function createFullUseraccount(
         UserAccountBasic $accountBasic,
@@ -157,12 +158,15 @@ class Hipay
      *
      * @return BankInfo if array is empty
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function bankInfosCheck(VendorInterface $vendor)
     {
         $parameters = $this->mergeSubAccountParameters($vendor);
-        return new BankInfo($this->callSoap("bankInfosCheck", $parameters));
+        $bankInfo = new BankInfo();
+        return $bankInfo->setHipayData(
+            $this->callSoap("bankInfosCheck", $parameters)
+        );
     }
 
     /**
@@ -174,7 +178,7 @@ class Hipay
      *
      * @return array|bool if array is empty
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function bankInfosStatus(VendorInterface $vendor)
     {
@@ -192,7 +196,7 @@ class Hipay
      *
      * @return array|bool if array is empty
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function bankInfoRegister(
         VendorInterface $vendor,
@@ -211,7 +215,7 @@ class Hipay
      *
      * @return array|bool if array is empty
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getWalletId($email)
     {
@@ -241,7 +245,7 @@ class Hipay
      *
      * @return int
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getBalance(VendorInterface $vendor)
     {
@@ -310,7 +314,7 @@ class Hipay
      * @param string $name
      * @param array $parameters
      * @return array
-     * @throws \Exception
+     * @throws Exception
      * @throws \SoapFault
      */
     private function callSoap($name, array $parameters)
@@ -326,7 +330,7 @@ class Hipay
         $response = (array) $response;
         $response = (array) current($response);
         if ($response['code'] > 0) {
-            throw new \Exception(
+            throw new Exception(
                 "There was an error with the soap call $name\n" .
                 $response['code'] . ":" . $response['description'] . "\n" .
                 "Parameters : \n" .
