@@ -2,7 +2,6 @@
 namespace Hipay\MiraklConnector\Service;
 
 use Hipay\MiraklConnector\Exception\ValidationFailedException;
-use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Validator;
 
@@ -23,7 +22,7 @@ abstract class ModelValidator
      *
      * @param mixed $object the object to validate
      *
-     * @return ConstraintViolationListInterface
+     * @return void
      *
      * @throws ValidationFailedException
      */
@@ -32,11 +31,9 @@ abstract class ModelValidator
         self::initialize();
         $errors = static::$validator->validate($object);
         if ($errors->count() != 0) {
-            //Throw new exception containg the errors
+            //Throw new exception containing the errors
             throw new ValidationFailedException($errors);
         }
-
-        return $errors;
     }
 
     /**

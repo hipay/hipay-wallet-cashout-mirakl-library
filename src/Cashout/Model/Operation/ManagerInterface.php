@@ -7,7 +7,7 @@ use DateTime;
  * Interface HandlerInterface
  * @package Hipay\MiraklConnector\Cashout\Model\Operation
  */
-interface HandlerInterface
+interface ManagerInterface
 {
 
     /**

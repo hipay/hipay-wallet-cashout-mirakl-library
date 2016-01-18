@@ -115,10 +115,7 @@ class Processor extends AbstractProcessor
     {
         $event = new CheckAvailability($email, $entity);
         $this->dispatcher->dispatch('before.availability.check', $event);
-        $result = $this->hipay->isAvailable(
-            $event->getEmail(),
-            $event->getEntity()
-        );
+        $result = $this->hipay->isAvailable($event->getEmail());
         return !$result;
     }
 

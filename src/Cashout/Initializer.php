@@ -16,8 +16,7 @@ use Hipay\MiraklConnector\Exception\Event\ThrowException;
 use Hipay\MiraklConnector\Service\ModelValidator;
 use Hipay\MiraklConnector\Vendor\VendorInterface;
 use Hipay\MiraklConnector\Cashout\Model\Transaction\ValidatorInterface;
-use Hipay\MiraklConnector\Cashout\Model\Operation\HandlerInterface
-    as OperationHandlerInterface;
+use Hipay\MiraklConnector\Cashout\Model\Operation\ManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -38,7 +37,7 @@ class Initializer extends AbstractProcessor
     /** @var  ValidatorInterface */
     protected $transactionValidator;
 
-    /** @var OperationHandlerInterface */
+    /** @var ManagerInterface */
     protected $operationHandler;
 
     /**
@@ -50,7 +49,7 @@ class Initializer extends AbstractProcessor
      * @param VendorInterface $operatorAccount
      * @param VendorInterface $technicalAccount
      * @param ValidatorInterface $transactionValidator
-     * @param OperationHandlerInterface $operationHandler
+     * @param ManagerInterface $operationHandler
      */
     public function __construct(
         MiraklConfiguration $miraklConfig,
@@ -60,7 +59,7 @@ class Initializer extends AbstractProcessor
         VendorInterface $operatorAccount,
         VendorInterface $technicalAccount,
         ValidatorInterface $transactionValidator,
-        OperationHandlerInterface $operationHandler
+        ManagerInterface $operationHandler
     )
     {
         parent::__construct($miraklConfig, $hipayConfig, $dispatcher, $logger);
@@ -72,7 +71,7 @@ class Initializer extends AbstractProcessor
     /**
      * @param DateTime $startDate
      * @param DateTime $endDate
-     * @throws \Exception
+     * @throws Exception
      */
     public function process(DateTime $startDate, DateTime $endDate)
     {
@@ -147,7 +146,7 @@ class Initializer extends AbstractProcessor
             $totalAmount += $vendorAmount;
 
             //Create the vendor operation
-            $this->logger->info("Create vendor operation");
+            $this->logger->info("Create vendor operation (not saved)");
             $operations[] = $this->createOperation(
                 $vendorAmount, $startDate, $endDate, $shopId
             );
@@ -165,7 +164,7 @@ class Initializer extends AbstractProcessor
         );
 
         if (!$this->hasSufficientFunds($totalAmount)) {
-            throw new \Exception("No enough funds in the tech account");
+            throw new Exception("No enough funds in the tech account");
         }
 
         $this->logger->info("[OK] Technical account has sufficient funds");
@@ -260,7 +259,7 @@ class Initializer extends AbstractProcessor
      *
      * @param $paymentVoucher
      * @return array
-     * @throws \Exception
+     * @throws Exception
      */
     protected function getOrderTransactions($paymentVoucher)
     {
@@ -309,7 +308,7 @@ class Initializer extends AbstractProcessor
      *
      * @return int
      *
-     * @throws \Exception
+     * @throws Exception
      */
     protected function computeVendorAmount(
         $transactions,

@@ -5,7 +5,6 @@ use Exception;
 use Hipay\MiraklConnector\Api\Hipay\Model\Soap\MerchantData;
 use Hipay\MiraklConnector\Api\Hipay\Model\Soap\BankInfo;
 use Hipay\MiraklConnector\Api\Hipay\Model\Soap\Transfer;
-use Hipay\MiraklConnector\Api\Hipay\Model\Soap\Transfert;
 use Hipay\MiraklConnector\Api\Hipay\Model\Soap\UserAccountBasic;
 use Hipay\MiraklConnector\Api\Hipay\Model\Soap\UserAccountDetails;
 use Hipay\MiraklConnector\Api\Hipay\ConfigurationInterface
@@ -178,7 +177,7 @@ class Hipay
      *
      * @param VendorInterface $vendor
      *
-     * @return array|bool if array is empty
+     * @return string
      *
      * @throws Exception
      */
