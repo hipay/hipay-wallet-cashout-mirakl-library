@@ -1,6 +1,7 @@
 <?php
 namespace Hipay\MiraklConnector\Cashout;
 
+use Exception;
 use Hipay\MiraklConnector\Api\Hipay\Model\Soap\Transfer;
 use Hipay\MiraklConnector\Cashout\Model\Operation\OperationInterface;
 use Hipay\MiraklConnector\Cashout\Model\Operation\Status;
@@ -11,10 +12,17 @@ use Hipay\MiraklConnector\Api\Mirakl\ConfigurationInterface
 use Hipay\MiraklConnector\Api\Hipay;
 use Hipay\MiraklConnector\Api\Hipay\ConfigurationInterface
     as HipayConfiguration;
+use Hipay\MiraklConnector\Exception\DispatchableException;
+use Hipay\MiraklConnector\Exception\Event\ThrowException;
+use Hipay\MiraklConnector\Exception\NoEnoughFundsAvailableException;
+use Hipay\MiraklConnector\Exception\NoWalletFoundException;
+use Hipay\MiraklConnector\Exception\UnconfirmedBankAccountException;
+use Hipay\MiraklConnector\Exception\UnidentifiedWalletException;
 use Hipay\MiraklConnector\Vendor\VendorManager;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Hipay\MiraklConnector\Cashout\Model\Operation\HandlerInterface as OperationHandler;
+use Hipay\MiraklConnector\Cashout\Model\Operation\ManagerInterface;
+use Hipay\MiraklConnector\Api\Hipay\Constant\BankInfo as BankInfoStatus;
 /**
  * File Processor.php
  *
@@ -23,8 +31,8 @@ use Hipay\MiraklConnector\Cashout\Model\Operation\HandlerInterface as OperationH
  */
 class Processor extends AbstractProcessor
 {
-    /** @var  OperationHandler */
-    protected $operationHandler;
+    /** @var  ManagerInterface */
+    protected $managerInterface;
 
     /** @var  VendorManager */
     protected $vendorManager;
@@ -35,18 +43,18 @@ class Processor extends AbstractProcessor
      * @param HipayConfiguration $hipayConfig
      * @param EventDispatcherInterface $dispatcher
      * @param LoggerInterface $logger
-     * @param OperationHandler $handler
+     * @param ManagerInterface $handler
      */
     public function __construct(
         MiraklConfiguration $miraklConfig,
         HipayConfiguration $hipayConfig,
         EventDispatcherInterface $dispatcher,
         LoggerInterface $logger,
-        OperationHandler $handler
+        ManagerInterface $handler
     )
     {
         parent::__construct($miraklConfig, $hipayConfig, $dispatcher, $logger);
-        $this->operationHandler = $handler;
+        $this->managerInterface = $handler;
     }
 
     /**
@@ -54,44 +62,97 @@ class Processor extends AbstractProcessor
      *
      * @param $publicLabel
      * @param $privateLabel
+     * @param $withdrawLabel
+     * @throws NoEnoughFundsAvailableException
+     * @throws NoWalletFoundException
+     * @throws UnconfirmedBankAccountException
+     * @throws UnidentifiedWalletException
      */
-    public function process($publicLabel, $privateLabel)
+    public function process($publicLabel, $privateLabel, $withdrawLabel)
     {
         $nextDay = new \DateTime("+1 day");
 
         //Transfer
-        $toTransfer = $this->operationHandler->find(
+        $toTransfer = $this->managerInterface->find(
             new Status(Status::CREATED)
         );
-        $toTransfer = $toTransfer + $this->operationHandler->find(
+        $toTransfer = $toTransfer + $this->managerInterface->find(
             new Status(Status::TRANSFER_FAILED), $nextDay
         );
 
+        $transferSuccess = new Status(Status::TRANSFER_SUCCESS);
+        $transferFailed = new Status(Status::TRANSFER_FAILED);
+
         foreach ($toTransfer as $operation) {
-            $this->transfer($operation, $publicLabel, $privateLabel);
+            try {
+                $operation->setStatus(new Status(Status::TRANSFER_START));
+                $this->managerInterface->save($operation);
+                $this->transfer($operation, $publicLabel, $privateLabel);
+                $operation->setStatus($transferSuccess);
+            } catch (DispatchableException $e) {
+                $operation->setStatus($transferFailed);
+                $this->logger->warning(
+                    $e->getMessage()
+                );
+                $this->dispatcher->dispatch(
+                    $e->getEventName(), new ThrowException($e)
+                );
+            } catch (Exception $e) {
+                $operation->setStatus($transferFailed);
+                $this->logger->critical(
+                    $e->getMessage()
+                );
+            }
         }
 
-        $this->operationHandler->saveAll($toTransfer);
+        $this->managerInterface->saveAll($toTransfer);
+
 
         //Withdraw
-        $toWithdraw = $this->operationHandler->find(
+        $toWithdraw = $this->managerInterface->find(
             new Status(Status::TRANSFER_SUCCESS)
         );
-        $toWithdraw = $toWithdraw + $this->operationHandler->find(
+        $toWithdraw = $toWithdraw + $this->managerInterface->find(
             new Status(Status::WITHDRAW_FAILED), $nextDay
         );
+
+        $withdrawRequested = new Status(Status::WITHDRAW_REQUESTED);
+        $withdrawFailed = new Status(Status::WITHDRAW_FAILED);
+
         foreach ($toWithdraw as $operation) {
-            $this->withdraw($operation);
+            try {
+                $operation->setStatus(new Status(Status::WITHDRAW_START));
+                $this->managerInterface->save($operation);
+                $this->withdraw($operation, $withdrawLabel);
+                $operation->setStatus($withdrawRequested);
+            } catch (DispatchableException $e) {
+                $operation->setStatus($withdrawFailed);
+                $this->logger->warning(
+                    $e->getMessage()
+                );
+                $this->dispatcher->dispatch(
+                    $e->getEventName(), new ThrowException($e)
+                );
+            } catch (Exception $e) {
+                $this->logger->critical(
+                    $e->getMessage()
+                );
+            }
         }
 
-        $this->operationHandler->saveAll($toWithdraw);
+        $this->managerInterface->saveAll($toWithdraw);
 
     }
 
     /**
+     * Transfer money between the technical
+     * wallet and the operator|seller wallet
+     *
      * @param OperationInterface $operation
      * @param string $publicLabel
      * @param string $privateLabel
+     * @return array
+     * @throws NoWalletFoundException
      */
     public function transfer(
         OperationInterface $operation,
@@ -100,14 +161,9 @@ class Processor extends AbstractProcessor
     )
     {
         $vendor = $this->vendorManager->findByHipayId($operation->getHipayId());
-        if (!$vendor) {
-            //TODO Throw exception
-            $operation->setStatus(new Status(Status::TRANSFER_FAILED));
-        }
 
-        if ($this->hipay->isAvailable($vendor->getEmail())) {
-            //TODo Throw exceptiion
-            $operation->setStatus(new Status(Status::TRANSFER_FAILED));
+        if (!$vendor || $this->hipay->isAvailable($vendor->getEmail())) {
+            throw new NoWalletFoundException($vendor);
         }
 
         $transfer = new Transfer(
@@ -116,24 +172,52 @@ class Processor extends AbstractProcessor
             $publicLabel,
             $privateLabel
         );
-        $this->hipay->direct($transfer);
-        $operation->setStatus(new Status(Status::TRANSFER_SUCCESS));
+        return $this->hipay->direct($transfer);
     }
 
-    public function withdraw(OperationInterface $operation)
+    /**
+     * Put the money into the real bank account of the operator|seller
+     *
+     * @param OperationInterface $operation
+     * @param $label
+     * @return array
+     * @throws NoEnoughFundsAvailableException
+     * @throws UnconfirmedBankAccountException
+     * @throws UnidentifiedWalletException
+     */
+    public function withdraw(OperationInterface $operation, $label)
     {
         if (!$this->hipay->isIdentified($operation->getHipayId())) {
-            //Throw exception
-            $operation->setStatus(new Status(Status::WITHDRAW_FAILED));
+            throw new UnidentifiedWalletException($operation->getHipayId());
         }
 
         $vendor = $this->vendorManager->findByHipayId($operation->getHipayId());
-
-        if ($this->hipay->bankInfosStatus() != BankInfoStatus::VALIDATED) {
-            //Throw exception
-            $operation->setStatus(new Status(Status::WITHDRAW_FAILED));
+        $bankInfoStatus = $this->hipay->bankInfosStatus($vendor);
+        if ($this->hipay->bankInfosStatus($vendor)
+            != BankInfoStatus::VALIDATED
+        ) {
+            throw new UnconfirmedBankAccountException(
+                $vendor,
+                new BankInfoStatus($bankInfoStatus)
+            );
         }
 
-        $operation->setStatus(new Status(Status::WITHDRAW_REQUESTED));
+        //Check account balance
+        $amount = $operation->getAmount();
+        $balance = $this->hipay->getBalance($vendor);
+        if ($balance < $amount) {
+            if (!$operation->getMiraklId()) {
+                $amount = $balance;
+            } else {
+                throw new NoEnoughFundsAvailableException(
+                    $vendor,
+                    $amount,
+                    $balance
+                );
+            }
+        }
+
+        //Withdraw
+        return $this->hipay->withdraw($vendor, $amount, $label);
     }
 }
