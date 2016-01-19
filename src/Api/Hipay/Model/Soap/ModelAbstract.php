@@ -1,7 +1,7 @@
 <?php
 namespace Hipay\MiraklConnector\Api\Hipay\Model\Soap;
 
-use Hipay\MiraklConnector\Service\ModelValidator;
+use Hipay\MiraklConnector\Service\Validation\ModelValidator;
 use Symfony\Component\Validator\Validator;
 
 /**

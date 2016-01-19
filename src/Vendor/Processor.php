@@ -14,7 +14,7 @@ use Hipay\MiraklConnector\Exception\Event\ThrowException;
 use Hipay\MiraklConnector\Exception\InvalidBankInfoException;
 use Hipay\MiraklConnector\Exception\UnauthorizedModificationException;
 use Hipay\MiraklConnector\Service\Ftp;
-use Hipay\MiraklConnector\Service\ModelValidator;
+use Hipay\MiraklConnector\Service\Validation\ModelValidator;
 use Hipay\MiraklConnector\Service\Zip;
 use Hipay\MiraklConnector\Vendor\Event\AddBankAccount;
 use Hipay\MiraklConnector\Vendor\Event\CheckAvailability;

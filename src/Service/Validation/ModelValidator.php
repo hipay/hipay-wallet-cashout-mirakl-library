@@ -1,5 +1,5 @@
 <?php
-namespace Hipay\MiraklConnector\Service;
+namespace Hipay\MiraklConnector\Service\Validation;
 
 use Hipay\MiraklConnector\Exception\ValidationFailedException;
 use Symfony\Component\Validator\Validation;
