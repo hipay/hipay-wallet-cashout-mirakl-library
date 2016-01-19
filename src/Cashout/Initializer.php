@@ -14,9 +14,9 @@ use Hipay\MiraklConnector\Api\Hipay\ConfigurationInterface
 use Hipay\MiraklConnector\Exception\DispatchableException;
 use Hipay\MiraklConnector\Exception\Event\ThrowException;
 use Hipay\MiraklConnector\Service\ModelValidator;
-use Hipay\MiraklConnector\Vendor\VendorInterface;
 use Hipay\MiraklConnector\Cashout\Model\Transaction\ValidatorInterface;
 use Hipay\MiraklConnector\Cashout\Model\Operation\ManagerInterface;
+use Hipay\MiraklConnector\Vendor\Model\VendorInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 

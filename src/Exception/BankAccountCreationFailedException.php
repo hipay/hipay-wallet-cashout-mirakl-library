@@ -2,7 +2,7 @@
 namespace Hipay\MiraklConnector\Exception;
 
 use Hipay\MiraklConnector\Api\Hipay\Model\Soap\BankInfo;
-use Hipay\MiraklConnector\Vendor\VendorInterface;
+use Hipay\MiraklConnector\Vendor\Model\VendorInterface;
 
 /**
  * Class BankAccountCreationFailedException

@@ -37,7 +37,6 @@ abstract class AbstractEnumeration
         $this->value = $value;
     }
 
-
     /**
      * Return the constant list
      *

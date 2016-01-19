@@ -10,7 +10,7 @@ use Hipay\MiraklConnector\Api\Hipay\Model\Soap\UserAccountDetails;
 use Hipay\MiraklConnector\Api\Hipay\ConfigurationInterface
     as HipayConfigurationInterface;
 use Hipay\MiraklConnector\Api\Soap\SmileClient;
-use Hipay\MiraklConnector\Vendor\VendorInterface;
+use Hipay\MiraklConnector\Vendor\Model\VendorInterface;
 
 /**
  * Class Hipay

@@ -18,7 +18,7 @@ use Hipay\MiraklConnector\Exception\NoEnoughFundsAvailableException;
 use Hipay\MiraklConnector\Exception\NoWalletFoundException;
 use Hipay\MiraklConnector\Exception\UnconfirmedBankAccountException;
 use Hipay\MiraklConnector\Exception\UnidentifiedWalletException;
-use Hipay\MiraklConnector\Vendor\VendorManager;
+use Hipay\MiraklConnector\Vendor\Model\VendorManager;
 use Mustache_Engine;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;

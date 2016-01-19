@@ -1,9 +1,7 @@
 <?php
-
 namespace Hipay\MiraklConnector\Exception;
 
-
-use Hipay\MiraklConnector\Vendor\VendorInterface;
+use Hipay\MiraklConnector\Vendor\Model\VendorInterface;
 
 /**
  * Class NoWalletFoundException

@@ -1,6 +1,7 @@
 <?php
 namespace Hipay\MiraklConnector\Exception;
-use Hipay\MiraklConnector\Vendor\VendorInterface;
+
+use Hipay\MiraklConnector\Vendor\Model\VendorInterface;
 use Hipay\MiraklConnector\Api\Hipay\Constant\BankInfo as BankInfoStatus;
 /**
  * Class UnconfirmedBankAccountException

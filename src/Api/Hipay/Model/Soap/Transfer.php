@@ -9,7 +9,7 @@
  */
 
 namespace Hipay\MiraklConnector\Api\Hipay\Model\Soap;
-use Hipay\MiraklConnector\Vendor\VendorInterface;
+use Hipay\MiraklConnector\Vendor\Model\VendorInterface;
 
 /**
  * Class Transfer

@@ -26,6 +26,8 @@ use Hipay\MiraklConnector\Service\Ftp\ConfigurationInterface
     as FtpConfiguration;
 use Hipay\MiraklConnector\Api\Hipay\ConfigurationInterface as
     HipayConfiguration;
+use Hipay\MiraklConnector\Vendor\Model\VendorInterface;
+use Hipay\MiraklConnector\Vendor\Model\VendorManager;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Touki\FTP\FTPFactory;
