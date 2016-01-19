@@ -62,12 +62,13 @@ interface OperationInterface
     /**
      * @return DateTime
      */
-    public function getCycleStartDate();
+    public function getCycleDate();
 
     /**
+     * @param DateTime $date
      * @return DateTime
      */
-    public function getCycleEndDate();
+    public function setCycleDate(DateTime $date);
 
     /**
      * @return int

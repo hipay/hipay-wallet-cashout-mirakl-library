@@ -38,7 +38,7 @@ class Initializer extends AbstractProcessor
     protected $transactionValidator;
 
     /** @var ManagerInterface */
-    protected $operationHandler;
+    protected $operationManager;
 
     /**
      * Initializer constructor.
@@ -65,15 +65,21 @@ class Initializer extends AbstractProcessor
         parent::__construct($miraklConfig, $hipayConfig, $dispatcher, $logger);
         $this->operator = $operatorAccount;
         $this->technicalAccount = $technicalAccount;
-        $this->operationHandler = $operationHandler;
+        $this->operationManager = $operationHandler;
     }
 
     /**
      * @param DateTime $startDate
      * @param DateTime $endDate
+     * @param DateTime $cycleDate
+     *
      * @throws Exception
      */
-    public function process(DateTime $startDate, DateTime $endDate)
+    public function process(
+        DateTime $startDate,
+        DateTime $endDate,
+        DateTime $cycleDate
+    )
     {
         $this->logger->info("Cachout Initializer");
         $this->logger->info(
@@ -87,7 +93,7 @@ class Initializer extends AbstractProcessor
         );
 
         $this->logger->info(
-            "[OK] Successfully fetched " . count($paymentTransactions) . "payement transaction"
+            "[OK] Fetched " . count($paymentTransactions) . "payment transactions"
         );
 
         $paymentVouchersByShopId = $this->indexArray(
@@ -148,7 +154,7 @@ class Initializer extends AbstractProcessor
             //Create the vendor operation
             $this->logger->info("Create vendor operation (not saved)");
             $operations[] = $this->createOperation(
-                $vendorAmount, $startDate, $endDate, $shopId
+                $vendorAmount, $startDate, $shopId
             );
         }
         $totalAmount += $operatorAmount;
@@ -160,7 +166,7 @@ class Initializer extends AbstractProcessor
             throw $transactionError;
         }
         $this->logger->info(
-            "Check if technical account has sufficent funds ($totalAmount)"
+            "Check if technical account has sufficient funds ($totalAmount)"
         );
 
         if (!$this->hasSufficientFunds($totalAmount)) {
@@ -171,16 +177,14 @@ class Initializer extends AbstractProcessor
 
         // Create operator operation
         $this->logger->info("Create operator operation");
-        $operations[] = $this->createOperation(
-            $operatorAmount, $startDate, $endDate, false
-        );
+        $operations[] = $this->createOperation($operatorAmount, $cycleDate);
 
         //Valid the operation and check if operation wasn't created before
         $this->logger->info("Validate the operations");
         foreach ($operations as $index => $operation) {
             try {
                 ModelValidator::validate($operation);
-                if (!$this->operationHandler->isSaveable($operation)) {
+                if (!$this->operationManager->isSavable($operation)) {
                     unset($operations[$index]);
                 }
             } catch (DispatchableException $e) {
@@ -198,7 +202,7 @@ class Initializer extends AbstractProcessor
         $this->logger->info("[OK] Operations validated");
 
         $this->logger->info("Save operations");
-        $this->operationHandler->saveAll($operations);
+        $this->operationManager->saveAll($operations);
         $this->logger->info("[OK] Operations saved");
     }
 
@@ -377,29 +381,25 @@ class Initializer extends AbstractProcessor
      * Create the vendor operation
      *
      * @param int $amount
-     * @param DateTime $startDate
-     * @param DateTime $endDate
+     * @param DateTime $cycleDate
      * @param bool|int $shopId false if it an operator operation
      *
      * @return OperationInterface
      */
     protected function createOperation(
         $amount,
-        DateTime $startDate,
-        DateTime $endDate,
+        DateTime $cycleDate,
         $shopId = false
     )
     {
-        $operation = $this->operationHandler->create(
-            $amount,
-            $shopId,
-            $startDate,
-            $endDate
-        );
+        $operation = $this->operationManager->create($shopId);
         $event = new CreateOperation($operation);
         $this->dispatcher->dispatch('after.operation.create', $event);
         $operation = $event->getOperation();
+
         $operation->setStatus(new Status(Status::CREATED));
+        $operation->setAmount($amount);
+        $operation->setCycleDate($cycleDate);
 
         return $operation;
     }

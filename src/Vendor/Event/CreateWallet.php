@@ -1,5 +1,6 @@
 <?php
 namespace Hipay\MiraklConnector\Vendor\Event;
+
 use Hipay\MiraklConnector\Api\Hipay\Model\Soap\MerchantData;
 use Hipay\MiraklConnector\Api\Hipay\Model\Soap\UserAccountBasic;
 use Hipay\MiraklConnector\Api\Hipay\Model\Soap\UserAccountDetails;

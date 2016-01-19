@@ -1,13 +1,4 @@
 <?php
-/**
- * File ${FILE_NAME}
- *
- * @category
- * @package
- * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
- * @copyright 2015 Smile
- */
-
 namespace Hipay\MiraklConnector\Vendor\Event;
 
 use Symfony\Component\EventDispatcher\Event;

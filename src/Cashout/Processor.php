@@ -19,10 +19,12 @@ use Hipay\MiraklConnector\Exception\NoWalletFoundException;
 use Hipay\MiraklConnector\Exception\UnconfirmedBankAccountException;
 use Hipay\MiraklConnector\Exception\UnidentifiedWalletException;
 use Hipay\MiraklConnector\Vendor\VendorManager;
+use Mustache_Engine;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Hipay\MiraklConnector\Cashout\Model\Operation\ManagerInterface;
 use Hipay\MiraklConnector\Api\Hipay\Constant\BankInfo as BankInfoStatus;
+
 /**
  * File Processor.php
  *
@@ -60,15 +62,19 @@ class Processor extends AbstractProcessor
     /**
      * Main processing function
      *
-     * @param $publicLabel
-     * @param $privateLabel
-     * @param $withdrawLabel
+     * @param $publicLabelTemplate
+     * @param $privateLabelTemplate
+     * @param $withdrawLabelTemplate
      * @throws NoEnoughFundsAvailableException
      * @throws NoWalletFoundException
      * @throws UnconfirmedBankAccountException
      * @throws UnidentifiedWalletException
      */
-    public function process($publicLabel, $privateLabel, $withdrawLabel)
+    public function process(
+        $publicLabelTemplate,
+        $privateLabelTemplate,
+        $withdrawLabelTemplate
+    )
     {
         $nextDay = new \DateTime("+1 day");
 
@@ -87,7 +93,11 @@ class Processor extends AbstractProcessor
             try {
                 $operation->setStatus(new Status(Status::TRANSFER_START));
                 $this->managerInterface->save($operation);
-                $this->transfer($operation, $publicLabel, $privateLabel);
+                $this->transfer(
+                    $operation,
+                    $this->generateLabel($publicLabelTemplate, $operation),
+                    $this->generateLabel($privateLabelTemplate, $operation)
+                );
                 $operation->setStatus($transferSuccess);
             } catch (DispatchableException $e) {
                 $operation->setStatus($transferFailed);
@@ -123,7 +133,10 @@ class Processor extends AbstractProcessor
             try {
                 $operation->setStatus(new Status(Status::WITHDRAW_START));
                 $this->managerInterface->save($operation);
-                $this->withdraw($operation, $withdrawLabel);
+                $this->withdraw(
+                    $operation,
+                    $this->generateLabel($withdrawLabelTemplate, $operation)
+                );
                 $operation->setStatus($withdrawRequested);
             } catch (DispatchableException $e) {
                 $operation->setStatus($withdrawFailed);
@@ -219,5 +232,31 @@ class Processor extends AbstractProcessor
 
         //Withdraw
         return $this->hipay->withdraw($vendor, $amount, $label);
+    }
+
+    /**
+     * Generate the label from a template
+     *
+     * @param $labelTemplate
+     * @param $operation
+     *
+     * @return string
+     */
+    public function generateLabel($labelTemplate, OperationInterface $operation)
+    {
+        $m = new Mustache_Engine();
+        return $m->render($labelTemplate, array(
+            'miraklId' => $operation->getMiraklId(),
+            'amount' => $operation->getAmount(),
+            'hipayId' => $operation->getHipayId(),
+            'cycleDate' => $operation->getCycleDate()->format('Y-m-d'),
+            'cycleDateTime' => $operation->getCycleDate()->format(
+                'Y-m-d H:i:s'
+            ),
+            'cycleTime' => $operation->getCycleDate()->format('H:i:s'),
+            'date' => date('Y-m-d'),
+            'datetime' => date('Y-m-d H:i:s'),
+            'time' => date('H:i:s')
+        ));
     }
 }

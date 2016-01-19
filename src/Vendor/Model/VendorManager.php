@@ -1,15 +1,5 @@
 <?php
-/**
- * File VendorManager.php
- *
- * @category
- * @package
- * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
- * @copyright 2015 Smile
- */
-
 namespace Hipay\MiraklConnector\Vendor;
-
 
 /**
  * Interface VendorManager
@@ -33,17 +23,19 @@ interface VendorManager
     );
 
     /**
-     * @param $vendor
+     * Insert more data if you want
+     *
+     * @param VendorInterface $vendor
      * @param array $miraklData
      *
      * @return void
      */
     public function update(
-        $vendor,
+        VendorInterface $vendor,
         array $miraklData
     );
     /**
-     * @param array $vendors
+     * @param VendorInterface[] $vendors
      * @return mixed
      */
     public function saveAll(array $vendors);
@@ -60,5 +52,4 @@ interface VendorManager
      */
     public function findByHipayId($shopId);
 
-    public function handleException();
 }

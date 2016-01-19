@@ -4,7 +4,7 @@ namespace Hipay\MiraklConnector\Cashout\Model\Operation;
 use DateTime;
 
 /**
- * Interface HandlerInterface
+ * Interface ManagerInterface
  * @package Hipay\MiraklConnector\Cashout\Model\Operation
  */
 interface ManagerInterface
@@ -27,31 +27,24 @@ interface ManagerInterface
      * @return bool
      */
     public function save($operation);
+
     /**
      * Create an operation
      *
-     * @param $vendorAmount
-     * @param $shopId
-     * @param DateTime $startDate
-     * @param DateTime $endDate
+     * @param int $shopId|false if it is an operator operation
      *
      * @return OperationInterface
      */
-    public function create(
-        $vendorAmount,
-        $shopId,
-        DateTime $startDate,
-        DateTime $endDate
-    );
+    public function create($shopId);
 
     /**
-     * Check if an operation is saveable
+     * Check if an operation is savable
      *
      * @param OperationInterface $operation
      *
      * @return bool
      */
-    public function isSaveable(OperationInterface $operation);
+    public function isSavable(OperationInterface $operation);
 
     /**
      * Finds operations

@@ -1,13 +1,4 @@
 <?php
-/**
- * File AddBankAccountEvent.php
- *
- * @category
- * @package
- * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
- * @copyright 2015 Smile
- */
-
 namespace Hipay\MiraklConnector\Vendor\Event;
 
 use Hipay\MiraklConnector\Api\Hipay\Model\Soap\BankInfo;

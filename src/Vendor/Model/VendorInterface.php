@@ -1,13 +1,4 @@
 <?php
-/**
- * File Payable.php
- *
- * @category
- * @package
- * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
- * @copyright 2015 Smile
- */
-
 namespace Hipay\MiraklConnector\Vendor;
 
 /**

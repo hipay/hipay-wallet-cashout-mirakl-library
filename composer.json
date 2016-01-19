@@ -18,7 +18,8 @@
     "doctrine/annotations": "^1.2",
     "symfony/intl": "^2.6",
     "touki/ftp": "^1.2",
-    "psr/log": "*"
+    "psr/log": "*",
+    "mustache/mustache": "*"
   },
   "require-dev": {
     "phpunit/phpunit" : "^4.8"

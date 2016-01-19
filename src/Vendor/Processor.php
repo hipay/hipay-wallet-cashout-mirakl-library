@@ -1,16 +1,6 @@
 <?php
-/**
- * File Processor.php
- *
- * @category
- * @package
- * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
- * @copyright 2015 Smile
- */
-
 namespace Hipay\MiraklConnector\Vendor;
 
-use Exception;
 use Hipay\MiraklConnector\Api\Hipay\Constant\BankInfo as BankInfoStatus;
 use Hipay\MiraklConnector\Api\Hipay\Model\Soap\MerchantData;
 use Hipay\MiraklConnector\Api\Hipay\Model\Soap\BankInfo;
@@ -104,7 +94,8 @@ class Processor extends AbstractProcessor
     /**
      * Check if the vendor already has a wallet
      *
-     * Dispatch the event <b>before.availability.check</b> before sending the data to Hipay
+     * Dispatch the event <b>before.availability.check</b>
+     * before sending the data to Hipay
      *
      * @param string $email
      * @param bool $entity
@@ -122,7 +113,8 @@ class Processor extends AbstractProcessor
     /**
      * Create a Hipay wallet
      *
-     * Dispatch the event <b>before.wallet.create</b> before sending the data to Hipay
+     * Dispatch the event <b>before.wallet.create</b>
+     * before sending the data to Hipay
      *
      * @param array $shopData
      * @return int the created account id
@@ -309,7 +301,7 @@ class Processor extends AbstractProcessor
         $miraklData = $this->getVendors($lastUpdate);
 
         $this->logger->info(
-            "Successfully fetched vendors from mirakl : " . count($miraklData)
+            "[OK] Fetched vendors from Mirakl : " . count($miraklData)
         );
 
         //Wallet creation
@@ -375,11 +367,6 @@ class Processor extends AbstractProcessor
                 $this->dispatcher->dispatch(
                     $e->getEventName(), new ThrowException($e)
                 );
-            } catch (Exception $e) {
-                $this->logger->critical(
-                    $e->getMessage(),
-                    array("shopId" => $vendorData['shop_id'])
-                );
             }
         }
 
@@ -413,7 +400,7 @@ class Processor extends AbstractProcessor
                 if ($bankInfoStatus == BankInfoStatus::BLANK) {
                     if ($this->addBankAccount($vendor, $miraklBankInfo)) {
                         $this->logger->info(
-                            "[OK] Successfully created bank account for : ". $vendor->getMiraklId(),
+                            "[OK] Created bank account for : ". $vendor->getMiraklId(),
                             array("shopId" => $vendor->getMiraklId())
                         );
                     } else {
@@ -429,10 +416,12 @@ class Processor extends AbstractProcessor
                         throw new InvalidBankInfoException(
                             $vendor,
                             $miraklBankInfo,
-                            $vendor->getMiraklId() . " has different IBAN between Mirakl and Hipay"
+                            $vendor->getMiraklId()." has different IBAN between Mirakl and Hipay"
                         );
                     } else {
-                        $this->logger->info("[OK] The bank information is synchronized");
+                        $this->logger->info(
+                            "[OK] The bank information is synchronized"
+                        );
                     }
                 }
             } catch (DispatchableException $e) {
@@ -442,11 +431,6 @@ class Processor extends AbstractProcessor
                 );
                 $this->dispatcher->dispatch(
                     $e->getEventName(), new ThrowException($e)
-                );
-            } catch (Exception $e) {
-                $this->logger->critical(
-                    $e->getMessage(),
-                    array("shopId" => $vendor->getMiraklId())
                 );
             }
         }
