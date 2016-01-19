@@ -1,6 +1,7 @@
 <?php
 namespace Hipay\MiraklConnector\Vendor;
 
+use DateTime;
 use Hipay\MiraklConnector\Api\Hipay\Constant\BankInfo as BankInfoStatus;
 use Hipay\MiraklConnector\Api\Hipay\Model\Soap\MerchantData;
 use Hipay\MiraklConnector\Api\Hipay\Model\Soap\BankInfo;
@@ -85,10 +86,10 @@ class Processor extends AbstractProcessor
     /**
      * Fetch the vendors from Mirakl
      *
-     * @param \DateTime $lastUpdate
+     * @param DateTime $lastUpdate
      * @return array
      */
-    public function getVendors(\DateTime $lastUpdate = null)
+    public function getVendors(DateTime $lastUpdate = null)
     {
         return $this->mirakl->getVendors($lastUpdate);
     }
@@ -287,11 +288,11 @@ class Processor extends AbstractProcessor
     }
 
     /**
-     * @param \DateTime $lastUpdate
+     * @param DateTime $lastUpdate
      * @param $zipPath
      * @param $ftpPath
      */
-    public function process(\DateTime $lastUpdate, $zipPath, $ftpPath)
+    public function process($zipPath, $ftpPath, DateTime $lastUpdate = null)
     {
         $this->logger->info("Vendor Processing");
 
