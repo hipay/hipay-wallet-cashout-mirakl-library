@@ -37,13 +37,13 @@ interface OperationInterface
      * @return int
      * @Assert\Type(type="integer")
      */
-    public function getHipayTransferId();
+    public function getWithdrawId();
 
     /**
-     * @return int
-     * @Assert\Type(type="integer")
+     * @param int $withdrawId
+     * @return void
      */
-    public function getHipayWithdrawId();
+    public function setWithdrawId($withdrawId);
 
     /**
      * @Assert\NotBlank()
@@ -61,6 +61,9 @@ interface OperationInterface
 
     /**
      * @return DateTime
+     *
+     * @Assert\NotBlank()
+     * @Assert\DateTime()
      */
     public function getCycleDate();
 
@@ -71,12 +74,16 @@ interface OperationInterface
     public function setCycleDate(DateTime $date);
 
     /**
-     * @return int
+     * @return float
+     *
+     * @Assert\NotBlank()
+     * @Assert\GreaterThan(value = 0)
+     * @Assert\Type(type="float")
      */
     public function getAmount();
 
     /**
-     * @param int $amount
+     * @param float $amount
      * @return void
      */
     public function setAmount($amount);
