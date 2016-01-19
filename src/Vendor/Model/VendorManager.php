@@ -1,5 +1,5 @@
 <?php
-namespace Hipay\MiraklConnector\Vendor;
+namespace Hipay\MiraklConnector\Model\Vendor;
 
 /**
  * Interface VendorManager
