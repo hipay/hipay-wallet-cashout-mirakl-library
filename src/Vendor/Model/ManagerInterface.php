@@ -5,7 +5,7 @@ namespace Hipay\MiraklConnector\Vendor\Model;
  * Interface VendorManager
  * @package Hipay\MiraklConnector\Vendor
  */
-interface VendorManager
+interface ManagerInterface
 {
     /**
      * @param $email

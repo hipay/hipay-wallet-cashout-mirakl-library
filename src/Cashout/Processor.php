@@ -18,11 +18,12 @@ use Hipay\MiraklConnector\Exception\NoEnoughFundsAvailableException;
 use Hipay\MiraklConnector\Exception\NoWalletFoundException;
 use Hipay\MiraklConnector\Exception\UnconfirmedBankAccountException;
 use Hipay\MiraklConnector\Exception\UnidentifiedWalletException;
-use Hipay\MiraklConnector\Vendor\Model\VendorManager;
 use Mustache_Engine;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Hipay\MiraklConnector\Cashout\Model\Operation\ManagerInterface;
+use Hipay\MiraklConnector\Cashout\Model\Operation\ManagerInterface
+    as OperationManager;
+use Hipay\MiraklConnector\Vendor\Model\ManagerInterface as VendorManager;
 use Hipay\MiraklConnector\Api\Hipay\Constant\BankInfo as BankInfoStatus;
 
 /**
@@ -33,8 +34,8 @@ use Hipay\MiraklConnector\Api\Hipay\Constant\BankInfo as BankInfoStatus;
  */
 class Processor extends AbstractProcessor
 {
-    /** @var  ManagerInterface */
-    protected $managerInterface;
+    /** @var  OperationManager */
+    protected $operationManager;
 
     /** @var  VendorManager */
     protected $vendorManager;
@@ -45,18 +46,21 @@ class Processor extends AbstractProcessor
      * @param HipayConfiguration $hipayConfig
      * @param EventDispatcherInterface $dispatcher
      * @param LoggerInterface $logger
-     * @param ManagerInterface $handler
+     * @param OperationManager $operationManager,
+     * @param VendorManager $vendorManager
      */
     public function __construct(
         MiraklConfiguration $miraklConfig,
         HipayConfiguration $hipayConfig,
         EventDispatcherInterface $dispatcher,
         LoggerInterface $logger,
-        ManagerInterface $handler
+        OperationManager $operationManager,
+        VendorManager $vendorManager
     )
     {
         parent::__construct($miraklConfig, $hipayConfig, $dispatcher, $logger);
-        $this->managerInterface = $handler;
+        $this->operationManager = $operationManager;
+        $this->vendorManager = $vendorManager;
     }
 
     /**
@@ -79,10 +83,10 @@ class Processor extends AbstractProcessor
         $nextDay = new \DateTime("+1 day");
 
         //Transfer
-        $toTransfer = $this->managerInterface->find(
+        $toTransfer = $this->operationManager->findByStatusAndCycleDate(
             new Status(Status::CREATED)
         );
-        $toTransfer = $toTransfer + $this->managerInterface->find(
+        $toTransfer = $toTransfer + $this->operationManager->findByStatusAndCycleDate(
             new Status(Status::TRANSFER_FAILED), $nextDay
         );
 
@@ -92,7 +96,7 @@ class Processor extends AbstractProcessor
         foreach ($toTransfer as $operation) {
             try {
                 $operation->setStatus(new Status(Status::TRANSFER_START));
-                $this->managerInterface->save($operation);
+                $this->operationManager->save($operation);
                 $this->transfer(
                     $operation,
                     $this->generateLabel($publicLabelTemplate, $operation),
@@ -115,14 +119,14 @@ class Processor extends AbstractProcessor
             }
         }
 
-        $this->managerInterface->saveAll($toTransfer);
+        $this->operationManager->saveAll($toTransfer);
 
 
         //Withdraw
-        $toWithdraw = $this->managerInterface->find(
+        $toWithdraw = $this->operationManager->findByStatusAndCycleDate(
             new Status(Status::TRANSFER_SUCCESS)
         );
-        $toWithdraw = $toWithdraw + $this->managerInterface->find(
+        $toWithdraw = $toWithdraw + $this->operationManager->findByStatusAndCycleDate(
             new Status(Status::WITHDRAW_FAILED), $nextDay
         );
 
@@ -132,7 +136,7 @@ class Processor extends AbstractProcessor
         foreach ($toWithdraw as $operation) {
             try {
                 $operation->setStatus(new Status(Status::WITHDRAW_START));
-                $this->managerInterface->save($operation);
+                $this->operationManager->save($operation);
                 $this->withdraw(
                     $operation,
                     $this->generateLabel($withdrawLabelTemplate, $operation)
@@ -153,7 +157,7 @@ class Processor extends AbstractProcessor
             }
         }
 
-        $this->managerInterface->saveAll($toWithdraw);
+        $this->operationManager->saveAll($toWithdraw);
 
     }
 

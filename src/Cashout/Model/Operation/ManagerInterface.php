@@ -54,5 +54,16 @@ interface ManagerInterface
      *
      * @return OperationInterface[]
      */
-    public function find(Status $status, DateTime $date = null);
+    public function findByStatusAndCycleDate(
+        Status $status,
+        DateTime $date = null
+    );
+
+    /**
+     * Find an operation by transactionId
+     *
+     * @param $transactionId
+     * @return OperationInterface
+     */
+    public function findByTransactionId($transactionId);
 }

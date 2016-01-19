@@ -27,7 +27,7 @@ use Hipay\MiraklConnector\Service\Ftp\ConfigurationInterface
 use Hipay\MiraklConnector\Api\Hipay\ConfigurationInterface as
     HipayConfiguration;
 use Hipay\MiraklConnector\Vendor\Model\VendorInterface;
-use Hipay\MiraklConnector\Vendor\Model\VendorManager;
+use Hipay\MiraklConnector\Vendor\Model\ManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Touki\FTP\FTPFactory;
@@ -57,7 +57,7 @@ class Processor extends AbstractProcessor
      * @param EventDispatcherInterface $dispatcherInterface
      * @param LoggerInterface $logger
      * @param FtpConfiguration $ftpConfiguration
-     * @param VendorManager $vendorManager
+     * @param ManagerInterface $vendorManager
      */
     public function __construct(
         MiraklConfiguration $miraklConfig,
@@ -65,7 +65,7 @@ class Processor extends AbstractProcessor
         EventDispatcherInterface $dispatcherInterface,
         LoggerInterface $logger,
         FtpConfiguration $ftpConfiguration,
-        VendorManager $vendorManager
+        ManagerInterface $vendorManager
     )
     {
         parent::__construct(
