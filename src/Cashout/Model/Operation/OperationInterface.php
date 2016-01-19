@@ -37,7 +37,7 @@ interface OperationInterface
      * @return int
      * @Assert\Type(type="integer")
      */
-    public function getHipayTransfertId();
+    public function getHipayTransferId();
 
     /**
      * @return int
@@ -66,7 +66,7 @@ interface OperationInterface
 
     /**
      * @param DateTime $date
-     * @return DateTime
+     * @return void
      */
     public function setCycleDate(DateTime $date);
 
