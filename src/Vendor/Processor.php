@@ -5,7 +5,7 @@ use DateTime;
 use Hipay\MiraklConnector\Api\Hipay;
 use Hipay\MiraklConnector\Api\Hipay\ConfigurationInterface
     as HipayConfiguration;
-use Hipay\MiraklConnector\Api\Hipay\Status\BankInfo as BankInfoStatus;
+use Hipay\MiraklConnector\Api\Hipay\Model\Status\BankInfo as BankInfoStatus;
 use Hipay\MiraklConnector\Api\Hipay\Model\Soap\BankInfo;
 use Hipay\MiraklConnector\Api\Hipay\Model\Soap\MerchantData;
 use Hipay\MiraklConnector\Api\Hipay\Model\Soap\UserAccountBasic;

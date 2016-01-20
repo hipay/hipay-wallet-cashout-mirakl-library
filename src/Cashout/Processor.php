@@ -25,7 +25,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Hipay\MiraklConnector\Cashout\Model\Operation\ManagerInterface
     as OperationManager;
 use Hipay\MiraklConnector\Vendor\Model\ManagerInterface as VendorManager;
-use Hipay\MiraklConnector\Api\Hipay\Status\BankInfo as BankInfoStatus;
+use Hipay\MiraklConnector\Api\Hipay\Model\Status\BankInfo as BankInfoStatus;
 
 /**
  * File Processor.php

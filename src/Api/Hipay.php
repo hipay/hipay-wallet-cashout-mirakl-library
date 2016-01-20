@@ -173,7 +173,7 @@ class Hipay
     /**
      * Retrieve from Hipay the bank account status in english
      * To be checked against the constant defined in
-     * Hipay\MiraklConnector\Api\Hipay\Status\BankInfo
+     * Hipay\MiraklConnector\Api\Hipay\Model\Status\BankInfo
      *
      * @param VendorInterface $vendor
      *
