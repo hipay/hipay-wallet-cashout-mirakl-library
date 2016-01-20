@@ -173,7 +173,7 @@ class Hipay
     /**
      * Retrieve from Hipay the bank account status in english
      * To be checked against the constant defined in
-     * Hipay\MiraklConnector\Api\Hipay\Constants
+     * Hipay\MiraklConnector\Api\Hipay\Status\BankInfo
      *
      * @param VendorInterface $vendor
      *
@@ -370,7 +370,8 @@ class Hipay
                 "There was an error with the soap call $name\n" .
                 $response['code'] . ":" . $response['description'] . "\n" .
                 "Parameters : \n" .
-                print_r($parameters, true)
+                print_r($parameters, true),
+                $response['code']
             );
         } else {
             unset($response['code']);
