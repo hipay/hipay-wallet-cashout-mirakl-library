@@ -87,7 +87,7 @@ class Initializer extends AbstractProcessor
 
         $this->logger->info(
             "Fetch payment transaction from Mirakl from "
-            . $startDate->format("Y-m-d") . " to " . $endDate->format("Y-m-d")
+            . $startDate->format("Y-m-d H:i") . " to " . $endDate->format("Y-m-d H:i")
         );
         $paymentTransactions = $this->getPayementTransactions(
             $startDate,

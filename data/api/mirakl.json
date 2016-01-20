@@ -111,7 +111,7 @@
         },
         "startDate": {
           "type": "object",
-          "instanceOf" : "DateTimeInterface",
+          "instanceOf" : "DateTime",
           "description": "creation date for filtering. Format: 'yyyy-MM-dd'T'HH:mm:ss'",
           "location": "query",
           "sentAs": "start_date",
@@ -124,7 +124,7 @@
         },
         "endDate": {
           "type": "object",
-          "instanceOf" : "DateTimeInterface",
+          "instanceOf" : "DateTime",
           "description": "creation date for filtering. Format: 'yyyy-MM-dd'T'HH:mm:ss'",
           "location": "query",
           "sentAs": "end_date",
@@ -138,7 +138,7 @@
         "startTransactionDate": {
           "type": "object",
           "description": " [optional] transaction date for filtering. Format: 'yyyy-MM-dd'T'HH:mm:ss'",
-          "instanceOf" : "DateTimeInterface",
+          "instanceOf" : "DateTime",
           "location": "query",
           "sentAs": "start_transaction_date",
           "filters" : [
@@ -151,7 +151,7 @@
         "endTransactionDate": {
           "type": "object",
           "description": " [optional] transaction date for filtering. Format: 'yyyy-MM-dd'T'HH:mm:ss'",
-          "instanceOf" : "DateTimeInterface",
+          "instanceOf" : "DateTime",
           "location": "query",
           "sentAs": "end_transaction_date",
           "filters" : [
@@ -164,7 +164,7 @@
         "updatedSince": {
           "type": "object",
           "description": " [optional] last updated date for filtering. Format: 'yyyy-MM-dd'T'HH:mm:ss'",
-          "instanceOf" : "DateTimeInterface",
+          "instanceOf" : "DateTime",
           "location": "query",
           "sentAs": "updated_since",
           "filters" : [
