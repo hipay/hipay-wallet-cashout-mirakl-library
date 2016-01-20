@@ -101,8 +101,7 @@ abstract class AbstractProcessor
         array $keptKeys = array()
     )
     {
-        $result = array_column($indexKey, $array);
-        $result = array_flip($result);
+        $result = array();
         foreach ($array as $element) {
             $keptKeys = empty($keptKeys) ? array_keys($element) : $keptKeys;
             $insertedElement = array_intersect_key($element, $keptKeys);

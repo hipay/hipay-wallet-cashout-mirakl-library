@@ -52,10 +52,9 @@ interface OperationInterface
     public function getTransferId();
 
     /**
-     * @param int $withdrawId
-     * @return void
+     * @param $transferId
      */
-    public function setTransferId($withdrawId);
+    public function setTransferId($transferId);
 
     /**
      * @Assert\NotBlank()
