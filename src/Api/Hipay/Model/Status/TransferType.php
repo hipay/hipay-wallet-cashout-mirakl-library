@@ -2,15 +2,17 @@
 namespace Hipay\MiraklConnector\Api\Hipay\Status;
 
 use Hipay\MiraklConnector\Common\AbstractEnumeration;
+
 /**
- * Class TransfertStatus
+ * Class TransfertType
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
  */
-class TransfertStatus extends AbstractEnumeration
+class TransferType extends AbstractEnumeration
 {
+    // Hipay Wallet transfer transaction types.
+    const TRANSFER = 'Envoi';
+    const OTHER = ' Autre';
 
-    // Hipay Wallet transfer statuses.
-    const CAPTURED = 'CAPTURED';
 }
