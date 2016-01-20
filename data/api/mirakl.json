@@ -118,7 +118,7 @@
           "filters" : [
             {
               "method": "date_format",
-              "args" : ["@value", "Y-m-d'T'H:i:s"]
+              "args" : ["@value", "Y-m-d\\TH:i:s\\Z"]
             }
           ]
         },
@@ -131,7 +131,7 @@
           "filters" : [
             {
               "method": "date_format",
-              "args" : ["@value", "Y-m-d'T'H:i:s"]
+              "args" : ["@value", "Y-m-d\\TH:i:s\\Z"]
             }
           ]
         },
@@ -144,7 +144,7 @@
           "filters" : [
             {
               "method": "date_format",
-              "args" : ["@value", "Y-m-d'T'H:i:s"]
+              "args" : ["@value", "Y-m-d\\TH:i:s\\Z"]
             }
           ]
         },
@@ -157,7 +157,7 @@
           "filters" : [
             {
               "method": "date_format",
-              "args" : ["@value", "Y-m-d'T'H:i:s"]
+              "args" : ["@value", "Y-m-d\\TH:i:s\\Z"]
             }
           ]
         },
