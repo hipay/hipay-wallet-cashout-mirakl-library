@@ -15,6 +15,8 @@ use Hipay\MiraklConnector\Exception\DispatchableException;
 use Hipay\MiraklConnector\Exception\Event\ThrowException;
 use Hipay\MiraklConnector\Cashout\Model\Transaction\ValidatorInterface;
 use Hipay\MiraklConnector\Cashout\Model\Operation\ManagerInterface;
+use Hipay\MiraklConnector\Exception\NotEnoughFunds;
+use Hipay\MiraklConnector\Exception\TransactionException;
 use Hipay\MiraklConnector\Service\Validation\ModelValidator;
 use Hipay\MiraklConnector\Vendor\Model\VendorInterface;
 use Psr\Log\LoggerInterface;
@@ -82,16 +84,15 @@ class Initializer extends AbstractProcessor
     )
     {
         $this->logger->info("Cachout Initializer");
+
         $this->logger->info(
-            "[OK] Fetch payment transaction from Mirakl from "
+            "Fetch payment transaction from Mirakl from "
             . $startDate->format("Y-m-d") . " to " . $endDate->format("Y-m-d")
         );
-
         $paymentTransactions = $this->getPayementTransactions(
             $startDate,
             $endDate
         );
-
         $this->logger->info(
             "[OK] Fetched " . count($paymentTransactions) . "payment transactions"
         );
@@ -101,7 +102,6 @@ class Initializer extends AbstractProcessor
             'shop_id',
             array('payment_voucher')
         );
-
         $balancesByPaymentVoucher = $this->indexArray(
             $paymentTransactions,
             'payment_voucher',
@@ -109,15 +109,16 @@ class Initializer extends AbstractProcessor
         );
         $operatorAmount = 0;
         $totalAmount = 0;
-
         $operations = array();
-        $transactionError = false;
+        $transactionError = null;
+
         $this->logger->info("Compute amounts and create vendor operation");
         foreach ($paymentVouchersByShopId as $shopId => $paymentVouchers) {
             $this->logger->debug(
                 "ShopId : $shopId", array("shopId" => $shopId)
             );
             $vendorAmount = 0;
+            $orderTransactions = array();
             foreach ($paymentVouchers as $paymentVoucher) {
                 try {
                     $orderTransactions = $this->getOrderTransactions(
@@ -135,29 +136,26 @@ class Initializer extends AbstractProcessor
                 } catch (Exception $e) {
                     $this->logger->warning($e);
                     /** @var Exception $transactionError */
-                    if ($transactionError) {
-                        $transactionError = new Exception(
-                            $e->getMessage(),
-                            $e->getCode()
-                        );
-                    } else {
-                        $transactionError = new Exception(
+                        $transactionError = new TransactionException(
+                            $orderTransactions,
                             $e->getMessage(),
                             $e->getCode(),
                             $transactionError
                         );
-                    }
                 }
             };
             $totalAmount += $vendorAmount;
 
             //Create the vendor operation
-            $this->logger->info("Create vendor operation (not saved)");
             $operations[] = $this->createOperation(
-                $vendorAmount, $startDate, $shopId
+                $vendorAmount, $cycleDate, $shopId
             );
         }
         $totalAmount += $operatorAmount;
+
+        // Create operator operation
+        $operations[] = $this->createOperation($operatorAmount, $cycleDate);
+
         if ($transactionError) {
             $this->dispatcher->dispatch(
                 'transaction.validation.failed',
@@ -165,19 +163,15 @@ class Initializer extends AbstractProcessor
             );
             throw $transactionError;
         }
+
         $this->logger->info(
             "Check if technical account has sufficient funds ($totalAmount)"
         );
-
         if (!$this->hasSufficientFunds($totalAmount)) {
-            throw new Exception("No enough funds in the tech account");
+            throw new NotEnoughFunds("No enough funds in the tech account");
         }
-
         $this->logger->info("[OK] Technical account has sufficient funds");
 
-        // Create operator operation
-        $this->logger->info("Create operator operation");
-        $operations[] = $this->createOperation($operatorAmount, $cycleDate);
 
         //Valid the operation and check if operation wasn't created before
         $this->logger->info("Validate the operations");
@@ -190,13 +184,14 @@ class Initializer extends AbstractProcessor
             } catch (DispatchableException $e) {
                 $this->logger->warning($e->getMessage());
 
+                //remove faulty operation
+                unset($operations[$index]);
+
                 $this->dispatcher->dispatch(
                     $e->getEventName(),
                     new ThrowException($e)
                 );
 
-                //remove faulty operation
-                unset($operations[$index]);
             }
         }
         $this->logger->info("[OK] Operations validated");
@@ -233,30 +228,7 @@ class Initializer extends AbstractProcessor
         return $transactions;
     }
 
-    /**
-     * Create an associative array with an index key
-     *
-     * @param array $array
-     * @param $indexKey
-     * @param array $keptKeys
-     * @return array
-     */
-    protected function indexArray(
-        array $array,
-        $indexKey,
-        array $keptKeys = array()
-    )
-    {
-        $result = array_column($indexKey, $array);
-        $result = array_flip($result);
-        foreach ($array as $element) {
-            $keptKeys = (count($keptKeys) > 0) ?: array_keys($element);
-            $insertedElement = array_intersect_key($element, $keptKeys);
-            $result[$element[$indexKey]][] = (count($keptKeys) == 1) ?
-                current($insertedElement) : $insertedElement;
-        }
-        return $result;
-    }
+
 
     /**
      * Fetch from mirakl the payment related to the orders
@@ -326,14 +298,14 @@ class Initializer extends AbstractProcessor
             $errors |= !$this->transactionValidator->isValid($transaction);
         }
         if ($amount != $paymentTransaction['balance']) {
-            throw new Exception(
+            throw new TransactionException(
                 "There is a difference between the transactions
                 \n $amount for the transactions
                 \n {$paymentTransaction['balance']} for the earlier payment transaction"
             );
         }
         if ($errors) {
-            throw new Exception(
+            throw new TransactionException(
                 "There are errors in the transactions"
             );
         }

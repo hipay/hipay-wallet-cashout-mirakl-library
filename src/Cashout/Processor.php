@@ -1,6 +1,7 @@
 <?php
 namespace Hipay\MiraklConnector\Cashout;
 
+use DateTime;
 use Exception;
 use Hipay\MiraklConnector\Api\Hipay\Model\Soap\Transfer;
 use Hipay\MiraklConnector\Cashout\Model\Operation\OperationInterface;
@@ -14,7 +15,7 @@ use Hipay\MiraklConnector\Api\Hipay\ConfigurationInterface
     as HipayConfiguration;
 use Hipay\MiraklConnector\Exception\DispatchableException;
 use Hipay\MiraklConnector\Exception\Event\ThrowException;
-use Hipay\MiraklConnector\Exception\NoEnoughFundsAvailableException;
+use Hipay\MiraklConnector\Exception\WrongWalletBalance;
 use Hipay\MiraklConnector\Exception\NoWalletFoundException;
 use Hipay\MiraklConnector\Exception\UnconfirmedBankAccountException;
 use Hipay\MiraklConnector\Exception\UnidentifiedWalletException;
@@ -69,7 +70,7 @@ class Processor extends AbstractProcessor
      * @param $publicLabelTemplate
      * @param $privateLabelTemplate
      * @param $withdrawLabelTemplate
-     * @throws NoEnoughFundsAvailableException
+     * @throws WrongWalletBalance
      * @throws NoWalletFoundException
      * @throws UnconfirmedBankAccountException
      * @throws UnidentifiedWalletException
@@ -80,29 +81,53 @@ class Processor extends AbstractProcessor
         $withdrawLabelTemplate
     )
     {
-        $nextDay = new \DateTime("+1 day");
+        $previousDay = new DateTime("-1 day");
+        //Transfer
+        $this->transferOperations(
+            $previousDay,
+            $publicLabelTemplate,
+            $privateLabelTemplate
+        );
+        //Withdraw
+        $this->withdrawOperations($previousDay, $withdrawLabelTemplate);
 
+
+    }
+
+    /**
+     * @param $previousDay
+     * @param $publicLabelTemplate
+     * @param $privateLabelTemplate
+     */
+    public function transferOperations(
+        $previousDay,
+        $publicLabelTemplate,
+        $privateLabelTemplate
+    )
+    {
         //Transfer
         $toTransfer = $this->operationManager->findByStatusAndCycleDate(
             new Status(Status::CREATED)
         );
-        $toTransfer = $toTransfer + $this->operationManager->findByStatusAndCycleDate(
-            new Status(Status::TRANSFER_FAILED), $nextDay
-        );
+        $toTransfer = $toTransfer + $this->operationManager
+                ->findByStatusAndCycleDate(
+                    new Status(Status::TRANSFER_FAILED),
+                    $previousDay
+                );
 
         $transferSuccess = new Status(Status::TRANSFER_SUCCESS);
         $transferFailed = new Status(Status::TRANSFER_FAILED);
 
         foreach ($toTransfer as $operation) {
             try {
-                $operation->setStatus(new Status(Status::TRANSFER_START));
                 $this->operationManager->save($operation);
-                $this->transfer(
+                $transferId = $this->transferOperation(
                     $operation,
                     $this->generateLabel($publicLabelTemplate, $operation),
                     $this->generateLabel($privateLabelTemplate, $operation)
                 );
                 $operation->setStatus($transferSuccess);
+                $operation->setTransferId($transferId);
             } catch (DispatchableException $e) {
                 $operation->setStatus($transferFailed);
                 $this->logger->warning(
@@ -117,30 +142,35 @@ class Processor extends AbstractProcessor
                     $e->getMessage()
                 );
             }
+
+            $this->operationManager->save($operation);
         }
-
-        $this->operationManager->saveAll($toTransfer);
-
-
-        //Withdraw
+    }
+    /**
+     * @param $previousDay
+     * @param $withdrawLabelTemplate
+     */
+    public function withdrawOperations($previousDay, $withdrawLabelTemplate)
+    {
         $toWithdraw = $this->operationManager->findByStatusAndCycleDate(
             new Status(Status::TRANSFER_SUCCESS)
         );
-        $toWithdraw = $toWithdraw + $this->operationManager->findByStatusAndCycleDate(
-            new Status(Status::WITHDRAW_FAILED), $nextDay
-        );
+        $toWithdraw = $toWithdraw + $this->operationManager
+                ->findByStatusAndCycleDate(
+                    new Status(Status::WITHDRAW_FAILED),
+                    $previousDay
+                );
 
         $withdrawRequested = new Status(Status::WITHDRAW_REQUESTED);
         $withdrawFailed = new Status(Status::WITHDRAW_FAILED);
 
         foreach ($toWithdraw as $operation) {
             try {
-                $operation->setStatus(new Status(Status::WITHDRAW_START));
-                $this->operationManager->save($operation);
-                $this->withdraw(
+                $withdrawId = $this->withdrawOperation(
                     $operation,
                     $this->generateLabel($withdrawLabelTemplate, $operation)
                 );
+                $operation->setWithdrawId($withdrawId);
                 $operation->setStatus($withdrawRequested);
             } catch (DispatchableException $e) {
                 $operation->setStatus($withdrawFailed);
@@ -148,17 +178,16 @@ class Processor extends AbstractProcessor
                     $e->getMessage()
                 );
                 $this->dispatcher->dispatch(
-                    $e->getEventName(), new ThrowException($e)
+                    $e->getEventName(),
+                    new ThrowException($e)
                 );
             } catch (Exception $e) {
                 $this->logger->critical(
                     $e->getMessage()
                 );
             }
+            $this->operationManager->save($operation);
         }
-
-        $this->operationManager->saveAll($toWithdraw);
-
     }
 
     /**
@@ -168,10 +197,10 @@ class Processor extends AbstractProcessor
      * @param OperationInterface $operation
      * @param string $publicLabel
      * @param string $privateLabel
-     * @return array
+     * @return int
      * @throws NoWalletFoundException
      */
-    public function transfer(
+    public function transferOperation(
         OperationInterface $operation,
         $publicLabel,
         $privateLabel
@@ -189,7 +218,8 @@ class Processor extends AbstractProcessor
             $publicLabel,
             $privateLabel
         );
-        return $this->hipay->direct($transfer);
+        //Transfer
+        return $this->hipay->transfer($transfer);
     }
 
     /**
@@ -197,12 +227,12 @@ class Processor extends AbstractProcessor
      *
      * @param OperationInterface $operation
      * @param $label
-     * @return array
-     * @throws NoEnoughFundsAvailableException
+     * @return int
+     * @throws WrongWalletBalance
      * @throws UnconfirmedBankAccountException
      * @throws UnidentifiedWalletException
      */
-    public function withdraw(OperationInterface $operation, $label)
+    public function withdrawOperation(OperationInterface $operation, $label)
     {
         if (!$this->hipay->isIdentified($operation->getHipayId())) {
             throw new UnidentifiedWalletException($operation->getHipayId());
@@ -226,14 +256,13 @@ class Processor extends AbstractProcessor
             if (!$operation->getMiraklId()) {
                 $amount = $balance;
             } else {
-                throw new NoEnoughFundsAvailableException(
+                throw new WrongWalletBalance(
                     $vendor,
                     $amount,
                     $balance
                 );
             }
         }
-
         //Withdraw
         return $this->hipay->withdraw($vendor, $amount, $label);
     }

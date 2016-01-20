@@ -2,33 +2,32 @@
 namespace Hipay\MiraklConnector\Vendor;
 
 use DateTime;
+use Hipay\MiraklConnector\Api\Hipay;
+use Hipay\MiraklConnector\Api\Hipay\ConfigurationInterface
+    as HipayConfiguration;
 use Hipay\MiraklConnector\Api\Hipay\Constant\BankInfo as BankInfoStatus;
-use Hipay\MiraklConnector\Api\Hipay\Model\Soap\MerchantData;
 use Hipay\MiraklConnector\Api\Hipay\Model\Soap\BankInfo;
+use Hipay\MiraklConnector\Api\Hipay\Model\Soap\MerchantData;
 use Hipay\MiraklConnector\Api\Hipay\Model\Soap\UserAccountBasic;
 use Hipay\MiraklConnector\Api\Hipay\Model\Soap\UserAccountDetails;
+use Hipay\MiraklConnector\Api\Mirakl;
+use Hipay\MiraklConnector\Api\Mirakl\ConfigurationInterface
+    as MiraklConfiguration;
 use Hipay\MiraklConnector\Common\AbstractProcessor;
 use Hipay\MiraklConnector\Exception\BankAccountCreationFailedException;
 use Hipay\MiraklConnector\Exception\DispatchableException;
 use Hipay\MiraklConnector\Exception\Event\ThrowException;
 use Hipay\MiraklConnector\Exception\InvalidBankInfoException;
-use Hipay\MiraklConnector\Exception\UnauthorizedModificationException;
 use Hipay\MiraklConnector\Service\Ftp;
+use Hipay\MiraklConnector\Service\Ftp\ConfigurationInterface
+    as FtpConfiguration;
 use Hipay\MiraklConnector\Service\Validation\ModelValidator;
 use Hipay\MiraklConnector\Service\Zip;
 use Hipay\MiraklConnector\Vendor\Event\AddBankAccount;
 use Hipay\MiraklConnector\Vendor\Event\CheckAvailability;
 use Hipay\MiraklConnector\Vendor\Event\CreateWallet;
-use Hipay\MiraklConnector\Api\Mirakl;
-use Hipay\MiraklConnector\Api\Hipay;
-use Hipay\MiraklConnector\Api\Mirakl\ConfigurationInterface
-    as MiraklConfiguration;
-use Hipay\MiraklConnector\Service\Ftp\ConfigurationInterface
-    as FtpConfiguration;
-use Hipay\MiraklConnector\Api\Hipay\ConfigurationInterface as
-    HipayConfiguration;
-use Hipay\MiraklConnector\Vendor\Model\VendorInterface;
 use Hipay\MiraklConnector\Vendor\Model\ManagerInterface;
+use Hipay\MiraklConnector\Vendor\Model\VendorInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Touki\FTP\FTPFactory;
@@ -296,82 +295,19 @@ class Processor extends AbstractProcessor
     {
         $this->logger->info("Vendor Processing");
 
-        $vendorCollection = array();
-        $miraklDataCollection = array();
-
+        //Vendor data fetching from Mirakl
         $this->logger->info("Vendors fetching from Mirakl");
-
         $miraklData = $this->getVendors($lastUpdate);
-
         $this->logger->info(
             "[OK] Fetched vendors from Mirakl : " . count($miraklData)
         );
 
+        $miraklData = $this->indexArray($miraklData, 'shop_id');
+
         //Wallet creation
         $this->logger->info("Wallet creation");
-        foreach ($miraklData as $vendorData) {
-            $this->logger->debug(
-                "Shop id : {shopId}",
-                array("shopId" => $vendorData['shop_id'])
-            );
-
-            try {
-                //Vendor recording
-                $vendor = $this->vendorManager->findByMiraklId(
-                    $vendorData['shop_id']
-                );
-                if (!$vendor && !$this->hasWallet(
-                    $vendorData['contact_informations']['email']
-                )
-                ) {
-                    //Wallet create (call to Hipay)
-                    $hipayId = $this->createWallet($vendorData);
-                    $this->logger->info(
-                        "[OK] Created wallet for : " . $vendor->getMiraklId(),
-                        array("shopId" => $vendor->getMiraklId())
-                    );
-                    $vendor = $this->vendorManager->create(
-                        $vendorData['contact_informations']['email'],
-                        $vendorData['shop_id'],
-                        $hipayId
-                    );
-                }
-
-                $previousValues['email'] = $vendor->getEmail();
-                $previousValues['hipayId'] = $vendor->getHipayId();
-                $previousValues['miraklId'] = $vendor->getMiraklId();
-
-                //Put more data into the vendor
-                $this->vendorManager->update($vendor, $vendorData);
-
-                ModelValidator::validate($vendor);
-
-                $exception = new UnauthorizedModificationException($vendor);
-
-                foreach ($previousValues as $key => $previousValue) {
-                    $methodName = "get" . ucfirst($key);
-                    if ($previousValue != $vendor->$methodName()) {
-                        $exception->addModifiedProperty($key);
-                    }
-                }
-
-                if ($exception->hasModifiedProperty()) {
-                    throw $exception;
-                }
-
-                $vendorCollection[$vendor->getMiraklId()] = $vendor;
-                $miraklDataCollection[$vendor->getMiraklId()] = $vendorData;
-
-            } catch (DispatchableException $e) {
-                $this->logger->warning(
-                    $e->getMessage(),
-                    array("shopId" => $vendorData['shop_id'])
-                );
-                $this->dispatcher->dispatch(
-                    $e->getEventName(), new ThrowException($e)
-                );
-            }
-        }
+        $vendorCollection = $this->registerWallets($miraklData);
+        $this->logger->info("Wallets created : " . count($vendorCollection));
 
         $this->vendorManager->saveAll($vendorCollection);
 
@@ -384,6 +320,89 @@ class Processor extends AbstractProcessor
         $this->logger->info("[OK] Files transferred");
 
         $this->logger->info("Update bank data");
+        $this->handleBankInfo($vendorCollection, $miraklData);
+        $this->logger->info("[OK] Bank info updated");
+    }
+
+    /**
+     * @param VendorInterface $vendor
+     */
+    protected function getImmutableValues(VendorInterface $vendor)
+    {
+        $previousValues['email'] = $vendor->getEmail();
+        $previousValues['hipayId'] = $vendor->getHipayId();
+        $previousValues['miraklId'] = $vendor->getMiraklId();
+
+        return $previousValues;
+    }
+
+    /**
+     * Register wallets into Hipay
+     *
+     * @param $miraklData
+     *
+     * @return VendorInterface[] an array of vendor to save
+     */
+    public function registerWallets($miraklData)
+    {
+        $vendorCollection = array();
+        foreach ($miraklData as $vendorData) {
+            $this->logger->debug(
+                "Shop id : {shopId}",
+                array("shopId" => $vendorData['shop_id'])
+            );
+
+            try {
+                //Vendor recording
+                $vendor = $this->vendorManager->findByMiraklId(
+                    $vendorData['shop_id']
+                );
+                if (!$vendor &&
+                    !$this->hasWallet($vendorData['contact_informations']['email'])) {
+                    //Wallet create (call to Hipay)
+                    $hipayId = $this->createWallet($vendorData);
+                    $this->logger->info(
+                        "[OK] Created wallet for : " . $vendor->getMiraklId(),
+                        array("shopId" => $vendor->getMiraklId())
+                    );
+                    $vendor = $this->vendorManager->create(
+                        $vendorData['contact_informations']['email'],
+                        $vendorData['shop_id'],
+                        $hipayId
+                    );
+                }
+                $previousValues = $this->getImmutableValues($vendor);
+                //Put more data into the vendor
+                $this->vendorManager->update($vendor, $vendorData);
+
+                ModelValidator::validate($vendor);
+
+                ModelValidator::checkImmutability($vendor, $previousValues);
+
+                $vendorCollection[$vendor->getMiraklId()] = $vendor;
+
+            } catch (DispatchableException $e) {
+                $this->logger->warning(
+                    $e->getMessage(),
+                    array("shopId" => $vendorData['shop_id'])
+                );
+                $this->dispatcher->dispatch(
+                    $e->getEventName(), new ThrowException($e)
+                );
+            }
+        }
+
+        return $vendorCollection;
+    }
+
+    /**
+     * Handle mirakl data collection
+     *
+     * @param VendorInterface[] $vendorCollection
+     * @param array $miraklDataCollection mirakl data indexed by shop id
+     */
+    public function handleBankInfo($vendorCollection, $miraklDataCollection)
+    {
         /** @var VendorInterface $vendor */
         foreach ($vendorCollection as $vendor) {
             $this->logger->debug(
@@ -398,7 +417,7 @@ class Processor extends AbstractProcessor
                 $miraklDataCollection[$vendor->getMiraklId()]
             );
 
-            $this->logger->info($bankInfoStatus);
+            $this->logger->debug($bankInfoStatus);
             try {
                 if ($bankInfoStatus == BankInfoStatus::BLANK) {
                     if ($this->addBankAccount($vendor, $miraklBankInfo)) {

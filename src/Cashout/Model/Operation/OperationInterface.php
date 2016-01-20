@@ -46,6 +46,18 @@ interface OperationInterface
     public function setWithdrawId($withdrawId);
 
     /**
+     * @return int
+     * @Assert\Type(type="integer")
+     */
+    public function getTransferId();
+
+    /**
+     * @param int $withdrawId
+     * @return void
+     */
+    public function setTransferId($withdrawId);
+
+    /**
      * @Assert\NotBlank()
      * @Assert\Type(type="integer")
      *

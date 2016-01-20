@@ -264,14 +264,14 @@ class Hipay
      * @return array
      * @throws Exception
      */
-    public function direct(Transfer $transfer, VendorInterface $vendor = null)
+    public function transfer(Transfer $transfer, VendorInterface $vendor = null)
     {
         $parameters = $transfer->mergeIntoParameters();
         if ($vendor) {
             $parameters = $this->mergeSubAccountParameters($vendor);
         }
         $result = $this->callSoap("direct", $parameters);
-        return $result;
+        return $result['transactionId'];
     }
 
     /**
@@ -288,7 +288,7 @@ class Hipay
         $parameters = array('amount' => $amount, 'label' => $label);
         $parameters = $this->mergeSubAccountParameters($vendor, $parameters);
         $result = $this->callSoap("create", $parameters);
-        return $result;
+        return $result['transactionPublicId'];
     }
     /**
      * Add the api login parameters to the parameters

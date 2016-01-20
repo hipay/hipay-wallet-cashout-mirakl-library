@@ -65,11 +65,11 @@ class Handler
 
         if ($status == Notification::OK) {
             $operation->setStatus(new Status(Status::WITHDRAW_SUCCESS));
-            $eventName = 'withdraw.success';
+            $eventName = 'withdrawOperation.success';
             $event = new WithdrawSuccess($operation);
         } else {
             $operation->setStatus(new Status(Status::WITHDRAW_CANCELED));
-            $eventName = 'withdraw.failed';
+            $eventName = 'withdrawOperation.failed';
             $event = new WithdrawFailed($operation);
         }
 

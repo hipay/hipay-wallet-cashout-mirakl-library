@@ -86,4 +86,29 @@ abstract class AbstractProcessor
     {
         $this->dispatcher->addSubscriber($subscriberInterface);
     }
+
+    /**
+     * Create an associative array with an index key
+     *
+     * @param array $array
+     * @param $indexKey
+     * @param array $keptKeys
+     * @return array
+     */
+    protected function indexArray(
+        array $array,
+        $indexKey,
+        array $keptKeys = array()
+    )
+    {
+        $result = array_column($indexKey, $array);
+        $result = array_flip($result);
+        foreach ($array as $element) {
+            $keptKeys = empty($keptKeys) ? array_keys($element) : $keptKeys;
+            $insertedElement = array_intersect_key($element, $keptKeys);
+            $result[$element[$indexKey]] = (count($keptKeys) == 1) ?
+                current($insertedElement) : $insertedElement;
+        }
+        return $result;
+    }
 }

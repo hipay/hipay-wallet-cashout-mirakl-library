@@ -8,7 +8,7 @@ use Hipay\MiraklConnector\Vendor\Model\VendorInterface;
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
  */
-class NoEnoughFundsAvailableException extends DispatchableException
+class WrongWalletBalance extends DispatchableException
 {
     /** @var VendorInterface  */
     protected $vendor;
