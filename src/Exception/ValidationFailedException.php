@@ -32,8 +32,8 @@ class ValidationFailedException extends DispatchableException
         Exception $previous = null
     )
     {
-        parent::__construct($message, $code, $previous);
         $this->constraintViolationList = $constraintViolationList;
+        parent::__construct($message ?: $this->__toString(), $code, $previous);
     }
 
     /**

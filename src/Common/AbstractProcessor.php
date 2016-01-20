@@ -104,9 +104,13 @@ abstract class AbstractProcessor
         $result = array();
         foreach ($array as $element) {
             $keptKeys = empty($keptKeys) ? array_keys($element) : $keptKeys;
-            $insertedElement = array_intersect_key($element, $keptKeys);
-            $result[$element[$indexKey]] = (count($keptKeys) == 1) ?
+            $insertedElement = array_intersect_key(
+                $element,
+                array_flip($keptKeys)
+            );
+            $insertedElement = (count($keptKeys) == 1) ?
                 current($insertedElement) : $insertedElement;
+            $result[$element[$indexKey]] = $insertedElement;
         }
         return $result;
     }

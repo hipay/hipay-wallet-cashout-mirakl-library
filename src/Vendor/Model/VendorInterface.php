@@ -1,6 +1,7 @@
 <?php
 namespace Hipay\MiraklConnector\Vendor\Model;
 
+use Symfony\Component\Validator\Constraints as Assert;
 /**
  * Interface VendorInterface
  * Represent an entity that is able to receive money from Hipay

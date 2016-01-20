@@ -41,15 +41,21 @@ interface ManagerInterface
     public function saveAll(array $vendors);
 
     /**
-     * @param $shopId
+     * @param int $miraklShopId
      * @return VendorInterface|null if not found
      */
-    public function findByMiraklId($shopId);
+    public function findByMiraklId($miraklShopId);
 
     /**
-     * @param $shopId
+     * @param string $email
      * @return VendorInterface|null if not found
      */
-    public function findByHipayId($shopId);
+    public function findByEmail($email);
+
+    /**
+     * @param $hipayId
+     * @return VendorInterface|null if not found
+     */
+    public function findByHipayId($hipayId);
 
 }
