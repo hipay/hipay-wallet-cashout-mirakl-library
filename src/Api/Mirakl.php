@@ -213,7 +213,7 @@ class Mirakl
                 'orderLineIds' => $orderLineIds
             )
         );
-        $result = $this->restClient->execute($command)->getBody();
+        $result = $this->restClient->execute($command);
         return $result['lines'];
     }
 }
