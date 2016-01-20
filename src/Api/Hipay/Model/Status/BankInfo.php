@@ -8,7 +8,7 @@
  * @copyright 2015 Smile
  */
 
-namespace Hipay\MiraklConnector\Api\Hipay\Constant;
+namespace Hipay\MiraklConnector\Api\Hipay\Status;
 
 
 use Hipay\MiraklConnector\Common\AbstractEnumeration;

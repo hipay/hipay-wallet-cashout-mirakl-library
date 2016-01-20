@@ -1,18 +1,7 @@
 <?php
-/**
- * File TransfertStatus.php
- *
- * @category
- * @package
- * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
- * @copyright 2015 Smile
- */
-
-namespace Hipay\MiraklConnector\Api\Hipay;
-
+namespace Hipay\MiraklConnector\Api\Hipay\Status;
 
 use Hipay\MiraklConnector\Common\AbstractEnumeration;
-
 /**
  * Class TransfertStatus
  *
