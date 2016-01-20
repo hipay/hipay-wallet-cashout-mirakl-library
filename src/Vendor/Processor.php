@@ -233,7 +233,7 @@ class Processor extends AbstractProcessor
     )
     {
         $result = $this->hipay->bankInfosStatus($vendor);
-        return $result['status'];
+        return $result;
     }
 
     /**
@@ -357,8 +357,11 @@ class Processor extends AbstractProcessor
                 $vendor = $this->vendorManager->findByEmail(
                     $vendorData['contact_informations']['email']
                 );
-                if (!$vendor &&
-                    !$this->hasWallet($vendorData['contact_informations']['email'])) {
+                if (!$vendor
+                    && !$this->hasWallet(
+                        $vendorData['contact_informations']['email']
+                    )
+                ) {
                     //Wallet create (call to Hipay)
                     $hipayId = $this->createWallet($vendorData);
                     $this->logger->info(
@@ -433,18 +436,16 @@ class Processor extends AbstractProcessor
                         );
                     }
                 }
-                if ($bankInfoStatus == BankInfoStatus::VALIDATED) {
-                    if (!$this->isIBANCorrect($vendor, $miraklBankInfo)) {
-                        throw new InvalidBankInfoException(
-                            $vendor,
-                            $miraklBankInfo,
-                            $vendor->getMiraklId()." has different IBAN between Mirakl and Hipay"
-                        );
-                    } else {
-                        $this->logger->info(
-                            "[OK] The bank information is synchronized"
-                        );
-                    }
+                if (!$this->isIBANCorrect($vendor, $miraklBankInfo)) {
+                    throw new InvalidBankInfoException(
+                        $vendor,
+                        $miraklBankInfo,
+                        $vendor->getMiraklId()." has different IBAN between Mirakl and Hipay"
+                    );
+                } else {
+                    $this->logger->info(
+                        "[OK] The bank information is synchronized"
+                    );
                 }
             } catch (DispatchableException $e) {
                 $this->logger->warning(

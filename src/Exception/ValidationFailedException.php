@@ -53,7 +53,8 @@ class ValidationFailedException extends DispatchableException
         foreach ($this->constraintViolationList as $error) {
             /** @var ConstraintViolation $error*/
             $message .=
-                $error->getPropertyPath(). " : " . $error->getMessage() . "\n";
+                PHP_EOL . $error->getPropertyPath(). " : " .
+                $error->getMessage();
         }
         return $message;
     }

@@ -367,9 +367,9 @@ class Hipay
         $response = (array) current($response);
         if ($response['code'] > 0) {
             throw new Exception(
-                "There was an error with the soap call $name\n" .
-                $response['code'] . ":" . $response['description'] . "\n" .
-                "Parameters : \n" .
+                "There was an error with the soap call $name" . PHP_EOL .
+                $response['code'] . ":" . $response['description'] . PHP_EOL .
+                "Parameters : PHP_EOL" .
                 print_r($parameters, true),
                 $response['code']
             );

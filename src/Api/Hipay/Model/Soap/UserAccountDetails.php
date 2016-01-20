@@ -425,7 +425,9 @@ class UserAccountDetails extends ModelAbstract
     /**
      * @param boolean $receiveCommercialInformation
      */
-    public function setReceiveCommercialInformation($receiveCommercialInformation)
+    public function setReceiveCommercialInformation(
+        $receiveCommercialInformation
+    )
     {
         $this->receiveCommercialInformation = $receiveCommercialInformation;
     }

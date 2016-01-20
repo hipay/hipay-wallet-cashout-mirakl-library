@@ -1,9 +1,9 @@
 <?php
 namespace Hipay\MiraklConnector\Api;
 
+use DateTime;
 use Guzzle\Service\Client;
 use Guzzle\Service\Description\ServiceDescription;
-use Symfony\Component\Validator\Constraints\DateTime;
 
 /**
  * Class Mirakl

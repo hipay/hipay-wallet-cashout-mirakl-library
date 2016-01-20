@@ -299,9 +299,9 @@ class Initializer extends AbstractProcessor
         }
         if ($amount != $paymentTransaction['balance']) {
             throw new TransactionException(
-                "There is a difference between the transactions
-                \n $amount for the transactions
-                \n {$paymentTransaction['balance']} for the earlier payment transaction"
+                "There is a difference between the transactions".
+                PHP_EOL . "$amount for the transactions" .
+                PHP_EOL . "{$paymentTransaction['balance']} for the earlier payment transaction"
             );
         }
         if ($errors) {
