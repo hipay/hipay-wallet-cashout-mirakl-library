@@ -354,8 +354,8 @@ class Processor extends AbstractProcessor
 
             try {
                 //Vendor recording
-                $vendor = $this->vendorManager->findByMiraklId(
-                    $vendorData['shop_id']
+                $vendor = $this->vendorManager->findByEmail(
+                    $vendorData['contact_informations']['email']
                 );
                 if (!$vendor &&
                     !$this->hasWallet($vendorData['contact_informations']['email'])) {
