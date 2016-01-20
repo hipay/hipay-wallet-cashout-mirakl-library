@@ -1,5 +1,5 @@
 <?php
-namespace Hipay\MiraklConnector\Api\Hipay\Status;
+namespace Hipay\MiraklConnector\Api\Hipay\Model\Status;
 
 use Hipay\MiraklConnector\Common\AbstractEnumeration;
 

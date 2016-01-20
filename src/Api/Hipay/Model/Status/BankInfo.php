@@ -1,14 +1,5 @@
 <?php
-/**
- * File BankInfo.php
- *
- * @category
- * @package
- * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
- * @copyright 2015 Smile
- */
-
-namespace Hipay\MiraklConnector\Api\Hipay\Status;
+namespace Hipay\MiraklConnector\Api\Hipay\Model\Status;
 
 
 use Hipay\MiraklConnector\Common\AbstractEnumeration;
