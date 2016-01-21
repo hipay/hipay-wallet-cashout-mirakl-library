@@ -371,12 +371,15 @@ class Processor extends AbstractProcessor
                         $vendor = $this->vendorManager->create(
                             $vendorData['contact_informations']['email'],
                             $vendorData['shop_id'],
-                            $hipayId
+                            $hipayId,
+                            $vendorData
                         );
                     } else {
+
                         $vendor = $this->recordWallet(
                             $vendorData['contact_informations']['email'],
-                            $vendorData['shop_id']
+                            $vendorData['shop_id'],
+                            $vendorData
                         );
                     }
                 }
@@ -470,14 +473,12 @@ class Processor extends AbstractProcessor
      *
      * @param $email
      * @param $miraklId
+     * @param $miraklData
      * @return VendorInterface
      */
-    public function recordWallet($email, $miraklId)
+    protected function recordWallet($email, $miraklId, $miraklData)
     {
         $walletId = $this->hipay->getWalletId($email);
-        $miraklData = current(
-            $this->mirakl->getVendors(null, false, array($miraklId))
-        );
         $this->logger->debug("The wallet number is $walletId");
         $vendor = $this->vendorManager->create(
             $email,
@@ -485,9 +486,21 @@ class Processor extends AbstractProcessor
             $walletId,
             $miraklData
         );
-        $this->vendorManager->save($vendor);
         $this->logger->info("[OK] Wallet recorded");
-
         return $vendor;
+    }
+
+    /**
+     * Fetch
+     * @param $email
+     * @param $miraklId
+     */
+    public function recordVendor($email, $miraklId)
+    {
+        $miraklData = current(
+            $this->mirakl->getVendors(null, false, array($miraklId))
+        );
+        $vendor = $this->recordWallet($email, $miraklId, $miraklData);
+        $this->vendorManager->save($vendor);
     }
 }

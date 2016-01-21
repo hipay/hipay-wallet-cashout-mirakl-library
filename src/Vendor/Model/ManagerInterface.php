@@ -19,7 +19,7 @@ interface ManagerInterface
         $email,
         $miraklId,
         $hipayId,
-        array $miraklData = array()
+        array $miraklData
     );
 
     /**
