@@ -7,6 +7,7 @@ use Hipay\MiraklConnector\Api\Hipay\Model\Status\NotificationOperation;
 use Hipay\MiraklConnector\Api\Hipay\Model\Status\NotificationStatus;
 use Hipay\MiraklConnector\Cashout\Model\Operation\ManagerInterface
     as OperationManager;
+use Hipay\MiraklConnector\Exception\IllegalNotificationOperationException;
 use Hipay\MiraklConnector\Notification\Event\BankInfoNotification;
 use Hipay\MiraklConnector\Notification\Event\IdentificationNotification;
 use Hipay\MiraklConnector\Notification\Event\OtherNotification;
@@ -57,13 +58,14 @@ class Handler
      *
      * @param $xml
      * @throws Exception
-     *
+     * @throws IllegalNotificationOperationException
      */
     public function handleHipayNotification($xml)
     {
         $xml = new SimpleXMLElement($xml);
 
-        if (md5($xml->result) !=  $xml->md5content) {
+        if (md5($xml->result) !=  $xml->md5content)
+        {
             throw new Exception("Wrong checksum");
         }
 
@@ -95,7 +97,7 @@ class Handler
                     $status
                 );
                 break;
-            default:
+            case NotificationOperation::OTHER:
                 $this->other(
                     $xml->result->amount,
                     $xml->result->currency,
@@ -103,6 +105,12 @@ class Handler
                     $vendor,
                     $date,
                     $status
+                );
+                break;
+            default:
+                throw new IllegalNotificationOperationException(
+                    $operation,
+                    "The $operation is not possible"
                 );
         }
     }
