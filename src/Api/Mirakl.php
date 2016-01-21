@@ -55,15 +55,17 @@ class Mirakl
     /**
      * Fetch from Mirakl all vendors (uses S20)
      *
-     * @param \DateTimeInterface $updatedSince date of the last Update
+     * @param DateTime $updatedSince date of the last Update
      *
      * @param bool $paginate
+     * @param array $shopIds
      * @return array the response
      *
      */
     public function getVendors(
-        \DateTimeInterface $updatedSince = null,
-        $paginate = false
+        DateTime $updatedSince = null,
+        $paginate = false,
+        $shopIds = array()
     )
     {
         $this->restClient->getConfig()->setPath(
@@ -74,7 +76,8 @@ class Mirakl
             'GetVendors',
             array(
                 'updatedSince' => $updatedSince,
-                'paginate' => $paginate
+                'paginate' => $paginate,
+                'shopIds' => $shopIds
             )
         );
         $result = $this->restClient->execute($command);

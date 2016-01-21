@@ -8,6 +8,18 @@
       "uri": "/api/shops",
       "summary": "Fetch all shops from Mirakl",
       "parameters": {
+        "shopIds": {
+          "type": "array",
+          "required": false,
+          "location": "query",
+          "sentAs": "shop_ids",
+          "filters" : [
+            {
+              "method": "join",
+              "args" : [",", "@value"]
+            }
+          ]
+        },
         "updatedSince": {
           "type": "object",
           "instanceOf" : "DateTimeInterface",
