@@ -458,4 +458,20 @@ class Processor extends AbstractProcessor
             }
         }
     }
+
+    /**
+     * To record a wallet in the database in the case there was an error
+     *
+     * @param $email
+     * @param $miraklId
+     */
+    public function recordWallet($email, $miraklId)
+    {
+        $vendor = $this->vendorManager->create(
+            $email,
+            $miraklId,
+            $this->hipay->getWalletId($email)
+        );
+        $this->vendorManager->save($vendor);
+    }
 }

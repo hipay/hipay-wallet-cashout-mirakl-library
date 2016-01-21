@@ -34,11 +34,18 @@ interface ManagerInterface
         VendorInterface $vendor,
         array $miraklData
     );
+
     /**
      * @param VendorInterface[] $vendors
      * @return mixed
      */
     public function saveAll(array $vendors);
+
+    /**
+     * @param VendorInterface $vendor
+     * @return mixed
+     */
+    public function save($vendor);
 
     /**
      * @param int $miraklShopId
