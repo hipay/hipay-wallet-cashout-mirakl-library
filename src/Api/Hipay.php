@@ -222,7 +222,7 @@ class Hipay
     {
         $parameters = array('accountLogin' => $email);
         $result = $this->callSoap("getAccountInfos", $parameters);
-        return $result['accountId'];
+        return $result['userAccountId'];
     }
 
     /**

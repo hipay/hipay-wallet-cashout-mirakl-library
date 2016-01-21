@@ -364,15 +364,15 @@ class Processor extends AbstractProcessor
                     ) {
                         //Wallet create (call to Hipay)
                         $hipayId = $this->createWallet($vendorData);
-                        $this->logger->info(
-                            "[OK] Created wallet for : " . $vendor->getMiraklId(),
-                            array("shopId" => $vendor->getMiraklId())
-                        );
                         $vendor = $this->vendorManager->create(
                             $vendorData['contact_informations']['email'],
                             $vendorData['shop_id'],
                             $hipayId,
                             $vendorData
+                        );
+                        $this->logger->info(
+                            "[OK] Created wallet for : " . $vendor->getMiraklId(),
+                            array("shopId" => $vendor->getMiraklId())
                         );
                     } else {
 
