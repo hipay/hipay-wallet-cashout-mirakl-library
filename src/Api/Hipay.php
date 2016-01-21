@@ -149,7 +149,7 @@ class Hipay
         $parameters = $accountDetails->mergeIntoParameters($parameters);
         $parameters = $merchantData->mergeIntoParameters($parameters);
         $result = $this->callSoap("createFullUseraccount", $parameters);
-        return $result['userAccountld'];
+        return $result['userAccountId'];
     }
 
     /**
