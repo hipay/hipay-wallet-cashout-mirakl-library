@@ -161,11 +161,17 @@ class Processor extends AbstractProcessor
         $ftpShopsPath,
         $tmpExtractPath = null)
     {
-        //Downloads the zip file containg the documents
-        file_put_contents(
-            $tmpZipFilePath,
-            $this->mirakl->downloadShopsDocuments($shopIds)
-        );
+        //Downloads the zip file containing the documents
+        try {
+            file_put_contents(
+                $tmpZipFilePath,
+                $this->mirakl->downloadShopsDocuments($shopIds)
+            );
+        } catch (\Exception $e) {
+            $this->logger->notice("No file was transfered");
+            return;
+        }
+
 
         $zip = new Zip($tmpZipFilePath);
 
@@ -375,7 +381,6 @@ class Processor extends AbstractProcessor
                             array("shopId" => $vendor->getMiraklId())
                         );
                     } else {
-
                         $vendor = $this->recordWallet(
                             $vendorData['contact_informations']['email'],
                             $vendorData['shop_id'],
