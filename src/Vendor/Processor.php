@@ -357,22 +357,28 @@ class Processor extends AbstractProcessor
                 $vendor = $this->vendorManager->findByEmail(
                     $vendorData['contact_informations']['email']
                 );
-                if (!$vendor
-                    && !$this->hasWallet(
+                if (!$vendor) {
+                    if (!$this->hasWallet(
                         $vendorData['contact_informations']['email']
                     )
-                ) {
-                    //Wallet create (call to Hipay)
-                    $hipayId = $this->createWallet($vendorData);
-                    $this->logger->info(
-                        "[OK] Created wallet for : " . $vendor->getMiraklId(),
-                        array("shopId" => $vendor->getMiraklId())
-                    );
-                    $vendor = $this->vendorManager->create(
-                        $vendorData['contact_informations']['email'],
-                        $vendorData['shop_id'],
-                        $hipayId
-                    );
+                    ) {
+                        //Wallet create (call to Hipay)
+                        $hipayId = $this->createWallet($vendorData);
+                        $this->logger->info(
+                            "[OK] Created wallet for : " . $vendor->getMiraklId(),
+                            array("shopId" => $vendor->getMiraklId())
+                        );
+                        $vendor = $this->vendorManager->create(
+                            $vendorData['contact_informations']['email'],
+                            $vendorData['shop_id'],
+                            $hipayId
+                        );
+                    } else {
+                        $vendor = $this->recordWallet(
+                            $vendorData['contact_informations']['email'],
+                            $vendorData['shop_id']
+                        );
+                    }
                 }
                 $previousValues = $this->getImmutableValues($vendor);
                 //Put more data into the vendor
@@ -464,6 +470,7 @@ class Processor extends AbstractProcessor
      *
      * @param $email
      * @param $miraklId
+     * @return VendorInterface
      */
     public function recordWallet($email, $miraklId)
     {
@@ -480,5 +487,7 @@ class Processor extends AbstractProcessor
         );
         $this->vendorManager->save($vendor);
         $this->logger->info("[OK] Wallet recorded");
+
+        return $vendor;
     }
 }
