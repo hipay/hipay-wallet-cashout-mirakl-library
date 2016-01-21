@@ -450,16 +450,18 @@ class Processor extends AbstractProcessor
                         );
                     }
                 }
-                if (!$this->isIBANCorrect($vendor, $miraklBankInfo)) {
-                    throw new InvalidBankInfoException(
-                        $vendor,
-                        $miraklBankInfo,
-                        $vendor->getMiraklId()." has different IBAN between Mirakl and Hipay"
-                    );
-                } else {
-                    $this->logger->info(
-                        "[OK] The bank information is synchronized"
-                    );
+                if ($bankInfoStatus == BankInfoStatus::VALIDATED) {
+                    if (!$this->isIBANCorrect($vendor, $miraklBankInfo)) {
+                        throw new InvalidBankInfoException(
+                            $vendor,
+                            $miraklBankInfo,
+                            $vendor->getMiraklId()." has different IBAN between Mirakl and Hipay"
+                        );
+                    } else {
+                        $this->logger->info(
+                            "[OK] The bank information is synchronized"
+                        );
+                    }
                 }
             } catch (DispatchableException $e) {
                 $this->logger->warning(
