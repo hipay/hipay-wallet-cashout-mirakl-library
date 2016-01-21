@@ -8,8 +8,11 @@ namespace Hipay\MiraklConnector\Api\Hipay\Model\Status;
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
  */
-class Notification
+class NotificationOperation
 {
     const WITHDRAW_VALIDATION = 'withdraw_validation';
-    const OK = 'ok';
+    const BANK_INFO_VALIDATION = 'bank_info_validation';
+    const IDENTIFICATION = 'identification';
+    const OTHER = "other_transaction";
+
 }

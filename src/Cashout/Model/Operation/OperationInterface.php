@@ -22,11 +22,11 @@ interface OperationInterface
 {
     /**
      * @return int|false if it is an operator operation
+     * @Assert\Type(type="integer")
      */
     public function getMiraklId();
 
     /**
-     * @Assert\NotBlank()
      * @Assert\Type(type="integer")
      *
      * @return int

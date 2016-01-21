@@ -1,12 +1,20 @@
 <?php
 namespace Hipay\MiraklConnector\Notification;
 
+use DateTime;
 use Exception;
-use Hipay\MiraklConnector\Api\Hipay\Notification;
-use Hipay\MiraklConnector\Cashout\Event\WithdrawFailed;
-use Hipay\MiraklConnector\Cashout\Event\WithdrawSuccess;
-use Hipay\MiraklConnector\Cashout\Model\Operation\ManagerInterface;
+use Hipay\MiraklConnector\Api\Hipay\Model\Status\NotificationOperation;
+use Hipay\MiraklConnector\Api\Hipay\Model\Status\NotificationStatus;
+use Hipay\MiraklConnector\Cashout\Model\Operation\ManagerInterface
+    as OperationManager;
+use Hipay\MiraklConnector\Notification\Event\BankInfoNotification;
+use Hipay\MiraklConnector\Notification\Event\IdentificationNotification;
+use Hipay\MiraklConnector\Notification\Event\OtherNotification;
+use Hipay\MiraklConnector\Vendor\Model\ManagerInterface as VendorManager;
 use Hipay\MiraklConnector\Cashout\Model\Operation\Status;
+use Hipay\MiraklConnector\Notification\Event\WithdrawNotification;
+use Hipay\MiraklConnector\Vendor\Model\VendorInterface;
+use SimpleXMLElement;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -17,63 +25,194 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  */
 class Handler
 {
-    /** @var  ManagerInterface */
+    /** @var  OperationManager */
     protected $operationManager;
 
-    /** @var EventDispatcherInterface event */
+    /** @var EventDispatcherInterface */
     protected $dispatcher;
+    /**
+     * @var VendorManager
+     */
+    private $vendorManager;
 
     /**
      * Handler constructor.
-     * @param ManagerInterface $operationManager
+     * @param OperationManager $operationManager
+     * @param VendorManager $vendorManager
      * @param EventDispatcherInterface $dispatcher
      */
     public function __construct(
-        ManagerInterface $operationManager,
+        OperationManager $operationManager,
+        VendorManager $vendorManager,
         EventDispatcherInterface $dispatcher
     )
     {
         $this->operationManager = $operationManager;
         $this->dispatcher = $dispatcher;
+        $this->vendorManager = $vendorManager;
     }
 
     /**
      * Handle the notification sent by Hipay
      *
-     * @param string $operation
-     * @param int $transactionId
-     * @param string $status
-     *
+     * @param $xml
      * @throws Exception
+     *
      */
-    public function handleHipayNotification($operation, $transactionId, $status)
+    public function handleHipayNotification($xml)
     {
-        if (!$operation == Notification::WITHDRAW_VALIDATION) {
-            throw new Exception('Wrong Hipay notification operation');
+        $xml = new SimpleXMLElement($xml);
+
+        if (md5($xml->result) !=  $xml->md5content) {
+            throw new Exception("Wrong checksum");
         }
 
-        $operation = $this->operationManager->findByTransactionId(
-            $transactionId);
+        $operation = $xml->result->operation;
+        $status = $xml->result->status == NotificationStatus::OK;
+        $date = new \DateTime($xml->result->date . " " . $xml->result->time);
+        $vendor = $this->vendorManager->findByHipayId($xml->result->account_id);
+
+        switch ($operation) {
+            case NotificationOperation::BANK_INFO_VALIDATION:
+                $this->bankInfoValidation(
+                    $vendor,
+                    $date,
+                    $status
+                );
+                break;
+            case NotificationOperation::IDENTIFICATION:
+                $this->identification(
+                    $vendor,
+                    $date,
+                    $status
+                );
+                break;
+            case NotificationOperation::WITHDRAW_VALIDATION:
+                $this->withdrawalValidation(
+                    $xml->result->transid,
+                    $vendor,
+                    $date,
+                    $status
+                );
+                break;
+            default:
+                $this->other(
+                    $xml->result->amount,
+                    $xml->result->currency,
+                    $xml->result->label,
+                    $vendor,
+                    $date,
+                    $status
+                );
+        }
+    }
+
+
+    /**
+     * @param $transactionId
+     * @param VendorInterface $vendor
+     * @param DateTime $date
+     * @param boolean $status
+     * @throws Exception
+     */
+    protected function withdrawalValidation(
+        $transactionId,
+        VendorInterface $vendor,
+        \DateTime $date,
+        $status
+    )
+    {
+        $operation = $this->operationManager
+            ->findByTransactionId($transactionId);
 
         if (!$operation) {
             throw new Exception('Operation not found');
         }
 
         if ($operation->getStatus() != Status::WITHDRAW_REQUESTED) {
-            throw new Exception('Wrong operation status');
+            throw new Exception('Wrong operation status in the database');
         }
 
-        if ($status == Notification::OK) {
+        if ($status) {
             $operation->setStatus(new Status(Status::WITHDRAW_SUCCESS));
-            $eventName = 'withdrawOperation.success';
-            $event = new WithdrawSuccess($operation);
+            $eventName = 'withdraw.notification.success';
         } else {
             $operation->setStatus(new Status(Status::WITHDRAW_CANCELED));
-            $eventName = 'withdrawOperation.failed';
-            $event = new WithdrawFailed($operation);
+            $eventName = 'withdraw.notification.failed';
         }
 
         $this->operationManager->save($operation);
+        $event = new WithdrawNotification($operation, $vendor, $date);
+
+        $this->dispatcher->dispatch($eventName, $event);
+    }
+
+    /**
+     * @param VendorInterface $vendor
+     * @param DateTime $date
+     * @param boolean $status
+     */
+    protected function bankInfoValidation($vendor, $date, $status)
+    {
+        if ($status) {
+            $eventName = 'bankInfos.validation.notification.success';
+        } else {
+            $eventName = 'bankInfos.validation.notification.failed';
+        }
+
+        $event = new BankInfoNotification($vendor, $date);
+
+        $this->dispatcher->dispatch($eventName, $event);
+    }
+
+    /**
+     * @param VendorInterface $vendor
+     * @param DateTime $date
+     * @param boolean $status
+     */
+    protected function identification($vendor, $date, $status)
+    {
+        if ($status) {
+            $eventName = 'identification.notification.success';
+        } else {
+            $eventName = 'identification.notification.failed';
+        }
+
+        $event = new IdentificationNotification($vendor, $date);
+
+        $this->dispatcher->dispatch($eventName, $event);
+    }
+
+    /**
+     * @param float $amount
+     * @param string $currency
+     * @param string $label
+     * @param VendorInterface $vendor
+     * @param DateTime $date
+     * @param boolean $status
+     */
+    protected function other(
+        $amount,
+        $currency,
+        $label,
+        $vendor,
+        $date,
+        $status
+    )
+    {
+        if ($status) {
+            $eventName = 'other.notification.success';
+        } else {
+            $eventName = 'other.notification.failed';
+        }
+
+        $event = new OtherNotification(
+            $amount,
+            $currency,
+            $label,
+            $vendor,
+            $date
+        );
 
         $this->dispatcher->dispatch($eventName, $event);
     }

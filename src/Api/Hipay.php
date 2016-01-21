@@ -252,7 +252,7 @@ class Hipay
     {
         $parameters = $this->mergeSubAccountParameters($vendor);
         $result = $this->callSoap("getBalance", $parameters);
-        return $result['balance'];
+        return $result['balances']->item[0]->balance;
     }
 
     /**
