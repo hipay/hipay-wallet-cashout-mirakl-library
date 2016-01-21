@@ -467,11 +467,14 @@ class Processor extends AbstractProcessor
      */
     public function recordWallet($email, $miraklId)
     {
+        $walletId = $this->hipay->getWalletId($email);
+        $this->logger->debug("The wallet number is $walletId");
         $vendor = $this->vendorManager->create(
             $email,
             $miraklId,
-            $this->hipay->getWalletId($email)
+            $walletId
         );
         $this->vendorManager->save($vendor);
+        $this->logger->info("[OK] Wallet recorded");
     }
 }
