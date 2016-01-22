@@ -450,7 +450,7 @@ class Processor extends AbstractProcessor
 
             $this->logger->debug($bankInfoStatus);
             try {
-                if ($bankInfoStatus == BankInfoStatus::BLANK) {
+                if (trim($bankInfoStatus) == BankInfoStatus::BLANK) {
                     if ($this->addBankAccount($vendor, $miraklBankInfo)) {
                         $this->logger->info(
                             "[OK] Created bank account for : " .
@@ -464,7 +464,7 @@ class Processor extends AbstractProcessor
                         );
                     }
                 }
-                if ($bankInfoStatus == BankInfoStatus::VALIDATED) {
+                if (trim($bankInfoStatus) == BankInfoStatus::VALIDATED) {
                     if (!$this->isIBANCorrect($vendor, $miraklBankInfo)) {
                         throw new InvalidBankInfoException(
                             $vendor,
