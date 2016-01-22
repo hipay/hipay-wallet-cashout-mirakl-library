@@ -411,7 +411,7 @@ class Processor extends AbstractProcessor
                 ModelValidator::checkImmutability($vendor, $previousValues);
 
                 $vendorCollection[$vendor->getMiraklId()] = $vendor;
-
+                $this->logger->info("[OK] The vendor is treated");
             } catch (DispatchableException $e) {
                 $this->logger->warning(
                     $e->getMessage(),
