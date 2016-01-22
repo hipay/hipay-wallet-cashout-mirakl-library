@@ -18,6 +18,7 @@ use Hipay\MiraklConnector\Exception\BankAccountCreationFailedException;
 use Hipay\MiraklConnector\Exception\DispatchableException;
 use Hipay\MiraklConnector\Exception\Event\ThrowException;
 use Hipay\MiraklConnector\Exception\InvalidBankInfoException;
+use Hipay\MiraklConnector\Exception\InvalidVendorException;
 use Hipay\MiraklConnector\Service\Ftp;
 use Hipay\MiraklConnector\Service\Ftp\ConfigurationInterface
     as FtpConfiguration;
@@ -401,13 +402,14 @@ class Processor extends AbstractProcessor
                 //Put more data into the vendor
                 $this->vendorManager->update($vendor, $vendorData);
 
+                if ($this->vendorManager->isValid($vendor)) {
+                    throw new InvalidVendorException($vendor);
+                };
+
                 ModelValidator::validate($vendor);
 
                 ModelValidator::checkImmutability($vendor, $previousValues);
 
-                if ($this->vendorManager->isValid($vendor)) {
-
-                };
                 $vendorCollection[$vendor->getMiraklId()] = $vendor;
 
             } catch (DispatchableException $e) {

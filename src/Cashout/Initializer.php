@@ -183,7 +183,6 @@ class Initializer extends AbstractProcessor
          */
         foreach ($operations as $index => $operation) {
             try {
-                ModelValidator::validate($operation);
                 if ($this->operationManager
                     ->findByHipayIdAndCycleDate(
                         $operation->getMiraklId(),
@@ -195,6 +194,8 @@ class Initializer extends AbstractProcessor
                 if (!$this->operationManager->isValid($operation)) {
                     throw new InvalidOperation($operation);
                 }
+
+                ModelValidator::validate($operation);
             } catch (DispatchableException $e) {
                 $this->logger->warning($e->getMessage());
 
