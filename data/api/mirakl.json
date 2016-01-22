@@ -224,8 +224,8 @@
           "sentAs": "paginate",
           "filters" : [
             {
-              "method": "var_export",
-              "args" : ["@value", true]
+              "method": "json_encode",
+              "args" : ["@value"]
             }
           ]
         },

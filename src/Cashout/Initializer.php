@@ -96,7 +96,7 @@ class Initializer extends AbstractProcessor
             $endDate
         );
         $this->logger->info(
-            "[OK] Fetched " . count($paymentTransactions) . "payment transactions"
+            "[OK] Fetched " . count($paymentTransactions) . " payment transactions"
         );
 
         $paymentVouchersByShopId = $this->indexArray(
