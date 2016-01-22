@@ -185,11 +185,15 @@ class Processor extends AbstractProcessor
 
         while (($shopId = readdir($tmpExtractDirectory)) !== false) {
             //Ignore . and .. entries
-            if ($shopId == '.' || $shopId == '..' || !in_array($shopId, $shopIds)) {
+            if ($shopId == '.'
+                || $shopId == '..'
+                || !in_array($shopId, $shopIds)
+            ) {
                 continue;
             }
 
-            $shopDirectoryPath = $tmpExtractPath . DIRECTORY_SEPARATOR . $shopId;
+            $shopDirectoryPath = $tmpExtractPath .
+                DIRECTORY_SEPARATOR . $shopId;
 
             //Check if $shopDirectoryPath is a directry
             if (!is_dir($shopDirectoryPath)) {
@@ -199,7 +203,8 @@ class Processor extends AbstractProcessor
             }
 
             //Construct the path for the ftp
-            $ftpShopDirectoryPath = $ftpShopsPath . DIRECTORY_SEPARATOR . $shopId;
+            $ftpShopDirectoryPath = $ftpShopsPath .
+                DIRECTORY_SEPARATOR . $shopId;
 
             //Check directory existance
             $ftpShopDirectory = new Directory($ftpShopDirectoryPath);
@@ -213,8 +218,10 @@ class Processor extends AbstractProcessor
                 if ($shopDocument == '.' | $shopDocument == '..') {
                     continue;
                 }
-                $source = $shopDirectoryPath . DIRECTORY_SEPARATOR . $shopDocument;
-                $destination = $ftpShopDirectoryPath . DIRECTORY_SEPARATOR . $shopDocument;
+                $source = $shopDirectoryPath .
+                    DIRECTORY_SEPARATOR . $shopDocument;
+                $destination = $ftpShopDirectoryPath .
+                    DIRECTORY_SEPARATOR . $shopDocument;
                 //Upload the files
                 if ($this->ftp->upload(
                     new File($destination),
@@ -377,7 +384,8 @@ class Processor extends AbstractProcessor
                             $vendorData
                         );
                         $this->logger->info(
-                            "[OK] Created wallet for : " . $vendor->getMiraklId(),
+                            "[OK] Created wallet for : " .
+                            $vendor->getMiraklId(),
                             array("shopId" => $vendor->getMiraklId())
                         );
                     } else {
@@ -388,6 +396,7 @@ class Processor extends AbstractProcessor
                         );
                     }
                 }
+
                 $previousValues = $this->getImmutableValues($vendor);
                 //Put more data into the vendor
                 $this->vendorManager->update($vendor, $vendorData);
@@ -396,6 +405,9 @@ class Processor extends AbstractProcessor
 
                 ModelValidator::checkImmutability($vendor, $previousValues);
 
+                if ($this->vendorManager->isValid($vendor)) {
+
+                };
                 $vendorCollection[$vendor->getMiraklId()] = $vendor;
 
             } catch (DispatchableException $e) {
@@ -439,14 +451,14 @@ class Processor extends AbstractProcessor
                 if ($bankInfoStatus == BankInfoStatus::BLANK) {
                     if ($this->addBankAccount($vendor, $miraklBankInfo)) {
                         $this->logger->info(
-                            "[OK] Created bank account for : ". $vendor->getMiraklId(),
+                            "[OK] Created bank account for : " .
+                            $vendor->getMiraklId(),
                             array("shopId" => $vendor->getMiraklId())
                         );
                     } else {
                         throw new BankAccountCreationFailedException(
                             $vendor,
-                            $miraklBankInfo,
-                            "Failed to create bank account for : " . $vendor->getMiraklId()
+                            $miraklBankInfo
                         );
                     }
                 }
@@ -454,8 +466,7 @@ class Processor extends AbstractProcessor
                     if (!$this->isIBANCorrect($vendor, $miraklBankInfo)) {
                         throw new InvalidBankInfoException(
                             $vendor,
-                            $miraklBankInfo,
-                            $vendor->getMiraklId()." has different IBAN between Mirakl and Hipay"
+                            $miraklBankInfo
                         );
                     } else {
                         $this->logger->info(

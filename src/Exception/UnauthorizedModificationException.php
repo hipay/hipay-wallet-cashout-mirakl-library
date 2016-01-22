@@ -20,21 +20,21 @@ class UnauthorizedModificationException extends DispatchableException
      * @param string $message
      * @param int $code
      * @param Exception|null $previous
-     * @param array $modifiedProperties
      */
     public function __construct(
         $object,
         $message = "",
         $code = 0,
-        Exception $previous = null,
-        $modifiedProperties = array()
+        Exception $previous = null
     )
     {
-        parent::__construct($message, $code, $previous);
 
         $this->object = $object;
-
-        $this->modifiedProperties = $modifiedProperties;
+        parent::__construct(
+            $message ?: "There are properties who were modified",
+            $code,
+            $previous
+        );
     }
 
     /**

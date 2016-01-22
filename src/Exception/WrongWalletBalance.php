@@ -1,6 +1,7 @@
 <?php
 namespace Hipay\MiraklConnector\Exception;
 
+use Exception;
 use Hipay\MiraklConnector\Vendor\Model\VendorInterface;
 /**
  * Class NoFundsAvailableException
@@ -12,13 +13,27 @@ class WrongWalletBalance extends DispatchableException
 {
     /** @var VendorInterface  */
     protected $vendor;
+
     /**
      * NoFundsAvailable constructor.
      * @param VendorInterface $vendor
+     * @param string $message
+     * @param int $code
+     * @param Exception $previous
      */
-    public function __construct($vendor)
+    public function __construct(
+        $vendor,
+        $message = "",
+        $code = 0,
+        Exception $previous = null
+    )
     {
         $this->vendor = $vendor;
+        parent::__construct($message ?:
+            "This vendor ({$vendor->getMiraklId()}) balance is wrong",
+            $code,
+            $previous
+        );
     }
 
     /**

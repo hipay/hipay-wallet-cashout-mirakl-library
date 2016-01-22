@@ -1,6 +1,7 @@
 <?php
 namespace Hipay\MiraklConnector\Exception;
 
+use Exception;
 use Hipay\MiraklConnector\Vendor\Model\VendorInterface;
 use Hipay\MiraklConnector\Api\Hipay\Model\Status\BankInfo as BankInfoStatus;
 /**
@@ -21,11 +22,26 @@ class UnconfirmedBankAccountException extends DispatchableException
      * UnconfirmedBankAccountException constructor.
      * @param VendorInterface $vendor
      * @param BankInfoStatus $status
+     * @param string $message
+     * @param int $code
+     * @param Exception $previous
      */
-    public function __construct(VendorInterface $vendor, BankInfoStatus $status)
+    public function __construct(
+        VendorInterface $vendor,
+        BankInfoStatus $status,
+        $message = "",
+        $code = 0,
+        Exception $previous = null
+    )
     {
         $this->vendor = $vendor;
         $this->status = $status;
+        parent::__construct($message ?:
+            "This vendor ({$vendor->getMiraklId()}) bank account is not validated.\n
+             Please contact Hipay",
+            $code,
+            $previous
+        );
     }
 
     /**
@@ -37,31 +53,11 @@ class UnconfirmedBankAccountException extends DispatchableException
     }
 
     /**
-     * @param VendorInterface $vendor
-     * @return UnconfirmedBankAccountException
-     */
-    public function setVendor($vendor)
-    {
-        $this->vendor = $vendor;
-        return $this;
-    }
-
-    /**
      * @return mixed
      */
     public function getStatus()
     {
         return $this->status;
-    }
-
-    /**
-     * @param mixed $status
-     * @return UnconfirmedBankAccountException
-     */
-    public function setStatus($status)
-    {
-        $this->status = $status;
-        return $this;
     }
 
     /**

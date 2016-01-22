@@ -28,11 +28,18 @@ class IllegalNotificationOperationException extends Exception
      * IllegalNotificationOperationException constructor.
      * @param string $operation
      * @param string $message
+     * @param int $code
+     * @param Exception $previous
      */
-    public function __construct($operation, $message = "")
+    public function __construct(
+        $operation,
+        $message = "",
+        $code = 0,
+        Exception $previous = null)
     {
-        parent::__construct($message);
         $this->operation = $operation;
+        parent::__construct($message ?: "The operation $operation
+        is not a viable notification operation", $code, $previous);
     }
 
     /**

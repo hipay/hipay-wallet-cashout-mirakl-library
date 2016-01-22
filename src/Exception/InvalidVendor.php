@@ -1,19 +1,20 @@
 <?php
 namespace Hipay\MiraklConnector\Exception;
-
 use Exception;
 use Hipay\MiraklConnector\Vendor\Model\VendorInterface;
 
 /**
- * Class NoWalletFoundException
+ * Class InvalidVendorException
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
  */
-class NoWalletFoundException extends DispatchableException
+class InvalidVendorException extends DispatchableException
 {
+
     /** @var  VendorInterface */
     protected $vendor;
+
 
     /**
      * NoWalletFoundException constructor.
@@ -30,11 +31,7 @@ class NoWalletFoundException extends DispatchableException
     )
     {
         $this->vendor = $vendor;
-        parent::__construct(
-            $message ?: "The wallet for {$vendor->getHipayId()} is not found",
-            $code,
-            $previous
-        );
+        parent::__construct($message ?: "The vendor {$vendor->getMiraklId()} can't be saved", $code, $previous);
     }
 
     /**
@@ -42,6 +39,6 @@ class NoWalletFoundException extends DispatchableException
      */
     public function getEventName()
     {
-        return 'no.wallet.found';
+        return 'invalid.vendor';
     }
 }

@@ -33,7 +33,6 @@ class TransactionException extends DispatchableException
     )
     {
         parent::__construct($message, $code, $previousException);
-
     }
 
     /**

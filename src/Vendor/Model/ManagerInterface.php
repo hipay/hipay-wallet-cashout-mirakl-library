@@ -65,4 +65,9 @@ interface ManagerInterface
      */
     public function findByHipayId($hipayId);
 
+    /**
+     * @param $vendor
+     * @return boolean
+     */
+    public function isValid(VendorInterface $vendor);
 }

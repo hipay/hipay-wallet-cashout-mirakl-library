@@ -33,7 +33,12 @@ class ValidationFailedException extends DispatchableException
     )
     {
         $this->constraintViolationList = $constraintViolationList;
-        parent::__construct($message ?: $this->__toString(), $code, $previous);
+
+        parent::__construct(
+            $message ?: $this->getDefaultMessage(),
+            $code,
+            $previous
+        );
     }
 
     /**
@@ -45,21 +50,6 @@ class ValidationFailedException extends DispatchableException
     }
 
     /**
-     *
-     */
-    public function __toString()
-    {
-        $message = "";
-        foreach ($this->constraintViolationList as $error) {
-            /** @var ConstraintViolation $error*/
-            $message .=
-                PHP_EOL . $error->getPropertyPath(). " : " .
-                $error->getMessage();
-        }
-        return $message;
-    }
-
-    /**
      * Return the event name
      *
      * @return string
@@ -67,5 +57,20 @@ class ValidationFailedException extends DispatchableException
     public function getEventName()
     {
         return 'validation.failed';
+    }
+
+    /**
+     * @return string
+     */
+    public function getDefaultMessage()
+    {
+        $defaultMessage = "";
+        foreach ($this->constraintViolationList as $error) {
+            /** @var ConstraintViolation $error*/
+            $defaultMessage .=
+                PHP_EOL . $error->getPropertyPath(). " : " .
+                $error->getMessage();
+        }
+        return $defaultMessage;
     }
 }

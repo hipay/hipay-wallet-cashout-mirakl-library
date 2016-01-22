@@ -11,10 +11,12 @@ use Hipay\MiraklConnector\Api\Mirakl\ConfigurationInterface
     as MiraklConfiguration;
 use Hipay\MiraklConnector\Api\Hipay\ConfigurationInterface
     as HipayConfiguration;
+use Hipay\MiraklConnector\Exception\AlreadyCreatedOperationException;
 use Hipay\MiraklConnector\Exception\DispatchableException;
 use Hipay\MiraklConnector\Exception\Event\ThrowException;
 use Hipay\MiraklConnector\Cashout\Model\Transaction\ValidatorInterface;
 use Hipay\MiraklConnector\Cashout\Model\Operation\ManagerInterface;
+use Hipay\MiraklConnector\Exception\InvalidOperation;
 use Hipay\MiraklConnector\Exception\NotEnoughFunds;
 use Hipay\MiraklConnector\Exception\TransactionException;
 use Hipay\MiraklConnector\Service\Validation\ModelValidator;
@@ -168,18 +170,30 @@ class Initializer extends AbstractProcessor
             "Check if technical account has sufficient funds ($totalAmount)"
         );
         if (!$this->hasSufficientFunds($totalAmount)) {
-            throw new NotEnoughFunds("No enough funds in the tech account");
+            throw new NotEnoughFunds();
         }
         $this->logger->info("[OK] Technical account has sufficient funds");
 
 
         //Valid the operation and check if operation wasn't created before
         $this->logger->info("Validate the operations");
+        /**
+         * @var int index
+         * @var OperationInterface $operation
+         */
         foreach ($operations as $index => $operation) {
             try {
                 ModelValidator::validate($operation);
-                if (!$this->operationManager->isSavable($operation)) {
-                    unset($operations[$index]);
+                if ($this->operationManager
+                    ->findByHipayIdAndCycleDate(
+                        $operation->getMiraklId(),
+                        $operation->getCycleDate()
+                    )
+                ) {
+                    throw new AlreadyCreatedOperationException($operation);
+                }
+                if (!$this->operationManager->isValid($operation)) {
+                    throw new InvalidOperation($operation);
                 }
             } catch (DispatchableException $e) {
                 $this->logger->warning($e->getMessage());

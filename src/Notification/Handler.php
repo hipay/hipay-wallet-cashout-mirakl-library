@@ -108,10 +108,7 @@ class Handler
                 );
                 break;
             default:
-                throw new IllegalNotificationOperationException(
-                    $operation,
-                    "The $operation is not possible"
-                );
+                throw new IllegalNotificationOperationException($operation);
         }
     }
 
@@ -131,7 +128,7 @@ class Handler
     )
     {
         $operation = $this->operationManager
-            ->findByTransactionId($transactionId);
+            ->findByWithdrawalId($transactionId);
 
         if (!$operation) {
             throw new Exception('Operation not found');

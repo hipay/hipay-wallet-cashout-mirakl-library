@@ -228,13 +228,13 @@ class Hipay
     /**
      * Return the identified status of the account
      *
-     * @param $hipayId
+     * @param VendorInterface $vendor
      *
      * @return boolean
      */
-    public function isIdentified($hipayId)
+    public function isIdentified(VendorInterface $vendor)
     {
-        $parameters = array('accountId' => $hipayId);
+        $parameters = array('accountId' => $vendor->getHipayId());
         $result = $this->callSoap("getAccountInfos", $parameters);
         return $result['identified'] == 'yes' ? true : false;
     }

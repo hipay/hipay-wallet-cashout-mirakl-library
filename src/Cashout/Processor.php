@@ -106,7 +106,7 @@ class Processor extends AbstractProcessor
     )
     {
         //Transfer
-        $toTransfer = $this->operationManager->findByStatusAndCycleDate(
+        $toTransfer = $this->operationManager->findByStatus(
             new Status(Status::CREATED)
         );
         $toTransfer = $toTransfer + $this->operationManager
@@ -152,7 +152,7 @@ class Processor extends AbstractProcessor
      */
     public function withdrawOperations($previousDay, $withdrawLabelTemplate)
     {
-        $toWithdraw = $this->operationManager->findByStatusAndCycleDate(
+        $toWithdraw = $this->operationManager->findByStatus(
             new Status(Status::TRANSFER_SUCCESS)
         );
         $toWithdraw = $toWithdraw + $this->operationManager
@@ -234,11 +234,12 @@ class Processor extends AbstractProcessor
      */
     public function withdrawOperation(OperationInterface $operation, $label)
     {
-        if (!$this->hipay->isIdentified($operation->getHipayId())) {
-            throw new UnidentifiedWalletException($operation->getHipayId());
+        $vendor = $this->vendorManager->findByHipayId($operation->getHipayId());
+
+        if (!$this->hipay->isIdentified($vendor)) {
+            throw new UnidentifiedWalletException($vendor);
         }
 
-        $vendor = $this->vendorManager->findByHipayId($operation->getHipayId());
         $bankInfoStatus = $this->hipay->bankInfosStatus($vendor);
         if ($this->hipay->bankInfosStatus($vendor)
             != BankInfoStatus::VALIDATED
