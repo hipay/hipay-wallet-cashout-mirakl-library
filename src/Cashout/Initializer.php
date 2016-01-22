@@ -70,6 +70,7 @@ class Initializer extends AbstractProcessor
         $this->operator = $operatorAccount;
         $this->technicalAccount = $technicalAccount;
         $this->operationManager = $operationHandler;
+        $this->transactionValidator = $transactionValidator;
     }
 
     /**
@@ -102,11 +103,11 @@ class Initializer extends AbstractProcessor
         $paymentVouchersByShopId = $this->indexArray(
             $paymentTransactions,
             'shop_id',
-            array('payment_voucher')
+            array('payment_voucher_number')
         );
         $balancesByPaymentVoucher = $this->indexArray(
             $paymentTransactions,
-            'payment_voucher',
+            'payment_voucher_number',
             array('balance')
         );
         $operatorAmount = 0;
@@ -284,12 +285,12 @@ class Initializer extends AbstractProcessor
     protected function getOrderTransactionTypes()
     {
         return array(
-            "COMMISION_FEE",
-            "COMMISION_VAT",
-            "REFUND_COMMISION_FEE",
-            "REFUND_COMMISION_VAT",
-            "SUBSRIRCTION_FEE",
-            "SUBSRIRCTION_VAT",
+            "COMMISSION_FEE",
+            "COMMISSION_VAT",
+            "REFUND_COMMISSION_FEE",
+            "REFUND_COMMISSION_VAT",
+            "SUBSCRIPTION_FEE",
+            "SUBSCRIPTION_VAT",
             "ORDER_AMOUNT",
             "ORDER_SHIPPING_AMOUNT",
             "REFUND_ORDER_SHIPPING_AMOUNT",

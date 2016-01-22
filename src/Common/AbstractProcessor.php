@@ -108,8 +108,6 @@ abstract class AbstractProcessor
                 $element,
                 array_flip($keptKeys)
             );
-            $insertedElement = (count($keptKeys) == 1) ?
-                current($insertedElement) : $insertedElement;
             $result[$element[$indexKey]] = $insertedElement;
         }
         return $result;

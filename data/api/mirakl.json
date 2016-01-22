@@ -187,7 +187,6 @@
           ]
         },
         "paymentVoucher": {
-          "type": "int",
           "description": "[optional] payment voucher number for filtering",
           "location": "query",
           "sentAs": "payment_voucher"
