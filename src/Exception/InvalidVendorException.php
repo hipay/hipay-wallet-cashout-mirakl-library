@@ -1,5 +1,6 @@
 <?php
 namespace Hipay\MiraklConnector\Exception;
+
 use Exception;
 use Hipay\MiraklConnector\Vendor\Model\VendorInterface;
 

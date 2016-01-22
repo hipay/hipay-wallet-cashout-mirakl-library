@@ -16,7 +16,7 @@ use Hipay\MiraklConnector\Exception\DispatchableException;
 use Hipay\MiraklConnector\Exception\Event\ThrowException;
 use Hipay\MiraklConnector\Cashout\Model\Transaction\ValidatorInterface;
 use Hipay\MiraklConnector\Cashout\Model\Operation\ManagerInterface;
-use Hipay\MiraklConnector\Exception\InvalidOperation;
+use Hipay\MiraklConnector\Exception\InvalidOperationException;
 use Hipay\MiraklConnector\Exception\NotEnoughFunds;
 use Hipay\MiraklConnector\Exception\TransactionException;
 use Hipay\MiraklConnector\Service\Validation\ModelValidator;
@@ -148,15 +148,23 @@ class Initializer extends AbstractProcessor
             };
             $totalAmount += $vendorAmount;
 
-            //Create the vendor operation
-            $operations[] = $this->createOperation(
-                $vendorAmount, $cycleDate, $shopId
-            );
+            if ($vendorAmount) {
+                //Create the vendor operation
+                $operations[] = $this->createOperation(
+                    $vendorAmount, $cycleDate, $shopId
+                );
+            } else {
+                $this->logger->notice("Vendor operation wasn't created due to nul amount");
+            }
         }
         $totalAmount += $operatorAmount;
 
-        // Create operator operation
-        $operations[] = $this->createOperation($operatorAmount, $cycleDate);
+        if ($operatorAmount) {
+            // Create operator operation
+            $operations[] = $this->createOperation($operatorAmount, $cycleDate);
+        } else {
+            $this->logger->notice("Operator operation wasn't created due to nul amount");
+        }
 
         if ($transactionError) {
             $this->dispatcher->dispatch(
@@ -192,7 +200,7 @@ class Initializer extends AbstractProcessor
                     throw new AlreadyCreatedOperationException($operation);
                 }
                 if (!$this->operationManager->isValid($operation)) {
-                    throw new InvalidOperation($operation);
+                    throw new InvalidOperationException($operation);
                 }
 
                 ModelValidator::validate($operation);

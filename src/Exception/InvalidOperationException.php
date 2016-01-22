@@ -18,7 +18,7 @@ use Hipay\MiraklConnector\Cashout\Model\Operation\OperationInterface;
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
  */
-class InvalidOperation extends DispatchableException
+class InvalidOperationException extends DispatchableException
 {
     /**
      * @var OperationInterface
