@@ -402,7 +402,7 @@ class Processor extends AbstractProcessor
                 //Put more data into the vendor
                 $this->vendorManager->update($vendor, $vendorData);
 
-                if ($this->vendorManager->isValid($vendor)) {
+                if (!$this->vendorManager->isValid($vendor)) {
                     throw new InvalidVendorException($vendor);
                 };
 
