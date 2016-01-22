@@ -162,19 +162,18 @@ class Initializer extends AbstractProcessor
             };
             $totalAmount += $vendorAmount;
 
-            if ($vendorAmount) {
+            $vendor = $this->vendorManager->findByMiraklId($miraklId);
+            if ($vendorAmount && $vendor) {
                 //Create the vendor operation
                 $operations[] = $this->createOperation(
                     $vendorAmount,
                     $cycleDate,
-                    $this->vendorManager
-                        ->findByMiraklId($miraklId)
-                        ->getHipayId(),
+                    $vendor->getHipayId(),
                     $miraklId
                 );
             } else {
                 $this->logger->notice(
-                    "Vendor operation wasn't created due to nul amount"
+                    "Vendor operation wasn't created"
                 );
             }
         }
