@@ -50,6 +50,8 @@ class BankInfo extends ModelAbstract
 
     /**
      * @var string
+     *
+     * @Assert\Country
      */
     protected $bankCountry;
 
@@ -62,6 +64,8 @@ class BankInfo extends ModelAbstract
 
     /**
      * @var string
+     *
+     * @Assert\Bic
      */
     protected $swift;
 

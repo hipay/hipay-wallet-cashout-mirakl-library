@@ -17,10 +17,8 @@ class UserAccountDetails extends ModelAbstract
      * 0=>personal account,
      * 1=>business account
      *
-     * @Assert\Range(
-     *      min = 1,
-     *      max = 3
-     * )
+     * @Assert\Choice(choices = {"0","1"})
+     * @Assert\Type("integer")
      */
     protected $legalStatus;
 
@@ -42,7 +40,14 @@ class UserAccountDetails extends ModelAbstract
     /** @var string */
     protected $state;
 
-    /** @var string */
+    /**
+     * @var string
+     *
+     * @Assert\Regex(
+     *     pattern="#[0-9]{2}/[0-9]{2}/[0-9]{4}#",
+     *      message="The date format must be [0-9]{2}/[0-9]{2}/[0-9]{4}"
+     * )
+     */
     protected $birthDate;
 
     /** @var string */
@@ -56,6 +61,25 @@ class UserAccountDetails extends ModelAbstract
 
     /** @var string */
     protected $businessId;
+
+    /** @var int */
+    protected $businessLineId;
+
+    /**
+     * @return mixed
+     */
+    public function getBusinessLineId()
+    {
+        return $this->businessLineId;
+    }
+
+    /**
+     * @param mixed $businessLineId
+     */
+    public function setBusinessLineId($businessLineId)
+    {
+        $this->businessLineId = $businessLineId;
+    }
 
     /** @var string Antiphishing string. */
     protected $antiPhishingKey;
@@ -77,7 +101,7 @@ class UserAccountDetails extends ModelAbstract
     /**
      * @var string URL where the notifications concerning this account will be sent
      *
-     * @Assert\Url()
+     * @Assert\Url
      */
     protected $callbackUrl;
 

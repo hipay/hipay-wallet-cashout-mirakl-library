@@ -11,6 +11,7 @@
 namespace Hipay\MiraklConnector\Api\Hipay\Model\Soap;
 use Hipay\MiraklConnector\Vendor\Model\VendorInterface;
 
+use Symfony\Component\Validator\Constraints as Assert;
 /**
  * Class Transfer
  *
@@ -21,31 +22,45 @@ class Transfer extends ModelAbstract
 {
     /**
      * @var int
+     *
+     * @Assert\NotBlank
+     * @Assert\Type("float")
      */
     protected $amount;
 
     /**
      * @var int
+     *
+     * @Assert\NotBlank
+     * @Assert\Type("integer")
      */
     protected $recipientUserId;
 
     /**
      * @var string
+     *
+     * @Assert\NotBlank
      */
     protected $recipientUsername;
 
     /**
      * @var string
+     *
+     * @Assert\NotBlank
      */
     protected $privateLabel;
 
     /**
      * @var string
+     *
+     * @Assert\NotBlank
      */
     protected $publicLabel;
 
     /**
      * @var string
+     *
+     * @Assert\NotBlank
      */
     protected $entity;
 
