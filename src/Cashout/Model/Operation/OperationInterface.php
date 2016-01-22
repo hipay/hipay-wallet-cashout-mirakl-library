@@ -28,7 +28,7 @@ interface OperationInterface
 
     /**
      * @Assert\Type(type="integer")
-     *
+     * @Assert\NotBlank()
      * @return int
      */
     public function getHipayId();
@@ -98,4 +98,11 @@ interface OperationInterface
      * @return void
      */
     public function setAmount($amount);
+
+    /**
+     * Set the hipay Id
+     * @param $hipayId
+     * @return mixed
+     */
+    public function setHipayId($hipayId);
 }

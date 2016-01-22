@@ -15,7 +15,10 @@ use Hipay\MiraklConnector\Exception\AlreadyCreatedOperationException;
 use Hipay\MiraklConnector\Exception\DispatchableException;
 use Hipay\MiraklConnector\Exception\Event\ThrowException;
 use Hipay\MiraklConnector\Cashout\Model\Transaction\ValidatorInterface;
-use Hipay\MiraklConnector\Cashout\Model\Operation\ManagerInterface;
+use Hipay\MiraklConnector\Cashout\Model\Operation\ManagerInterface
+    as OperationManager;
+use Hipay\MiraklConnector\Vendor\Model\ManagerInterface
+    as VendorManager;
 use Hipay\MiraklConnector\Exception\InvalidOperationException;
 use Hipay\MiraklConnector\Exception\NotEnoughFunds;
 use Hipay\MiraklConnector\Exception\TransactionException;
@@ -41,8 +44,11 @@ class Initializer extends AbstractProcessor
     /** @var  ValidatorInterface */
     protected $transactionValidator;
 
-    /** @var ManagerInterface */
+    /** @var OperationManager */
     protected $operationManager;
+
+    /** @var  VendorManager */
+    protected $vendorManager;
 
     /**
      * Initializer constructor.
@@ -53,7 +59,8 @@ class Initializer extends AbstractProcessor
      * @param VendorInterface $operatorAccount
      * @param VendorInterface $technicalAccount
      * @param ValidatorInterface $transactionValidator
-     * @param ManagerInterface $operationHandler
+     * @param OperationManager $operationHandler
+     * @param VendorManager $vendorManager
      */
     public function __construct(
         MiraklConfiguration $miraklConfig,
@@ -63,7 +70,8 @@ class Initializer extends AbstractProcessor
         VendorInterface $operatorAccount,
         VendorInterface $technicalAccount,
         ValidatorInterface $transactionValidator,
-        ManagerInterface $operationHandler
+        OperationManager $operationHandler,
+        VendorManager $vendorManager
     )
     {
         parent::__construct($miraklConfig, $hipayConfig, $dispatcher, $logger);
@@ -71,6 +79,7 @@ class Initializer extends AbstractProcessor
         $this->technicalAccount = $technicalAccount;
         $this->operationManager = $operationHandler;
         $this->transactionValidator = $transactionValidator;
+        $this->vendorManager = $vendorManager;
     }
 
     /**
@@ -89,15 +98,19 @@ class Initializer extends AbstractProcessor
         $this->logger->info("Cachout Initializer");
 
         $this->logger->info(
-            "Fetch payment transaction from Mirakl from "
-            . $startDate->format("Y-m-d H:i") . " to " . $endDate->format("Y-m-d H:i")
+            "Fetch payment transaction from Mirakl from " .
+            $startDate->format("Y-m-d H:i") .
+            " to " .
+            $endDate->format("Y-m-d H:i")
         );
         $paymentTransactions = $this->getPayementTransactions(
             $startDate,
             $endDate
         );
         $this->logger->info(
-            "[OK] Fetched " . count($paymentTransactions) . " payment transactions"
+            "[OK] Fetched " .
+            count($paymentTransactions) .
+            " payment transactions"
         );
 
         $paymentVouchersByShopId = $this->indexArray(
@@ -105,10 +118,10 @@ class Initializer extends AbstractProcessor
             'shop_id',
             array('payment_voucher_number')
         );
-        $balancesByPaymentVoucher = $this->indexArray(
+        $paymentDebitByPaymentVoucher = $this->indexArray(
             $paymentTransactions,
             'payment_voucher_number',
-            array('balance')
+            array('amount_debited')
         );
         $operatorAmount = 0;
         $totalAmount = 0;
@@ -116,9 +129,9 @@ class Initializer extends AbstractProcessor
         $transactionError = null;
 
         $this->logger->info("Compute amounts and create vendor operation");
-        foreach ($paymentVouchersByShopId as $shopId => $paymentVouchers) {
+        foreach ($paymentVouchersByShopId as $miraklId => $paymentVouchers) {
             $this->logger->debug(
-                "ShopId : $shopId", array("shopId" => $shopId)
+                "ShopId : $miraklId", array("shopId" => $miraklId)
             );
             $vendorAmount = 0;
             $orderTransactions = array();
@@ -130,7 +143,7 @@ class Initializer extends AbstractProcessor
 
                     $vendorAmount += $this->computeVendorAmount(
                         $orderTransactions,
-                        $balancesByPaymentVoucher[$paymentVoucher]
+                        $paymentDebitByPaymentVoucher[$paymentVoucher]
                     );
 
                     $operatorAmount += $this->computeOperatorAmountByVendor(
@@ -139,12 +152,12 @@ class Initializer extends AbstractProcessor
                 } catch (Exception $e) {
                     $this->logger->warning($e);
                     /** @var Exception $transactionError */
-                        $transactionError = new TransactionException(
-                            $orderTransactions,
-                            $e->getMessage(),
-                            $e->getCode(),
-                            $transactionError
-                        );
+                    $transactionError = new TransactionException(
+                        $orderTransactions,
+                        $e->getMessage(),
+                        $e->getCode(),
+                        $transactionError
+                    );
                 }
             };
             $totalAmount += $vendorAmount;
@@ -152,19 +165,32 @@ class Initializer extends AbstractProcessor
             if ($vendorAmount) {
                 //Create the vendor operation
                 $operations[] = $this->createOperation(
-                    $vendorAmount, $cycleDate, $shopId
+                    $vendorAmount,
+                    $cycleDate,
+                    $this->vendorManager
+                        ->findByMiraklId($miraklId)
+                        ->getHipayId(),
+                    $miraklId
                 );
             } else {
-                $this->logger->notice("Vendor operation wasn't created due to nul amount");
+                $this->logger->notice(
+                    "Vendor operation wasn't created due to nul amount"
+                );
             }
         }
         $totalAmount += $operatorAmount;
 
         if ($operatorAmount) {
             // Create operator operation
-            $operations[] = $this->createOperation($operatorAmount, $cycleDate);
+            $operations[] = $this->createOperation(
+                $operatorAmount,
+                $cycleDate,
+                $this->operator->getHipayId()
+            );
         } else {
-            $this->logger->notice("Operator operation wasn't created due to nul amount");
+            $this->logger->notice(
+                "Operator operation wasn't created due to nul amount"
+            );
         }
 
         if ($transactionError) {
@@ -318,14 +344,16 @@ class Initializer extends AbstractProcessor
         $amount = 0;
         $errors = false;
         foreach ($transactions as $transaction) {
-            $amount += $transaction['balance'];
+            $amount += $transaction['amount_credited'] - $transaction['amount_debited'];
             $errors |= !$this->transactionValidator->isValid($transaction);
         }
-        if ($amount != $paymentTransaction['balance']) {
+        if (round($amount, 2) !=
+            round($paymentTransaction['amount_debited'], 2)
+        ) {
             throw new TransactionException(
                 "There is a difference between the transactions".
                 PHP_EOL . "$amount for the transactions" .
-                PHP_EOL . "{$paymentTransaction['balance']} for the earlier payment transaction"
+                PHP_EOL . "{$paymentTransaction['amount_debited']} for the earlier payment transaction"
             );
         }
         if ($errors) {
@@ -345,10 +373,10 @@ class Initializer extends AbstractProcessor
         $amount = 0;
         foreach ($transactions as $transaction) {
             if (
-                in_array(
-                    $transaction['transaction_type'],
-                    $this->getOperatorTransactionTypes()
-                )
+            in_array(
+                $transaction['transaction_type'],
+                $this->getOperatorTransactionTypes()
+            )
             ) {
                 $amount += $transaction['balance'];
             }
@@ -375,16 +403,18 @@ class Initializer extends AbstractProcessor
 
     /**
      * Create the vendor operation
+     * dispatch <b>after.operation.create</b>
      *
      * @param int $amount
      * @param DateTime $cycleDate
+     * @param $hipayId
      * @param bool|int $shopId false if it an operator operation
-     *
      * @return OperationInterface
      */
     protected function createOperation(
         $amount,
         DateTime $cycleDate,
+        $hipayId,
         $shopId = false
     )
     {
@@ -393,6 +423,8 @@ class Initializer extends AbstractProcessor
         $this->dispatcher->dispatch('after.operation.create', $event);
         $operation = $event->getOperation();
 
+        //Sets mandatory value
+        $operation->setHipayId($hipayId);
         $operation->setStatus(new Status(Status::CREATED));
         $operation->setAmount($amount);
         $operation->setCycleDate($cycleDate);
