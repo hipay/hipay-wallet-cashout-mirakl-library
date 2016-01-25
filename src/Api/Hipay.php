@@ -290,6 +290,17 @@ class Hipay
         $result = $this->callSoap("create", $parameters);
         return $result['transactionPublicId'];
     }
+
+    /**
+     * Return the mandatory fields bank info fields for a specific vendor
+     * @param $country
+     */
+    public function getBankInfoFields($country = 'FR')
+    {
+        $parameters = array('locale' => 'en_GB', 'country' => $country);
+        $result = $this->callSoap('bankInfosFields', $parameters);
+        return $result['fields'];
+    }
     /**
      * Add the api login parameters to the parameters
      *

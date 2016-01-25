@@ -86,17 +86,17 @@ class BankInfo extends ModelAbstract
     {
         $paymentData =  array_key_exists('payment_info', $miraklData) ?
             $miraklData['payment_info'] : $miraklData['billing_info'];
-        $this->bankName = $paymentData['bank_name'];
-        $this->bankAddress = $paymentData['bank_street'];
-
+        $this->bankName = isset($paymentData['bank_name']) ?
+            $paymentData['bank_name'] : "" ;
+        $this->bankAddress = isset($paymentData['bank_street']) ?
+            $paymentData['bank_street'] : "";
         $this->bankZipCode =  array_key_exists('zip_code', $paymentData) ?
             $paymentData['zip_code'] : $paymentData['bank_zip'] ;
-        $this->bankCity = $paymentData['bank_city'];
-        $this->swift = $paymentData['bic'];
-        $this->iban = $paymentData['iban'];
+        $this->bankCity = isset($paymentData['bank_city']) ? $paymentData['bank_city'] : "";
+        $this->swift = isset($paymentData['bic']) ? $paymentData['bic'] : "";
+        $this->iban = isset($paymentData['iban']) ? $paymentData['iban'] : "";
         // Take the first to characters to fill the country
         $this->bankCountry = substr($this->iban, 0, 2);
-
         return $this;
     }
 
@@ -113,7 +113,7 @@ class BankInfo extends ModelAbstract
         $this->swift = $hipayData['swift'];
         $this->iban = $hipayData['iban'];
         // Take the first to characters to fill the country
-        $this->bankCountry = substr($this->iban, 0, 2);
+        $this->bankCountry = $hipayData['bankCountry'];
         $this->aba_num = $hipayData['aba_num'];
         $this->transit_num = $hipayData['transit_num'];
         $this->acct_num = $hipayData['acct_num'];
