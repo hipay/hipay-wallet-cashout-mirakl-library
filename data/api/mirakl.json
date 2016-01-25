@@ -22,7 +22,7 @@
         },
         "updatedSince": {
           "type": "object",
-          "instanceOf" : "DateTimeInterface",
+          "instanceOf" : "DateTime",
           "location": "query",
           "sentAs": "updated_since",
           "filters" : [
