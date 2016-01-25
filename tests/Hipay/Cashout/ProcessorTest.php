@@ -1,9 +1,7 @@
 <?php
 namespace Mirakl\Hipay\Test\Cashout;
 
-use Psr\Log\LoggerAwareInterface;
-use Mirakl\Hipay\Common\LoggerAwareTrait;
-
+use PHPUnit_Framework_TestCase;
 /**
  * File Processor.php
  *

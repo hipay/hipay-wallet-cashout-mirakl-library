@@ -1,7 +1,7 @@
 <?php
 namespace Mirakl\Hipay\Test\Cashout;
 
-
+use PHPUnit_Framework_TestCase;
 /**
  * Class Validator
  *

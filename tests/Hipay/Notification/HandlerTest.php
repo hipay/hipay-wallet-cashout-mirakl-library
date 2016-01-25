@@ -1,6 +1,7 @@
 <?php
 namespace Mirakl\Hipay\Test\Notification;
 
+use PHPUnit_Framework_TestCase;
 /**
  * Class Validator
  *
