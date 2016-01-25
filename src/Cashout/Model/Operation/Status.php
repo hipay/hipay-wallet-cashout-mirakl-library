@@ -1,20 +1,22 @@
 <?php
+
 namespace Hipay\MiraklConnector\Cashout\Model\Operation;
 
 use Hipay\MiraklConnector\Common\AbstractEnumeration;
 
 /**
  * Status class
- * Represent the status of an operation
+ * Represent the status of an operation.
  *
- * @package Hipay\MiraklConnector\Cashout\Model\Operation
+ * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
+ * @copyright 2015 Smile
  */
 class Status extends AbstractEnumeration
 {
     //Initial status of the operation
     const CREATED = 1;
 
-    //Transfert status
+    //Transfer status
     const TRANSFER_SUCCESS = 3;
     const TRANSFER_FAILED = -9;
 

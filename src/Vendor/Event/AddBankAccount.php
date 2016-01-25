@@ -1,4 +1,5 @@
 <?php
+
 namespace Hipay\MiraklConnector\Vendor\Event;
 
 use Hipay\MiraklConnector\Api\Hipay\Model\Soap\BankInfo;
@@ -6,6 +7,8 @@ use Symfony\Component\EventDispatcher\Event;
 
 /**
  * Class AddBankAccountEvent
+ * * Event object used when the event 'before.bankAccount.add'
+ * is dispatched from the processor.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
@@ -35,11 +38,13 @@ class AddBankAccount extends Event
 
     /**
      * @param BankInfo $bankInfo
+     *
      * @return $this
      */
     public function setBankInfo($bankInfo)
     {
         $this->bankInfo = $bankInfo;
+
         return $this;
     }
 }

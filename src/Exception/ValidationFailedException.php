@@ -1,4 +1,5 @@
 <?php
+
 namespace Hipay\MiraklConnector\Exception;
 
 use Exception;
@@ -7,7 +8,7 @@ use Symfony\Component\Validator\ConstraintViolationListInterface;
 
 /**
  * Class ValidationFailedException
- * Exception thrown when a model validation failed
+ * Exception thrown when a model validation failed.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
@@ -19,19 +20,18 @@ class ValidationFailedException extends DispatchableException
 
     /**
      * ValidationFailedException constructor.
-     * @param string $constraintViolationList
-     * @param string $message
-     * @param int $code
      *
+     * @param string    $constraintViolationList
+     * @param string    $message
+     * @param int       $code
      * @param Exception $previous
      */
     public function __construct(
         $constraintViolationList,
-        $message = "",
+        $message = '',
         $code = 0,
         Exception $previous = null
-    )
-    {
+    ) {
         $this->constraintViolationList = $constraintViolationList;
 
         parent::__construct(
@@ -50,7 +50,7 @@ class ValidationFailedException extends DispatchableException
     }
 
     /**
-     * Return the event name
+     * Return the event name.
      *
      * @return string
      */
@@ -64,13 +64,14 @@ class ValidationFailedException extends DispatchableException
      */
     public function getDefaultMessage()
     {
-        $defaultMessage = "";
+        $defaultMessage = '';
         foreach ($this->constraintViolationList as $error) {
-            /** @var ConstraintViolation $error*/
+            /* @var ConstraintViolation $error*/
             $defaultMessage .=
-                PHP_EOL . $error->getPropertyPath(). " : " .
+                PHP_EOL.$error->getPropertyPath().' : '.
                 $error->getMessage();
         }
+
         return $defaultMessage;
     }
 }

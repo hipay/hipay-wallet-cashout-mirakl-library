@@ -1,19 +1,10 @@
 <?php
-/**
- * File ZipExtractor.php
- *
- * @category
- * @package
- * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
- * @copyright 2015 Smile
- */
 
 namespace Hipay\MiraklConnector\Service;
 
-
 /**
  * Class ZipArchive
- * Represent a Zip archive
+ * Represent a Zip archive.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
@@ -34,7 +25,7 @@ class Zip
     }
 
     /**
-     * Extract a zip file
+     * Extract a zip file.
      *
      * @param string $destination the path of the destination folder
      *
@@ -50,10 +41,11 @@ class Zip
         }
         if ($zip->extractTo($destination) !== true) {
             throw new \RuntimeException(
-                "There was a problem during extraction"
+                'There was a problem during extraction'
             );
         };
         $zip->close();
+
         return true;
     }
 }

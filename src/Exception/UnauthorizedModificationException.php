@@ -1,10 +1,11 @@
 <?php
+
 namespace Hipay\MiraklConnector\Exception;
 
 use Exception;
 
 /**
- * Class UnauthorizedModificationException
+ * Class UnauthorizedModificationException.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
@@ -16,22 +17,21 @@ class UnauthorizedModificationException extends DispatchableException
 
     /**
      * UnauthorizedModificationException constructor.
+     *
      * @param $object
-     * @param string $message
-     * @param int $code
+     * @param string         $message
+     * @param int            $code
      * @param Exception|null $previous
      */
     public function __construct(
         $object,
-        $message = "",
+        $message = '',
         $code = 0,
         Exception $previous = null
-    )
-    {
-
+    ) {
         $this->object = $object;
         parent::__construct(
-            $message ?: "There are properties who were modified",
+            $message ?: 'There are properties who were modified',
             $code,
             $previous
         );
@@ -54,7 +54,7 @@ class UnauthorizedModificationException extends DispatchableException
     }
 
     /**
-     * Add a modified property
+     * Add a modified property.
      *
      * @param $propertyName
      */
@@ -64,7 +64,7 @@ class UnauthorizedModificationException extends DispatchableException
     }
 
     /**
-     * Check if there is any modified property
+     * Check if there is any modified property.
      *
      * @return bool
      */
@@ -74,7 +74,7 @@ class UnauthorizedModificationException extends DispatchableException
     }
 
     /**
-     * Return the event name
+     * Return the event name.
      *
      * @return string
      */

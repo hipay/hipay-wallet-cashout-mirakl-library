@@ -1,4 +1,5 @@
 <?php
+
 namespace Hipay\MiraklConnector\Notification\Event;
 
 use DateTime;
@@ -7,6 +8,7 @@ use Symfony\Component\EventDispatcher\Event;
 
 /**
  * Class IdentificationNotification
+ * Event used on the identification operation notification.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
@@ -21,8 +23,9 @@ class IdentificationNotification extends Event
 
     /**
      * BankInfoNotification constructor.
+     *
      * @param VendorInterface $vendor
-     * @param DateTime $date
+     * @param DateTime        $date
      */
     public function __construct(VendorInterface $vendor, DateTime $date)
     {

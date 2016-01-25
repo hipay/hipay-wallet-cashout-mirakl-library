@@ -1,17 +1,20 @@
 <?php
+
 namespace Hipay\MiraklConnector\Vendor\Model;
 
 use Symfony\Component\Validator\Constraints as Assert;
+
 /**
  * Interface VendorInterface
  * Represent an entity that is able to receive money from Hipay
+ * Uses Symfony Validation assertion to ensure basic data integrity.
  *
- * @package Mirakl\Hipay\Vendor
+ * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
+ * @copyright 2015 Smile
  */
 interface VendorInterface
 {
     /**
-     * Return the Mirakl shop id
      * @Assert\NotBlank()
      * @Assert\Type(type="integer")
      * @Assert\GreaterThan(value = 0)
@@ -21,8 +24,6 @@ interface VendorInterface
     public function getMiraklId();
 
     /**
-     * Returns the email recored by hipay
-     *
      * @Assert\NotBlank()
      * @Assert\Type(type="string")
      * @Assert\Email
@@ -32,8 +33,6 @@ interface VendorInterface
     public function getEmail();
 
     /**
-     * Return the hipay account id
-     *
      * @Assert\NotBlank()
      * @Assert\Type(type="integer")
      * @Assert\GreaterThan(value = 0)

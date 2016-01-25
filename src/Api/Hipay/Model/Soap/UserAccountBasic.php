@@ -1,10 +1,12 @@
 <?php
+
 namespace Hipay\MiraklConnector\Api\Hipay\Model\Soap;
 
 use Symfony\Component\Validator\Constraints as Assert;
+
 /**
  * File AccountBasic.php
- * Value object for basic account data
+ * Value object for basic account data.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
@@ -76,14 +78,13 @@ class UserAccountBasic extends ModelAbstract
 
     /**
      * UserAccountBasic constructor.
-     * Expects a mirakl based array
+     * Expects a mirakl based array.
      *
      * @param array $miraklData
      */
     public function __construct(
         array $miraklData
-    )
-    {
+    ) {
         $this->email = $miraklData['contact_informations']['email'];
         $this->title = self::formatTitle(
             $miraklData['contact_informations']['civility']
@@ -97,7 +98,7 @@ class UserAccountBasic extends ModelAbstract
      * Format the title (civility) for Hipay
      * Mr => 1
      * Mrs => 2
-     * Miss => 3
+     * Miss => 3.
      *
      * @param $civility
      *
@@ -106,9 +107,9 @@ class UserAccountBasic extends ModelAbstract
     private static function formatTitle($civility)
     {
         switch ($civility) {
-            case 'Mr' :
+            case 'Mr':
                 return 1;
-            case 'Mrs' :
+            case 'Mrs':
                 return 2;
             case 'Miss':
                 return 3;
@@ -119,7 +120,7 @@ class UserAccountBasic extends ModelAbstract
 
     /**
      * Add the class data to the parameters under a key
-     * based on the class name
+     * based on the class name.
      *
      * @param array $parameters
      *
@@ -128,8 +129,9 @@ class UserAccountBasic extends ModelAbstract
     public function mergeIntoParameters(array $parameters = array())
     {
         $this->validate();
+
         return $parameters + array(
-            $this->getSoapParameterKey() => $this->getSoapParameterData()
+            $this->getSoapParameterKey() => $this->getSoapParameterData(),
         );
     }
 

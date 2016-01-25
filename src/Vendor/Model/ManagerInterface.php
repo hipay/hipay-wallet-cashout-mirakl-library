@@ -1,13 +1,21 @@
 <?php
+
 namespace Hipay\MiraklConnector\Vendor\Model;
 
 /**
  * Interface VendorManager
- * @package Hipay\MiraklConnector\Vendor
+ * Contains utility methods to create, save and find vendors
+ * To be implemented by the integrator of the library.
+ *
+ * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
+ * @copyright 2015 Smile
  */
 interface ManagerInterface
 {
     /**
+     * Create a vendor
+     * Do not save it.
+     *
      * @param $email
      * @param $miraklId
      * @param $hipayId
@@ -23,12 +31,10 @@ interface ManagerInterface
     );
 
     /**
-     * Insert more data if you want
+     * Insert more data into the vendor.
      *
      * @param VendorInterface $vendor
-     * @param array $miraklData
-     *
-     * @return void
+     * @param array           $miraklData
      */
     public function update(
         VendorInterface $vendor,
@@ -36,38 +42,56 @@ interface ManagerInterface
     );
 
     /**
+     * Save an array of vendors.
+     *
      * @param VendorInterface[] $vendors
+     *
      * @return mixed
      */
     public function saveAll(array $vendors);
 
     /**
+     * Save a vendor.
+     *
      * @param VendorInterface $vendor
+     *
      * @return mixed
      */
     public function save($vendor);
 
     /**
+     * Find a vendor by is mirakl shop id.
+     *
      * @param int $miraklShopId
+     *
      * @return VendorInterface|null if not found
      */
     public function findByMiraklId($miraklShopId);
 
     /**
+     * Find a vendor by its email.
+     *
      * @param string $email
+     *
      * @return VendorInterface|null if not found
      */
     public function findByEmail($email);
 
     /**
+     * Find a vendor by its hipay wallet id.
+     *
      * @param $hipayId
+     *
      * @return VendorInterface|null if not found
      */
     public function findByHipayId($hipayId);
 
     /**
+     * Verify that a vendor is valid before save.
+     *
      * @param $vendor
-     * @return boolean
+     *
+     * @return bool
      */
     public function isValid(VendorInterface $vendor);
 }

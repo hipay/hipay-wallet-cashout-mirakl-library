@@ -1,11 +1,12 @@
 <?php
+
 namespace Hipay\MiraklConnector\Exception;
 
 use Exception;
 use Hipay\MiraklConnector\Cashout\Model\Operation\OperationInterface;
 
 /**
- * Class AlreadyCreatedOperationException
+ * Class AlreadyCreatedOperationException.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
@@ -17,21 +18,20 @@ class AlreadyCreatedOperationException extends DispatchableException
      */
     protected $operation;
 
-
     /**
      * AlreadyCreatedOperationException constructor.
+     *
      * @param OperationInterface $operation
-     * @param string $message
-     * @param int $code
-     * @param Exception $previous
+     * @param string             $message
+     * @param int                $code
+     * @param Exception          $previous
      */
     public function __construct(
         $operation,
-        $message = "",
+        $message = '',
         $code = 0,
         Exception $previous = null
-    )
-    {
+    ) {
         $this->operation = $operation;
         parent::__construct(
             $message ?:

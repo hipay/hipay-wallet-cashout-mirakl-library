@@ -1,20 +1,15 @@
 <?php
-/**
- * File CreateOperation.php
- *
- * @category
- * @package
- * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
- * @copyright 2015 Smile
- */
 
 namespace Hipay\MiraklConnector\Cashout\Event;
-
 
 use Hipay\MiraklConnector\Cashout\Model\Operation\OperationInterface;
 use Symfony\Component\EventDispatcher\Event;
 
 /**
+ * Class CreateOperation
+ * Event object used when the event 'before.availability.check'
+ * is dispatched from the processor.
+ *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
  */
@@ -25,6 +20,7 @@ class CreateOperation extends Event
 
     /**
      * CreateOperation constructor.
+     *
      * @param OperationInterface $operation
      */
     public function __construct(OperationInterface $operation)
@@ -47,5 +43,4 @@ class CreateOperation extends Event
     {
         $this->operation = $operation;
     }
-
 }

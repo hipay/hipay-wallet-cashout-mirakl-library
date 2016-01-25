@@ -1,4 +1,5 @@
 <?php
+
 namespace Hipay\MiraklConnector\Api;
 
 use DateTime;
@@ -7,7 +8,7 @@ use Guzzle\Service\Description\ServiceDescription;
 
 /**
  * Class Mirakl
- * Make the calls the Mirakl Rest API
+ * Make the calls the Mirakl Rest API.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
@@ -27,12 +28,12 @@ class Mirakl
     protected $operatorKey;
 
     /**
-     * Mirakl Api Client constructor (Extends Guzzle service client)
+     * Mirakl Api Client constructor (Extends Guzzle service client).
      *
-     * @param string $baseUrl
-     * @param string $frontKey
-     * @param string $shopKey
-     * @param string $operatorKey
+     * @param string                               $baseUrl
+     * @param string                               $frontKey
+     * @param string                               $shopKey
+     * @param string                               $operatorKey
      * @param array|\Guzzle\Common\Collection|null $config
      */
     public function __construct(
@@ -41,10 +42,9 @@ class Mirakl
         $shopKey,
         $operatorKey,
         $config = array()
-    )
-    {
+    ) {
         $this->restClient = new Client($config);
-        $description = ServiceDescription::factory(__DIR__ . '../../../data/api/mirakl.json');
+        $description = ServiceDescription::factory(__DIR__.'../../../data/api/mirakl.json');
         $description->setBaseUrl($baseUrl);
         $this->frontKey = $frontKey;
         $this->shopKey = $shopKey;
@@ -53,21 +53,19 @@ class Mirakl
     }
 
     /**
-     * Fetch from Mirakl all vendors (uses S20)
+     * Fetch from Mirakl all vendors (uses S20).
      *
      * @param DateTime $updatedSince date of the last Update
+     * @param bool     $paginate
+     * @param array    $shopIds
      *
-     * @param bool $paginate
-     * @param array $shopIds
      * @return array the response
-     *
      */
     public function getVendors(
         DateTime $updatedSince = null,
         $paginate = false,
         $shopIds = array()
-    )
-    {
+    ) {
         $this->restClient->getConfig()->setPath(
             'request.options/headers/Authorization',
             $this->frontKey
@@ -77,15 +75,16 @@ class Mirakl
             array(
                 'updatedSince' => $updatedSince,
                 'paginate' => $paginate,
-                'shopIds' => $shopIds
+                'shopIds' => $shopIds,
             )
         );
         $result = $this->restClient->execute($command);
+
         return $result['shops'];
     }
 
     /**
-     * List files from Mirakl (Uses S30)
+     * List files from Mirakl (Uses S30).
      *
      * @param array $shopIds the shops id to list document from
      *
@@ -100,14 +99,15 @@ class Mirakl
         $command = $this->restClient->getCommand(
             'GetDocuments',
             array(
-                'shopIds' => $shopIds
+                'shopIds' => $shopIds,
             )
         );
+
         return $this->restClient->execute($command)->getBody();
     }
 
     /**
-     * Download a zip archive of documents (use S31) based on the docuements ids
+     * Download a zip archive of documents (use S31) based on the documents ids.
      *
      * @param array $documentIds
      * @param array $typeCodes
@@ -117,8 +117,7 @@ class Mirakl
     public function downloadDocuments(
         array $documentIds = array(),
         array $typeCodes = array()
-    )
-    {
+    ) {
         $this->restClient->getConfig()->setPath(
             'request.options/headers/Authorization',
             $this->frontKey
@@ -127,14 +126,15 @@ class Mirakl
             'DownloadDocuments',
             array(
                 'documentIds' => $documentIds,
-                'typeCodes' => $typeCodes
+                'typeCodes' => $typeCodes,
             )
         );
+
         return $this->restClient->execute($command)->getBody();
     }
 
     /**
-     * Download a zip archive of documents (use S31) based on the shopsid
+     * Download a zip archive of documents (use S31) based on the shopsId.
      *
      * @param array $shopIds
      * @param array $typeCodes
@@ -144,8 +144,7 @@ class Mirakl
     public function downloadShopsDocuments(
         array $shopIds = array(),
         array $typeCodes = array()
-    )
-    {
+    ) {
         $this->restClient->getConfig()->setPath(
             'request.options/headers/Authorization',
             $this->frontKey
@@ -154,14 +153,16 @@ class Mirakl
             'DownloadDocuments',
             array(
                 'shopIds' => $shopIds,
-                'typeCodes' => $typeCodes
+                'typeCodes' => $typeCodes,
             )
         );
+
         return $this->restClient->execute($command)->getBody();
     }
 
     /**
-     * List the transaction (use TL01)
+     * List the transaction (use TL01).
+     *
      * @param $shopId
      * @param $startDate
      * @param $endDate
@@ -192,8 +193,7 @@ class Mirakl
         $accountingDocumentNumber = null,
         array $orderIds = array(),
         array $orderLineIds = array()
-    )
-    {
+    ) {
         $this->restClient->getConfig()->setPath(
             'request.options/headers/Authorization',
             $this->frontKey
@@ -213,10 +213,11 @@ class Mirakl
                 'paginate' => $paginate,
                 'accountingDocumentNumber' => $accountingDocumentNumber,
                 'orderIds' => $orderIds,
-                'orderLineIds' => $orderLineIds
+                'orderLineIds' => $orderLineIds,
             )
         );
         $result = $this->restClient->execute($command);
+
         return $result['lines'];
     }
 }

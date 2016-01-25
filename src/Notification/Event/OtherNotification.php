@@ -1,4 +1,5 @@
 <?php
+
 namespace Hipay\MiraklConnector\Notification\Event;
 
 use DateTime;
@@ -7,6 +8,7 @@ use Symfony\Component\EventDispatcher\Event;
 
 /**
  * Class OtherNotification
+ * Event used on the others operation notification.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
@@ -30,11 +32,12 @@ class OtherNotification extends Event
 
     /**
      * OtherNotification constructor.
-     * @param float $amount
-     * @param string $currency
-     * @param string $label
+     *
+     * @param float           $amount
+     * @param string          $currency
+     * @param string          $label
      * @param VendorInterface $vendor
-     * @param DateTime $date
+     * @param DateTime        $date
      */
     public function __construct(
         $amount,
@@ -42,8 +45,7 @@ class OtherNotification extends Event
         $label,
         VendorInterface $vendor,
         DateTime $date
-    )
-    {
+    ) {
         $this->amount = $amount;
         $this->currency = $currency;
         $this->label = $label;

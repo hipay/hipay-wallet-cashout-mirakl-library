@@ -1,10 +1,12 @@
 <?php
+
 namespace Hipay\MiraklConnector\Api\Hipay;
 
 use Hipay\MiraklConnector\Api\ConfigurationInterface
     as BaseConfigurationInterface;
+
 /**
- * File Config.php
+ * File Config.php.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
@@ -12,30 +14,33 @@ use Hipay\MiraklConnector\Api\ConfigurationInterface
 interface ConfigurationInterface extends BaseConfigurationInterface
 {
     /**
-     * Returns the web service login given by HiPay
+     * Returns the web service login given by HiPay.
+     *
      * @return string
      */
     public function getWebServiceLogin();
 
     /**
-     * Returns the web service password given by HiPay
+     * Returns the web service password given by HiPay.
+     *
      * @return string
      */
     public function getWebServicePassword();
 
     /**
-     * Return the entity given to the merchant by Hipay
+     * Return the entity given to the merchant by Hipay.
+     *
      * @return string
      */
     public function getEntity();
 
     /**
-     * Returns the locale used in the webservice calls
+     * Returns the locale used in the webservice calls.
      */
     public function getLocale();
 
     /**
-     * Returns the timezone used in the webservice calls
+     * Returns the timezone used in the webservice calls.
      */
     public function getTimezone();
 }

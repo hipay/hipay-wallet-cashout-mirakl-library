@@ -1,10 +1,13 @@
 <?php
+
 namespace Hipay\MiraklConnector\Api\Hipay\Model\Soap;
+
 use Hipay\MiraklConnector\Service\Country;
 use Symfony\Component\Validator\Constraints as Assert;
+
 /**
  * File AccountDetail.php
- * Value object for detailled account data
+ * Value object for detailed account data.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
@@ -32,7 +35,7 @@ class UserAccountDetails extends ModelAbstract
     protected $cpf;
 
     /** @var string “rg” or “rne” for Brazilian accounts. */
-    protected $identificationNumberType ;
+    protected $identificationNumberType;
 
     /** @var string For Brazilian accounts. */
     protected $identificationNumber;
@@ -174,16 +177,15 @@ class UserAccountDetails extends ModelAbstract
 
     /**
      * UserAccountDetails constructor.
-     * Expects a mirakl based array
+     * Expects a mirakl based array.
      *
      * @param array $miraklData
      */
     public function __construct(
         array $miraklData
-    )
-    {
-        $this->address = $miraklData['contact_informations']['street1'] .
-            " " . $miraklData['contact_informations']['street2'];
+    ) {
+        $this->address = $miraklData['contact_informations']['street1'].
+            ' '.$miraklData['contact_informations']['street2'];
         $this->zipCode = $miraklData['contact_informations']['zip_code'];
         $this->city = $miraklData['contact_informations']['city'];
         $this->country = $this->formatCountryCode(
@@ -200,7 +202,7 @@ class UserAccountDetails extends ModelAbstract
 
     /**
      * Add the class data to the parameters
-     * based on the class name
+     * based on the class name.
      *
      * @param array $parameters
      *
@@ -209,8 +211,9 @@ class UserAccountDetails extends ModelAbstract
     public function mergeIntoParameters(array $parameters = array())
     {
         $this->validate();
+
         return $parameters + array(
-            $this->getSoapParameterKey() => $this->getSoapParameterData()
+            $this->getSoapParameterKey() => $this->getSoapParameterData(),
         );
     }
 
@@ -423,7 +426,7 @@ class UserAccountDetails extends ModelAbstract
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function isReceiveHipayInformation()
     {
@@ -431,7 +434,7 @@ class UserAccountDetails extends ModelAbstract
     }
 
     /**
-     * @param boolean $receiveHipayInformation
+     * @param bool $receiveHipayInformation
      */
     public function setReceiveHipayInformation($receiveHipayInformation)
     {
@@ -439,7 +442,7 @@ class UserAccountDetails extends ModelAbstract
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function isReceiveCommercialInformation()
     {
@@ -447,12 +450,11 @@ class UserAccountDetails extends ModelAbstract
     }
 
     /**
-     * @param boolean $receiveCommercialInformation
+     * @param bool $receiveCommercialInformation
      */
     public function setReceiveCommercialInformation(
         $receiveCommercialInformation
-    )
-    {
+    ) {
         $this->receiveCommercialInformation = $receiveCommercialInformation;
     }
 
@@ -585,7 +587,7 @@ class UserAccountDetails extends ModelAbstract
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function isTermsAgreed()
     {
@@ -593,7 +595,7 @@ class UserAccountDetails extends ModelAbstract
     }
 
     /**
-     * @param boolean $termsAgreed
+     * @param bool $termsAgreed
      */
     public function setTermsAgreed($termsAgreed)
     {
@@ -617,7 +619,9 @@ class UserAccountDetails extends ModelAbstract
     }
 
     /**
-     * Format the country code
+     * Format the country code.
+     * @param $countryCode
+     * @return false|string
      */
     public function formatCountryCode($countryCode)
     {

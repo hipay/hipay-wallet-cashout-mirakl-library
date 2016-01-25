@@ -1,4 +1,5 @@
 <?php
+
 namespace Hipay\MiraklConnector\Cashout;
 
 use DateTime;
@@ -7,7 +8,6 @@ use Hipay\MiraklConnector\Api\Hipay\Model\Soap\Transfer;
 use Hipay\MiraklConnector\Cashout\Model\Operation\OperationInterface;
 use Hipay\MiraklConnector\Cashout\Model\Operation\Status;
 use Hipay\MiraklConnector\Common\AbstractProcessor;
-use Hipay\MiraklConnector\Api\Mirakl;
 use Hipay\MiraklConnector\Api\Mirakl\ConfigurationInterface
     as MiraklConfiguration;
 use Hipay\MiraklConnector\Api\Hipay;
@@ -28,7 +28,7 @@ use Hipay\MiraklConnector\Vendor\Model\ManagerInterface as VendorManager;
 use Hipay\MiraklConnector\Api\Hipay\Model\Status\BankInfo as BankInfoStatus;
 
 /**
- * File Processor.php
+ * Class Processor.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
@@ -43,12 +43,13 @@ class Processor extends AbstractProcessor
 
     /**
      * Processor constructor.
-     * @param MiraklConfiguration $miraklConfig
-     * @param HipayConfiguration $hipayConfig
+     *
+     * @param MiraklConfiguration      $miraklConfig
+     * @param HipayConfiguration       $hipayConfig
      * @param EventDispatcherInterface $dispatcher
-     * @param LoggerInterface $logger
-     * @param OperationManager $operationManager,
-     * @param VendorManager $vendorManager
+     * @param LoggerInterface          $logger
+     * @param OperationManager         $operationManager,
+     * @param VendorManager            $vendorManager
      */
     public function __construct(
         MiraklConfiguration $miraklConfig,
@@ -57,19 +58,19 @@ class Processor extends AbstractProcessor
         LoggerInterface $logger,
         OperationManager $operationManager,
         VendorManager $vendorManager
-    )
-    {
+    ) {
         parent::__construct($miraklConfig, $hipayConfig, $dispatcher, $logger);
         $this->operationManager = $operationManager;
         $this->vendorManager = $vendorManager;
     }
 
     /**
-     * Main processing function
+     * Main processing function.
      *
      * @param $publicLabelTemplate
      * @param $privateLabelTemplate
      * @param $withdrawLabelTemplate
+     *
      * @throws WrongWalletBalance
      * @throws NoWalletFoundException
      * @throws UnconfirmedBankAccountException
@@ -79,32 +80,32 @@ class Processor extends AbstractProcessor
         $publicLabelTemplate,
         $privateLabelTemplate,
         $withdrawLabelTemplate
-    )
-    {
-        $previousDay = new DateTime("-1 day");
+    ) {
+        $previousDay = new DateTime('-1 day');
+
         //Transfer
         $this->transferOperations(
             $previousDay,
             $publicLabelTemplate,
             $privateLabelTemplate
         );
+
         //Withdraw
         $this->withdrawOperations($previousDay, $withdrawLabelTemplate);
-
-
     }
 
     /**
-     * @param $previousDay
-     * @param $publicLabelTemplate
-     * @param $privateLabelTemplate
+     * Execute the operation needing transfer.
+     *
+     * @param DateTime $previousDay
+     * @param string   $publicLabelTemplate
+     * @param string   $privateLabelTemplate
      */
-    public function transferOperations(
-        $previousDay,
+    protected function transferOperations(
+        DateTime $previousDay,
         $publicLabelTemplate,
         $privateLabelTemplate
-    )
-    {
+    ) {
         //Transfer
         $toTransfer = $this->operationManager->findByStatus(
             new Status(Status::CREATED)
@@ -134,7 +135,8 @@ class Processor extends AbstractProcessor
                     $e->getMessage()
                 );
                 $this->dispatcher->dispatch(
-                    $e->getEventName(), new ThrowException($e)
+                    $e->getEventName(),
+                    new ThrowException($e)
                 );
             } catch (Exception $e) {
                 $operation->setStatus($transferFailed);
@@ -147,10 +149,12 @@ class Processor extends AbstractProcessor
         }
     }
     /**
+     * Execute the operation needing withdrawal.
+     *
      * @param $previousDay
      * @param $withdrawLabelTemplate
      */
-    public function withdrawOperations($previousDay, $withdrawLabelTemplate)
+    protected function withdrawOperations($previousDay, $withdrawLabelTemplate)
     {
         $toWithdraw = $this->operationManager->findByStatus(
             new Status(Status::TRANSFER_SUCCESS)
@@ -182,6 +186,7 @@ class Processor extends AbstractProcessor
                     new ThrowException($e)
                 );
             } catch (Exception $e) {
+                $operation->setStatus($withdrawFailed);
                 $this->logger->critical(
                     $e->getMessage()
                 );
@@ -192,20 +197,21 @@ class Processor extends AbstractProcessor
 
     /**
      * Transfer money between the technical
-     * wallet and the operator|seller wallet
+     * wallet and the operator|seller wallet.
      *
      * @param OperationInterface $operation
-     * @param string $publicLabel
-     * @param string $privateLabel
+     * @param string             $publicLabel
+     * @param string             $privateLabel
+     *
      * @return int
-     * @throws NoWalletFoundException
+     *
+     * @throws NoWalletFoundException if the wallet is not found
      */
     public function transferOperation(
         OperationInterface $operation,
         $publicLabel,
         $privateLabel
-    )
-    {
+    ) {
         $vendor = $this->vendorManager->findByHipayId($operation->getHipayId());
 
         if (!$vendor || $this->hipay->isAvailable($vendor->getEmail())) {
@@ -223,14 +229,19 @@ class Processor extends AbstractProcessor
     }
 
     /**
-     * Put the money into the real bank account of the operator|seller
+     * Put the money into the real bank account of the operator|seller.
      *
      * @param OperationInterface $operation
      * @param $label
+     *
      * @return int
-     * @throws WrongWalletBalance
-     * @throws UnconfirmedBankAccountException
+     *
+     * @throws WrongWalletBalance              if the hipay wallet balance is
+     *                                         lower than the transaction amount to be sent to the bank account
+     * @throws UnconfirmedBankAccountException if the bank account
+     *                                         information is not the the status validated at Hipay
      * @throws UnidentifiedWalletException
+     *                                         if the account is not identified by Hipay
      */
     public function withdrawOperation(OperationInterface $operation, $label)
     {
@@ -269,7 +280,7 @@ class Processor extends AbstractProcessor
     }
 
     /**
-     * Generate the label from a template
+     * Generate the label from a template.
      *
      * @param $labelTemplate
      * @param $operation
@@ -279,6 +290,7 @@ class Processor extends AbstractProcessor
     public function generateLabel($labelTemplate, OperationInterface $operation)
     {
         $m = new Mustache_Engine();
+
         return $m->render($labelTemplate, array(
             'miraklId' => $operation->getMiraklId(),
             'amount' => $operation->getAmount(),
@@ -290,7 +302,7 @@ class Processor extends AbstractProcessor
             'cycleTime' => $operation->getCycleDate()->format('H:i:s'),
             'date' => date('Y-m-d'),
             'datetime' => date('Y-m-d H:i:s'),
-            'time' => date('H:i:s')
+            'time' => date('H:i:s'),
         ));
     }
 }

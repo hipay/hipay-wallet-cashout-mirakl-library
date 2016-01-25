@@ -1,12 +1,4 @@
 <?php
-/**
- * File WithdrawNotification.php
- *
- * @category
- * @package
- * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
- * @copyright 2015 Smile
- */
 
 namespace Hipay\MiraklConnector\Notification\Event;
 
@@ -17,6 +9,7 @@ use Symfony\Component\EventDispatcher\Event;
 
 /**
  * Class WithdrawNotification
+ * Event used on the withdraw operation notification.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
@@ -34,16 +27,16 @@ class WithdrawNotification extends Event
 
     /**
      * WithdrawNotification constructor.
+     *
      * @param OperationInterface $operation
-     * @param VendorInterface $vendor
-     * @param DateTime $date
+     * @param VendorInterface    $vendor
+     * @param DateTime           $date
      */
     public function __construct(
         OperationInterface $operation,
         VendorInterface $vendor,
         DateTime $date
-    )
-    {
+    ) {
         $this->operation = $operation;
         $this->vendor = $vendor;
         $this->date = $date;
@@ -64,7 +57,6 @@ class WithdrawNotification extends Event
     {
         $this->operation = $operation;
     }
-
 
     /**
      * @return VendorInterface

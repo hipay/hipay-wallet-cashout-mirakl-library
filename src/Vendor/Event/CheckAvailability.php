@@ -1,23 +1,26 @@
 <?php
+
 namespace Hipay\MiraklConnector\Vendor\Event;
 
 use Symfony\Component\EventDispatcher\Event;
 
 /**
  * Class CheckAvailability
+ * Event object used when the event 'before.availability.check'
+ * is dispatched from the processor.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
  */
 class CheckAvailability extends Event
 {
-
     protected $email;
 
     protected $entity;
 
     /**
      * CheckAvailability constructor.
+     *
      * @param $email
      * @param $entity
      */
@@ -37,11 +40,13 @@ class CheckAvailability extends Event
 
     /**
      * @param mixed $email
+     *
      * @return $this
      */
     public function setEmail($email)
     {
         $this->email = $email;
+
         return $this;
     }
 
@@ -55,12 +60,13 @@ class CheckAvailability extends Event
 
     /**
      * @param mixed $entity
+     *
      * @return $this
      */
     public function setEntity($entity)
     {
         $this->entity = $entity;
+
         return $this;
     }
-
 }

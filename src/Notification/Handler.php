@@ -1,4 +1,5 @@
 <?php
+
 namespace Hipay\MiraklConnector\Notification;
 
 use DateTime;
@@ -20,6 +21,9 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Class Handler
+ * Handle the notification server-server
+ * sent by Hipay after the significant events
+ * Hook in the notification by using the event dispatcher.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
@@ -31,32 +35,32 @@ class Handler
 
     /** @var EventDispatcherInterface */
     protected $dispatcher;
-    /**
-     * @var VendorManager
-     */
+
+    /** @var VendorManager */
     private $vendorManager;
 
     /**
      * Handler constructor.
-     * @param OperationManager $operationManager
-     * @param VendorManager $vendorManager
+     *
+     * @param OperationManager         $operationManager
+     * @param VendorManager            $vendorManager
      * @param EventDispatcherInterface $dispatcher
      */
     public function __construct(
         OperationManager $operationManager,
         VendorManager $vendorManager,
         EventDispatcherInterface $dispatcher
-    )
-    {
+    ) {
         $this->operationManager = $operationManager;
         $this->dispatcher = $dispatcher;
         $this->vendorManager = $vendorManager;
     }
 
     /**
-     * Handle the notification sent by Hipay
+     * Handle the notification sent by Hipay.
      *
      * @param $xml
+     *
      * @throws Exception
      * @throws IllegalNotificationOperationException
      */
@@ -64,14 +68,13 @@ class Handler
     {
         $xml = new SimpleXMLElement($xml);
 
-        if (md5($xml->result) !=  $xml->md5content)
-        {
-            throw new Exception("Wrong checksum");
+        if (md5($xml->result) !=  $xml->md5content) {
+            throw new Exception('Wrong checksum');
         }
 
         $operation = $xml->result->operation;
         $status = $xml->result->status == NotificationStatus::OK;
-        $date = new \DateTime($xml->result->date . " " . $xml->result->time);
+        $date = new \DateTime($xml->result->date.' '.$xml->result->time);
         $vendor = $this->vendorManager->findByHipayId($xml->result->account_id);
 
         switch ($operation) {
@@ -112,12 +115,12 @@ class Handler
         }
     }
 
-
     /**
      * @param $transactionId
      * @param VendorInterface $vendor
-     * @param DateTime $date
-     * @param boolean $status
+     * @param DateTime        $date
+     * @param bool            $status
+     *
      * @throws Exception
      */
     protected function withdrawalValidation(
@@ -125,8 +128,7 @@ class Handler
         VendorInterface $vendor,
         \DateTime $date,
         $status
-    )
-    {
+    ) {
         $operation = $this->operationManager
             ->findByWithdrawalId($transactionId);
 
@@ -154,8 +156,8 @@ class Handler
 
     /**
      * @param VendorInterface $vendor
-     * @param DateTime $date
-     * @param boolean $status
+     * @param DateTime        $date
+     * @param bool            $status
      */
     protected function bankInfoValidation($vendor, $date, $status)
     {
@@ -172,8 +174,8 @@ class Handler
 
     /**
      * @param VendorInterface $vendor
-     * @param DateTime $date
-     * @param boolean $status
+     * @param DateTime        $date
+     * @param bool            $status
      */
     protected function identification($vendor, $date, $status)
     {
@@ -189,12 +191,12 @@ class Handler
     }
 
     /**
-     * @param float $amount
-     * @param string $currency
-     * @param string $label
+     * @param float           $amount
+     * @param string          $currency
+     * @param string          $label
      * @param VendorInterface $vendor
-     * @param DateTime $date
-     * @param boolean $status
+     * @param DateTime        $date
+     * @param bool            $status
      */
     protected function other(
         $amount,
@@ -203,8 +205,7 @@ class Handler
         $vendor,
         $date,
         $status
-    )
-    {
+    ) {
         if ($status) {
             $eventName = 'other.notification.success';
         } else {

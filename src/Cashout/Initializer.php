@@ -1,4 +1,5 @@
 <?php
+
 namespace Hipay\MiraklConnector\Cashout;
 
 use DateTime;
@@ -28,7 +29,8 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
- * Class Validator
+ * Class Initializer
+ * Generate and save the operation to be executed by the processor.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
@@ -52,15 +54,16 @@ class Initializer extends AbstractProcessor
 
     /**
      * Initializer constructor.
-     * @param MiraklConfiguration $miraklConfig
-     * @param HipayConfiguration $hipayConfig
+     *
+     * @param MiraklConfiguration      $miraklConfig
+     * @param HipayConfiguration       $hipayConfig
      * @param EventDispatcherInterface $dispatcher
-     * @param LoggerInterface $logger
-     * @param VendorInterface $operatorAccount
-     * @param VendorInterface $technicalAccount
-     * @param ValidatorInterface $transactionValidator
-     * @param OperationManager $operationHandler
-     * @param VendorManager $vendorManager
+     * @param LoggerInterface          $logger
+     * @param VendorInterface          $operatorAccount
+     * @param VendorInterface          $technicalAccount
+     * @param ValidatorInterface       $transactionValidator
+     * @param OperationManager         $operationHandler
+     * @param VendorManager            $vendorManager
      */
     public function __construct(
         MiraklConfiguration $miraklConfig,
@@ -72,8 +75,7 @@ class Initializer extends AbstractProcessor
         ValidatorInterface $transactionValidator,
         OperationManager $operationHandler,
         VendorManager $vendorManager
-    )
-    {
+    ) {
         parent::__construct($miraklConfig, $hipayConfig, $dispatcher, $logger);
         $this->operator = $operatorAccount;
         $this->technicalAccount = $technicalAccount;
@@ -83,6 +85,9 @@ class Initializer extends AbstractProcessor
     }
 
     /**
+     * Main processing function
+     * Generate and save operations.
+     *
      * @param DateTime $startDate
      * @param DateTime $endDate
      * @param DateTime $cycleDate
@@ -93,24 +98,23 @@ class Initializer extends AbstractProcessor
         DateTime $startDate,
         DateTime $endDate,
         DateTime $cycleDate
-    )
-    {
-        $this->logger->info("Cachout Initializer");
+    ) {
+        $this->logger->info('Cashout Initializer');
 
         $this->logger->info(
-            "Fetch payment transaction from Mirakl from " .
-            $startDate->format("Y-m-d H:i") .
-            " to " .
-            $endDate->format("Y-m-d H:i")
+            'Fetch payment transaction from Mirakl from '.
+            $startDate->format('Y-m-d H:i').
+            ' to '.
+            $endDate->format('Y-m-d H:i')
         );
-        $paymentTransactions = $this->getPayementTransactions(
+        $paymentTransactions = $this->getPaymentTransactions(
             $startDate,
             $endDate
         );
         $this->logger->info(
-            "[OK] Fetched " .
-            count($paymentTransactions) .
-            " payment transactions"
+            '[OK] Fetched '.
+            count($paymentTransactions).
+            ' payment transactions'
         );
 
         $paymentVouchersByShopId = $this->indexArray(
@@ -128,10 +132,11 @@ class Initializer extends AbstractProcessor
         $operations = array();
         $transactionError = null;
 
-        $this->logger->info("Compute amounts and create vendor operation");
+        $this->logger->info('Compute amounts and create vendor operation');
         foreach ($paymentVouchersByShopId as $miraklId => $paymentVouchers) {
             $this->logger->debug(
-                "ShopId : $miraklId", array("shopId" => $miraklId)
+                "ShopId : $miraklId",
+                array('shopId' => $miraklId)
             );
             $vendorAmount = 0;
             $orderTransactions = array();
@@ -206,13 +211,12 @@ class Initializer extends AbstractProcessor
         if (!$this->hasSufficientFunds($totalAmount)) {
             throw new NotEnoughFunds();
         }
-        $this->logger->info("[OK] Technical account has sufficient funds");
-
+        $this->logger->info('[OK] Technical account has sufficient funds');
 
         //Valid the operation and check if operation wasn't created before
-        $this->logger->info("Validate the operations");
+        $this->logger->info('Validate the operations');
         /**
-         * @var int index
+         * @var int                index
          * @var OperationInterface $operation
          */
         foreach ($operations as $index => $operation) {
@@ -240,29 +244,27 @@ class Initializer extends AbstractProcessor
                     $e->getEventName(),
                     new ThrowException($e)
                 );
-
             }
         }
-        $this->logger->info("[OK] Operations validated");
+        $this->logger->info('[OK] Operations validated');
 
-        $this->logger->info("Save operations");
+        $this->logger->info('Save operations');
         $this->operationManager->saveAll($operations);
-        $this->logger->info("[OK] Operations saved");
+        $this->logger->info('[OK] Operations saved');
     }
 
     /**
-     * Fetch from mirakl the payements transaction
+     * Fetch from mirakl the payments transaction.
      *
      * @param DateTime $startDate
      * @param DateTime $endDate
      *
      * @return array
      */
-    protected function getPayementTransactions(
+    protected function getPaymentTransactions(
         DateTime $startDate,
         DateTime $endDate
-    )
-    {
+    ) {
         $transactions = $this->mirakl->getTransactions(
             null,
             $startDate,
@@ -272,18 +274,19 @@ class Initializer extends AbstractProcessor
             null,
             null,
             null,
-            array("PAYMENT")
+            array('PAYMENT')
         );
+
         return $transactions;
     }
 
-
-
     /**
-     * Fetch from mirakl the payment related to the orders
+     * Fetch from mirakl the payment related to the orders.
      *
      * @param $paymentVoucher
+     *
      * @return array
+     *
      * @throws Exception
      */
     protected function getOrderTransactions($paymentVoucher)
@@ -299,34 +302,35 @@ class Initializer extends AbstractProcessor
             null,
             $this->getOrderTransactionTypes()
         );
+
         return $transactions;
     }
 
     /**
-     * Returns the transaction types to get on the second call from to TL01
+     * Returns the transaction types to get on the second call from to TL01.
      *
      * @return array
      */
     protected function getOrderTransactionTypes()
     {
         return array(
-            "COMMISSION_FEE",
-            "COMMISSION_VAT",
-            "REFUND_COMMISSION_FEE",
-            "REFUND_COMMISSION_VAT",
-            "SUBSCRIPTION_FEE",
-            "SUBSCRIPTION_VAT",
-            "ORDER_AMOUNT",
-            "ORDER_SHIPPING_AMOUNT",
-            "REFUND_ORDER_SHIPPING_AMOUNT",
-            "REFUND_ORDER_AMOUNT",
-            "MANUAL_CREDIT",
-            "MANUAL_CREDIT_VAT"
+            'COMMISSION_FEE',
+            'COMMISSION_VAT',
+            'REFUND_COMMISSION_FEE',
+            'REFUND_COMMISSION_VAT',
+            'SUBSCRIPTION_FEE',
+            'SUBSCRIPTION_VAT',
+            'ORDER_AMOUNT',
+            'ORDER_SHIPPING_AMOUNT',
+            'REFUND_ORDER_SHIPPING_AMOUNT',
+            'REFUND_ORDER_AMOUNT',
+            'MANUAL_CREDIT',
+            'MANUAL_CREDIT_VAT',
         );
     }
 
     /**
-     * Compute the vendor amount to withdrawed from the technical account
+     * Compute the vendor amount to withdrawn from the technical account.
      *
      * @param $transactions
      * @param $paymentTransaction
@@ -338,8 +342,7 @@ class Initializer extends AbstractProcessor
     protected function computeVendorAmount(
         $transactions,
         $paymentTransaction
-    )
-    {
+    ) {
         $amount = 0;
         $errors = false;
         foreach ($transactions as $transaction) {
@@ -350,29 +353,32 @@ class Initializer extends AbstractProcessor
             round($paymentTransaction['amount_debited'], 2)
         ) {
             throw new TransactionException(
-                "There is a difference between the transactions".
-                PHP_EOL . "$amount for the transactions" .
-                PHP_EOL . "{$paymentTransaction['amount_debited']} for the earlier payment transaction"
+                'There is a difference between the transactions'.
+                PHP_EOL."$amount for the transactions".
+                PHP_EOL."{$paymentTransaction['amount_debited']} for the earlier payment transaction"
             );
         }
         if ($errors) {
             throw new TransactionException(
-                "There are errors in the transactions"
+                'There are errors in the transactions'
             );
         }
+
         return $amount;
     }
 
     /**
+     * Compute the amount due to the operator by vendor.
+     *
      * @param $transactions
+     *
      * @return int
      */
     protected function computeOperatorAmountByVendor($transactions)
     {
         $amount = 0;
         foreach ($transactions as $transaction) {
-            if (
-            in_array(
+            if (in_array(
                 $transaction['transaction_type'],
                 $this->getOperatorTransactionTypes()
             )
@@ -380,34 +386,36 @@ class Initializer extends AbstractProcessor
                 $amount += $transaction['balance'];
             }
         }
+
         return (-1) * $amount;
     }
 
     /**
-     * Return the transaction type used to calculate the operator amount
+     * Return the transaction type used to calculate the operator amount.
      *
      * @return array
      */
     protected function getOperatorTransactionTypes()
     {
         return array(
-            "COMMISION_FEE",
-            "COMMISION_VAT",
-            "REFUND_COMMISION_FEE",
-            "REFUND_COMMISION_VAT",
-            "SUBSRIRCTION_FEE",
-            "SUBSRIRCTION_VAT"
+            'COMMISSION_FEE',
+            'COMMISSION_VAT',
+            'REFUND_COMMISSION_FEE',
+            'REFUND_COMMISSION_VAT',
+            'SUBSCRIPTION_FEE',
+            'SUBSCRIPTION_VAT',
         );
     }
 
     /**
      * Create the vendor operation
-     * dispatch <b>after.operation.create</b>
+     * dispatch <b>after.operation.create</b>.
      *
-     * @param int $amount
+     * @param int      $amount
      * @param DateTime $cycleDate
      * @param $hipayId
      * @param bool|int $shopId false if it an operator operation
+     *
      * @return OperationInterface
      */
     protected function createOperation(
@@ -415,8 +423,7 @@ class Initializer extends AbstractProcessor
         DateTime $cycleDate,
         $hipayId,
         $shopId = false
-    )
-    {
+    ) {
         $operation = $this->operationManager->create($shopId);
         $event = new CreateOperation($operation);
         $this->dispatcher->dispatch('after.operation.create', $event);
@@ -432,7 +439,7 @@ class Initializer extends AbstractProcessor
     }
 
     /**
-     * Check if technical account has sufficient funds
+     * Check if technical account has sufficient funds.
      *
      * @param $amount
      *

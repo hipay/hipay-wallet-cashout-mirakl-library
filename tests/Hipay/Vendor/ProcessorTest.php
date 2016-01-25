@@ -1,10 +1,11 @@
 <?php
+
 namespace Mirakl\Hipay\Test\Vendor;
 
 use PHPUnit_Framework_TestCase;
 
 /**
- * File Processor.php
+ * File Processor.php.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile

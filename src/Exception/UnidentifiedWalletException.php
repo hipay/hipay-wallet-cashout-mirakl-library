@@ -1,9 +1,11 @@
 <?php
+
 namespace Hipay\MiraklConnector\Exception;
+
 use Hipay\MiraklConnector\Vendor\Model\VendorInterface;
 
 /**
- * Class UnidentifiedWallet
+ * Class UnidentifiedWallet.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
@@ -19,17 +21,16 @@ class UnidentifiedWalletException extends DispatchableException
      * TransactionException constructor.
      *
      * @param VendorInterface $vendor
-     * @param string $message
-     * @param int $code
+     * @param string          $message
+     * @param int             $code
      * @param $previousException
      */
     public function __construct(
         $vendor,
-        $message = "",
+        $message = '',
         $code = 0,
         $previousException = null
-    )
-    {
+    ) {
         $this->vendor = $vendor;
         parent::__construct(
             $message ?: "The wallet {$vendor->getHipayId()} is unidentified",

@@ -1,23 +1,25 @@
 <?php
+
 namespace Hipay\MiraklConnector\Cashout\Event;
+
 use Symfony\Component\EventDispatcher\Event;
 
 /**
- * File ValidateTransaction.php
+ * Class ValidateTransactions
+ * Event object used when the event 'before.availability.check'
+ * is dispatched from the processor.
  *
- * @category
- * @package
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
  */
 class ValidateTransactions extends Event
 {
-
     /** @var  array */
     protected $transactions;
 
     /**
      * ValidateTransactions constructor.
+     *
      * @param $transactions
      */
     public function __construct($transactions)

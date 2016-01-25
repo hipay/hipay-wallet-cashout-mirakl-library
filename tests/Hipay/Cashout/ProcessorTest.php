@@ -1,12 +1,14 @@
 <?php
+
 namespace Mirakl\Hipay\Test\Cashout;
 
 use PHPUnit_Framework_TestCase;
+
 /**
- * File Processor.php
+ * File Processor.php.
  *
  * @category
- * @package
+ *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
  */

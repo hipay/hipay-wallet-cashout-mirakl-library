@@ -1,14 +1,12 @@
 <?php
-namespace Hipay\MiraklConnector\Api\Hipay\Model\Status;
 
+namespace Hipay\MiraklConnector\Api\Hipay\Model\Status;
 
 use Hipay\MiraklConnector\Common\AbstractEnumeration;
 
 /**
- * Class BankInfo
+ * Class BankInfo.
  *
- * @category
- * @package
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
  */

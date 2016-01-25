@@ -1,20 +1,12 @@
 <?php
-/**
- * File SSHConnection.php
- *
- * @category
- * @package
- * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
- * @copyright 2015 Smile
- */
 
 namespace Hipay\MiraklConnector\Service\Ftp;
-
 
 use Touki\FTP\Connection\Connection;
 
 /**
  * Class SSHConnection
+ * Represent a ssh connection.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
@@ -22,9 +14,9 @@ use Touki\FTP\Connection\Connection;
 class SSHConnection extends Connection
 {
     /**
-     * Calls the connector
+     * Calls the connector.
      *
-     * @return boolean TRUE on success, FALSE on failure
+     * @return bool TRUE on success, FALSE on failure
      */
     public function doConnect()
     {

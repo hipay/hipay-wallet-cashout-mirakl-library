@@ -1,12 +1,4 @@
 <?php
-/**
- * File AbstractEnumeration.php
- *
- * @category
- * @package
- * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
- * @copyright 2015 Smile
- */
 
 namespace Hipay\MiraklConnector\Common;
 
@@ -14,6 +6,7 @@ use ReflectionClass;
 
 /**
  * Class AbstractEnumeration
+ * Represent an enumeration similar to the Enum class in Java.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
@@ -25,31 +18,33 @@ abstract class AbstractEnumeration
 
     /**
      * Status constructor.
+     *
      * @param $value
      */
     public function __construct($value)
     {
         if (!in_array($value, $this->getConstList(), true)) {
             throw new \InvalidArgumentException(
-                $value . "is not a possible value for status"
+                $value.'is not a possible value for status'
             );
         }
         $this->value = $value;
     }
 
     /**
-     * Return the constant list
+     * Return the constant list.
      *
      * @return array
      */
     public function getConstList()
     {
         $reflect = new ReflectionClass(get_class($this));
+
         return $reflect->getConstants();
     }
 
     /**
-     * Return the value
+     * Return the value.
      *
      * @return mixed
      */
@@ -59,7 +54,7 @@ abstract class AbstractEnumeration
     }
 
     /**
-     * String representation
+     * String representation.
      *
      * @return string
      */

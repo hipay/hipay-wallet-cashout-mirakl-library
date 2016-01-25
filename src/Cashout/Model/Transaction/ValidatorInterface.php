@@ -1,7 +1,10 @@
 <?php
+
 namespace Hipay\MiraklConnector\Cashout\Model\Transaction;
+
 /**
- * File ValidatorInterface.php
+ * Class ValidatorInterface
+ * Used to validated transaction like orders.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
@@ -9,11 +12,11 @@ namespace Hipay\MiraklConnector\Cashout\Model\Transaction;
 interface ValidatorInterface
 {
     /**
-     * Validate a transaction
+     * Validate a transaction.
      *
      * @param array $transaction
      *
-     * @return boolean
+     * @return bool
      */
     public function isValid(array $transaction);
 }

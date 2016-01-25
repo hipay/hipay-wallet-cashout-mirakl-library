@@ -1,19 +1,12 @@
 <?php
-/**
- * File Transfer.php
- *
- * @category
- * @package
- * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
- * @copyright 2015 Smile
- */
 
 namespace Hipay\MiraklConnector\Api\Hipay\Model\Soap;
-use Hipay\MiraklConnector\Vendor\Model\VendorInterface;
 
+use Hipay\MiraklConnector\Vendor\Model\VendorInterface;
 use Symfony\Component\Validator\Constraints as Assert;
+
 /**
- * Class Transfer
+ * Class Transfer.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
@@ -65,19 +58,19 @@ class Transfer extends ModelAbstract
     protected $entity;
 
     /**
-     * Transfert constructor.
-     * @param int $amount
+     * Transfer constructor.
+     *
+     * @param int             $amount
      * @param VendorInterface $vendorInterface
-     * @param string $privateLabel
-     * @param string $publicLabel
+     * @param string          $privateLabel
+     * @param string          $publicLabel
      */
     public function __construct(
         $amount,
         VendorInterface $vendorInterface,
         $privateLabel,
         $publicLabel
-    )
-    {
+    ) {
         $this->amount = $amount;
         $this->recipientUserId = $vendorInterface->getHipayId();
         $this->recipientUsername = $vendorInterface->getEmail();

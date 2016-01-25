@@ -1,19 +1,12 @@
 <?php
-/**
- * File BankInfo.php
- *
- * @category
- * @package
- * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
- * @copyright 2015 Smile
- */
 
 namespace Hipay\MiraklConnector\Api\Hipay\Model\Soap;
 
 use Symfony\Component\Validator\Constraints as Assert;
+
 /**
  * Class BankInfo
- * Value object for bank data
+ * Value object for bank data.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
@@ -24,6 +17,10 @@ class BankInfo extends ModelAbstract
      * @var string
      *
      * @Assert\NotBlank
+     * @Assert\Regex(
+     *     pattern="/^[a-zA-Z0-9]+$/",
+     *      message="Only alphanumeric characters allowed"
+     * )
      */
     protected $bankName;
 
@@ -45,6 +42,10 @@ class BankInfo extends ModelAbstract
      * @var string
      *
      * @Assert\NotBlank
+     * @Assert\Regex(
+     *     pattern="/^[a-zA-Z0-9]+$/",
+     *      message="Only alphanumeric characters allowed"
+     * )
      */
     protected $bankCity;
 
@@ -80,35 +81,38 @@ class BankInfo extends ModelAbstract
 
     /**
      * @param array $miraklData
+     *
      * @return self $this
      */
     public function setMiraklData(array $miraklData)
     {
-        $paymentData =  array_key_exists('payment_info', $miraklData) ?
+        $paymentData = array_key_exists('payment_info', $miraklData) ?
             $miraklData['payment_info'] : $miraklData['billing_info'];
         $this->bankName = isset($paymentData['bank_name']) ?
-            $paymentData['bank_name'] : "" ;
+            $paymentData['bank_name'] : '';
         $this->bankAddress = isset($paymentData['bank_street']) ?
-            $paymentData['bank_street'] : "";
-        $this->bankZipCode =  array_key_exists('zip_code', $paymentData) ?
-            $paymentData['zip_code'] : $paymentData['bank_zip'] ;
-        $this->bankCity = isset($paymentData['bank_city']) ? $paymentData['bank_city'] : "";
-        $this->swift = isset($paymentData['bic']) ? $paymentData['bic'] : "";
-        $this->iban = isset($paymentData['iban']) ? $paymentData['iban'] : "";
+            $paymentData['bank_street'] : '';
+        $this->bankZipCode = array_key_exists('zip_code', $paymentData) ?
+            $paymentData['zip_code'] : $paymentData['bank_zip'];
+        $this->bankCity = isset($paymentData['bank_city']) ? $paymentData['bank_city'] : '';
+        $this->swift = isset($paymentData['bic']) ? $paymentData['bic'] : '';
+        $this->iban = isset($paymentData['iban']) ? $paymentData['iban'] : '';
         // Take the first to characters to fill the country
         $this->bankCountry = substr($this->iban, 0, 2);
+
         return $this;
     }
 
     /**
      * @param array $hipayData
+     *
      * @return self $this
      */
     public function setHipayData(array $hipayData)
     {
         $this->bankName = $hipayData['bankName'];
         $this->bankAddress = $hipayData['bankAddress'];
-        $this->bankZipCode =  $hipayData['bankZipCode'];
+        $this->bankZipCode = $hipayData['bankZipCode'];
         $this->bankCity = $hipayData['bankCity'];
         $this->swift = $hipayData['swift'];
         $this->iban = $hipayData['iban'];

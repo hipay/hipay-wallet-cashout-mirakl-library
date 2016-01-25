@@ -1,4 +1,5 @@
 <?php
+
 namespace Hipay\MiraklConnector\Service\Validation;
 
 use Hipay\MiraklConnector\Exception\UnauthorizedModificationException;
@@ -8,7 +9,9 @@ use Symfony\Component\Validator\Validator;
 
 /**
  * Class ModelValidator
- * Validate models using the annotation in the interface
+ * Validate models using the annotation in the interfaces and concrete classes
+ * Used when validating the vendor and operation interface implementation
+ * and the soap models before sending.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
@@ -19,11 +22,9 @@ abstract class ModelValidator
     protected static $validator;
 
     /**
-     * Validate an object (Basic check)
+     * Validate an object (Basic check).
      *
      * @param mixed $object the object to validate
-     *
-     * @return void
      *
      * @throws ValidationFailedException
      */
@@ -38,7 +39,7 @@ abstract class ModelValidator
     }
 
     /**
-     * Check an object data against old values
+     * Check an object data against old values.
      *
      * @param $object
      * @param array $array
@@ -49,7 +50,7 @@ abstract class ModelValidator
     {
         $exception = new UnauthorizedModificationException($object);
         foreach ($array as $key => $previousValue) {
-            $methodName = "get" . ucfirst($key);
+            $methodName = 'get'.ucfirst($key);
             if ($previousValue != $object->$methodName()) {
                 $exception->addModifiedProperty($key);
             }
@@ -61,7 +62,7 @@ abstract class ModelValidator
     }
 
     /**
-     * Initialize the validator
+     * Initialize the validator.
      */
     public static function initialize()
     {

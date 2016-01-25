@@ -1,4 +1,5 @@
 <?php
+
 namespace Hipay\MiraklConnector\Cashout\Model\Operation;
 
 use DateTime;
@@ -7,16 +8,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * Operation interface
  * You must implement this class to use the library
- * Uses Symfony Validation assertion to ensure basic data integrity
+ * Uses Symfony Validation assertion to ensure basic data integrity.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
- */
-
-/**
- * Interface OperationInterface
- * @package Hipay\MiraklConnector\Cashout\Model\Operation
- *
  */
 interface OperationInterface
 {
@@ -29,6 +24,7 @@ interface OperationInterface
     /**
      * @Assert\Type(type="integer")
      * @Assert\NotBlank()
+     *
      * @return int
      */
     public function getHipayId();
@@ -41,7 +37,6 @@ interface OperationInterface
 
     /**
      * @param int $withdrawId
-     * @return void
      */
     public function setWithdrawId($withdrawId);
 
@@ -66,7 +61,6 @@ interface OperationInterface
 
     /**
      * @param Status $status
-     * @return void
      */
     public function setStatus(Status $status);
 
@@ -80,7 +74,6 @@ interface OperationInterface
 
     /**
      * @param DateTime $date
-     * @return void
      */
     public function setCycleDate(DateTime $date);
 
@@ -95,13 +88,14 @@ interface OperationInterface
 
     /**
      * @param float $amount
-     * @return void
      */
     public function setAmount($amount);
 
     /**
-     * Set the hipay Id
+     * Set the hipay Id.
+     *
      * @param $hipayId
+     *
      * @return mixed
      */
     public function setHipayId($hipayId);

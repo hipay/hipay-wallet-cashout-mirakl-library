@@ -1,19 +1,19 @@
 <?php
 /**
- * File InvalidOperation.php
+ * File InvalidOperation.php.
  *
  * @category
- * @package
+ *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
  */
-
 namespace Hipay\MiraklConnector\Exception;
+
 use Exception;
 use Hipay\MiraklConnector\Cashout\Model\Operation\OperationInterface;
 
 /**
- * Class InvalidOperation
+ * Class InvalidOperation.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
@@ -25,21 +25,20 @@ class InvalidOperationException extends DispatchableException
      */
     protected $operation;
 
-
     /**
      * InvalidOperation constructor.
+     *
      * @param OperationInterface $operation
-     * @param string $message
-     * @param int $code
-     * @param Exception $previous
+     * @param string             $message
+     * @param int                $code
+     * @param Exception          $previous
      */
     public function __construct(
         $operation,
-        $message = "",
+        $message = '',
         $code = 0,
         Exception $previous = null
-    )
-    {
+    ) {
         $this->operation = $operation;
         parent::__construct(
             $message ?: "An operation for {$operation->getMiraklId()} is already

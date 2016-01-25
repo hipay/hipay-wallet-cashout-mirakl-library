@@ -1,22 +1,23 @@
 <?php
+
 namespace Hipay\MiraklConnector\Api\Soap;
+
 use Exception;
-use \SoapClient;
-use \SoapFault;
+use SoapClient;
+use SoapFault;
 
 /**
- * SoapClient with protection on fatal error
+ * SoapClient with protection on fatal error.
  *
  * @category  Smile
- * @package   Smile_Soap
+ *
  * @author    Laurent MINGUET <lamin@smile.fr>
  * @copyright 2015 Smile
- *
  */
 class SmileClient extends SoapClient
 {
     /**
-     * construct
+     * construct.
      *
      * @param string $wsdl    wsdl url to use
      * @param array  $options table of options
@@ -40,7 +41,7 @@ class SmileClient extends SoapClient
     }
 
     /**
-     * init the options
+     * init the options.
      *
      * @param array $options array of options
      *
@@ -49,11 +50,11 @@ class SmileClient extends SoapClient
     protected function _initOptions($options)
     {
         $defaultOptions = array(
-            'soap_version'   => SOAP_1_1,
+            'soap_version' => SOAP_1_1,
             'authentication' => SOAP_AUTHENTICATION_BASIC,
-            'features'       => SOAP_SINGLE_ELEMENT_ARRAYS,
-            'exceptions'     => true,
-            'timeout'        => (int) ini_get('default_socket_timeout'), // in seconds
+            'features' => SOAP_SINGLE_ELEMENT_ARRAYS,
+            'exceptions' => true,
+            'timeout' => (int) ini_get('default_socket_timeout'), // in seconds
         );
         $options = array_merge($defaultOptions, $options);
 
@@ -67,20 +68,18 @@ class SmileClient extends SoapClient
      ******************************************************************/
 
     /**
-     * default code to use for error handling
+     * default code to use for error handling.
+     *
      * @var null|string
      */
-    static private $_defaultCode = null;
-
+    private static $_defaultCode = null;
 
     /**
-     * start handling the error to catch fatal errors
+     * start handling the error to catch fatal errors.
      *
      * @param string $defaultCode default code to use
-     *
-     * @return void
      */
-    static public function startErrorHandlerForFatal($defaultCode)
+    public static function startErrorHandlerForFatal($defaultCode)
     {
         self::$_defaultCode = $defaultCode;
         set_error_handler(
@@ -90,40 +89,36 @@ class SmileClient extends SoapClient
     }
 
     /**
-     * stop handling the error to catch fatal errors
-     *
-     * @return void
+     * stop handling the error to catch fatal errors.
      */
-    static public function stopErrorHandlerForFatal()
+    public static function stopErrorHandlerForFatal()
     {
         self::$_defaultCode = null;
         restore_error_handler();
     }
 
     /**
-     * handling the error to catch fatal errors
+     * handling the error to catch fatal errors.
      *
      * @param int              $errno   error number
      * @param string|exception $errstr  error message
      * @param string           $errfile file of the error
      * @param int              $errline line of the error
      *
-     * @return void
      * @throws SoapFault
      */
-    static public function errorHandlerForFatal(
+    public static function errorHandlerForFatal(
         $errno,
         $errstr,
         $errfile = null,
         $errline = null
-    )
-    {
+    ) {
         $code = self::$_defaultCode;
         self::stopErrorHandlerForFatal();
 
         if ($errstr instanceof Exception) {
             if ($errstr->getCode()) {
-                $code  = $errstr->getCode();
+                $code = $errstr->getCode();
             }
             $errstr = $errstr->getMessage();
         } elseif (!is_string($errstr)) {

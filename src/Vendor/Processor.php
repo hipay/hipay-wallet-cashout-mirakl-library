@@ -1,4 +1,5 @@
 <?php
+
 namespace Hipay\MiraklConnector\Vendor;
 
 use DateTime;
@@ -17,6 +18,7 @@ use Hipay\MiraklConnector\Common\AbstractProcessor;
 use Hipay\MiraklConnector\Exception\BankAccountCreationFailedException;
 use Hipay\MiraklConnector\Exception\DispatchableException;
 use Hipay\MiraklConnector\Exception\Event\ThrowException;
+use Hipay\MiraklConnector\Exception\FTPUploadFailed;
 use Hipay\MiraklConnector\Exception\InvalidBankInfoException;
 use Hipay\MiraklConnector\Exception\InvalidVendorException;
 use Hipay\MiraklConnector\Service\Ftp;
@@ -36,10 +38,10 @@ use Touki\FTP\FTPInterface;
 use Touki\FTP\Model\Directory;
 use Touki\FTP\Model\File;
 
-
 /**
  * Class Processor
- * Vendor processor who contains method to handle the vendors
+ * Vendor processor handling the wallet creation
+ * and the bank info registration and verification.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
@@ -53,12 +55,13 @@ class Processor extends AbstractProcessor
 
     /**
      * Processor constructor.
-     * @param MiraklConfiguration $miraklConfig
-     * @param HipayConfiguration $hipayConfig
+     *
+     * @param MiraklConfiguration      $miraklConfig
+     * @param HipayConfiguration       $hipayConfig
      * @param EventDispatcherInterface $dispatcherInterface
-     * @param LoggerInterface $logger
-     * @param FtpConfiguration $ftpConfiguration
-     * @param ManagerInterface $vendorManager
+     * @param LoggerInterface          $logger
+     * @param FtpConfiguration         $ftpConfiguration
+     * @param ManagerInterface         $vendorManager
      */
     public function __construct(
         MiraklConfiguration $miraklConfig,
@@ -67,8 +70,7 @@ class Processor extends AbstractProcessor
         LoggerInterface $logger,
         FtpConfiguration $ftpConfiguration,
         ManagerInterface $vendorManager
-    )
-    {
+    ) {
         parent::__construct(
             $miraklConfig,
             $hipayConfig,
@@ -84,9 +86,10 @@ class Processor extends AbstractProcessor
     }
 
     /**
-     * Fetch the vendors from Mirakl
+     * Fetch the vendors from Mirakl.
      *
      * @param DateTime $lastUpdate
+     *
      * @return array
      */
     public function getVendors(DateTime $lastUpdate = null)
@@ -95,13 +98,13 @@ class Processor extends AbstractProcessor
     }
 
     /**
-     * Check if the vendor already has a wallet
+     * Check if the vendor already has a wallet.
      *
      * Dispatch the event <b>before.availability.check</b>
      * before sending the data to Hipay
      *
      * @param string $email
-     * @param bool $entity
+     * @param bool   $entity
      *
      * @return bool
      */
@@ -110,21 +113,21 @@ class Processor extends AbstractProcessor
         $event = new CheckAvailability($email, $entity);
         $this->dispatcher->dispatch('before.availability.check', $event);
         $result = $this->hipay->isAvailable($event->getEmail());
+
         return !$result;
     }
 
     /**
-     * Create a Hipay wallet
+     * Create a Hipay wallet.
      *
      * Dispatch the event <b>before.wallet.create</b>
      * before sending the data to Hipay
      *
      * @param array $shopData
+     *
      * @return int the created account id
      */
-    public function createWallet(
-        array $shopData
-    )
+    public function createWallet(array $shopData)
     {
         $userAccountBasic = new UserAccountBasic($shopData);
         $userAccountDetails = new UserAccountDetails($shopData);
@@ -149,19 +152,21 @@ class Processor extends AbstractProcessor
     }
 
     /**
-     * Transfer the files from Mirakl to Hipay using ftp
+     * Transfer the files from Mirakl to Hipay using ftp.
      *
      * @param array $shopIds
      * @param $tmpZipFilePath
      * @param $ftpShopsPath
      * @param null $tmpExtractPath
+     *
+     * @throws FTPUploadFailed
      */
     public function transferFiles(
         array $shopIds,
         $tmpZipFilePath,
         $ftpShopsPath,
-        $tmpExtractPath = null)
-    {
+        $tmpExtractPath = null
+    ) {
         //Downloads the zip file containing the documents
         try {
             file_put_contents(
@@ -169,10 +174,10 @@ class Processor extends AbstractProcessor
                 $this->mirakl->downloadShopsDocuments($shopIds)
             );
         } catch (\Exception $e) {
-            $this->logger->notice("No file was transfered");
+            $this->logger->notice('No file was transferred');
+
             return;
         }
-
 
         $zip = new Zip($tmpZipFilePath);
 
@@ -193,10 +198,10 @@ class Processor extends AbstractProcessor
                 continue;
             }
 
-            $shopDirectoryPath = $tmpExtractPath .
-                DIRECTORY_SEPARATOR . $shopId;
+            $shopDirectoryPath = $tmpExtractPath.
+                DIRECTORY_SEPARATOR.$shopId;
 
-            //Check if $shopDirectoryPath is a directry
+            //Check if $shopDirectoryPath is a directory
             if (!is_dir($shopDirectoryPath)) {
                 throw new \RuntimeException(
                     "$shopDirectoryPath should be a directory"
@@ -204,10 +209,10 @@ class Processor extends AbstractProcessor
             }
 
             //Construct the path for the ftp
-            $ftpShopDirectoryPath = $ftpShopsPath .
-                DIRECTORY_SEPARATOR . $shopId;
+            $ftpShopDirectoryPath = $ftpShopsPath.
+                DIRECTORY_SEPARATOR.$shopId;
 
-            //Check directory existance
+            //Check directory existence
             $ftpShopDirectory = new Directory($ftpShopDirectoryPath);
             if (!$this->ftp->directoryExists($ftpShopDirectory)) {
                 //Create the ftp directory for the shop
@@ -219,59 +224,58 @@ class Processor extends AbstractProcessor
                 if ($shopDocument == '.' | $shopDocument == '..') {
                     continue;
                 }
-                $source = $shopDirectoryPath .
-                    DIRECTORY_SEPARATOR . $shopDocument;
-                $destination = $ftpShopDirectoryPath .
-                    DIRECTORY_SEPARATOR . $shopDocument;
+                $source = $shopDirectoryPath.
+                    DIRECTORY_SEPARATOR.$shopDocument;
+                $destination = $ftpShopDirectoryPath.
+                    DIRECTORY_SEPARATOR.$shopDocument;
                 //Upload the files
                 if ($this->ftp->upload(
                     new File($destination),
                     $source
                 ) == false) {
-                    throw new \RuntimeException(
-                        "The uploading of the document $source has failed."
-                    );
+                    throw new FTPUploadFailed($source, $destination);
                 };
             }
         }
     }
 
     /**
-     * Get bank info status from Hipay
+     * Get bank info status from Hipay.
      *
      * @param VendorInterface $vendor
+     *
      * @return string
      */
     public function getBankInfoStatus(
         VendorInterface $vendor
-    )
-    {
+    ) {
         $result = $this->hipay->bankInfosStatus($vendor);
+
         return $result;
     }
 
     /**
-     * Check that the bank information is the same in the two services
+     * Check that the bank information is the same in the two services.
      *
      * @param VendorInterface $vendor
-     * @param BankInfo $miraklBankInfo
+     * @param BankInfo        $miraklBankInfo
      *
      * @return bool
-     *
      */
     public function isIBANCorrect(
         VendorInterface $vendor,
         BankInfo $miraklBankInfo
-    )
-    {
+    ) {
         $hipayBankInfo = $this->getBankInfo($vendor);
+
         return $hipayBankInfo->getIban() == $miraklBankInfo->getIban();
     }
 
     /**
-     * Return the bank info from Hipay
+     * Return the bank info from Hipay.
      *
      * @param VendorInterface $vendor
+     *
      * @return BankInfo
      */
     public function getBankInfo(VendorInterface $vendor)
@@ -281,12 +285,12 @@ class Processor extends AbstractProcessor
 
     /**
      * Add bank account information to Hipay
-     * Dispatch the event <b>before.bankAccount.add</b>
+     * Dispatch the event <b>before.bankAccount.add</b>.
      *
      * @param VendorInterface $vendor
-     * @param BankInfo $bankInfo
-     * @return bool
+     * @param BankInfo        $bankInfo
      *
+     * @return bool
      */
     public function addBankAccount(VendorInterface $vendor, BankInfo $bankInfo)
     {
@@ -301,44 +305,50 @@ class Processor extends AbstractProcessor
     }
 
     /**
+     * Main function to call who process the vendors
+     * to create the wallets and register or verify the bank information.
+     *
      * @param DateTime $lastUpdate
      * @param $zipPath
      * @param $ftpPath
      */
     public function process($zipPath, $ftpPath, DateTime $lastUpdate = null)
     {
-        $this->logger->info("Vendor Processing");
+        $this->logger->info('Vendor Processing');
 
         //Vendor data fetching from Mirakl
-        $this->logger->info("Vendors fetching from Mirakl");
+        $this->logger->info('Vendors fetching from Mirakl');
         $miraklData = $this->getVendors($lastUpdate);
         $this->logger->info(
-            "[OK] Fetched vendors from Mirakl : " . count($miraklData)
+            '[OK] Fetched vendors from Mirakl : '.count($miraklData)
         );
 
         $miraklData = $this->indexArray($miraklData, 'shop_id');
 
         //Wallet creation
-        $this->logger->info("Wallet creation");
+        $this->logger->info('Wallet creation');
         $vendorCollection = $this->registerWallets($miraklData);
-        $this->logger->info("Wallets created : " . count($vendorCollection));
+        $this->logger->info('Wallets created : '.count($vendorCollection));
 
         $this->vendorManager->saveAll($vendorCollection);
 
-        $this->logger->info("Transfer files");
+        $this->logger->info('Transfer files');
         $this->transferFiles(
             array_keys($vendorCollection),
             $zipPath,
             $ftpPath
         );
-        $this->logger->info("[OK] Files transferred");
+        $this->logger->info('[OK] Files transferred');
 
-        $this->logger->info("Update bank data");
+        $this->logger->info('Update bank data');
         $this->handleBankInfo($vendorCollection, $miraklData);
-        $this->logger->info("[OK] Bank info updated");
+        $this->logger->info('[OK] Bank info updated');
     }
 
     /**
+     * Return the values who should't
+     * change after the registration of the hipay wallet.
+     *
      * @param VendorInterface $vendor
      */
     protected function getImmutableValues(VendorInterface $vendor)
@@ -351,7 +361,7 @@ class Processor extends AbstractProcessor
     }
 
     /**
-     * Register wallets into Hipay
+     * Register wallets into Hipay.
      *
      * @param $miraklData
      *
@@ -362,8 +372,8 @@ class Processor extends AbstractProcessor
         $vendorCollection = array();
         foreach ($miraklData as $vendorData) {
             $this->logger->debug(
-                "Shop id : {shopId}",
-                array("shopId" => $vendorData['shop_id'])
+                'Shop id : {shopId}',
+                array('shopId' => $vendorData['shop_id'])
             );
 
             try {
@@ -385,9 +395,9 @@ class Processor extends AbstractProcessor
                             $vendorData
                         );
                         $this->logger->info(
-                            "[OK] Created wallet for : " .
+                            '[OK] Created wallet for : '.
                             $vendor->getMiraklId(),
-                            array("shopId" => $vendor->getMiraklId())
+                            array('shopId' => $vendor->getMiraklId())
                         );
                     } else {
                         $vendor = $this->recordWallet(
@@ -411,14 +421,15 @@ class Processor extends AbstractProcessor
                 ModelValidator::checkImmutability($vendor, $previousValues);
 
                 $vendorCollection[$vendor->getMiraklId()] = $vendor;
-                $this->logger->info("[OK] The vendor is treated");
+                $this->logger->info('[OK] The vendor is treated');
             } catch (DispatchableException $e) {
                 $this->logger->warning(
                     $e->getMessage(),
-                    array("shopId" => $vendorData['shop_id'])
+                    array('shopId' => $vendorData['shop_id'])
                 );
                 $this->dispatcher->dispatch(
-                    $e->getEventName(), new ThrowException($e)
+                    $e->getEventName(),
+                    new ThrowException($e)
                 );
             }
         }
@@ -427,18 +438,20 @@ class Processor extends AbstractProcessor
     }
 
     /**
-     * Handle mirakl data collection
+     * Register the bank account and verify the
+     * synchronicity of the bank information in both platform.
      *
      * @param VendorInterface[] $vendorCollection
-     * @param array $miraklDataCollection mirakl data indexed by shop id
+     * @param array             $miraklDataCollection mirakl data indexed by shop id
+     * Expect at one mirakl data for each vendor present in the vendorCollection
      */
     public function handleBankInfo($vendorCollection, $miraklDataCollection)
     {
         /** @var VendorInterface $vendor */
         foreach ($vendorCollection as $vendor) {
             $this->logger->debug(
-                "Shop id : " . $vendor->getMiraklId(),
-                array("shopId" => $vendor->getMiraklId())
+                'Shop id : '.$vendor->getMiraklId(),
+                array('shopId' => $vendor->getMiraklId())
             );
 
             $bankInfoStatus = $this->getBankInfoStatus($vendor);
@@ -453,9 +466,9 @@ class Processor extends AbstractProcessor
                 if (trim($bankInfoStatus) == BankInfoStatus::BLANK) {
                     if ($this->addBankAccount($vendor, $miraklBankInfo)) {
                         $this->logger->info(
-                            "[OK] Created bank account for : " .
+                            '[OK] Created bank account for : '.
                             $vendor->getMiraklId(),
-                            array("shopId" => $vendor->getMiraklId())
+                            array('shopId' => $vendor->getMiraklId())
                         );
                     } else {
                         throw new BankAccountCreationFailedException(
@@ -472,28 +485,30 @@ class Processor extends AbstractProcessor
                         );
                     } else {
                         $this->logger->info(
-                            "[OK] The bank information is synchronized"
+                            '[OK] The bank information is synchronized'
                         );
                     }
                 }
             } catch (DispatchableException $e) {
                 $this->logger->warning(
                     $e->getMessage(),
-                    array("shopId" => $vendor->getMiraklId())
+                    array('shopId' => $vendor->getMiraklId())
                 );
                 $this->dispatcher->dispatch(
-                    $e->getEventName(), new ThrowException($e)
+                    $e->getEventName(),
+                    new ThrowException($e)
                 );
             }
         }
     }
 
     /**
-     * To record a wallet in the database in the case there was an error
+     * To record a wallet in the database in the case there was an error.
      *
      * @param $email
      * @param $miraklId
      * @param $miraklData
+     *
      * @return VendorInterface
      */
     protected function recordWallet($email, $miraklId, $miraklData)
@@ -506,12 +521,14 @@ class Processor extends AbstractProcessor
             $walletId,
             $miraklData
         );
-        $this->logger->info("[OK] Wallet recorded");
+        $this->logger->info('[OK] Wallet recorded');
+
         return $vendor;
     }
 
     /**
-     * Fetch
+     * Save a vendor in case there was an error.
+     *
      * @param $email
      * @param $miraklId
      */

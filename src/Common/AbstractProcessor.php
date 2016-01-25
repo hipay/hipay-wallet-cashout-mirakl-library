@@ -1,4 +1,5 @@
 <?php
+
 namespace Hipay\MiraklConnector\Common;
 
 use Hipay\MiraklConnector\Api\Mirakl;
@@ -12,7 +13,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * Class AbstractProcessor
+ * Class AbstractProcessor.
  *
  * Abstract class for all processors
  *
@@ -35,18 +36,18 @@ abstract class AbstractProcessor
 
     /**
      * AbstractProcessor constructor.
-     * @param MiraklConfiguration $miraklConfig
-     * @param HipayConfiguration $hipayConfig
+     *
+     * @param MiraklConfiguration      $miraklConfig
+     * @param HipayConfiguration       $hipayConfig
      * @param EventDispatcherInterface $dispatcher
-     * @param LoggerInterface $logger
+     * @param LoggerInterface          $logger
      */
     public function __construct(
         MiraklConfiguration $miraklConfig,
         HipayConfiguration $hipayConfig,
         EventDispatcherInterface $dispatcher,
         LoggerInterface $logger
-    )
-    {
+    ) {
         $this->mirakl = new Mirakl(
             $miraklConfig->getBaseUrl(),
             $miraklConfig->getFrontKey(),
@@ -63,7 +64,7 @@ abstract class AbstractProcessor
     }
 
     /**
-     * Add event listener to dispatcher
+     * Add event listener to dispatcher.
      *
      * @param $eventName
      * @param callable $function
@@ -76,7 +77,7 @@ abstract class AbstractProcessor
     }
 
     /**
-     * Add event subscriber to dispatcher
+     * Add event subscriber to dispatcher.
      *
      * @param EventSubscriberInterface $subscriberInterface
      *
@@ -88,19 +89,19 @@ abstract class AbstractProcessor
     }
 
     /**
-     * Create an associative array with an index key
+     * Create an associative array with an index key.
      *
      * @param array $array
      * @param $indexKey
      * @param array $keptKeys
+     *
      * @return array
      */
     protected function indexArray(
         array $array,
         $indexKey,
         array $keptKeys = array()
-    )
-    {
+    ) {
         $result = array();
         foreach ($array as $element) {
             $keptKeys = empty($keptKeys) ? array_keys($element) : $keptKeys;
@@ -110,6 +111,7 @@ abstract class AbstractProcessor
             );
             $result[$element[$indexKey]] = $insertedElement;
         }
+
         return $result;
     }
 }

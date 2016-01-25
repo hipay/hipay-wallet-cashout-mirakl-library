@@ -1,4 +1,5 @@
 <?php
+
 namespace Hipay\MiraklConnector\Vendor\Event;
 
 use Hipay\MiraklConnector\Api\Hipay\Model\Soap\MerchantData;
@@ -7,7 +8,9 @@ use Hipay\MiraklConnector\Api\Hipay\Model\Soap\UserAccountDetails;
 use Symfony\Component\EventDispatcher\Event;
 
 /**
- * File CreateWallet.php
+ * Class CreateWallet
+ * Event object used when the event 'before.wallet.creation'
+ * is dispatched from the processor.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
@@ -26,16 +29,15 @@ class CreateWallet extends Event
     /**
      * CreateWalletEvent constructor.
      *
-     * @param UserAccountBasic $userAccountBasic
+     * @param UserAccountBasic   $userAccountBasic
      * @param UserAccountDetails $userAccountDetails
-     * @param MerchantData $merchantData
+     * @param MerchantData       $merchantData
      */
     public function __construct(
         UserAccountBasic $userAccountBasic,
         UserAccountDetails $userAccountDetails,
         MerchantData $merchantData
-    )
-    {
+    ) {
         $this->userAccountBasic = $userAccountBasic;
         $this->userAccountDetails = $userAccountDetails;
         $this->merchantData = $merchantData;
@@ -51,11 +53,13 @@ class CreateWallet extends Event
 
     /**
      * @param UserAccountBasic $userAccountBasic
+     *
      * @return CreateWallet
      */
     public function setUserAccountBasic($userAccountBasic)
     {
         $this->userAccountBasic = $userAccountBasic;
+
         return $this;
     }
 
@@ -69,11 +73,13 @@ class CreateWallet extends Event
 
     /**
      * @param UserAccountDetails $userAccountDetails
+     *
      * @return CreateWallet
      */
     public function setUserAccountDetails($userAccountDetails)
     {
         $this->userAccountDetails = $userAccountDetails;
+
         return $this;
     }
 
@@ -87,12 +93,13 @@ class CreateWallet extends Event
 
     /**
      * @param MerchantData $merchantData
+     *
      * @return CreateWallet
      */
     public function setMerchantData($merchantData)
     {
         $this->merchantData = $merchantData;
+
         return $this;
     }
-
 }

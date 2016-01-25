@@ -1,4 +1,5 @@
 <?php
+
 namespace Hipay\MiraklConnector\Exception;
 
 use Exception;
@@ -6,7 +7,7 @@ use Hipay\MiraklConnector\Api\Hipay\Model\Soap\BankInfo;
 use Hipay\MiraklConnector\Vendor\Model\VendorInterface;
 
 /**
- * Class InvalidBankInfoException
+ * Class InvalidBankInfoException.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
@@ -21,24 +22,28 @@ class InvalidBankInfoException extends DispatchableException
 
     /**
      * InvalidBankInfoException constructor.
+     *
      * @param VendorInterface $vendor
-     * @param BankInfo $bankInfo
-     * @param string $message
-     * @param int $code
-     * @param Exception $previous
+     * @param BankInfo        $bankInfo
+     * @param string          $message
+     * @param int             $code
+     * @param Exception       $previous
      */
     public function __construct(
         VendorInterface $vendor,
         BankInfo $bankInfo,
-        $message = "",
+        $message = '',
         $code = 0,
-        Exception $previous = null)
-    {
+        Exception $previous = null
+    ) {
         $this->vendor = $vendor;
         $this->bankInfo = $bankInfo;
-        parent::__construct($message ?:
+        parent::__construct(
+            $message ?:
             "The Bank info for shop {$vendor->getMiraklId()} is incorrect",
-            $code, $previous);
+            $code,
+            $previous
+        );
     }
 
     /**
@@ -58,7 +63,7 @@ class InvalidBankInfoException extends DispatchableException
     }
 
     /**
-     * Return the event name
+     * Return the event name.
      *
      * @return string
      */
