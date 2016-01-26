@@ -118,7 +118,6 @@ class BankInfo extends ModelAbstract
         $this->bankCity = $hipayData['bankCity'];
         $this->swift = $hipayData['swift'];
         $this->iban = $hipayData['iban'];
-        // Take the first to characters to fill the country
         $this->bankCountry = $hipayData['bankCountry'];
         $this->aba_num = $hipayData['aba_num'];
         $this->transit_num = $hipayData['transit_num'];
