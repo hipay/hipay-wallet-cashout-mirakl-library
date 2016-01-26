@@ -167,6 +167,11 @@ class Processor extends AbstractProcessor
         $ftpShopsPath,
         $tmpExtractPath = null
     ) {
+        //Check the zip path
+        if (is_dir($tmpZipFilePath)) {
+            throw new \RuntimeException("The given path $tmpZipFilePath is a directory");
+        }
+
         //Downloads the zip file containing the documents
         try {
             file_put_contents(
