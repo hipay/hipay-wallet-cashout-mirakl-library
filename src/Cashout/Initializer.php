@@ -217,7 +217,7 @@ class Initializer extends AbstractProcessor
 
         //Valid the operation and check if operation wasn't created before
         $this->logger->info('Validate the operations');
-        $operationError = true;
+        $operationError = false;
         /**
          * @var int                index
          * @var OperationInterface $operation
