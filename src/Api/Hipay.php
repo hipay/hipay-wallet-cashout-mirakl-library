@@ -397,7 +397,8 @@ class Hipay
             throw new Exception(
                 "There was an error with the soap call $name".PHP_EOL.
                 $response['code'].' : '.$response['description'].PHP_EOL.
-                'Parameters :'.PHP_EOL.
+                'Date : ' . date('Y-m-d H:i:s') . PHP_EOL .
+                'Parameters :'. PHP_EOL .
                 print_r($parameters, true),
                 $response['code']
             );
