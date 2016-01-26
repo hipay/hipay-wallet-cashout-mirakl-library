@@ -165,6 +165,7 @@ class Initializer extends AbstractProcessor
                     );
                 }
             };
+            $this->logger->debug("Vendor amount " . $vendorAmount);
             $totalAmount += $vendorAmount;
 
             $vendor = $this->vendorManager->findByMiraklId($miraklId);
@@ -182,8 +183,9 @@ class Initializer extends AbstractProcessor
                 );
             }
         }
+        $this->logger->debug("Operator amount" . $operatorAmount);
         $totalAmount += $operatorAmount;
-
+        $this->logger->debug("Total amount" . $totalAmount);
         if ($operatorAmount) {
             // Create operator operation
             $operations[] = $this->createOperation(
@@ -206,7 +208,7 @@ class Initializer extends AbstractProcessor
         }
 
         $this->logger->info(
-            "Check if technical account has sufficient funds ($totalAmount)"
+            "Check if technical account has sufficient funds"
         );
         if (!$this->hasSufficientFunds($totalAmount)) {
             throw new NotEnoughFunds();
