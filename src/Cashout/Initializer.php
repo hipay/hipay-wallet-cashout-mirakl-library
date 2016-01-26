@@ -217,6 +217,7 @@ class Initializer extends AbstractProcessor
 
         //Valid the operation and check if operation wasn't created before
         $this->logger->info('Validate the operations');
+        $operationError = true;
         /**
          * @var int                index
          * @var OperationInterface $operation
@@ -224,7 +225,7 @@ class Initializer extends AbstractProcessor
         foreach ($operations as $index => $operation) {
             try {
                 if ($this->operationManager
-                    ->findByHipayIdAndCycleDate(
+                    ->findByMiraklIdAndCycleDate(
                         $operation->getMiraklId(),
                         $operation->getCycleDate()
                     )
@@ -239,8 +240,8 @@ class Initializer extends AbstractProcessor
             } catch (DispatchableException $e) {
                 $this->logger->warning($e->getMessage());
 
-                //remove faulty operation
-                unset($operations[$index]);
+                //set error flag
+                $operationError = true;
 
                 $this->dispatcher->dispatch(
                     $e->getEventName(),
@@ -248,11 +249,16 @@ class Initializer extends AbstractProcessor
                 );
             }
         }
-        $this->logger->info('[OK] Operations validated');
 
-        $this->logger->info('Save operations');
-        $this->operationManager->saveAll($operations);
-        $this->logger->info('[OK] Operations saved');
+        if (!$operationError) {
+            $this->logger->info('[OK] Operations validated');
+
+            $this->logger->info('Save operations');
+            $this->operationManager->saveAll($operations);
+            $this->logger->info('[OK] Operations saved');
+        } else {
+            $this->logger->error('Some operation were wrong. Operations not saved');
+        }
     }
 
     /**

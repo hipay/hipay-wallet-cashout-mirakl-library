@@ -73,13 +73,13 @@ interface ManagerInterface
     /**
      * Finds an operation.
      *
-     * @param int      $hipayId|false if operator
+     * @param int      $miraklId|false if operator
      * @param DateTime $date          optional date to filter upon
      *
      * @return OperationInterface|null
      */
-    public function findByHipayIdAndCycleDate(
-        $hipayId,
+    public function findByMiraklIdAndCycleDate(
+        $miraklId,
         DateTime $date
     );
 
