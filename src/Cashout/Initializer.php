@@ -183,9 +183,9 @@ class Initializer extends AbstractProcessor
                 );
             }
         }
-        $this->logger->debug("Operator amount" . $operatorAmount);
+        $this->logger->debug("Operator amount " . $operatorAmount);
         $totalAmount += $operatorAmount;
-        $this->logger->debug("Total amount" . $totalAmount);
+        $this->logger->debug("Total amount " . $totalAmount);
         if ($operatorAmount) {
             // Create operator operation
             $operations[] = $this->createOperation(
@@ -385,7 +385,7 @@ class Initializer extends AbstractProcessor
                 $this->getOperatorTransactionTypes()
             )
             ) {
-                $amount += $transaction['balance'];
+                $amount += $transaction['amount_credited'] - $transaction['amount_debited'];
             }
         }
 
