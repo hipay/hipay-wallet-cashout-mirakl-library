@@ -3,6 +3,7 @@
 namespace Hipay\MiraklConnector\Cashout\Model\Operation;
 
 use DateTime;
+use Hipay\MiraklConnector\Vendor\Model\VendorInterface;
 
 /**
  * Interface ManagerInterface.
@@ -33,11 +34,14 @@ interface ManagerInterface
     /**
      * Create an operation.
      *
-     * @param int $shopId|false if it is an operator operation
-     *
+     * @param float $amount
+     * @param DateTime $cycleDate
+     * @param int $miraklId
+     * @param VendorInterface $vendor
      * @return OperationInterface
+     *
      */
-    public function create($shopId);
+    public function create($amount, DateTime $cycleDate, $miraklId = null, VendorInterface $vendor = null);
 
     /**
      * Check if an operation is valid.

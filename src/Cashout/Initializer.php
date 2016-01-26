@@ -159,6 +159,7 @@ class Initializer extends AbstractProcessor
                     /** @var Exception $transactionError */
                     $transactionError = new TransactionException(
                         $orderTransactions,
+                        $e,
                         $e->getMessage(),
                         $e->getCode(),
                         $transactionError
@@ -169,17 +170,17 @@ class Initializer extends AbstractProcessor
             $totalAmount += $vendorAmount;
 
             $vendor = $this->vendorManager->findByMiraklId($miraklId);
-            if ($vendorAmount && $vendor) {
+            if ($vendorAmount) {
                 //Create the vendor operation
                 $operations[] = $this->createOperation(
                     $vendorAmount,
                     $cycleDate,
-                    $vendor->getHipayId(),
-                    $miraklId
+                    $miraklId,
+                    $vendor
                 );
             } else {
                 $this->logger->notice(
-                    "Vendor operation wasn't created"
+                    "Vendor operation wasn't created du to nul amount"
                 );
             }
         }
@@ -190,8 +191,7 @@ class Initializer extends AbstractProcessor
             // Create operator operation
             $operations[] = $this->createOperation(
                 $operatorAmount,
-                $cycleDate,
-                $this->operator->getHipayId()
+                $cycleDate
             );
         } else {
             $this->logger->notice(
@@ -354,13 +354,15 @@ class Initializer extends AbstractProcessor
         $amount = 0;
         $errors = false;
         foreach ($transactions as $transaction) {
-            $amount += $transaction['amount_credited'] - $transaction['amount_debited'];
+            $amount += floatval($transaction['amount_credited']) - floatval($transaction['amount_debited']);
             $errors |= !$this->transactionValidator->isValid($transaction);
         }
         if (round($amount, 2) !=
             round($paymentTransaction['amount_debited'], 2)
         ) {
             throw new TransactionException(
+                array($transactions),
+                null,
                 'There is a difference between the transactions'.
                 PHP_EOL."$amount for the transactions".
                 PHP_EOL."{$paymentTransaction['amount_debited']} for the earlier payment transaction"
@@ -368,6 +370,8 @@ class Initializer extends AbstractProcessor
         }
         if ($errors) {
             throw new TransactionException(
+                array($transactions),
+                null,
                 'There are errors in the transactions'
             );
         }
@@ -391,7 +395,7 @@ class Initializer extends AbstractProcessor
                 $this->getOperatorTransactionTypes()
             )
             ) {
-                $amount += $transaction['amount_credited'] - $transaction['amount_debited'];
+                $amount += floatval($transaction['amount_credited']) - floatval($transaction['amount_debited']);
             }
         }
 
@@ -421,24 +425,37 @@ class Initializer extends AbstractProcessor
      *
      * @param int      $amount
      * @param DateTime $cycleDate
-     * @param $hipayId
-     * @param bool|int $shopId false if it an operator operation
+     * @param VendorInterface $vendor
+     * @param bool|int $miraklId false if it an operator operation
      *
      * @return OperationInterface
      */
     protected function createOperation(
         $amount,
         DateTime $cycleDate,
-        $hipayId,
-        $shopId = false
+        $miraklId = null,
+        VendorInterface $vendor = null
     ) {
-        $operation = $this->operationManager->create($shopId);
+        //Call implementation function
+        $operation = $this->operationManager->create($amount, $cycleDate, $miraklId, $vendor);
+
+        //Set hipay id
+        $hipayId = null;
+        if ($vendor) {
+            $hipayId = $vendor->getHipayId();
+        }
+        if (!$miraklId) {
+            $hipayId = $this->operator->getHipayId();
+        }
+        $operation->setHipayId($hipayId);
+
+        //Event
         $event = new CreateOperation($operation);
         $this->dispatcher->dispatch('after.operation.create', $event);
         $operation = $event->getOperation();
 
-        //Sets mandatory value
-        $operation->setHipayId($hipayId);
+        //Sets mandatory values
+        $operation->setMiraklId($miraklId);
         $operation->setStatus(new Status(Status::CREATED));
         $operation->setAmount($amount);
         $operation->setCycleDate($cycleDate);

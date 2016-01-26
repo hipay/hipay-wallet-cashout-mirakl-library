@@ -19,6 +19,7 @@ use Hipay\MiraklConnector\Exception\WrongWalletBalance;
 use Hipay\MiraklConnector\Exception\NoWalletFoundException;
 use Hipay\MiraklConnector\Exception\UnconfirmedBankAccountException;
 use Hipay\MiraklConnector\Exception\UnidentifiedWalletException;
+use Hipay\MiraklConnector\Vendor\Model\VendorInterface;
 use Mustache_Engine;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -41,15 +42,19 @@ class Processor extends AbstractProcessor
     /** @var  VendorManager */
     protected $vendorManager;
 
+    /** @var VendorInterface */
+    private $operator;
+
     /**
      * Processor constructor.
      *
-     * @param MiraklConfiguration      $miraklConfig
-     * @param HipayConfiguration       $hipayConfig
+     * @param MiraklConfiguration $miraklConfig
+     * @param HipayConfiguration $hipayConfig
      * @param EventDispatcherInterface $dispatcher
-     * @param LoggerInterface          $logger
-     * @param OperationManager         $operationManager,
-     * @param VendorManager            $vendorManager
+     * @param LoggerInterface $logger
+     * @param OperationManager $operationManager ,
+     * @param VendorManager $vendorManager
+     * @param VendorInterface $operator
      */
     public function __construct(
         MiraklConfiguration $miraklConfig,
@@ -57,11 +62,13 @@ class Processor extends AbstractProcessor
         EventDispatcherInterface $dispatcher,
         LoggerInterface $logger,
         OperationManager $operationManager,
-        VendorManager $vendorManager
+        VendorManager $vendorManager,
+        VendorInterface $operator
     ) {
         parent::__construct($miraklConfig, $hipayConfig, $dispatcher, $logger);
         $this->operationManager = $operationManager;
         $this->vendorManager = $vendorManager;
+        $this->operator = $operator;
     }
 
     /**
@@ -212,14 +219,14 @@ class Processor extends AbstractProcessor
         $publicLabel,
         $privateLabel
     ) {
-        $vendor = $this->vendorManager->findByHipayId($operation->getHipayId());
+        $vendor = $this->getVendor($operation);
 
         if (!$vendor || $this->hipay->isAvailable($vendor->getEmail())) {
             throw new NoWalletFoundException($vendor);
         }
 
         $transfer = new Transfer(
-            $operation->getAmount(),
+            round($operation->getAmount(), 2),
             $vendor,
             $publicLabel,
             $privateLabel
@@ -233,25 +240,28 @@ class Processor extends AbstractProcessor
      *
      * @param OperationInterface $operation
      * @param $label
-     *
      * @return int
-     *
-     * @throws WrongWalletBalance              if the hipay wallet balance is
-     *                                         lower than the transaction amount to be sent to the bank account
+     * @throws NoWalletFoundException
      * @throws UnconfirmedBankAccountException if the bank account
      *                                         information is not the the status validated at Hipay
-     * @throws UnidentifiedWalletException
-     *                                         if the account is not identified by Hipay
+     * @throws UnidentifiedWalletException if the account is not identified by Hipay
+     * @throws WrongWalletBalance if the hipay wallet balance is
+     *                                         lower than the transaction amount to be sent to the bank account
      */
     public function withdrawOperation(OperationInterface $operation, $label)
     {
-        $vendor = $this->vendorManager->findByHipayId($operation->getHipayId());
+        $vendor = $this->getVendor($operation);
+
+        if (!$vendor || $this->hipay->isAvailable($vendor->getEmail())) {
+            throw new NoWalletFoundException($vendor);
+        }
 
         if (!$this->hipay->isIdentified($vendor)) {
             throw new UnidentifiedWalletException($vendor);
         }
 
         $bankInfoStatus = $this->hipay->bankInfosStatus($vendor);
+
         if ($this->hipay->bankInfosStatus($vendor)
             != BankInfoStatus::VALIDATED
         ) {
@@ -262,11 +272,13 @@ class Processor extends AbstractProcessor
         }
 
         //Check account balance
-        $amount = $operation->getAmount();
-        $balance = $this->hipay->getBalance($vendor);
+        $amount = round(($operation->getAmount()), 2);
+        $balance = round($this->hipay->getBalance($vendor), 2);
         if ($balance < $amount) {
+            //Operator operation
             if (!$operation->getMiraklId()) {
                 $amount = $balance;
+                //Vendor operation
             } else {
                 throw new WrongWalletBalance(
                     $vendor,
@@ -293,7 +305,7 @@ class Processor extends AbstractProcessor
 
         return $m->render($labelTemplate, array(
             'miraklId' => $operation->getMiraklId(),
-            'amount' => $operation->getAmount(),
+            'amount' => round($operation->getAmount(), 2),
             'hipayId' => $operation->getHipayId(),
             'cycleDate' => $operation->getCycleDate()->format('Y-m-d'),
             'cycleDateTime' => $operation->getCycleDate()->format(
@@ -304,5 +316,20 @@ class Processor extends AbstractProcessor
             'datetime' => date('Y-m-d H:i:s'),
             'time' => date('H:i:s'),
         ));
+    }
+
+    /**
+     * Return the right vendor for an operation
+     *
+     * @param OperationInterface $operation
+     *
+     * @return VendorInterface|null
+     */
+    protected function getVendor(OperationInterface $operation)
+    {
+        if ($operation->getMiraklId()) {
+            return $this->vendorManager->findByMiraklId($operation->getMiraklId());
+        }
+        return $this->operator;
     }
 }

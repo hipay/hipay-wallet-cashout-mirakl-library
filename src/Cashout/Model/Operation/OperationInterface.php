@@ -13,18 +13,28 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
  */
+
+/**
+ * Interface OperationInterface
+ *
+ *
+ * @Assert\Expression("is_int(this.getMiraklId()) || is_null(this.getMiraklId())")
+ * @Assert\Expression("is_int(this.getHipayId()) || is_null(this.getMiraklId())")
+ *
+ * @package Hipay\MiraklConnector\Cashout\Model\Operation
+ */
 interface OperationInterface
 {
     /**
-     * @return int|false if it is an operator operation
+     * @return int|null if it is an operator operation
+     *
      */
     public function getMiraklId();
 
     /**
-     * @Assert\Type(type="integer")
-     * @Assert\NotBlank()
+     * @return int|null if the vendor didn't have its data in the db at the creation of the operation
      *
-     * @return int
+     * @Assert\Expression("")
      */
     public function getHipayId();
 
@@ -98,4 +108,11 @@ interface OperationInterface
      * @return mixed
      */
     public function setHipayId($hipayId);
+
+    /**
+     * Set the mirakl id
+     * @param $miraklId
+     * @return mixed
+     */
+    public function setMiraklId($miraklId);
 }

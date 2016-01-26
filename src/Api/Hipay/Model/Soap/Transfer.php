@@ -60,7 +60,7 @@ class Transfer extends ModelAbstract
     /**
      * Transfer constructor.
      *
-     * @param int             $amount
+     * @param float             $amount
      * @param VendorInterface $vendorInterface
      * @param string          $privateLabel
      * @param string          $publicLabel
