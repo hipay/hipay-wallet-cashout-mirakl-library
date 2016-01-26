@@ -10,6 +10,7 @@ use Hipay\MiraklConnector\Api\Hipay\Model\Soap\UserAccountBasic;
 use Hipay\MiraklConnector\Api\Hipay\Model\Soap\UserAccountDetails;
 use Hipay\MiraklConnector\Api\Hipay\ConfigurationInterface
     as HipayConfigurationInterface;
+use Hipay\MiraklConnector\Api\Hipay\Model\Status\Identified;
 use Hipay\MiraklConnector\Api\Soap\SmileClient;
 use Hipay\MiraklConnector\Vendor\Model\VendorInterface;
 
@@ -243,7 +244,7 @@ class Hipay
         $parameters = array('accountId' => $vendor->getHipayId());
         $result = $this->callSoap('getAccountInfos', $parameters);
 
-        return $result['identified'] == 'yes' ? true : false;
+        return $result['identified'] == Identified::YES ? true : false;
     }
 
     /**
