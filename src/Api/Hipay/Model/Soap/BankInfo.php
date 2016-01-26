@@ -92,8 +92,10 @@ class BankInfo extends ModelAbstract
             $paymentData['bank_name'] : '';
         $this->bankAddress = isset($paymentData['bank_street']) ?
             $paymentData['bank_street'] : '';
-        $this->bankZipCode = array_key_exists('zip_code', $paymentData) ?
-            $paymentData['zip_code'] : $paymentData['bank_zip'];
+        $this->bankZipCode = (isset($paymentData['zip_code']) ?
+            $paymentData['zip_code'] :
+            (isset($paymentData['bank_zip']))
+                ? $paymentData['bank_zip'] : '');
         $this->bankCity = isset($paymentData['bank_city']) ? $paymentData['bank_city'] : '';
         $this->swift = isset($paymentData['bic']) ? $paymentData['bic'] : '';
         $this->iban = isset($paymentData['iban']) ? $paymentData['iban'] : '';
