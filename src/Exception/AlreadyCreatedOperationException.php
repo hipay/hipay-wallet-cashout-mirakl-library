@@ -33,9 +33,10 @@ class AlreadyCreatedOperationException extends DispatchableException
         Exception $previous = null
     ) {
         $this->operation = $operation;
+        $miraklId = $operation->getMiraklId() ?: 'operateur';
         parent::__construct(
             $message ?:
-            "An operation for {$operation->getMiraklId()} is already
+            "An operation for $miraklId is already
             created for the cycle {$operation->getCycleDate()->format('Y-m-d H:i')}",
             $code,
             $previous

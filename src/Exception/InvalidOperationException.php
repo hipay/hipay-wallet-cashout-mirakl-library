@@ -40,9 +40,10 @@ class InvalidOperationException extends DispatchableException
         Exception $previous = null
     ) {
         $this->operation = $operation;
+        $miraklId = $operation->getMiraklId() ?: 'operateur';
         parent::__construct(
-            $message ?: "An operation for {$operation->getMiraklId()} is already
-            created for the cycle {$operation->getCycleDate()}",
+            $message ?: "This operation is invalid [$miraklId, {$operation->getAmount()}
+                , {$operation->getCycleDate()->format('Y-m-d')}]",
             $code,
             $previous
         );
