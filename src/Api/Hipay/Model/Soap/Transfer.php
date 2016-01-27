@@ -57,6 +57,7 @@ class Transfer extends ModelAbstract
      */
     protected $entity;
 
+
     /**
      * Transfer constructor.
      *
@@ -165,4 +166,13 @@ class Transfer extends ModelAbstract
     {
         $this->publicLabel = $publicLabel;
     }
+
+    /**
+     * @param string $entity
+     */
+    public function setEntity($entity)
+    {
+        $this->entity = $entity;
+    }
+
 }

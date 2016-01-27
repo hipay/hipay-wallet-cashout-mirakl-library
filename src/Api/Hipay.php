@@ -276,6 +276,9 @@ class Hipay
      */
     public function transfer(Transfer $transfer, VendorInterface $vendor = null)
     {
+        if (!$transfer->getEntity()) {
+            $transfer->setEntity($this->entity);
+        }
         $parameters = $transfer->mergeIntoParameters();
         if ($vendor) {
             $parameters = $this->mergeSubAccountParameters($vendor);
