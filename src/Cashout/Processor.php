@@ -117,15 +117,18 @@ class Processor extends AbstractProcessor
         $toTransfer = $this->operationManager->findByStatus(
             new Status(Status::CREATED)
         );
-        $toTransfer = $toTransfer + $this->operationManager
+        $toTransfer = array_merge(
+            $toTransfer,
+            $this->operationManager
                 ->findByStatusAndCycleDate(
                     new Status(Status::TRANSFER_FAILED),
                     $previousDay
-                );
+                )
+        );
 
         $transferSuccess = new Status(Status::TRANSFER_SUCCESS);
         $transferFailed = new Status(Status::TRANSFER_FAILED);
-
+        /** @var OperationInterface $operation */
         foreach ($toTransfer as $operation) {
             try {
                 $this->operationManager->save($operation);
@@ -166,15 +169,19 @@ class Processor extends AbstractProcessor
         $toWithdraw = $this->operationManager->findByStatus(
             new Status(Status::TRANSFER_SUCCESS)
         );
-        $toWithdraw = $toWithdraw + $this->operationManager
+        $toWithdraw = array_merge(
+            $toWithdraw,
+            $this->operationManager
                 ->findByStatusAndCycleDate(
                     new Status(Status::WITHDRAW_FAILED),
                     $previousDay
-                );
+                )
+        );
 
         $withdrawRequested = new Status(Status::WITHDRAW_REQUESTED);
         $withdrawFailed = new Status(Status::WITHDRAW_FAILED);
 
+        /** @var OperationInterface $operation */
         foreach ($toWithdraw as $operation) {
             try {
                 $withdrawId = $this->withdrawOperation(
