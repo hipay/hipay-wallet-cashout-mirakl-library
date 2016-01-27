@@ -17,7 +17,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * Interface OperationInterface
  *
- *
  * @Assert\Expression("is_int(this.getMiraklId()) || is_null(this.getMiraklId())")
  * @Assert\Expression("is_int(this.getHipayId()) || is_null(this.getMiraklId())")
  *
@@ -27,19 +26,17 @@ interface OperationInterface
 {
     /**
      * @return int|null if it is an operator operation
-     *
      */
     public function getMiraklId();
 
     /**
      * @return int|null if the vendor didn't have its data in the db at the creation of the operation
-     *
-     * @Assert\Expression("")
      */
     public function getHipayId();
 
     /**
      * @return int
+     *
      * @Assert\Type(type="integer")
      */
     public function getWithdrawId();
@@ -51,6 +48,7 @@ interface OperationInterface
 
     /**
      * @return int
+     *
      * @Assert\Type(type="integer")
      */
     public function getTransferId();
@@ -61,10 +59,10 @@ interface OperationInterface
     public function setTransferId($transferId);
 
     /**
+     * @return int
+     *
      * @Assert\NotBlank()
      * @Assert\Type(type="integer")
-     *
-     * @return int
      */
     public function getStatus();
 
@@ -101,18 +99,16 @@ interface OperationInterface
     public function setAmount($amount);
 
     /**
-     * Set the hipay Id.
-     *
      * @param $hipayId
      *
-     * @return mixed
+     * @return void
      */
     public function setHipayId($hipayId);
 
     /**
-     * Set the mirakl id
      * @param $miraklId
-     * @return mixed
+     *
+     * @return void
      */
     public function setMiraklId($miraklId);
 }
