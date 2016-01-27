@@ -56,11 +56,11 @@ interface ManagerInterface
      * Finds operations.
      *
      * @param Status   $status      status to filter upon
-     * @param DateTime $maximumDate maximum date to filter
+     * @param DateTime $maximumDate minimum date to filter
      *
      * @return OperationInterface[]
      */
-    public function findByStatusAndCycleDate(
+    public function findByStatusAndMinimumCycleDate(
         Status $status,
         DateTime $maximumDate
     );
