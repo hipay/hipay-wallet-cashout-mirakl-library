@@ -26,13 +26,31 @@ interface OperationInterface
 {
     /**
      * @return int|null if it is an operator operation
+     *
+     * @Assert\Type(type="integer")
      */
     public function getMiraklId();
 
     /**
+     * @param $miraklId
+     *
+     * @return void
+     */
+    public function setMiraklId($miraklId);
+
+    /**
      * @return int|null if the vendor didn't have its data in the db at the creation of the operation
+     *
+     * @Assert\Type(type="integer")
      */
     public function getHipayId();
+
+    /**
+     * @param $hipayId
+     *
+     * @return void
+     */
+    public function setHipayId($hipayId);
 
     /**
      * @return int
@@ -98,17 +116,4 @@ interface OperationInterface
      */
     public function setAmount($amount);
 
-    /**
-     * @param $hipayId
-     *
-     * @return void
-     */
-    public function setHipayId($hipayId);
-
-    /**
-     * @param $miraklId
-     *
-     * @return void
-     */
-    public function setMiraklId($miraklId);
 }
