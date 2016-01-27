@@ -120,7 +120,7 @@ class Processor extends AbstractProcessor
         $toTransfer = array_merge(
             $toTransfer,
             $this->operationManager
-                ->findByStatusAndMinimumCycleDate(
+                ->findByStatusAndAfterCycleDate(
                     new Status(Status::TRANSFER_FAILED),
                     $previousDay
                 )
@@ -172,7 +172,7 @@ class Processor extends AbstractProcessor
         $toWithdraw = array_merge(
             $toWithdraw,
             $this->operationManager
-                ->findByStatusAndMinimumCycleDate(
+                ->findByStatusAndAfterCycleDate(
                     new Status(Status::WITHDRAW_FAILED),
                     $previousDay
                 )
