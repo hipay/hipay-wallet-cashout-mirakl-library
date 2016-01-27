@@ -231,6 +231,9 @@ class Processor extends AbstractProcessor
             $publicLabel,
             $privateLabel
         );
+
+        $operation->setHipayId($vendor->getHipayId());
+
         //Transfer
         return $this->hipay->transfer($transfer);
     }
@@ -287,6 +290,9 @@ class Processor extends AbstractProcessor
                 );
             }
         }
+
+        $operation->setHipayId($vendor->getHipayId());
+
         //Withdraw
         return $this->hipay->withdraw($vendor, $amount, $label);
     }
