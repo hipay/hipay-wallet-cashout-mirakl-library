@@ -13,13 +13,14 @@
     "php": ">=5.3.9",
     "ext-soap": "*",
     "guzzlehttp/guzzle": "^3.8",
-    "symfony/event-dispatcher": "^2.6",
+    "symfony/event-dispatcher": "^2.8",
     "symfony/validator": "^2.8",
     "doctrine/annotations": "^1.2",
-    "symfony/intl": "^2.6",
+    "symfony/intl": "^2.8",
     "touki/ftp": "^1.2",
     "psr/log": "*",
-    "mustache/mustache": "*"
+    "mustache/mustache": "*",
+    "symfony/expression-language": "^2.8"
   },
   "require-dev": {
     "phpunit/phpunit" : "^4.8",
