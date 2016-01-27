@@ -95,4 +95,31 @@ interface ManagerInterface
      * @return OperationInterface|null
      */
     public function findByWithdrawalId($withdrawalId);
+
+    /**
+     * Generate the public label of a transfer operation
+     *
+     * @param OperationInterface $operation
+     *
+     * @return string
+     */
+    public function generatePublicLabel(OperationInterface $operation);
+
+    /**
+     * Generate the private label of a transfer operation
+     *
+     * @param OperationInterface $operation
+     *
+     * @return string
+     */
+    public function generatePrivateLabel(OperationInterface $operation);
+
+    /**
+     * Generate the label of a withdraw operation
+     *
+     * @param OperationInterface $operation
+     *
+     * @return string
+     */
+    public function generateWithdrawLabel(OperationInterface $operation);
 }

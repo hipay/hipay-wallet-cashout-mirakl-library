@@ -20,7 +20,6 @@ use Hipay\MiraklConnector\Exception\NoWalletFoundException;
 use Hipay\MiraklConnector\Exception\UnconfirmedBankAccountException;
 use Hipay\MiraklConnector\Exception\UnidentifiedWalletException;
 use Hipay\MiraklConnector\Vendor\Model\VendorInterface;
-use Mustache_Engine;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Hipay\MiraklConnector\Cashout\Model\Operation\ManagerInterface
@@ -74,45 +73,29 @@ class Processor extends AbstractProcessor
     /**
      * Main processing function.
      *
-     * @param $publicLabelTemplate
-     * @param $privateLabelTemplate
-     * @param $withdrawLabelTemplate
-     *
      * @throws WrongWalletBalance
      * @throws NoWalletFoundException
      * @throws UnconfirmedBankAccountException
      * @throws UnidentifiedWalletException
      */
-    public function process(
-        $publicLabelTemplate,
-        $privateLabelTemplate,
-        $withdrawLabelTemplate
-    ) {
+    public function process()
+    {
         $previousDay = new DateTime('-1 day');
 
         //Transfer
-        $this->transferOperations(
-            $previousDay,
-            $publicLabelTemplate,
-            $privateLabelTemplate
-        );
+        $this->transferOperations($previousDay);
 
         //Withdraw
-        $this->withdrawOperations($previousDay, $withdrawLabelTemplate);
+        $this->withdrawOperations($previousDay);
     }
 
     /**
      * Execute the operation needing transfer.
      *
      * @param DateTime $previousDay
-     * @param string   $publicLabelTemplate
-     * @param string   $privateLabelTemplate
      */
-    protected function transferOperations(
-        DateTime $previousDay,
-        $publicLabelTemplate,
-        $privateLabelTemplate
-    ) {
+    protected function transferOperations(DateTime $previousDay)
+    {
         //Transfer
         $toTransfer = $this->operationManager->findByStatus(
             new Status(Status::CREATED)
@@ -132,11 +115,7 @@ class Processor extends AbstractProcessor
         foreach ($toTransfer as $operation) {
             try {
                 $this->operationManager->save($operation);
-                $transferId = $this->transferOperation(
-                    $operation,
-                    $this->generateLabel($publicLabelTemplate, $operation),
-                    $this->generateLabel($privateLabelTemplate, $operation)
-                );
+                $transferId = $this->transferOperation($operation);
                 $operation->setStatus($transferSuccess);
                 $operation->setTransferId($transferId);
             } catch (DispatchableException $e) {
@@ -161,10 +140,9 @@ class Processor extends AbstractProcessor
     /**
      * Execute the operation needing withdrawal.
      *
-     * @param $previousDay
-     * @param $withdrawLabelTemplate
+     * @param DateTime $previousDay
      */
-    protected function withdrawOperations($previousDay, $withdrawLabelTemplate)
+    protected function withdrawOperations(DateTime $previousDay)
     {
         $toWithdraw = $this->operationManager->findByStatus(
             new Status(Status::TRANSFER_SUCCESS)
@@ -184,10 +162,7 @@ class Processor extends AbstractProcessor
         /** @var OperationInterface $operation */
         foreach ($toWithdraw as $operation) {
             try {
-                $withdrawId = $this->withdrawOperation(
-                    $operation,
-                    $this->generateLabel($withdrawLabelTemplate, $operation)
-                );
+                $withdrawId = $this->withdrawOperation($operation);
                 $operation->setWithdrawId($withdrawId);
                 $operation->setStatus($withdrawRequested);
             } catch (DispatchableException $e) {
@@ -214,18 +189,13 @@ class Processor extends AbstractProcessor
      * wallet and the operator|seller wallet.
      *
      * @param OperationInterface $operation
-     * @param string             $publicLabel
-     * @param string             $privateLabel
      *
      * @return int
      *
      * @throws NoWalletFoundException if the wallet is not found
      */
-    public function transferOperation(
-        OperationInterface $operation,
-        $publicLabel,
-        $privateLabel
-    ) {
+    public function transferOperation(OperationInterface $operation)
+    {
         $vendor = $this->getVendor($operation);
 
         if (!$vendor || $this->hipay->isAvailable($vendor->getEmail())) {
@@ -235,8 +205,8 @@ class Processor extends AbstractProcessor
         $transfer = new Transfer(
             round($operation->getAmount(), 2),
             $vendor,
-            $publicLabel,
-            $privateLabel
+            $this->operationManager->generatePublicLabel($operation),
+            $this->operationManager->generatePrivateLabel($operation)
         );
 
         $operation->setHipayId($vendor->getHipayId());
@@ -249,7 +219,6 @@ class Processor extends AbstractProcessor
      * Put the money into the real bank account of the operator|seller.
      *
      * @param OperationInterface $operation
-     * @param $label
      * @return int
      * @throws NoWalletFoundException
      * @throws UnconfirmedBankAccountException if the bank account
@@ -258,7 +227,7 @@ class Processor extends AbstractProcessor
      * @throws WrongWalletBalance if the hipay wallet balance is
      *                                         lower than the transaction amount to be sent to the bank account
      */
-    public function withdrawOperation(OperationInterface $operation, $label)
+    public function withdrawOperation(OperationInterface $operation)
     {
         $vendor = $this->getVendor($operation);
 
@@ -301,34 +270,11 @@ class Processor extends AbstractProcessor
         $operation->setHipayId($vendor->getHipayId());
 
         //Withdraw
-        return $this->hipay->withdraw($vendor, $amount, $label);
-    }
-
-    /**
-     * Generate the label from a template.
-     *
-     * @param $labelTemplate
-     * @param $operation
-     *
-     * @return string
-     */
-    public function generateLabel($labelTemplate, OperationInterface $operation)
-    {
-        $m = new Mustache_Engine();
-
-        return $m->render($labelTemplate, array(
-            'miraklId' => $operation->getMiraklId(),
-            'amount' => round($operation->getAmount(), 2),
-            'hipayId' => $operation->getHipayId(),
-            'cycleDate' => $operation->getCycleDate()->format('Y-m-d'),
-            'cycleDateTime' => $operation->getCycleDate()->format(
-                'Y-m-d H:i:s'
-            ),
-            'cycleTime' => $operation->getCycleDate()->format('H:i:s'),
-            'date' => date('Y-m-d'),
-            'datetime' => date('Y-m-d H:i:s'),
-            'time' => date('H:i:s'),
-        ));
+        return $this->hipay->withdraw(
+            $vendor,
+            $amount,
+            $this->operationManager->generateWithdrawLabel($operation)
+        );
     }
 
     /**
