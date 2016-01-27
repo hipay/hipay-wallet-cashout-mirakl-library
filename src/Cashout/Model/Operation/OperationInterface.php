@@ -17,9 +17,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * Interface OperationInterface
  *
- * @Assert\Expression("is_int(this.getMiraklId()) || is_null(this.getMiraklId())")
- * @Assert\Expression("is_int(this.getHipayId()) || is_null(this.getMiraklId())")
- *
  * @package Hipay\MiraklConnector\Cashout\Model\Operation
  */
 interface OperationInterface
