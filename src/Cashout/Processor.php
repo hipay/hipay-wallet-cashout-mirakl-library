@@ -202,6 +202,8 @@ class Processor extends AbstractProcessor
             throw new NoWalletFoundException($vendor);
         }
 
+        $operation->setHipayId($vendor->getHipayId());
+
         $transfer = new Transfer(
             round($operation->getAmount(), 2),
             $vendor,
@@ -209,7 +211,6 @@ class Processor extends AbstractProcessor
             $this->operationManager->generatePrivateLabel($operation)
         );
 
-        $operation->setHipayId($vendor->getHipayId());
 
         //Transfer
         return $this->hipay->transfer($transfer);
