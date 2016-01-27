@@ -82,6 +82,8 @@ class Processor extends AbstractProcessor
     {
         $previousDay = new DateTime('-1 day');
 
+        $this->logger->info("Cachout Processor");
+
         //Transfer
         $this->transferOperations($previousDay);
 
@@ -96,6 +98,7 @@ class Processor extends AbstractProcessor
      */
     protected function transferOperations(DateTime $previousDay)
     {
+        $this->logger->info("Transfer operations");
         //Transfer
         $toTransfer = $this->operationManager->findByStatus(
             new Status(Status::CREATED)
@@ -109,12 +112,13 @@ class Processor extends AbstractProcessor
                 )
         );
 
+        $this->logger->info("Operation transfered : " . count($toTransfer));
+
         $transferSuccess = new Status(Status::TRANSFER_SUCCESS);
         $transferFailed = new Status(Status::TRANSFER_FAILED);
         /** @var OperationInterface $operation */
         foreach ($toTransfer as $operation) {
             try {
-                $this->operationManager->save($operation);
                 $transferId = $this->transferOperation($operation);
                 $operation->setStatus($transferSuccess);
                 $operation->setTransferId($transferId);
@@ -133,8 +137,8 @@ class Processor extends AbstractProcessor
                     $e->getMessage()
                 );
             }
-
             $this->operationManager->save($operation);
+            $this->logger->info("[OK] Transfer operation executed");
         }
     }
     /**
@@ -181,6 +185,7 @@ class Processor extends AbstractProcessor
                 );
             }
             $this->operationManager->save($operation);
+            $this->logger->info("[OK] Withdraw operation executed");
         }
     }
 
