@@ -71,7 +71,7 @@ class HiPay
         $this->timezone = $timeZone;
         $this->locale = $locale;
         $defaults = array(
-            'compression' => SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP,
+            'compression' => SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP | 9,
             'cache_wsdl' => WSDL_CACHE_NONE,
             'soap_version' => SOAP_1_1,
             'encoding' => 'UTF-8',
