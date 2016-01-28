@@ -2,6 +2,7 @@
 
 namespace Hipay\MiraklConnector\Api;
 
+use DateTime;
 use Exception;
 use Hipay\MiraklConnector\Api\Hipay\Model\Soap\MerchantData;
 use Hipay\MiraklConnector\Api\Hipay\Model\Soap\BankInfo;
@@ -320,6 +321,24 @@ class Hipay
 
         return $result['fields'];
     }
+
+    /**
+     * @param int $merchantGroupId the id given to Hipay corresponding to the entity
+     * @param DateTime $pastDate the maximum wallet creation date
+     *
+     * @return array
+     */
+    public function getMerchantGroupAccounts($merchantGroupId, DateTime $pastDate)
+    {
+        $parameters = array('merchantGroupId' => $merchantGroupId, 'pastDate' => $pastDate->format('Y-m-d'));
+        $data = $this->callSoap('getMerchantsGroupAccounts', $parameters);
+        $result = array();
+        foreach ($data['dataMerchantsGroupAccounts'] as $item) {
+            $result = (array) $item;
+        }
+        return $result;
+    }
+
     /**
      * Add the api login parameters to the parameters.
      *

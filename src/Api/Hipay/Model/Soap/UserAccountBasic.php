@@ -131,7 +131,7 @@ class UserAccountBasic extends ModelAbstract
         $this->validate();
 
         return $parameters + array(
-            $this->getSoapParameterKey() => $this->getSoapParameterData(),
+            $this->getSoapParameterKey() => $this->getData(),
         );
     }
 

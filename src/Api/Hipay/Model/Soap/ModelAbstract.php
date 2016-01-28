@@ -24,7 +24,7 @@ abstract class ModelAbstract
     /**
      * Get SOAP parameter data.
      */
-    public function getSoapParameterData()
+    public function getData()
     {
         return get_object_vars($this);
     }
@@ -41,7 +41,7 @@ abstract class ModelAbstract
     {
         $this->validate();
 
-        return $parameters + $this->getSoapParameterData();
+        return $parameters + $this->getData();
     }
 
     /**

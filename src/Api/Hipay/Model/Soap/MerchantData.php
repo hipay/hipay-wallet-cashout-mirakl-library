@@ -23,7 +23,7 @@ class MerchantData extends ModelAbstract
     public function mergeIntoParameters(array $parameters = array())
     {
         return $parameters + array(
-            $this->getSoapParameterKey() => $this->getSoapParameterData(),
+            $this->getSoapParameterKey() => $this->getData(),
         );
     }
 }

@@ -545,4 +545,20 @@ class Processor extends AbstractProcessor
         $vendor = $this->recordWallet($email, $miraklId, $miraklData);
         $this->vendorManager->save($vendor);
     }
+
+    /**
+     * Returns the wallet registered at Hipay
+     *
+     * @param $merchantGroupId
+     * @param DateTime|null $pastDate
+     *
+     * @return array
+     */
+    public function getWallets($merchantGroupId, DateTime $pastDate = null)
+    {
+        if (!$pastDate) {
+            $pastDate = new DateTime();
+        }
+        return $this->hipay->getMerchantGroupAccounts($merchantGroupId, $pastDate);
+    }
 }
