@@ -333,7 +333,7 @@ class Processor extends AbstractProcessor
         //Wallet creation
         $this->logger->info('Wallet creation');
         $vendorCollection = $this->registerWallets($miraklData);
-        $this->logger->info('Wallets created : '.count($vendorCollection));
+        $this->logger->info('[OK] Wallets : ' . count($vendorCollection));
 
         $this->vendorManager->saveAll($vendorCollection);
 

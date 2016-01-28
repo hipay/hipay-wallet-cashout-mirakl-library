@@ -60,7 +60,7 @@ interface ManagerInterface
      *
      * @return OperationInterface[]
      */
-    public function findByStatusAndAfterCycleDate(
+    public function findByStatusAndAfterUpdatedAt(
         Status $status,
         DateTime $afterDate
     );

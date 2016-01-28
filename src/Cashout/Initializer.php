@@ -456,6 +456,7 @@ class Initializer extends AbstractProcessor
         //Sets mandatory values
         $operation->setMiraklId($miraklId);
         $operation->setStatus(new Status(Status::CREATED));
+        $operation->setUpdatedAt(new DateTime());
         $operation->setAmount($amount);
         $operation->setCycleDate($cycleDate);
 

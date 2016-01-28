@@ -113,4 +113,19 @@ interface OperationInterface
      */
     public function setAmount($amount);
 
+    /**
+     * @return DateTime
+     *
+     * @Assert\NotBlank()
+     * @Assert\DateTime()
+     * @Assert\LessThanOrEqual("now")
+     */
+    public function getUpdatedAt();
+
+    /**
+     * @param DateTime $dateTime
+     *
+     * @return void
+     */
+    public function setUpdatedAt(DateTime $dateTime);
 }
