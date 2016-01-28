@@ -557,7 +557,7 @@ class Processor extends AbstractProcessor
     public function getWallets($merchantGroupId, DateTime $pastDate = null)
     {
         if (!$pastDate) {
-            $pastDate = new DateTime();
+            $pastDate = new DateTime('1970-01-01');
         }
         return $this->hipay->getMerchantGroupAccounts($merchantGroupId, $pastDate);
     }

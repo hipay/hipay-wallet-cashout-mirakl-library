@@ -443,8 +443,7 @@ class Initializer extends AbstractProcessor
         $hipayId = null;
         if ($vendor) {
             $hipayId = $vendor->getHipayId();
-        }
-        if (!$miraklId) {
+        } elseif (!$miraklId) {
             $hipayId = $this->operator->getHipayId();
         }
         $operation->setHipayId($hipayId);
