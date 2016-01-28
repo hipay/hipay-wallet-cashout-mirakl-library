@@ -1,6 +1,6 @@
 <?php
 
-namespace Hipay\MiraklConnector\Cashout\Model\Transaction;
+namespace HiPay\Wallet\Mirakl\Cashout\Model\Transaction;
 
 /**
  * Class ValidatorInterface

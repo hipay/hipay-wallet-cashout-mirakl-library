@@ -1,9 +1,9 @@
 <?php
 
-namespace Hipay\MiraklConnector\Exception;
+namespace HiPay\Wallet\Mirakl\Exception;
 
 use Exception;
-use Hipay\MiraklConnector\Vendor\Model\VendorInterface;
+use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 
 /**
  * Class NoFundsAvailableException.

@@ -1,6 +1,6 @@
 <?php
 
-namespace Hipay\MiraklConnector\Cashout\Event;
+namespace HiPay\Wallet\Mirakl\Cashout\Event;
 
 use Symfony\Component\EventDispatcher\Event;
 

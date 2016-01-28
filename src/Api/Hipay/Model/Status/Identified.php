@@ -1,8 +1,8 @@
 <?php
 
-namespace Hipay\MiraklConnector\Api\Hipay\Model\Status;
+namespace HiPay\Wallet\Mirakl\Api\HiPay\Model\Status;
 
-use Hipay\MiraklConnector\Common\AbstractEnumeration;
+use HiPay\Wallet\Mirakl\Common\AbstractEnumeration;
 
 /**
  * Class holding different constants for hipay.
@@ -12,7 +12,7 @@ use Hipay\MiraklConnector\Common\AbstractEnumeration;
  */
 class Identified extends AbstractEnumeration
 {
-    // Hipay Wallet accountInfosIdentified response 'status' values.
+    // HiPay Wallet accountInfosIdentified response 'status' values.
     const NO = 'no';
     const YES = 'yes';
 }

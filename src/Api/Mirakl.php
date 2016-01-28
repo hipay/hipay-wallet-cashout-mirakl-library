@@ -1,6 +1,6 @@
 <?php
 
-namespace Hipay\MiraklConnector\Api;
+namespace HiPay\Wallet\Mirakl\Api;
 
 use DateTime;
 use Guzzle\Service\Client;

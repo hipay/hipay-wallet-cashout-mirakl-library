@@ -1,6 +1,6 @@
 <?php
 
-namespace Hipay\MiraklConnector\Vendor\Model;
+namespace HiPay\Wallet\Mirakl\Vendor\Model;
 
 /**
  * Interface VendorManager
@@ -84,7 +84,7 @@ interface ManagerInterface
      *
      * @return VendorInterface|null if not found
      */
-    public function findByHipayId($hipayId);
+    public function findByHiPayId($hipayId);
 
     /**
      * Verify that a vendor is valid before save.

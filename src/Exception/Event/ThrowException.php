@@ -1,6 +1,6 @@
 <?php
 
-namespace Hipay\MiraklConnector\Exception\Event;
+namespace HiPay\Wallet\Mirakl\Exception\Event;
 
 use Exception;
 use Symfony\Component\EventDispatcher\Event;

@@ -1,30 +1,30 @@
 <?php
 
-namespace Hipay\MiraklConnector\Cashout;
+namespace HiPay\Wallet\Mirakl\Cashout;
 
 use DateTime;
 use Exception;
-use Hipay\MiraklConnector\Cashout\Event\CreateOperation;
-use Hipay\MiraklConnector\Cashout\Model\Operation\OperationInterface;
-use Hipay\MiraklConnector\Cashout\Model\Operation\Status;
-use Hipay\MiraklConnector\Common\AbstractProcessor;
-use Hipay\MiraklConnector\Api\Mirakl\ConfigurationInterface
+use HiPay\Wallet\Mirakl\Cashout\Event\CreateOperation;
+use HiPay\Wallet\Mirakl\Cashout\Model\Operation\OperationInterface;
+use HiPay\Wallet\Mirakl\Cashout\Model\Operation\Status;
+use HiPay\Wallet\Mirakl\Common\AbstractProcessor;
+use HiPay\Wallet\Mirakl\Api\Mirakl\ConfigurationInterface
     as MiraklConfiguration;
-use Hipay\MiraklConnector\Api\Hipay\ConfigurationInterface
-    as HipayConfiguration;
-use Hipay\MiraklConnector\Exception\AlreadyCreatedOperationException;
-use Hipay\MiraklConnector\Exception\DispatchableException;
-use Hipay\MiraklConnector\Exception\Event\ThrowException;
-use Hipay\MiraklConnector\Cashout\Model\Transaction\ValidatorInterface;
-use Hipay\MiraklConnector\Cashout\Model\Operation\ManagerInterface
+use HiPay\Wallet\Mirakl\Api\HiPay\ConfigurationInterface
+    as HiPayConfiguration;
+use HiPay\Wallet\Mirakl\Exception\AlreadyCreatedOperationException;
+use HiPay\Wallet\Mirakl\Exception\DispatchableException;
+use HiPay\Wallet\Mirakl\Exception\Event\ThrowException;
+use HiPay\Wallet\Mirakl\Cashout\Model\Transaction\ValidatorInterface;
+use HiPay\Wallet\Mirakl\Cashout\Model\Operation\ManagerInterface
     as OperationManager;
-use Hipay\MiraklConnector\Vendor\Model\ManagerInterface
+use HiPay\Wallet\Mirakl\Vendor\Model\ManagerInterface
     as VendorManager;
-use Hipay\MiraklConnector\Exception\InvalidOperationException;
-use Hipay\MiraklConnector\Exception\NotEnoughFunds;
-use Hipay\MiraklConnector\Exception\TransactionException;
-use Hipay\MiraklConnector\Service\Validation\ModelValidator;
-use Hipay\MiraklConnector\Vendor\Model\VendorInterface;
+use HiPay\Wallet\Mirakl\Exception\InvalidOperationException;
+use HiPay\Wallet\Mirakl\Exception\NotEnoughFunds;
+use HiPay\Wallet\Mirakl\Exception\TransactionException;
+use HiPay\Wallet\Mirakl\Service\Validation\ModelValidator;
+use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -56,7 +56,7 @@ class Initializer extends AbstractProcessor
      * Initializer constructor.
      *
      * @param MiraklConfiguration      $miraklConfig
-     * @param HipayConfiguration       $hipayConfig
+     * @param HiPayConfiguration       $hipayConfig
      * @param EventDispatcherInterface $dispatcher
      * @param LoggerInterface          $logger
      * @param VendorInterface          $operatorAccount
@@ -67,7 +67,7 @@ class Initializer extends AbstractProcessor
      */
     public function __construct(
         MiraklConfiguration $miraklConfig,
-        HipayConfiguration $hipayConfig,
+        HiPayConfiguration $hipayConfig,
         EventDispatcherInterface $dispatcher,
         LoggerInterface $logger,
         VendorInterface $operatorAccount,
@@ -442,11 +442,11 @@ class Initializer extends AbstractProcessor
         //Set hipay id
         $hipayId = null;
         if ($vendor) {
-            $hipayId = $vendor->getHipayId();
+            $hipayId = $vendor->getHiPayId();
         } elseif (!$miraklId) {
-            $hipayId = $this->operator->getHipayId();
+            $hipayId = $this->operator->getHiPayId();
         }
-        $operation->setHipayId($hipayId);
+        $operation->setHiPayId($hipayId);
 
         //Event
         $event = new CreateOperation($operation);

@@ -1,1 +1,1 @@
-Connecteur entre Hipay et Mirakl
+Connecteur entre HiPay et Mirakl

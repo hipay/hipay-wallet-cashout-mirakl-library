@@ -1,6 +1,6 @@
 <?php
 
-namespace Hipay\MiraklConnector\Cashout\Model\Operation;
+namespace HiPay\Wallet\Mirakl\Cashout\Model\Operation;
 
 use DateTime;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -17,7 +17,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * Interface OperationInterface
  *
- * @package Hipay\MiraklConnector\Cashout\Model\Operation
+ * @package HiPay\Wallet\Mirakl\Cashout\Model\Operation
  */
 interface OperationInterface
 {
@@ -40,14 +40,14 @@ interface OperationInterface
      *
      * @Assert\Type(type="integer")
      */
-    public function getHipayId();
+    public function getHiPayId();
 
     /**
      * @param $hipayId
      *
      * @return void
      */
-    public function setHipayId($hipayId);
+    public function setHiPayId($hipayId);
 
     /**
      * @return int

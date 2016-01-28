@@ -1,6 +1,6 @@
 <?php
 
-namespace Hipay\MiraklConnector\Vendor\Event;
+namespace HiPay\Wallet\Mirakl\Vendor\Event;
 
 use Symfony\Component\EventDispatcher\Event;
 

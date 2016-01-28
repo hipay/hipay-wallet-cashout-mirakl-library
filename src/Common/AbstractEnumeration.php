@@ -1,6 +1,6 @@
 <?php
 
-namespace Hipay\MiraklConnector\Common;
+namespace HiPay\Wallet\Mirakl\Common;
 
 use ReflectionClass;
 

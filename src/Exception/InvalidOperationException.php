@@ -7,10 +7,10 @@
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
  */
-namespace Hipay\MiraklConnector\Exception;
+namespace HiPay\Wallet\Mirakl\Exception;
 
 use Exception;
-use Hipay\MiraklConnector\Cashout\Model\Operation\OperationInterface;
+use HiPay\Wallet\Mirakl\Cashout\Model\Operation\OperationInterface;
 
 /**
  * Class InvalidOperation.

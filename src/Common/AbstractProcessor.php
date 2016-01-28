@@ -1,13 +1,13 @@
 <?php
 
-namespace Hipay\MiraklConnector\Common;
+namespace HiPay\Wallet\Mirakl\Common;
 
-use Hipay\MiraklConnector\Api\Mirakl;
-use Hipay\MiraklConnector\Api\Mirakl\ConfigurationInterface
+use HiPay\Wallet\Mirakl\Api\Mirakl;
+use HiPay\Wallet\Mirakl\Api\Mirakl\ConfigurationInterface
     as MiraklConfiguration;
-use Hipay\MiraklConnector\Api\Hipay;
-use Hipay\MiraklConnector\Api\Hipay\ConfigurationInterface
-    as HipayConfiguration;
+use HiPay\Wallet\Mirakl\Api\HiPay;
+use HiPay\Wallet\Mirakl\Api\HiPay\ConfigurationInterface
+    as HiPayConfiguration;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -25,7 +25,7 @@ abstract class AbstractProcessor
     /** @var Mirakl $mirakl */
     protected $mirakl;
 
-    /** @var Hipay $hipay */
+    /** @var HiPay $hipay */
     protected $hipay;
 
     /** @var EventDispatcherInterface event */
@@ -38,13 +38,13 @@ abstract class AbstractProcessor
      * AbstractProcessor constructor.
      *
      * @param MiraklConfiguration      $miraklConfig
-     * @param HipayConfiguration       $hipayConfig
+     * @param HiPayConfiguration       $hipayConfig
      * @param EventDispatcherInterface $dispatcher
      * @param LoggerInterface          $logger
      */
     public function __construct(
         MiraklConfiguration $miraklConfig,
-        HipayConfiguration $hipayConfig,
+        HiPayConfiguration $hipayConfig,
         EventDispatcherInterface $dispatcher,
         LoggerInterface $logger
     ) {
@@ -56,7 +56,7 @@ abstract class AbstractProcessor
             $miraklConfig->getOptions()
         );
 
-        $this->hipay = Hipay::factory($hipayConfig);
+        $this->hipay = HiPay::factory($hipayConfig);
 
         $this->dispatcher = $dispatcher;
 

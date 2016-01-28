@@ -1,8 +1,8 @@
 <?php
 
-namespace Hipay\MiraklConnector\Api\Hipay\Model\Status;
+namespace HiPay\Wallet\Mirakl\Api\HiPay\Model\Status;
 
-use Hipay\MiraklConnector\Common\AbstractEnumeration;
+use HiPay\Wallet\Mirakl\Common\AbstractEnumeration;
 
 /**
  * Class TransferType.
@@ -12,7 +12,7 @@ use Hipay\MiraklConnector\Common\AbstractEnumeration;
  */
 class TransferType extends AbstractEnumeration
 {
-    // Hipay Wallet transfer transaction types.
+    // HiPay Wallet transfer transaction types.
     const TRANSFER = 'Envoi';
     const OTHER = ' Autre';
 }

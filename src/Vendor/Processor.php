@@ -1,36 +1,36 @@
 <?php
 
-namespace Hipay\MiraklConnector\Vendor;
+namespace HiPay\Wallet\Mirakl\Vendor;
 
 use DateTime;
-use Hipay\MiraklConnector\Api\Hipay;
-use Hipay\MiraklConnector\Api\Hipay\ConfigurationInterface
-    as HipayConfiguration;
-use Hipay\MiraklConnector\Api\Hipay\Model\Status\BankInfo as BankInfoStatus;
-use Hipay\MiraklConnector\Api\Hipay\Model\Soap\BankInfo;
-use Hipay\MiraklConnector\Api\Hipay\Model\Soap\MerchantData;
-use Hipay\MiraklConnector\Api\Hipay\Model\Soap\UserAccountBasic;
-use Hipay\MiraklConnector\Api\Hipay\Model\Soap\UserAccountDetails;
-use Hipay\MiraklConnector\Api\Mirakl;
-use Hipay\MiraklConnector\Api\Mirakl\ConfigurationInterface
+use HiPay\Wallet\Mirakl\Api\HiPay;
+use HiPay\Wallet\Mirakl\Api\HiPay\ConfigurationInterface
+    as HiPayConfiguration;
+use HiPay\Wallet\Mirakl\Api\HiPay\Model\Status\BankInfo as BankInfoStatus;
+use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\BankInfo;
+use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\MerchantData;
+use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\UserAccountBasic;
+use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\UserAccountDetails;
+use HiPay\Wallet\Mirakl\Api\Mirakl;
+use HiPay\Wallet\Mirakl\Api\Mirakl\ConfigurationInterface
     as MiraklConfiguration;
-use Hipay\MiraklConnector\Common\AbstractProcessor;
-use Hipay\MiraklConnector\Exception\BankAccountCreationFailedException;
-use Hipay\MiraklConnector\Exception\DispatchableException;
-use Hipay\MiraklConnector\Exception\Event\ThrowException;
-use Hipay\MiraklConnector\Exception\FTPUploadFailed;
-use Hipay\MiraklConnector\Exception\InvalidBankInfoException;
-use Hipay\MiraklConnector\Exception\InvalidVendorException;
-use Hipay\MiraklConnector\Service\Ftp;
-use Hipay\MiraklConnector\Service\Ftp\ConfigurationInterface
+use HiPay\Wallet\Mirakl\Common\AbstractProcessor;
+use HiPay\Wallet\Mirakl\Exception\BankAccountCreationFailedException;
+use HiPay\Wallet\Mirakl\Exception\DispatchableException;
+use HiPay\Wallet\Mirakl\Exception\Event\ThrowException;
+use HiPay\Wallet\Mirakl\Exception\FTPUploadFailed;
+use HiPay\Wallet\Mirakl\Exception\InvalidBankInfoException;
+use HiPay\Wallet\Mirakl\Exception\InvalidVendorException;
+use HiPay\Wallet\Mirakl\Service\Ftp;
+use HiPay\Wallet\Mirakl\Service\Ftp\ConfigurationInterface
     as FtpConfiguration;
-use Hipay\MiraklConnector\Service\Validation\ModelValidator;
-use Hipay\MiraklConnector\Service\Zip;
-use Hipay\MiraklConnector\Vendor\Event\AddBankAccount;
-use Hipay\MiraklConnector\Vendor\Event\CheckAvailability;
-use Hipay\MiraklConnector\Vendor\Event\CreateWallet;
-use Hipay\MiraklConnector\Vendor\Model\ManagerInterface;
-use Hipay\MiraklConnector\Vendor\Model\VendorInterface;
+use HiPay\Wallet\Mirakl\Service\Validation\ModelValidator;
+use HiPay\Wallet\Mirakl\Service\Zip;
+use HiPay\Wallet\Mirakl\Vendor\Event\AddBankAccount;
+use HiPay\Wallet\Mirakl\Vendor\Event\CheckAvailability;
+use HiPay\Wallet\Mirakl\Vendor\Event\CreateWallet;
+use HiPay\Wallet\Mirakl\Vendor\Model\ManagerInterface;
+use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Touki\FTP\FTPFactory;
@@ -57,7 +57,7 @@ class Processor extends AbstractProcessor
      * Processor constructor.
      *
      * @param MiraklConfiguration      $miraklConfig
-     * @param HipayConfiguration       $hipayConfig
+     * @param HiPayConfiguration       $hipayConfig
      * @param EventDispatcherInterface $dispatcherInterface
      * @param LoggerInterface          $logger
      * @param FtpConfiguration         $ftpConfiguration
@@ -65,7 +65,7 @@ class Processor extends AbstractProcessor
      */
     public function __construct(
         MiraklConfiguration $miraklConfig,
-        HipayConfiguration $hipayConfig,
+        HiPayConfiguration $hipayConfig,
         EventDispatcherInterface $dispatcherInterface,
         LoggerInterface $logger,
         FtpConfiguration $ftpConfiguration,
@@ -101,7 +101,7 @@ class Processor extends AbstractProcessor
      * Check if the vendor already has a wallet.
      *
      * Dispatch the event <b>before.availability.check</b>
-     * before sending the data to Hipay
+     * before sending the data to HiPay
      *
      * @param string $email
      * @param bool   $entity
@@ -118,10 +118,10 @@ class Processor extends AbstractProcessor
     }
 
     /**
-     * Create a Hipay wallet.
+     * Create a HiPay wallet.
      *
      * Dispatch the event <b>before.wallet.create</b>
-     * before sending the data to Hipay
+     * before sending the data to HiPay
      *
      * @param array $shopData
      *
@@ -152,7 +152,7 @@ class Processor extends AbstractProcessor
     }
 
     /**
-     * Transfer the files from Mirakl to Hipay using ftp.
+     * Transfer the files from Mirakl to HiPay using ftp.
      *
      * @param array $shopIds
      * @param $tmpZipFilePath
@@ -245,7 +245,7 @@ class Processor extends AbstractProcessor
     }
 
     /**
-     * Get bank info status from Hipay.
+     * Get bank info status from HiPay.
      *
      * @param VendorInterface $vendor
      *
@@ -277,7 +277,7 @@ class Processor extends AbstractProcessor
     }
 
     /**
-     * Return the bank info from Hipay.
+     * Return the bank info from HiPay.
      *
      * @param VendorInterface $vendor
      *
@@ -289,7 +289,7 @@ class Processor extends AbstractProcessor
     }
 
     /**
-     * Add bank account information to Hipay
+     * Add bank account information to HiPay
      * Dispatch the event <b>before.bankAccount.add</b>.
      *
      * @param VendorInterface $vendor
@@ -359,14 +359,14 @@ class Processor extends AbstractProcessor
     protected function getImmutableValues(VendorInterface $vendor)
     {
         $previousValues['email'] = $vendor->getEmail();
-        $previousValues['hipayId'] = $vendor->getHipayId();
+        $previousValues['hipayId'] = $vendor->getHiPayId();
         $previousValues['miraklId'] = $vendor->getMiraklId();
 
         return $previousValues;
     }
 
     /**
-     * Register wallets into Hipay.
+     * Register wallets into HiPay.
      *
      * @param $miraklData
      *
@@ -391,7 +391,7 @@ class Processor extends AbstractProcessor
                         $vendorData['contact_informations']['email']
                     )
                     ) {
-                        //Wallet create (call to Hipay)
+                        //Wallet create (call to HiPay)
                         $hipayId = $this->createWallet($vendorData);
                         $vendor = $this->vendorManager->create(
                             $vendorData['contact_informations']['email'],
@@ -547,7 +547,7 @@ class Processor extends AbstractProcessor
     }
 
     /**
-     * Returns the wallet registered at Hipay
+     * Returns the wallet registered at HiPay
      *
      * @param $merchantGroupId
      * @param DateTime|null $pastDate

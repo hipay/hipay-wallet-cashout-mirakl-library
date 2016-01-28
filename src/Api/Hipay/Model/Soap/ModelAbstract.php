@@ -1,8 +1,8 @@
 <?php
 
-namespace Hipay\MiraklConnector\Api\Hipay\Model\Soap;
+namespace HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap;
 
-use Hipay\MiraklConnector\Service\Validation\ModelValidator;
+use HiPay\Wallet\Mirakl\Service\Validation\ModelValidator;
 
 /**
  * Class SoapModelAbstract

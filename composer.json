@@ -1,6 +1,6 @@
 {
   "name": "mirakl/hipay-connector",
-  "description": "Library to ease the connection between Mirakl and Hipay",
+  "description": "Library to ease the connection between Mirakl and HiPay",
   "minimum-stability": "stable",
   "license": "proprietary",
   "authors": [
@@ -26,7 +26,7 @@
   },
   "autoload": {
     "psr-4": {
-      "Hipay\\MiraklConnector\\": "src"
+      "HiPay\\Wallet\\Mirakl\\": "src"
     }
   }
 }

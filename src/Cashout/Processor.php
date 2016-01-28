@@ -1,31 +1,31 @@
 <?php
 
-namespace Hipay\MiraklConnector\Cashout;
+namespace HiPay\Wallet\Mirakl\Cashout;
 
 use DateTime;
 use Exception;
-use Hipay\MiraklConnector\Api\Hipay\Model\Soap\Transfer;
-use Hipay\MiraklConnector\Cashout\Model\Operation\OperationInterface;
-use Hipay\MiraklConnector\Cashout\Model\Operation\Status;
-use Hipay\MiraklConnector\Common\AbstractProcessor;
-use Hipay\MiraklConnector\Api\Mirakl\ConfigurationInterface
+use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\Transfer;
+use HiPay\Wallet\Mirakl\Cashout\Model\Operation\OperationInterface;
+use HiPay\Wallet\Mirakl\Cashout\Model\Operation\Status;
+use HiPay\Wallet\Mirakl\Common\AbstractProcessor;
+use HiPay\Wallet\Mirakl\Api\Mirakl\ConfigurationInterface
     as MiraklConfiguration;
-use Hipay\MiraklConnector\Api\Hipay;
-use Hipay\MiraklConnector\Api\Hipay\ConfigurationInterface
-    as HipayConfiguration;
-use Hipay\MiraklConnector\Exception\DispatchableException;
-use Hipay\MiraklConnector\Exception\Event\ThrowException;
-use Hipay\MiraklConnector\Exception\WrongWalletBalance;
-use Hipay\MiraklConnector\Exception\NoWalletFoundException;
-use Hipay\MiraklConnector\Exception\UnconfirmedBankAccountException;
-use Hipay\MiraklConnector\Exception\UnidentifiedWalletException;
-use Hipay\MiraklConnector\Vendor\Model\VendorInterface;
+use HiPay\Wallet\Mirakl\Api\HiPay;
+use HiPay\Wallet\Mirakl\Api\HiPay\ConfigurationInterface
+    as HiPayConfiguration;
+use HiPay\Wallet\Mirakl\Exception\DispatchableException;
+use HiPay\Wallet\Mirakl\Exception\Event\ThrowException;
+use HiPay\Wallet\Mirakl\Exception\WrongWalletBalance;
+use HiPay\Wallet\Mirakl\Exception\NoWalletFoundException;
+use HiPay\Wallet\Mirakl\Exception\UnconfirmedBankAccountException;
+use HiPay\Wallet\Mirakl\Exception\UnidentifiedWalletException;
+use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Hipay\MiraklConnector\Cashout\Model\Operation\ManagerInterface
+use HiPay\Wallet\Mirakl\Cashout\Model\Operation\ManagerInterface
     as OperationManager;
-use Hipay\MiraklConnector\Vendor\Model\ManagerInterface as VendorManager;
-use Hipay\MiraklConnector\Api\Hipay\Model\Status\BankInfo as BankInfoStatus;
+use HiPay\Wallet\Mirakl\Vendor\Model\ManagerInterface as VendorManager;
+use HiPay\Wallet\Mirakl\Api\HiPay\Model\Status\BankInfo as BankInfoStatus;
 
 /**
  * Class Processor.
@@ -52,7 +52,7 @@ class Processor extends AbstractProcessor
      * Processor constructor.
      *
      * @param MiraklConfiguration $miraklConfig
-     * @param HipayConfiguration $hipayConfig
+     * @param HiPayConfiguration $hipayConfig
      * @param EventDispatcherInterface $dispatcher
      * @param LoggerInterface $logger
      * @param OperationManager $operationManager ,
@@ -62,7 +62,7 @@ class Processor extends AbstractProcessor
      */
     public function __construct(
         MiraklConfiguration $miraklConfig,
-        HipayConfiguration $hipayConfig,
+        HiPayConfiguration $hipayConfig,
         EventDispatcherInterface $dispatcher,
         LoggerInterface $logger,
         OperationManager $operationManager,
@@ -219,7 +219,7 @@ class Processor extends AbstractProcessor
             throw new NoWalletFoundException($vendor);
         }
 
-        $operation->setHipayId($vendor->getHipayId());
+        $operation->setHiPayId($vendor->getHiPayId());
 
         $transfer = new Transfer(
             round($operation->getAmount(), 2),
@@ -240,8 +240,8 @@ class Processor extends AbstractProcessor
      * @return int
      * @throws NoWalletFoundException
      * @throws UnconfirmedBankAccountException if the bank account
-     *                                         information is not the the status validated at Hipay
-     * @throws UnidentifiedWalletException if the account is not identified by Hipay
+     *                                         information is not the the status validated at HiPay
+     * @throws UnidentifiedWalletException if the account is not identified by HiPay
      * @throws WrongWalletBalance if the hipay wallet balance is
      *                                         lower than the transaction amount to be sent to the bank account
      */
@@ -285,7 +285,7 @@ class Processor extends AbstractProcessor
             }
         }
 
-        $operation->setHipayId($vendor->getHipayId());
+        $operation->setHiPayId($vendor->getHiPayId());
 
         //Withdraw
         return $this->hipay->withdraw(

@@ -1,6 +1,6 @@
 <?php
 
-namespace Hipay\MiraklConnector\Service\Ftp;
+namespace HiPay\Wallet\Mirakl\Service\Ftp;
 
 /**
  * Interface ConfigurationInterface

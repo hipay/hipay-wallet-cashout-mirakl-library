@@ -1,6 +1,6 @@
 <?php
 
-namespace Hipay\MiraklConnector\Service\Ftp;
+namespace HiPay\Wallet\Mirakl\Service\Ftp;
 
 use Touki\FTP\Connection\Connection;
 

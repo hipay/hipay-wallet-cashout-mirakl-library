@@ -1,9 +1,9 @@
 <?php
 
-namespace Hipay\MiraklConnector\Cashout\Model\Operation;
+namespace HiPay\Wallet\Mirakl\Cashout\Model\Operation;
 
 use DateTime;
-use Hipay\MiraklConnector\Vendor\Model\VendorInterface;
+use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 
 /**
  * Interface ManagerInterface.

@@ -1,6 +1,6 @@
 <?php
 
-namespace Hipay\MiraklConnector\Api\Hipay\Model\Soap;
+namespace HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap;
 
 /**
  * File MerchantData.php

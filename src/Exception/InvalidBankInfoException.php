@@ -1,10 +1,10 @@
 <?php
 
-namespace Hipay\MiraklConnector\Exception;
+namespace HiPay\Wallet\Mirakl\Exception;
 
 use Exception;
-use Hipay\MiraklConnector\Api\Hipay\Model\Soap\BankInfo;
-use Hipay\MiraklConnector\Vendor\Model\VendorInterface;
+use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\BankInfo;
+use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 
 /**
  * Class InvalidBankInfoException.

@@ -1,6 +1,6 @@
 <?php
 
-namespace Mirakl\Hipay\Test\Vendor;
+namespace Mirakl\HiPay\Test\Vendor;
 
 use PHPUnit_Framework_TestCase;
 

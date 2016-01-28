@@ -7,7 +7,7 @@
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
  */
-namespace Hipay\MiraklConnector\Api;
+namespace HiPay\Wallet\Mirakl\Api;
 
 /**
  * Interface ConfigurationInterface

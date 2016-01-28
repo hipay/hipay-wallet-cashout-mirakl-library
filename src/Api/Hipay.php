@@ -1,28 +1,28 @@
 <?php
 
-namespace Hipay\MiraklConnector\Api;
+namespace HiPay\Wallet\Mirakl\Api;
 
 use DateTime;
 use Exception;
-use Hipay\MiraklConnector\Api\Hipay\Model\Soap\MerchantData;
-use Hipay\MiraklConnector\Api\Hipay\Model\Soap\BankInfo;
-use Hipay\MiraklConnector\Api\Hipay\Model\Soap\Transfer;
-use Hipay\MiraklConnector\Api\Hipay\Model\Soap\UserAccountBasic;
-use Hipay\MiraklConnector\Api\Hipay\Model\Soap\UserAccountDetails;
-use Hipay\MiraklConnector\Api\Hipay\ConfigurationInterface
-    as HipayConfigurationInterface;
-use Hipay\MiraklConnector\Api\Hipay\Model\Status\Identified;
-use Hipay\MiraklConnector\Api\Soap\SmileClient;
-use Hipay\MiraklConnector\Vendor\Model\VendorInterface;
+use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\MerchantData;
+use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\BankInfo;
+use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\Transfer;
+use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\UserAccountBasic;
+use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\UserAccountDetails;
+use HiPay\Wallet\Mirakl\Api\HiPay\ConfigurationInterface
+    as HiPayConfigurationInterface;
+use HiPay\Wallet\Mirakl\Api\HiPay\Model\Status\Identified;
+use HiPay\Wallet\Mirakl\Api\Soap\SmileClient;
+use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 
 /**
- * Class Hipay
- * Make the SOAP call to the Hipay API.
+ * Class HiPay
+ * Make the SOAP call to the HiPay API.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
  */
-class Hipay
+class HiPay
 {
     /** @var  string the hipay webservice login */
     protected $login;
@@ -36,7 +36,7 @@ class Hipay
     /** @var  SmileClient the transaction webservice client */
     protected $transferClient;
 
-    /** @var string the entity given to the merchant by Hipay */
+    /** @var string the entity given to the merchant by HiPay */
     protected $entity;
 
     /** @var string the locale  */
@@ -85,11 +85,11 @@ class Hipay
     }
 
     /**
-     * @param HipayConfigurationInterface $configuration
+     * @param HiPayConfigurationInterface $configuration
      *
-     * @return Hipay
+     * @return HiPay
      */
-    public static function factory(HipayConfigurationInterface $configuration)
+    public static function factory(HiPayConfigurationInterface $configuration)
     {
         return new self(
             $configuration->getBaseUrl(),
@@ -103,7 +103,7 @@ class Hipay
     }
 
     /**
-     * Check if given email can be used to create an Hipay wallet
+     * Check if given email can be used to create an HiPay wallet
      * Enforce the entity to the one given on object construction if false.
      *
      * @param string $email
@@ -121,7 +121,7 @@ class Hipay
     }
 
     /**
-     * Create an new account on Hipay wallet
+     * Create an new account on HiPay wallet
      * Enforce the entity to the one given on object construction
      * Enforce the locale to the one given on object construction if false
      * Enforce the timezone to the one given on object construction if false.
@@ -158,7 +158,7 @@ class Hipay
     }
 
     /**
-     * Retrieve from Hipay the bank information.
+     * Retrieve from HiPay the bank information.
      *
      * @param VendorInterface $vendor
      *
@@ -171,15 +171,15 @@ class Hipay
         $parameters = $this->mergeSubAccountParameters($vendor);
         $bankInfo = new BankInfo();
 
-        return $bankInfo->setHipayData(
+        return $bankInfo->setHiPayData(
             $this->callSoap('bankInfosCheck', $parameters)
         );
     }
 
     /**
-     * Retrieve from Hipay the bank account status in english
+     * Retrieve from HiPay the bank account status in english
      * To be checked against the constant defined in
-     * Hipay\MiraklConnector\Api\Hipay\Model\Status\BankInfo.
+     * HiPay\Wallet\Mirakl\Api\HiPay\Model\Status\BankInfo.
      *
      * @param VendorInterface $vendor
      *
@@ -197,7 +197,7 @@ class Hipay
     }
 
     /**
-     * Create a bank account in Hipay.
+     * Create a bank account in HiPay.
      *
      * @param VendorInterface $vendor
      * @param BankInfo        $bankInfo
@@ -242,7 +242,7 @@ class Hipay
      */
     public function isIdentified(VendorInterface $vendor)
     {
-        $parameters = array('accountId' => $vendor->getHipayId());
+        $parameters = array('accountId' => $vendor->getHiPayId());
         $result = $this->callSoap('getAccountInfos', $parameters);
 
         return $result['identified'] == Identified::YES ? true : false;
@@ -323,7 +323,7 @@ class Hipay
     }
 
     /**
-     * @param int $merchantGroupId the id given to Hipay corresponding to the entity
+     * @param int $merchantGroupId the id given to HiPay corresponding to the entity
      * @param DateTime $pastDate the maximum wallet creation date
      *
      * @return array
@@ -370,7 +370,7 @@ class Hipay
     ) {
         $parameters += array(
             'wsSubAccountLogin' => $vendor->getEmail(),
-            'wsSubAccountId' => $vendor->getHipayId(),
+            'wsSubAccountId' => $vendor->getHiPayId(),
         );
 
         return $parameters;

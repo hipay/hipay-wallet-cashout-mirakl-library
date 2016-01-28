@@ -1,6 +1,6 @@
 <?php
 
-namespace Hipay\MiraklConnector\Api\Hipay\Model\Soap;
+namespace HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -115,7 +115,7 @@ class BankInfo extends ModelAbstract
      *
      * @return self $this
      */
-    public function setHipayData(array $hipayData)
+    public function setHiPayData(array $hipayData)
     {
         $this->bankName = $hipayData['bankName'];
         $this->bankAddress = $hipayData['bankAddress'];

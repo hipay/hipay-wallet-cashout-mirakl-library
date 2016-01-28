@@ -1,10 +1,10 @@
 <?php
 
-namespace Hipay\MiraklConnector\Exception;
+namespace HiPay\Wallet\Mirakl\Exception;
 
 use Exception;
-use Hipay\MiraklConnector\Vendor\Model\VendorInterface;
-use Hipay\MiraklConnector\Api\Hipay\Model\Status\BankInfo as BankInfoStatus;
+use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
+use HiPay\Wallet\Mirakl\Api\HiPay\Model\Status\BankInfo as BankInfoStatus;
 
 /**
  * Class UnconfirmedBankAccountException.
@@ -41,7 +41,7 @@ class UnconfirmedBankAccountException extends DispatchableException
         parent::__construct(
             $message ?:
             "This vendor ({$vendor->getMiraklId()}) bank account is not validated.\n
-             Please contact Hipay",
+             Please contact HiPay",
             $code,
             $previous
         );

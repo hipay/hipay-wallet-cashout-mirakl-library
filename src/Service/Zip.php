@@ -1,6 +1,6 @@
 <?php
 
-namespace Hipay\MiraklConnector\Service;
+namespace HiPay\Wallet\Mirakl\Service;
 
 /**
  * Class ZipArchive

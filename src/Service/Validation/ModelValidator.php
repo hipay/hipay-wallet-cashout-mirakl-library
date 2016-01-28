@@ -1,9 +1,9 @@
 <?php
 
-namespace Hipay\MiraklConnector\Service\Validation;
+namespace HiPay\Wallet\Mirakl\Service\Validation;
 
-use Hipay\MiraklConnector\Exception\UnauthorizedModificationException;
-use Hipay\MiraklConnector\Exception\ValidationFailedException;
+use HiPay\Wallet\Mirakl\Exception\UnauthorizedModificationException;
+use HiPay\Wallet\Mirakl\Exception\ValidationFailedException;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Validator;
 

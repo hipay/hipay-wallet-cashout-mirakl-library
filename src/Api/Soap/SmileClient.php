@@ -1,6 +1,6 @@
 <?php
 
-namespace Hipay\MiraklConnector\Api\Soap;
+namespace HiPay\Wallet\Mirakl\Api\Soap;
 
 use Exception;
 use SoapClient;
@@ -83,7 +83,7 @@ class SmileClient extends SoapClient
     {
         self::$_defaultCode = $defaultCode;
         set_error_handler(
-            'Hipay\\MiraklConnector\\Api\\Soap\\SmileClient::errorHandlerForFatal',
+            'HiPay\\MiraklConnector\\Api\\Soap\\SmileClient::errorHandlerForFatal',
             E_ALL
         );
     }

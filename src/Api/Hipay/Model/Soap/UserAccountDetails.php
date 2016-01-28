@@ -1,8 +1,8 @@
 <?php
 
-namespace Hipay\MiraklConnector\Api\Hipay\Model\Soap;
+namespace HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap;
 
-use Hipay\MiraklConnector\Service\Country;
+use HiPay\Wallet\Mirakl\Service\Country;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -92,7 +92,7 @@ class UserAccountDetails extends ModelAbstract
      *
      * @Assert\Type(type="bool")
      */
-    protected $receiveHipayInformation;
+    protected $receiveHiPayInformation;
 
     /**
      * @var bool false or true if user agrees.
@@ -196,7 +196,7 @@ class UserAccountDetails extends ModelAbstract
         $this->companyName = $miraklData['shop_name'];
         $this->termsAgreed = true;
         $this->receiveCommercialInformation = false;
-        $this->receiveHipayInformation = false;
+        $this->receiveHiPayInformation = false;
         $this->legalStatus = 1;
     }
 
@@ -428,17 +428,17 @@ class UserAccountDetails extends ModelAbstract
     /**
      * @return bool
      */
-    public function isReceiveHipayInformation()
+    public function isReceiveHiPayInformation()
     {
-        return $this->receiveHipayInformation;
+        return $this->receiveHiPayInformation;
     }
 
     /**
-     * @param bool $receiveHipayInformation
+     * @param bool $receiveHiPayInformation
      */
-    public function setReceiveHipayInformation($receiveHipayInformation)
+    public function setReceiveHiPayInformation($receiveHiPayInformation)
     {
-        $this->receiveHipayInformation = $receiveHipayInformation;
+        $this->receiveHiPayInformation = $receiveHiPayInformation;
     }
 
     /**

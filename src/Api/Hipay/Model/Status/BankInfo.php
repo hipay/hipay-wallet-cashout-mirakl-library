@@ -1,8 +1,8 @@
 <?php
 
-namespace Hipay\MiraklConnector\Api\Hipay\Model\Status;
+namespace HiPay\Wallet\Mirakl\Api\HiPay\Model\Status;
 
-use Hipay\MiraklConnector\Common\AbstractEnumeration;
+use HiPay\Wallet\Mirakl\Common\AbstractEnumeration;
 
 /**
  * Class BankInfo.
@@ -12,7 +12,7 @@ use Hipay\MiraklConnector\Common\AbstractEnumeration;
  */
 class BankInfo extends AbstractEnumeration
 {
-    // Hipay Wallet bankInfosStatus response 'status' values (in en_GB)
+    // HiPay Wallet bankInfosStatus response 'status' values (in en_GB)
     const BLANK = 'No bank information';
     const VALIDATED = 'Validated';
     const TO_VALIDATE = 'To validate';

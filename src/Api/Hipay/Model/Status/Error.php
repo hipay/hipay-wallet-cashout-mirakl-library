@@ -1,8 +1,8 @@
 <?php
 
-namespace Hipay\MiraklConnector\Api\Hipay\Model\Status;
+namespace HiPay\Wallet\Mirakl\Api\HiPay\Model\Status;
 
-use Hipay\MiraklConnector\Common\AbstractEnumeration;
+use HiPay\Wallet\Mirakl\Common\AbstractEnumeration;
 
 /**
  * Class Error.
@@ -12,7 +12,7 @@ use Hipay\MiraklConnector\Common\AbstractEnumeration;
  */
 class Error extends AbstractEnumeration
 {
-    // Hipay Wallet error codes.
+    // HiPay Wallet error codes.
     const AUTHENTICATION_FAILED = 1;
     const MISSING_PARAMETER = 2;
     const PARAMETER_NOT_VALID = 3;

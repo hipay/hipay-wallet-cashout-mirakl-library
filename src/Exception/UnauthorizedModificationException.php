@@ -1,6 +1,6 @@
 <?php
 
-namespace Hipay\MiraklConnector\Exception;
+namespace HiPay\Wallet\Mirakl\Exception;
 
 use Exception;
 

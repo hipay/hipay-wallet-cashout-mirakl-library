@@ -1,9 +1,9 @@
 <?php
 
-namespace Hipay\MiraklConnector\Exception;
+namespace HiPay\Wallet\Mirakl\Exception;
 
 use Exception;
-use Hipay\MiraklConnector\Cashout\Model\Operation\OperationInterface;
+use HiPay\Wallet\Mirakl\Cashout\Model\Operation\OperationInterface;
 
 /**
  * Class AlreadyCreatedOperationException.

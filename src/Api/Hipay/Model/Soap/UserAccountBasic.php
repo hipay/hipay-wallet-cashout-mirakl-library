@@ -1,6 +1,6 @@
 <?php
 
-namespace Hipay\MiraklConnector\Api\Hipay\Model\Soap;
+namespace HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -95,7 +95,7 @@ class UserAccountBasic extends ModelAbstract
     }
 
     /**
-     * Format the title (civility) for Hipay
+     * Format the title (civility) for HiPay
      * Mr => 1
      * Mrs => 2
      * Miss => 3.

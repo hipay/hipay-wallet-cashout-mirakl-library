@@ -1,10 +1,10 @@
 <?php
 
-namespace Hipay\MiraklConnector\Notification\Event;
+namespace HiPay\Wallet\Mirakl\Notification\Event;
 
 use DateTime;
-use Hipay\MiraklConnector\Cashout\Model\Operation\OperationInterface;
-use Hipay\MiraklConnector\Vendor\Model\VendorInterface;
+use HiPay\Wallet\Mirakl\Cashout\Model\Operation\OperationInterface;
+use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 use Symfony\Component\EventDispatcher\Event;
 
 /**

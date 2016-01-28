@@ -1,8 +1,8 @@
 <?php
 
-namespace Hipay\MiraklConnector\Api\Hipay\Model\Soap;
+namespace HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap;
 
-use Hipay\MiraklConnector\Vendor\Model\VendorInterface;
+use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -73,7 +73,7 @@ class Transfer extends ModelAbstract
         $publicLabel
     ) {
         $this->amount = $amount;
-        $this->recipientUserId = $vendorInterface->getHipayId();
+        $this->recipientUserId = $vendorInterface->getHiPayId();
         $this->recipientUsername = $vendorInterface->getEmail();
         $this->privateLabel = $privateLabel;
         $this->publicLabel = $publicLabel;

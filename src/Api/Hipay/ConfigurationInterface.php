@@ -1,8 +1,8 @@
 <?php
 
-namespace Hipay\MiraklConnector\Api\Hipay;
+namespace HiPay\Wallet\Mirakl\Api\HiPay;
 
-use Hipay\MiraklConnector\Api\ConfigurationInterface
+use HiPay\Wallet\Mirakl\Api\ConfigurationInterface
     as BaseConfigurationInterface;
 
 /**
@@ -28,7 +28,7 @@ interface ConfigurationInterface extends BaseConfigurationInterface
     public function getWebServicePassword();
 
     /**
-     * Return the entity given to the merchant by Hipay.
+     * Return the entity given to the merchant by HiPay.
      *
      * @return string
      */

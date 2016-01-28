@@ -1,8 +1,8 @@
 <?php
 
-namespace Hipay\MiraklConnector\Cashout\Model\Operation;
+namespace HiPay\Wallet\Mirakl\Cashout\Model\Operation;
 
-use Hipay\MiraklConnector\Common\AbstractEnumeration;
+use HiPay\Wallet\Mirakl\Common\AbstractEnumeration;
 
 /**
  * Status class

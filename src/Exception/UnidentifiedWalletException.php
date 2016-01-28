@@ -1,8 +1,8 @@
 <?php
 
-namespace Hipay\MiraklConnector\Exception;
+namespace HiPay\Wallet\Mirakl\Exception;
 
-use Hipay\MiraklConnector\Vendor\Model\VendorInterface;
+use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 
 /**
  * Class UnidentifiedWallet.
@@ -33,7 +33,7 @@ class UnidentifiedWalletException extends DispatchableException
     ) {
         $this->vendor = $vendor;
         parent::__construct(
-            $message ?: "The wallet {$vendor->getHipayId()} is unidentified",
+            $message ?: "The wallet {$vendor->getHiPayId()} is unidentified",
             $code,
             $previousException
         );

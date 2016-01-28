@@ -1,8 +1,8 @@
 <?php
 
-namespace Hipay\MiraklConnector\Api\Mirakl;
+namespace HiPay\Wallet\Mirakl\Api\Mirakl;
 
-use Hipay\MiraklConnector\Api\ConfigurationInterface
+use HiPay\Wallet\Mirakl\Api\ConfigurationInterface
     as BaseConfigurationInterface;
 
 /**

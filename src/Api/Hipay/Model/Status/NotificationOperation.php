@@ -1,6 +1,6 @@
 <?php
 
-namespace Hipay\MiraklConnector\Api\Hipay\Model\Status;
+namespace HiPay\Wallet\Mirakl\Api\HiPay\Model\Status;
 
 /**
  * Class Notification

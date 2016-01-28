@@ -1,9 +1,9 @@
 <?php
 
-namespace Hipay\MiraklConnector\Exception;
+namespace HiPay\Wallet\Mirakl\Exception;
 
 use Exception;
-use Hipay\MiraklConnector\Vendor\Model\VendorInterface;
+use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 
 /**
  * Class NoWalletFoundException.
@@ -32,7 +32,7 @@ class NoWalletFoundException extends DispatchableException
     ) {
         $this->vendor = $vendor;
         parent::__construct(
-            $message ?: "The wallet for {$vendor->getHipayId()} is not found",
+            $message ?: "The wallet for {$vendor->getHiPayId()} is not found",
             $code,
             $previous
         );

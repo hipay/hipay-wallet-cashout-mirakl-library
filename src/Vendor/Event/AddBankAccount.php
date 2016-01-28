@@ -1,8 +1,8 @@
 <?php
 
-namespace Hipay\MiraklConnector\Vendor\Event;
+namespace HiPay\Wallet\Mirakl\Vendor\Event;
 
-use Hipay\MiraklConnector\Api\Hipay\Model\Soap\BankInfo;
+use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\BankInfo;
 use Symfony\Component\EventDispatcher\Event;
 
 /**

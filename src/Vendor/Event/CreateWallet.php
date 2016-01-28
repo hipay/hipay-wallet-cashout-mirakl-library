@@ -1,10 +1,10 @@
 <?php
 
-namespace Hipay\MiraklConnector\Vendor\Event;
+namespace HiPay\Wallet\Mirakl\Vendor\Event;
 
-use Hipay\MiraklConnector\Api\Hipay\Model\Soap\MerchantData;
-use Hipay\MiraklConnector\Api\Hipay\Model\Soap\UserAccountBasic;
-use Hipay\MiraklConnector\Api\Hipay\Model\Soap\UserAccountDetails;
+use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\MerchantData;
+use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\UserAccountBasic;
+use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\UserAccountDetails;
 use Symfony\Component\EventDispatcher\Event;
 
 /**
