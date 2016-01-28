@@ -70,6 +70,14 @@ class HiPay
         $this->entity = $entity;
         $this->timezone = $timeZone;
         $this->locale = $locale;
+        $defaults = array(
+            'compression' => SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP,
+            'cache_wsdl' => WSDL_CACHE_NONE,
+            'soap_version' => SOAP_1_1,
+            'encoding' => 'UTF-8',
+            'trace' => true
+        );
+        $options = array_merge($defaults, $options);
         $this->userAccountClient = new SmileClient(
             $baseUrl.'soap/user-account-v2?wsdl',
             $options
