@@ -42,7 +42,11 @@ class Processor extends AbstractProcessor
     protected $vendorManager;
 
     /** @var VendorInterface */
-    private $operator;
+    protected $operator;
+    /**
+     * @var VendorInterface
+     */
+    protected $technical;
 
     /**
      * Processor constructor.
@@ -54,6 +58,7 @@ class Processor extends AbstractProcessor
      * @param OperationManager $operationManager ,
      * @param VendorManager $vendorManager
      * @param VendorInterface $operator
+     * @param VendorInterface $technical
      */
     public function __construct(
         MiraklConfiguration $miraklConfig,
@@ -62,12 +67,14 @@ class Processor extends AbstractProcessor
         LoggerInterface $logger,
         OperationManager $operationManager,
         VendorManager $vendorManager,
-        VendorInterface $operator
+        VendorInterface $operator,
+        VendorInterface $technical
     ) {
         parent::__construct($miraklConfig, $hipayConfig, $dispatcher, $logger);
         $this->operationManager = $operationManager;
         $this->vendorManager = $vendorManager;
         $this->operator = $operator;
+        $this->technical = $technical;
     }
 
     /**
@@ -83,6 +90,11 @@ class Processor extends AbstractProcessor
         $previousDay = new DateTime('-1 day');
 
         $this->logger->info("Cachout Processor");
+
+        //Check identification status of the technical account
+        if (!$this->hipay->isIdentified($this->technical)) {
+            throw new UnidentifiedWalletException($this->technical);
+        }
 
         //Transfer
         $this->transferOperations($previousDay);
