@@ -341,8 +341,8 @@ class HiPay
         $parameters = array('merchantGroupId' => $merchantGroupId, 'pastDate' => $pastDate->format('Y-m-d'));
         $data = $this->callSoap('getMerchantsGroupAccounts', $parameters);
         $result = array();
-        foreach ($data['dataMerchantsGroupAccounts'] as $item) {
-            $result = (array) $item;
+        foreach ($data['dataMerchantsGroupAccounts']->item as $index => $item) {
+            $result[] = (array) $item;
         }
         return $result;
     }
