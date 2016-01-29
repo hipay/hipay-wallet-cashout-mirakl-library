@@ -179,7 +179,6 @@ class Processor extends AbstractProcessor
             );
         } catch (\Exception $e) {
             $this->logger->notice('No file was transferred');
-
             return;
         }
 
@@ -405,8 +404,8 @@ class Processor extends AbstractProcessor
                     }
                     $vendor = $this->createVendor(
                         $email,
-                        $vendorData['shop_id'],
                         $hipayId,
+                        $vendorData['shop_id'],
                         $vendorData
                     );
                 }
