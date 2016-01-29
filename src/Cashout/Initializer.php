@@ -13,8 +13,6 @@ use HiPay\Wallet\Mirakl\Api\Mirakl\ConfigurationInterface
 use HiPay\Wallet\Mirakl\Api\HiPay\ConfigurationInterface
     as HiPayConfiguration;
 use HiPay\Wallet\Mirakl\Exception\AlreadyCreatedOperationException;
-use HiPay\Wallet\Mirakl\Exception\DispatchableException;
-use HiPay\Wallet\Mirakl\Exception\Event\ThrowException;
 use HiPay\Wallet\Mirakl\Cashout\Model\Transaction\ValidatorInterface;
 use HiPay\Wallet\Mirakl\Cashout\Model\Operation\ManagerInterface
     as OperationManager;
@@ -169,8 +167,8 @@ class Initializer extends AbstractProcessor
             $this->logger->debug("Vendor amount " . $vendorAmount);
             $totalAmount += $vendorAmount;
 
-            $vendor = $this->vendorManager->findByMiraklId($miraklId);
             if ($vendorAmount) {
+                $vendor = $this->vendorManager->findByMiraklId($miraklId);
                 //Create the vendor operation
                 $operations[] = $this->createOperation(
                     $vendorAmount,
@@ -200,18 +198,16 @@ class Initializer extends AbstractProcessor
         }
 
         if ($transactionError) {
-            $this->dispatcher->dispatch(
-                'transaction.validation.failed',
-                new ThrowException($transactionError)
-            );
-            throw $transactionError;
+            $this->handleException($transactionError);
+            return;
         }
 
         $this->logger->info(
             "Check if technical account has sufficient funds"
         );
         if (!$this->hasSufficientFunds($totalAmount)) {
-            throw new NotEnoughFunds();
+            $this->handleException(new NotEnoughFunds());
+            return;
         }
         $this->logger->info('[OK] Technical account has sufficient funds');
 
@@ -237,16 +233,9 @@ class Initializer extends AbstractProcessor
                 }
 
                 ModelValidator::validate($operation);
-            } catch (DispatchableException $e) {
-                $this->logger->warning($e->getMessage());
-
-                //set error flag
+            } catch (Exception $e) {
                 $operationError = true;
-
-                $this->dispatcher->dispatch(
-                    $e->getEventName(),
-                    new ThrowException($e)
-                );
+                $this->handleException($e);
             }
         }
 

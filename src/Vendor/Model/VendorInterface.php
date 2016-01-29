@@ -24,6 +24,12 @@ interface VendorInterface
     public function getMiraklId();
 
     /**
+     * @param int $id
+     * @return void
+     */
+    public function setMiraklId($id);
+
+    /**
      * @Assert\NotBlank()
      * @Assert\Type(type="string")
      * @Assert\Email
@@ -33,6 +39,13 @@ interface VendorInterface
     public function getEmail();
 
     /**
+     * @param string $email
+     *
+     * @return void
+     */
+    public function setEmail($email);
+
+    /**
      * @Assert\NotBlank()
      * @Assert\Type(type="integer")
      * @Assert\GreaterThan(value = 0)
@@ -40,4 +53,11 @@ interface VendorInterface
      * @return int
      */
     public function getHiPayId();
+
+    /**
+     * @param int $id
+     *
+     * @return void
+     */
+    public function setHiPayId($id);
 }

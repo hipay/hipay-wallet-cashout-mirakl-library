@@ -13,8 +13,6 @@ use HiPay\Wallet\Mirakl\Api\Mirakl\ConfigurationInterface
 use HiPay\Wallet\Mirakl\Api\HiPay;
 use HiPay\Wallet\Mirakl\Api\HiPay\ConfigurationInterface
     as HiPayConfiguration;
-use HiPay\Wallet\Mirakl\Exception\DispatchableException;
-use HiPay\Wallet\Mirakl\Exception\Event\ThrowException;
 use HiPay\Wallet\Mirakl\Exception\WrongWalletBalance;
 use HiPay\Wallet\Mirakl\Exception\NoWalletFoundException;
 use HiPay\Wallet\Mirakl\Exception\UnconfirmedBankAccountException;
@@ -29,7 +27,7 @@ use HiPay\Wallet\Mirakl\Api\HiPay\Model\Status\BankInfo as BankInfoStatus;
 
 /**
  * Class Processor.
- *
+ * Process the operations created by the cashout/initializer
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
  */
@@ -89,12 +87,7 @@ class Processor extends AbstractProcessor
     {
         $previousDay = new DateTime('-1 day');
 
-        $this->logger->info("Cachout Processor");
-
-        //Check identification status of the technical account
-        if (!$this->hipay->isIdentified($this->technical)) {
-            throw new UnidentifiedWalletException($this->technical);
-        }
+        $this->logger->info("Cashout Processor");
 
         //Transfer
         $this->transferOperations($previousDay);
@@ -134,20 +127,9 @@ class Processor extends AbstractProcessor
                 $transferId = $this->transferOperation($operation);
                 $operation->setStatus($transferSuccess);
                 $operation->setTransferId($transferId);
-            } catch (DispatchableException $e) {
-                $operation->setStatus($transferFailed);
-                $this->logger->warning(
-                    $e->getMessage()
-                );
-                $this->dispatcher->dispatch(
-                    $e->getEventName(),
-                    new ThrowException($e)
-                );
             } catch (Exception $e) {
                 $operation->setStatus($transferFailed);
-                $this->logger->critical(
-                    $e->getMessage()
-                );
+                $this->handleException($e, 'critical');
             }
             $this->operationManager->save($operation);
             $this->logger->info("[OK] Transfer operation executed");
@@ -181,20 +163,9 @@ class Processor extends AbstractProcessor
                 $withdrawId = $this->withdrawOperation($operation);
                 $operation->setWithdrawId($withdrawId);
                 $operation->setStatus($withdrawRequested);
-            } catch (DispatchableException $e) {
-                $operation->setStatus($withdrawFailed);
-                $this->logger->warning(
-                    $e->getMessage()
-                );
-                $this->dispatcher->dispatch(
-                    $e->getEventName(),
-                    new ThrowException($e)
-                );
             } catch (Exception $e) {
                 $operation->setStatus($withdrawFailed);
-                $this->logger->critical(
-                    $e->getMessage()
-                );
+                $this->handleException($e, 'critical');
             }
             $this->operationManager->save($operation);
             $this->logger->info("[OK] Withdraw operation executed");

@@ -2,12 +2,15 @@
 
 namespace HiPay\Wallet\Mirakl\Common;
 
+use Exception;
 use HiPay\Wallet\Mirakl\Api\Mirakl;
 use HiPay\Wallet\Mirakl\Api\Mirakl\ConfigurationInterface
     as MiraklConfiguration;
 use HiPay\Wallet\Mirakl\Api\HiPay;
 use HiPay\Wallet\Mirakl\Api\HiPay\ConfigurationInterface
     as HiPayConfiguration;
+use HiPay\Wallet\Mirakl\Exception\DispatchableException;
+use HiPay\Wallet\Mirakl\Exception\Event\ThrowException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -113,5 +116,22 @@ abstract class AbstractProcessor
         }
 
         return $result;
+    }
+
+    /**
+     * Handle the exception
+     * @param Exception $exception
+     * @param array $context
+     * @param string $level
+     */
+    protected function handleException(Exception $exception, $level = 'warning', array $context = array())
+    {
+        $this->logger->$level(
+            $exception->getMessage(), $context
+        );
+        $this->dispatcher->dispatch(
+            $exception instanceof DispatchableException ? $exception->getEventName() : 'exception.thrown',
+            new ThrowException($exception)
+        );
     }
 }
