@@ -70,11 +70,11 @@ abstract class AbstractProcessor
      * Add event listener to dispatcher.
      *
      * @param $eventName
-     * @param callable $function
+     * @param $function
      *
      * @see EventDispatcherInterface::addListener
      */
-    public function addListener($eventName, callable $function)
+    public function addListener($eventName, $function)
     {
         $this->dispatcher->addListener($eventName, $function);
     }
