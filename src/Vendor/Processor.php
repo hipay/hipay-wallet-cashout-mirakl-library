@@ -395,8 +395,8 @@ class Processor extends AbstractProcessor
                         $hipayId = $this->createWallet($vendorData);
                         $this->logger->info(
                             '[OK] Created wallet for : '.
-                            $vendor->getMiraklId(),
-                            array('shopId' => $vendor->getMiraklId())
+                            $vendorData['shop_id'],
+                            array('shopId' => $vendorData['shop_id'])
                         );
                     } else {
                         //Fetch the wallet id from HiPay
