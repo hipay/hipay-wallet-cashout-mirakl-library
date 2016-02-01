@@ -24,7 +24,7 @@ class CheckAvailability extends Event
      * @param $email
      * @param $entity
      */
-    public function __construct($email, $entity)
+    public function __construct($email, $entity = false)
     {
         $this->email = $email;
         $this->entity = $entity;
