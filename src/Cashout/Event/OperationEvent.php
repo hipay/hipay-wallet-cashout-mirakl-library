@@ -13,11 +13,16 @@ use Symfony\Component\EventDispatcher\Event;
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
  */
-class CreateOperation extends Event
+class OperationEvent extends Event
 {
     /** @var  OperationInterface */
     protected $operation;
 
+    /** @var  int */
+    protected $transferId;
+
+    /** @var  int */
+    protected $withdrawId;
     /**
      * CreateOperation constructor.
      *
@@ -42,5 +47,37 @@ class CreateOperation extends Event
     public function setOperation($operation)
     {
         $this->operation = $operation;
+    }
+
+    /**
+     * @return int
+     */
+    public function getTransferId()
+    {
+        return $this->transferId;
+    }
+
+    /**
+     * @param int $transferId
+     */
+    public function setTransferId($transferId)
+    {
+        $this->transferId = $transferId;
+    }
+
+    /**
+     * @return int
+     */
+    public function getWithdrawId()
+    {
+        return $this->withdrawId;
+    }
+
+    /**
+     * @param int $withdrawId
+     */
+    public function setWithdrawId($withdrawId)
+    {
+        $this->withdrawId = $withdrawId;
     }
 }
