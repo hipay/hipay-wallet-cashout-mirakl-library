@@ -91,6 +91,7 @@ interface OperationInterface
      *
      * @Assert\NotBlank()
      * @Assert\DateTime()
+     * @Assert\LessThanOrEqual("now")
      */
     public function getCycleDate();
 
