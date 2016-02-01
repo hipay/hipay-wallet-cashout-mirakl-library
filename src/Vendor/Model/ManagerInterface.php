@@ -32,6 +32,7 @@ interface ManagerInterface
 
     /**
      * Insert more data into the vendor.
+     * Do not save it.
      *
      * @param VendorInterface $vendor
      * @param array           $miraklData
