@@ -73,7 +73,7 @@ class Handler
         }
 
         $operation = $xml->result->operation;
-        $status = $xml->result->status == NotificationStatus::OK;
+        $status = ($xml->result->status == NotificationStatus::OK);
         $date = new \DateTime($xml->result->date.' '.$xml->result->time);
         $vendor = $this->vendorManager->findByHiPayId($xml->result->account_id);
 
