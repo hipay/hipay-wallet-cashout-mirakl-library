@@ -1,6 +1,6 @@
 <?php
 
-namespace Mirakl\HiPay\Test\Notification;
+namespace HiPay\Wallet\Mirakl\Test\Notification;
 
 use PHPUnit_Framework_TestCase;
 

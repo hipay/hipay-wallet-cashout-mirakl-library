@@ -1,11 +1,13 @@
 <?php
 
-namespace Mirakl\HiPay\Test\Vendor;
+namespace HiPay\Wallet\Mirakl\Test\Cashout;
 
 use PHPUnit_Framework_TestCase;
 
 /**
  * File Processor.php.
+ *
+ * @category
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile

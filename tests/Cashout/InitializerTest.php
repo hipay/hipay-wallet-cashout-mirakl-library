@@ -1,6 +1,6 @@
 <?php
 
-namespace Mirakl\HiPay\Test\Cashout;
+namespace HiPay\Wallet\Mirakl\Test\Cashout;
 
 use PHPUnit_Framework_TestCase;
 
