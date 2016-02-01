@@ -5,6 +5,7 @@ namespace HiPay\Wallet\Mirakl\Cashout;
 use DateTime;
 use Exception;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\Transfer;
+use HiPay\Wallet\Mirakl\Cashout\Event\OperationEvent;
 use HiPay\Wallet\Mirakl\Cashout\Model\Operation\OperationInterface;
 use HiPay\Wallet\Mirakl\Cashout\Model\Operation\Status;
 use HiPay\Wallet\Mirakl\Common\AbstractProcessor;
@@ -111,20 +112,28 @@ class Processor extends AbstractProcessor
         $toTransfer = array_merge(
             $toTransfer,
             $this->operationManager
-                ->findByStatusAndAfterUpdatedAt(
+                ->findByStatusAndBeforeUpdatedAt(
                     new Status(Status::TRANSFER_FAILED),
                     $previousDay
                 )
         );
 
-        $this->logger->info("Operation transfered : " . count($toTransfer));
+        $this->logger->info("Operation transferred : " . count($toTransfer));
 
         $transferSuccess = new Status(Status::TRANSFER_SUCCESS);
         $transferFailed = new Status(Status::TRANSFER_FAILED);
         /** @var OperationInterface $operation */
         foreach ($toTransfer as $operation) {
             try {
+                $eventObject = new OperationEvent($operation);
+
+                $this->dispatcher->dispatch('before.transfer', $eventObject);
+
                 $transferId = $this->transferOperation($operation);
+
+                $eventObject->setTransferId($transferId);
+                $this->dispatcher->dispatch('after.transfer', $eventObject);
+
                 $operation->setStatus($transferSuccess);
                 $operation->setTransferId($transferId);
             } catch (Exception $e) {
@@ -148,7 +157,7 @@ class Processor extends AbstractProcessor
         $toWithdraw = array_merge(
             $toWithdraw,
             $this->operationManager
-                ->findByStatusAndAfterUpdatedAt(
+                ->findByStatusAndBeforeUpdatedAt(
                     new Status(Status::WITHDRAW_FAILED),
                     $previousDay
                 )
@@ -160,13 +169,27 @@ class Processor extends AbstractProcessor
         /** @var OperationInterface $operation */
         foreach ($toWithdraw as $operation) {
             try {
+                //Create the operation event object
+                $eventObject =  new OperationEvent($operation);
+
+                //Dispatch the before.withdraw event
+                $this->dispatcher->dispatch('before.withdraw', $eventObject);
+
+                //Execute the withdrawal
                 $withdrawId = $this->withdrawOperation($operation);
+
+                //Dispatch the after.withdraw
+                $eventObject->setWithdrawId($withdrawId);
+                $this->dispatcher->dispatch('after.withdraw', $eventObject);
+
+                //Set operation new data
                 $operation->setWithdrawId($withdrawId);
                 $operation->setStatus($withdrawRequested);
             } catch (Exception $e) {
                 $operation->setStatus($withdrawFailed);
                 $this->handleException($e, 'critical');
             }
+            //Save operation
             $this->operationManager->save($operation);
             $this->logger->info("[OK] Withdraw operation executed");
         }
