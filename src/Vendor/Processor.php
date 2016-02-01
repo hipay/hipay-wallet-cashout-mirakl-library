@@ -27,6 +27,7 @@ use HiPay\Wallet\Mirakl\Service\Validation\ModelValidator;
 use HiPay\Wallet\Mirakl\Service\Zip;
 use HiPay\Wallet\Mirakl\Vendor\Event\AddBankAccount;
 use HiPay\Wallet\Mirakl\Vendor\Event\CheckAvailability;
+use HiPay\Wallet\Mirakl\Vendor\Event\CheckBankInfos;
 use HiPay\Wallet\Mirakl\Vendor\Event\CreateWallet;
 use HiPay\Wallet\Mirakl\Vendor\Model\ManagerInterface;
 use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
@@ -93,7 +94,10 @@ class Processor extends AbstractProcessor
      */
     public function getVendors(DateTime $lastUpdate = null)
     {
-        return $this->mirakl->getVendors($lastUpdate);
+        $this->dispatcher->dispatch('before.vendor.get');
+        $return = $this->mirakl->getVendors($lastUpdate);
+        $this->dispatcher->dispatch('after.vendor.get');
+        return $return;
     }
 
     /**
@@ -103,16 +107,15 @@ class Processor extends AbstractProcessor
      * before sending the data to HiPay
      *
      * @param string $email
-     * @param bool   $entity
      *
      * @return bool
      */
-    public function hasWallet($email, $entity = false)
+    public function hasWallet($email)
     {
-        $event = new CheckAvailability($email, $entity);
+        $event = new CheckAvailability($email);
         $this->dispatcher->dispatch('before.availability.check', $event);
-        $result = $this->hipay->isAvailable($event->getEmail());
-
+        $result = $this->hipay->isAvailable($email, $event->getEntity());
+        $this->dispatcher->dispatch('after.availability.check', $event);
         return !$result;
     }
 
@@ -143,11 +146,18 @@ class Processor extends AbstractProcessor
             $event
         );
 
-        return $this->hipay->createFullUseraccount(
+        $walletId = $this->hipay->createFullUseraccount(
             $event->getUserAccountBasic(),
             $event->getUserAccountDetails(),
             $event->getMerchantData()
         );
+
+        $this->dispatcher->dispatch(
+            'after.wallet.create',
+            $event
+        );
+
+        return $walletId;
     }
 
     /**
@@ -253,7 +263,6 @@ class Processor extends AbstractProcessor
         VendorInterface $vendor
     ) {
         $result = $this->hipay->bankInfosStatus($vendor);
-
         return $result;
     }
 
@@ -265,13 +274,15 @@ class Processor extends AbstractProcessor
      *
      * @return bool
      */
-    public function isIBANCorrect(
+    public function isBankInfosSynchronised(
         VendorInterface $vendor,
         BankInfo $miraklBankInfo
     ) {
         $hipayBankInfo = $this->getBankInfo($vendor);
-
-        return $hipayBankInfo->getIban() == $miraklBankInfo->getIban();
+        $event = new CheckBankInfos($miraklBankInfo, $hipayBankInfo);
+        $ibanCheck = ($hipayBankInfo->getIban() == $miraklBankInfo->getIban());
+        $this->dispatcher->dispatch('check.bankInfos.synchronicity', $event);
+        return $ibanCheck && $event->isSynchrony();
     }
 
     /**
@@ -304,7 +315,7 @@ class Processor extends AbstractProcessor
             $event
         );
 
-        return $this->hipay->bankInfoRegister($vendor, $event->getBankInfo());
+        return $this->hipay->bankInfosRegister($vendor, $event->getBankInfo());
     }
 
     /**
@@ -438,7 +449,7 @@ class Processor extends AbstractProcessor
      *
      * @param VendorInterface[] $vendorCollection
      * @param array             $miraklDataCollection mirakl data indexed by shop id
-     * Expect at one mirakl data for each vendor present in the vendorCollection
+     * Expect one mirakl data for each vendor present in the vendorCollection
      */
     public function handleBankInfo($vendorCollection, $miraklDataCollection)
     {
@@ -474,7 +485,7 @@ class Processor extends AbstractProcessor
                     }
                 }
                 if (trim($bankInfoStatus) == BankInfoStatus::VALIDATED) {
-                    if (!$this->isIBANCorrect($vendor, $miraklBankInfo)) {
+                    if (!$this->isBankInfosSynchronised($vendor, $miraklBankInfo)) {
                         throw new InvalidBankInfoException(
                             $vendor,
                             $miraklBankInfo
@@ -497,10 +508,10 @@ class Processor extends AbstractProcessor
     /**
      * To record a wallet in the database in the case there was an error.
      *
-     * @param $email
-     * @param $walletId
-     * @param $miraklId
-     * @param $miraklData
+     * @param string $email
+     * @param int $walletId
+     * @param int $miraklId
+     * @param array $miraklData
      * @return VendorInterface
      */
     protected function createVendor($email, $walletId, $miraklId, $miraklData)
@@ -523,8 +534,8 @@ class Processor extends AbstractProcessor
     /**
      * Save a vendor in case there was an error.
      *
-     * @param $email
-     * @param $miraklId
+     * @param string $email
+     * @param int $miraklId
      */
     public function recordVendor($email, $miraklId)
     {
@@ -539,7 +550,7 @@ class Processor extends AbstractProcessor
     /**
      * Returns the wallet registered at HiPay
      *
-     * @param $merchantGroupId
+     * @param int $merchantGroupId
      * @param DateTime|null $pastDate
      *
      * @return array
