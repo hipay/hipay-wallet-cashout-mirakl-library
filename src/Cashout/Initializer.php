@@ -4,7 +4,6 @@ namespace HiPay\Wallet\Mirakl\Cashout;
 
 use DateTime;
 use Exception;
-use HiPay\Wallet\Mirakl\Cashout\Event\CreateOperation;
 use HiPay\Wallet\Mirakl\Cashout\Model\Operation\OperationInterface;
 use HiPay\Wallet\Mirakl\Cashout\Model\Operation\Status;
 use HiPay\Wallet\Mirakl\Common\AbstractProcessor;
@@ -16,6 +15,7 @@ use HiPay\Wallet\Mirakl\Exception\AlreadyCreatedOperationException;
 use HiPay\Wallet\Mirakl\Cashout\Model\Transaction\ValidatorInterface;
 use HiPay\Wallet\Mirakl\Cashout\Model\Operation\ManagerInterface
     as OperationManager;
+use HiPay\Wallet\Mirakl\Exception\DispatchableException;
 use HiPay\Wallet\Mirakl\Vendor\Model\ManagerInterface
     as VendorManager;
 use HiPay\Wallet\Mirakl\Exception\InvalidOperationException;
@@ -99,6 +99,7 @@ class Initializer extends AbstractProcessor
     ) {
         $this->logger->info('Cashout Initializer');
 
+        //Fetch 'PAYMENT' transaction
         $this->logger->info(
             'Fetch payment transaction from Mirakl from '.
             $startDate->format('Y-m-d H:i').
@@ -115,6 +116,7 @@ class Initializer extends AbstractProcessor
             ' payment transactions'
         );
 
+        //Initialize & Reindex data
         $paymentVouchersByShopId = $this->indexArray(
             $paymentTransactions,
             'shop_id',
@@ -130,6 +132,7 @@ class Initializer extends AbstractProcessor
         $operations = array();
         $transactionError = null;
 
+        //Compute amounts (vendor and operator) by shop (in case there is several payment vouchers)
         $this->logger->info('Compute amounts and create vendor operation');
         foreach ($paymentVouchersByShopId as $miraklId => $paymentVouchers) {
             $this->logger->debug(
@@ -140,15 +143,18 @@ class Initializer extends AbstractProcessor
             $orderTransactions = array();
             foreach ($paymentVouchers as $paymentVoucher) {
                 try {
+                    //Fetch the corresponding order transactions
                     $orderTransactions = $this->getOrderTransactions(
                         $paymentVoucher
                     );
 
+                    //Compute the vendor amount for this payment voucher
                     $vendorAmount += $this->computeVendorAmount(
                         $orderTransactions,
                         $paymentDebitByPaymentVoucher[$paymentVoucher]
                     );
 
+                    //Compute the operator amount for this payment voucher
                     $operatorAmount += $this->computeOperatorAmountByVendor(
                         $orderTransactions
                     );
@@ -214,11 +220,8 @@ class Initializer extends AbstractProcessor
         //Valid the operation and check if operation wasn't created before
         $this->logger->info('Validate the operations');
         $operationError = false;
-        /**
-         * @var int                index
-         * @var OperationInterface $operation
-         */
-        foreach ($operations as $index => $operation) {
+        /** @var OperationInterface $operation */
+        foreach ($operations as $operation) {
             try {
                 if ($this->operationManager
                     ->findByMiraklIdAndCycleDate(
@@ -233,7 +236,7 @@ class Initializer extends AbstractProcessor
                 }
 
                 ModelValidator::validate($operation);
-            } catch (Exception $e) {
+            } catch (DispatchableException $e) {
                 $operationError = true;
                 $this->handleException($e);
             }
@@ -346,8 +349,8 @@ class Initializer extends AbstractProcessor
             $amount += floatval($transaction['amount_credited']) - floatval($transaction['amount_debited']);
             $errors |= !$this->transactionValidator->isValid($transaction);
         }
-        if (round($amount, 2) !=
-            round($paymentTransaction['amount_debited'], 2)
+        if (floatval($amount) !=
+            floatval($paymentTransaction['amount_debited'])
         ) {
             throw new TransactionException(
                 array($transactions),
@@ -436,11 +439,6 @@ class Initializer extends AbstractProcessor
             $hipayId = $this->operator->getHiPayId();
         }
         $operation->setHiPayId($hipayId);
-
-        //Event
-        $event = new CreateOperation($operation);
-        $this->dispatcher->dispatch('after.operation.create', $event);
-        $operation = $event->getOperation();
 
         //Sets mandatory values
         $operation->setMiraklId($miraklId);
