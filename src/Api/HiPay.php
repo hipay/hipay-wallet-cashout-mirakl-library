@@ -83,7 +83,7 @@ class HiPay
             $options
         );
         $this->transferClient = new SmileClient(
-            $baseUrl.'soap/transaction?wsdl',
+            $baseUrl.'soap/transfer?wsdl',
             $options
         );
         $this->withdrawalClient = new SmileClient(
