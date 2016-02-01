@@ -25,7 +25,7 @@ abstract class AbstractEnumeration
     {
         if (!in_array($value, $this->getConstList(), true)) {
             throw new \InvalidArgumentException(
-                $value.'is not a possible value for status'
+                $value.'is not a possible value for ' . __CLASS__
             );
         }
         $this->value = $value;

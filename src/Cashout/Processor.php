@@ -118,7 +118,7 @@ class Processor extends AbstractProcessor
                 )
         );
 
-        $this->logger->info("Operation transferred : " . count($toTransfer));
+        $this->logger->info("Operation to transfer : " . count($toTransfer));
 
         $transferSuccess = new Status(Status::TRANSFER_SUCCESS);
         $transferFailed = new Status(Status::TRANSFER_FAILED);
@@ -151,6 +151,8 @@ class Processor extends AbstractProcessor
      */
     protected function withdrawOperations(DateTime $previousDay)
     {
+        $this->logger->info("Withdraw operations");
+
         $toWithdraw = $this->operationManager->findByStatus(
             new Status(Status::TRANSFER_SUCCESS)
         );
@@ -162,6 +164,8 @@ class Processor extends AbstractProcessor
                     $previousDay
                 )
         );
+
+        $this->logger->info("Operation to withdraw : " . count($toWithdraw));
 
         $withdrawRequested = new Status(Status::WITHDRAW_REQUESTED);
         $withdrawFailed = new Status(Status::WITHDRAW_FAILED);
@@ -251,11 +255,9 @@ class Processor extends AbstractProcessor
             throw new UnidentifiedWalletException($vendor);
         }
 
-        $bankInfoStatus = $this->hipay->bankInfosStatus($vendor);
+        $bankInfoStatus = trim($this->hipay->bankInfosStatus($vendor));
 
-        if ($this->hipay->bankInfosStatus($vendor)
-            != BankInfoStatus::VALIDATED
-        ) {
+        if ($bankInfoStatus != BankInfoStatus::VALIDATED) {
             throw new UnconfirmedBankAccountException(
                 $vendor,
                 new BankInfoStatus($bankInfoStatus)
