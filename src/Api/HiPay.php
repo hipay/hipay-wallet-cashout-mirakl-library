@@ -115,14 +115,15 @@ class HiPay
      * Enforce the entity to the one given on object construction if false.
      *
      * @param string $email
+     * @param bool $entity
      *
      * @return bool if array is empty
      *
      * @throws Exception
      */
-    public function isAvailable($email)
+    public function isAvailable($email, $entity = false)
     {
-        $parameters = array('email' => $email, 'entity' => $this->entity);
+        $parameters = array('email' => $email, 'entity' => $entity ?: $this->entity);
         $result = $this->callSoap('isAvailable', $parameters);
 
         return $result['isAvailable'];
@@ -147,7 +148,9 @@ class HiPay
         UserAccountDetails $accountDetails,
         MerchantData $merchantData
     ) {
-        $accountBasic->setEntity($this->entity);
+        if (!$accountBasic->getEntity()) {
+            $accountBasic->setEntity($this->entity);
+        }
 
         if (!$accountBasic->getLocale()) {
             $accountBasic->setLocale($this->locale);
@@ -160,6 +163,7 @@ class HiPay
         $parameters = $accountBasic->mergeIntoParameters();
         $parameters = $accountDetails->mergeIntoParameters($parameters);
         $parameters = $merchantData->mergeIntoParameters($parameters);
+
         $result = $this->callSoap('createFullUseraccount', $parameters);
 
         return $result['userAccountId'];
@@ -214,7 +218,7 @@ class HiPay
      *
      * @throws Exception
      */
-    public function bankInfoRegister(
+    public function bankInfosRegister(
         VendorInterface $vendor,
         BankInfo $bankInfo
     ) {
@@ -412,7 +416,7 @@ class HiPay
      * @throws Exception
      * @throws \SoapFault
      */
-    private function callSoap($name, array $parameters)
+    protected function callSoap($name, array $parameters)
     {
         $parameters = $this->mergeLoginParameters($parameters);
 
