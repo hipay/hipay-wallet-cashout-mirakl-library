@@ -116,7 +116,7 @@
       "summary": "Get transactions from Mirakl",
       "parameters": {
         "shopId": {
-          "type": "int",
+          "type": "integer",
           "description": "[optional] shop id for filtering",
           "location": "query",
           "sentAs": "shop_id"
@@ -229,7 +229,7 @@
           ]
         },
         "accountingDocumentNumber": {
-          "type": "int",
+          "type": "integer",
           "description": "[optional] an accounting document number for filtering (invoice or credit note number)",
           "location": "query",
           "sentAs": "accounting_document_number"

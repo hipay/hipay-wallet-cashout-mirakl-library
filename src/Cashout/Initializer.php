@@ -110,6 +110,7 @@ class Initializer extends AbstractProcessor
             $startDate,
             $endDate
         );
+
         $this->logger->info(
             '[OK] Fetched '.
             count($paymentTransactions).
@@ -122,11 +123,18 @@ class Initializer extends AbstractProcessor
             'shop_id',
             array('payment_voucher_number')
         );
+
         $paymentDebitByPaymentVoucher = $this->indexArray(
             $paymentTransactions,
-            'payment_voucher_number',
-            array('amount_debited')
+            'shop_id',
+            array('payment_voucher_number','amount_debited')
         );
+
+        foreach ($paymentDebitByPaymentVoucher as $shopId => $element) {
+            $paymentDebitByPaymentVoucher[$shopId] =
+                array($element['payment_voucher_number'] => $element['amount_debited']);
+        }
+
         $operatorAmount = 0;
         $totalAmount = 0;
         $operations = array();
@@ -145,13 +153,14 @@ class Initializer extends AbstractProcessor
                 try {
                     //Fetch the corresponding order transactions
                     $orderTransactions = $this->getOrderTransactions(
+                        $miraklId,
                         $paymentVoucher
                     );
 
                     //Compute the vendor amount for this payment voucher
                     $vendorAmount += $this->computeVendorAmount(
                         $orderTransactions,
-                        $paymentDebitByPaymentVoucher[$paymentVoucher]
+                        $paymentDebitByPaymentVoucher[$miraklId][$paymentVoucher]
                     );
 
                     //Compute the operator amount for this payment voucher
@@ -283,16 +292,15 @@ class Initializer extends AbstractProcessor
     /**
      * Fetch from mirakl the payment related to the orders.
      *
-     * @param $paymentVoucher
+     * @param int $shopId
+     * @param string $paymentVoucher
      *
      * @return array
-     *
-     * @throws Exception
      */
-    protected function getOrderTransactions($paymentVoucher)
+    protected function getOrderTransactions($shopId, $paymentVoucher)
     {
         $transactions = $this->mirakl->getTransactions(
-            null,
+            $shopId,
             null,
             null,
             null,
@@ -332,8 +340,8 @@ class Initializer extends AbstractProcessor
     /**
      * Compute the vendor amount to withdrawn from the technical account.
      *
-     * @param $transactions
-     * @param $paymentTransaction
+     * @param array $transactions
+     * @param int $payedAmount
      *
      * @return int
      *
@@ -341,23 +349,25 @@ class Initializer extends AbstractProcessor
      */
     protected function computeVendorAmount(
         $transactions,
-        $paymentTransaction
+        $payedAmount
     ) {
         $amount = 0;
         $errors = false;
         foreach ($transactions as $transaction) {
-            $amount += floatval($transaction['amount_credited']) - floatval($transaction['amount_debited']);
+            $amount += (
+                round($transaction['amount_credited'], 2) - round(($transaction['amount_debited']), 2)
+            );
             $errors |= !$this->transactionValidator->isValid($transaction);
         }
-        if (floatval($amount) !=
-            floatval($paymentTransaction['amount_debited'])
+        if (round($amount, 2) !=
+            round($payedAmount, 2)
         ) {
             throw new TransactionException(
                 array($transactions),
                 null,
                 'There is a difference between the transactions'.
                 PHP_EOL."$amount for the transactions".
-                PHP_EOL."{$paymentTransaction['amount_debited']} for the earlier payment transaction"
+                PHP_EOL."{$payedAmount} for the earlier payment transaction"
             );
         }
         if ($errors) {
@@ -387,7 +397,8 @@ class Initializer extends AbstractProcessor
                 $this->getOperatorTransactionTypes()
             )
             ) {
-                $amount += floatval($transaction['amount_credited']) - floatval($transaction['amount_debited']);
+                $amount += round($transaction['amount_credited'], 2)
+                    - round($transaction['amount_debited'], 2);
             }
         }
 
