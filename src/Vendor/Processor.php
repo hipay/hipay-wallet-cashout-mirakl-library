@@ -23,6 +23,7 @@ use HiPay\Wallet\Mirakl\Exception\InvalidVendorException;
 use HiPay\Wallet\Mirakl\Service\Ftp;
 use HiPay\Wallet\Mirakl\Service\Ftp\ConfigurationInterface
     as FtpConfiguration;
+use HiPay\Wallet\Mirakl\Service\Ftp\ConnectionFactory;
 use HiPay\Wallet\Mirakl\Service\Validation\ModelValidator;
 use HiPay\Wallet\Mirakl\Service\Zip;
 use HiPay\Wallet\Mirakl\Vendor\Event\AddBankAccount;
@@ -51,6 +52,7 @@ class Processor extends AbstractProcessor
     /** @var  FtpInterface */
     protected $ftp;
 
+    /** @var ManagerInterface */
     protected $vendorManager;
 
     /**
@@ -78,7 +80,7 @@ class Processor extends AbstractProcessor
             $logger
         );
 
-        $connectionFactory = new Ftp\ConnectionFactory($ftpConfiguration);
+        $connectionFactory = new ConnectionFactory($ftpConfiguration);
         $factory = new FTPFactory();
         $this->ftp = $factory->build($connectionFactory->build());
 
@@ -238,14 +240,13 @@ class Processor extends AbstractProcessor
                     continue;
                 }
                 $source = $shopDirectoryPath.
-                    DIRECTORY_SEPARATOR.$shopDocument;
+                    DIRECTORY_SEPARATOR .$shopDocument;
                 $destination = $ftpShopDirectoryPath.
-                    DIRECTORY_SEPARATOR.$shopDocument;
+                    DIRECTORY_SEPARATOR .$shopDocument;
+
+                $file = new File($destination);
                 //Upload the files
-                if ($this->ftp->upload(
-                    new File($destination),
-                    $source
-                ) == false) {
+                if ($this->ftp->upload($file, $source) == false) {
                     throw new FTPUploadFailed($source, $destination);
                 };
             }
@@ -328,40 +329,44 @@ class Processor extends AbstractProcessor
      */
     public function process($zipPath, $ftpPath, DateTime $lastUpdate = null)
     {
-        $this->logger->info('Vendor Processing');
+        try {
+            $this->logger->info('Vendor Processing');
 
-        //Vendor data fetching from Mirakl
-        $this->logger->info('Vendors fetching from Mirakl');
-        $miraklData = $this->getVendors($lastUpdate);
-        $this->logger->info(
-            '[OK] Fetched vendors from Mirakl : '.count($miraklData)
-        );
+            //Vendor data fetching from Mirakl
+            $this->logger->info('Vendors fetching from Mirakl');
+            $miraklData = $this->getVendors($lastUpdate);
+            $this->logger->info(
+                '[OK] Fetched vendors from Mirakl : '.count($miraklData)
+            );
 
-        $miraklData = $this->indexArray($miraklData, 'shop_id');
+            $miraklData = $this->indexArray($miraklData, 'shop_id');
 
-        //Wallet creation
-        $this->logger->info('Wallet creation');
-        $vendorCollection = $this->registerWallets($miraklData);
-        $this->logger->info('[OK] Wallets : ' . count($vendorCollection));
+            //Wallet creation
+            $this->logger->info('Wallet creation');
+            $vendorCollection = $this->registerWallets($miraklData);
+            $this->logger->info('[OK] Wallets : ' . count($vendorCollection));
 
-        //Vendor saving
-        $this->logger->info("Saving vendor");
-        $this->vendorManager->saveAll($vendorCollection);
-        $this->logger->info("[OK] Vendor saved");
+            //Vendor saving
+            $this->logger->info("Saving vendor");
+            $this->vendorManager->saveAll($vendorCollection);
+            $this->logger->info("[OK] Vendor saved");
 
-        //File transfer
-        $this->logger->info('Transfer files');
-        $this->transferFiles(
-            array_keys($vendorCollection),
-            $zipPath,
-            $ftpPath
-        );
-        $this->logger->info('[OK] Files transferred');
+            //File transfer
+            $this->logger->info('Transfer files');
+            $this->transferFiles(
+                array_keys($vendorCollection),
+                $zipPath,
+                $ftpPath
+            );
+            $this->logger->info('[OK] Files transferred');
 
-        //Bank data updating
-        $this->logger->info('Update bank data');
-        $this->handleBankInfo($vendorCollection, $miraklData);
-        $this->logger->info('[OK] Bank info updated');
+            //Bank data updating
+            $this->logger->info('Update bank data');
+            $this->handleBankInfo($vendorCollection, $miraklData);
+            $this->logger->info('[OK] Bank info updated');
+        } catch (\Exception $e) {
+            $this->handleException($e, "critical");
+        }
     }
 
     /**

@@ -11,7 +11,7 @@ use Exception;
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
  */
-class FTPUploadFailed extends Exception
+class FTPUploadFailed extends DispatchableException
 {
     /** @var  string */
     protected $source;
@@ -58,5 +58,13 @@ class FTPUploadFailed extends Exception
     public function getRemote()
     {
         return $this->remote;
+    }
+
+    /**
+     * @return string
+     */
+    public function getEventName()
+    {
+        return 'ftp.upload.failed';
     }
 }
