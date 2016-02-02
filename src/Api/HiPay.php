@@ -36,6 +36,9 @@ class HiPay
     /** @var  SmileClient the transaction webservice client */
     protected $transferClient;
 
+    /** @var  SmileClient the withdrawal webservice client */
+    protected $withdrawalClient;
+
     /** @var string the entity given to the merchant by HiPay */
     protected $entity;
 
