@@ -107,20 +107,4 @@ abstract class AbstractProcessor
             new ThrowException($exception)
         );
     }
-
-    /**
-     * @return Mirakl
-     */
-    public function getMirakl()
-    {
-        return $this->mirakl;
-    }
-
-    /**
-     * @return HiPay
-     */
-    public function getHipay()
-    {
-        return $this->hipay;
-    }
 }
