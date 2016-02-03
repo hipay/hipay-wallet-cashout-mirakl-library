@@ -44,6 +44,6 @@ class WrongWalletBalance extends DispatchableException
      */
     public function getEventName()
     {
-        return 'not.enough.funds';
+        return 'wrong.wallet.balance';
     }
 }

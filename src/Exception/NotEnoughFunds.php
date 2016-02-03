@@ -2,15 +2,13 @@
 
 namespace HiPay\Wallet\Mirakl\Exception;
 
-use Exception;
-
 /**
  * Class NotEnoughFunds.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
  */
-class NotEnoughFunds extends Exception
+class NotEnoughFunds extends DispatchableException
 {
     /**
      * TransactionException constructor.
@@ -29,5 +27,13 @@ class NotEnoughFunds extends Exception
             $code,
             $previousException
         );
+    }
+
+    /**
+     * @return string
+     */
+    public function getEventName()
+    {
+        return 'not.enough.funds';
     }
 }
