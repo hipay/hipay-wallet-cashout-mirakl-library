@@ -50,9 +50,7 @@ interface OperationInterface
     public function setHiPayId($hipayId);
 
     /**
-     * @return int
-     *
-     * @Assert\Type(type="integer")
+     * @return string
      */
     public function getWithdrawId();
 
@@ -62,9 +60,8 @@ interface OperationInterface
     public function setWithdrawId($withdrawId);
 
     /**
-     * @return int
+     * @return string
      *
-     * @Assert\Type(type="integer")
      */
     public function getTransferId();
 
