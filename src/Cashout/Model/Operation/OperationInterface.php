@@ -132,6 +132,10 @@ interface OperationInterface
 
     /**
      * @return string
+     *
+     * @Assert\NotBlank()
+     * @Assert\Regex("/^[0-9]{6}$/")
+     * @Assert\Type("string")
      */
     public function getPaymentVoucher();
 
