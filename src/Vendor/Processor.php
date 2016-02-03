@@ -367,7 +367,7 @@ class Processor extends AbstractProcessor
 
             //Bank data updating
             $this->logger->info('Update bank data');
-            $this->handleBankInfo($vendorCollection, $miraklData);
+            $this->handleBankInfo($vendorCollection, $indexedMiraklData);
             $this->logger->info('[OK] Bank info updated');
         } catch (\Exception $e) {
             $this->handleException($e, "critical");
