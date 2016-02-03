@@ -92,33 +92,6 @@ abstract class AbstractProcessor
     }
 
     /**
-     * Create an associative array with an index key.
-     *
-     * @param array $array
-     * @param $indexKey
-     * @param array $keptKeys
-     *
-     * @return array
-     */
-    protected function indexArray(
-        array $array,
-        $indexKey,
-        array $keptKeys = array()
-    ) {
-        $result = array();
-        foreach ($array as $element) {
-            $keptKeys = empty($keptKeys) ? array_keys($element) : $keptKeys;
-            $insertedElement = array_intersect_key(
-                $element,
-                array_flip($keptKeys)
-            );
-            $result[$element[$indexKey]] = $insertedElement;
-        }
-
-        return $result;
-    }
-
-    /**
      * Handle the exception
      * @param Exception $exception
      * @param array $context
@@ -133,5 +106,21 @@ abstract class AbstractProcessor
             $exception instanceof DispatchableException ? $exception->getEventName() : 'exception.thrown',
             new ThrowException($exception)
         );
+    }
+
+    /**
+     * @return Mirakl
+     */
+    public function getMirakl()
+    {
+        return $this->mirakl;
+    }
+
+    /**
+     * @return HiPay
+     */
+    public function getHipay()
+    {
+        return $this->hipay;
     }
 }

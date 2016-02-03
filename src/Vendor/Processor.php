@@ -339,7 +339,7 @@ class Processor extends AbstractProcessor
                 '[OK] Fetched vendors from Mirakl : '.count($miraklData)
             );
 
-            $miraklData = $this->indexArray($miraklData, 'shop_id');
+
 
             //Wallet creation
             $this->logger->info('Wallet creation');
@@ -359,6 +359,11 @@ class Processor extends AbstractProcessor
                 $ftpPath
             );
             $this->logger->info('[OK] Files transferred');
+
+            $indexedMiraklData = array();
+            foreach ($miraklData as $data) {
+                $indexedMiraklData[$data['shop_id']] = $data;
+            }
 
             //Bank data updating
             $this->logger->info('Update bank data');

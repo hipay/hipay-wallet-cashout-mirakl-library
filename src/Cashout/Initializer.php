@@ -38,7 +38,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  */
 class Initializer extends AbstractProcessor
 {
-    const SCALE = 5;
+    const SCALE = 2;
 
     /** @var VendorInterface */
     protected $operator;
@@ -116,50 +116,39 @@ class Initializer extends AbstractProcessor
             $endDate
         );
 
-        $this->logger->info(
-            '[OK] Fetched '.
-            count($paymentTransactions).
-            ' payment transactions'
-        );
-
-        //Initialize & Reindex data
-        $paymentDebitByPaymentVoucher = $this->indexArray(
-            $paymentTransactions,
-            'payment_voucher_number',
-            array('shop_id','amount_debited')
-        );
-
-        foreach ($paymentDebitByPaymentVoucher as $paymentVoucherNumber => $element) {
-            $paymentDebitByPaymentVoucher[$paymentVoucherNumber][] =
-                array($element['shop_id'] => $element['amount_debited']);
+        $paymentDebits = array();
+        $count = 0;
+        foreach ($paymentTransactions as $transaction) {
+            $paymentDebits[$transaction['payment_voucher_number']][$transaction['shop_id']] =
+                $transaction['amount_debited'];
+            $count++;
         }
 
         $transactionError = null;
         $operations = array();
 
+        $this->logger->info('[OK] Fetched '. $count . ' payment transactions');
+
         //Compute amounts (vendor and operator) by payment vouchers
         $this->logger->info('Compute amounts and create vendor operation');
-        foreach ($paymentDebitByPaymentVoucher as $paymentVoucher => $debitedAmounts) {
-            $this->logger->debug(
-                "Payment Voucher : $paymentVoucher",
-                array('paymentVoucherNumber' => $paymentVoucher)
-            );
+        foreach ($paymentDebits as $paymentVoucher => $debitedAmounts) {
             $voucherOperations = $this->handlePaymentVoucher($paymentVoucher, $debitedAmounts, $cycleDate);
             if ($voucherOperations) {
-                array_merge($operations, $voucherOperations);
+                $operations = array_merge($voucherOperations, $operations);
             } else {
-                $transactionError = true;
+                $transactionError[] = $paymentVoucher;
             }
         }
 
-
-        $totalAmount = $this->sumOperationAmounts($operations);
-
-        $this->logger->debug("Total amount " . $totalAmount);
-
         if ($transactionError) {
+            foreach ($transactionError as $voucher) {
+                $this->logger->error("The transaction for the payment voucher number $voucher are wrong");
+            }
             return;
         }
+
+        $totalAmount = $this->sumOperationAmounts($operations);
+        $this->logger->debug("Total amount " . $totalAmount);
 
         $this->logger->info(
             "Check if technical account has sufficient funds"
@@ -248,12 +237,8 @@ class Initializer extends AbstractProcessor
                 );
 
                 //Compute the operator amount for this payment voucher
-                $operatorAmount = bcadd(
-                    $operatorAmount,
-                    $this->computeOperatorAmountByVendor(
-                        $orderTransactions
-                    )
-                );
+                $operatorAmount = round($operatorAmount, self::SCALE) +
+                    round($this->computeOperatorAmountByVendor($orderTransactions), self::SCALE);
             } catch (Exception $e) {
                 $transactionError = true;
                 /** @var Exception $transactionError */
@@ -276,7 +261,6 @@ class Initializer extends AbstractProcessor
             $cycleDate,
             $paymentVoucher
         );
-
         return $transactionError ? false : $operations;
     }
 
@@ -345,16 +329,13 @@ class Initializer extends AbstractProcessor
         $amount = 0;
         $errors = false;
         foreach ($transactions as $transaction) {
-            $amount = bcadd(
-                $amount,
-                bcsub($transaction['amount_credited'], $transaction['amount_debited'], self::SCALE)
-            );
+            $amount +=  round($transaction['amount_credited'], self::SCALE)
+                - round($transaction['amount_debited'], self::SCALE);
             $errors |= !$this->transactionValidator->isValid($transaction);
         }
-        if (bccomp($amount, $payedAmount, self::SCALE) != 0) {
+        if (round($amount, self::SCALE) != round($payedAmount, self::SCALE)) {
             throw new TransactionException(
                 array($transactions),
-                null,
                 'There is a difference between the transactions'.
                 PHP_EOL."$amount for the transactions".
                 PHP_EOL."{$payedAmount} for the earlier payment transaction"
@@ -363,11 +344,9 @@ class Initializer extends AbstractProcessor
         if ($errors) {
             throw new TransactionException(
                 array($transactions),
-                null,
                 'There are errors in the transactions'
             );
         }
-
         return $amount;
     }
 
@@ -421,7 +400,7 @@ class Initializer extends AbstractProcessor
      *
      * @param $transactions
      *
-     * @return string
+     * @return float
      */
     protected function computeOperatorAmountByVendor($transactions)
     {
@@ -432,14 +411,12 @@ class Initializer extends AbstractProcessor
                 $this->getOperatorTransactionTypes()
             )
             ) {
-                $amount = bcadd(
-                    $amount,
-                    bcsub($transaction['amount_credited'], $transaction['amount_debited'], self::SCALE)
-                );
+                $amount += round($transaction['amount_credited'], self::SCALE)
+                    - round($transaction['amount_debited'], self::SCALE);
             }
         }
 
-        return bcmul(-1, $amount, self::SCALE);
+        return (-1) * round($amount, self::SCALE);
     }
 
     /**
@@ -467,8 +444,9 @@ class Initializer extends AbstractProcessor
      */
     public function sumOperationAmounts(array $operations)
     {
-        return array_reduce($operations, function ($carry, OperationInterface $item) {
-            $carry = bcadd($carry, $item->getAmount());
+        $scale = self::SCALE;
+        return array_reduce($operations, function ($carry, OperationInterface $item) use ($scale) {
+            $carry = round($carry, $scale) + round($item->getAmount(), $scale);
             return $carry;
         }, 0);
     }
@@ -492,7 +470,7 @@ class Initializer extends AbstractProcessor
      */
     public function saveOperations(array $operations)
     {
-        if (!$this->areOperationsValid($operations)) {
+        if ($this->areOperationsValid($operations)) {
             $this->logger->info('[OK] Operations validated');
 
             $this->logger->info('Save operations');
