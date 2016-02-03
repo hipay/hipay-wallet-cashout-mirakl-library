@@ -129,4 +129,16 @@ interface OperationInterface
      * @return void
      */
     public function setUpdatedAt(DateTime $dateTime);
+
+    /**
+     * @return string
+     */
+    public function getPaymentVoucher();
+
+    /**
+     * @param $paymentVoucher
+     *
+     * @return void
+     */
+    public function setPaymentVoucher($paymentVoucher);
 }

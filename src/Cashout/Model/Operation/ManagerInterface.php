@@ -3,7 +3,6 @@
 namespace HiPay\Wallet\Mirakl\Cashout\Model\Operation;
 
 use DateTime;
-use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 
 /**
  * Interface ManagerInterface.
@@ -36,12 +35,17 @@ interface ManagerInterface
      *
      * @param float $amount
      * @param DateTime $cycleDate
+     * @param string $paymentVoucher
      * @param int $miraklId
-     * @param VendorInterface $vendor
-     * @return OperationInterface
      *
+     * @return OperationInterface
      */
-    public function create($amount, DateTime $cycleDate, $miraklId = null, VendorInterface $vendor = null);
+    public function create(
+        $amount,
+        DateTime $cycleDate,
+        $paymentVoucher,
+        $miraklId = null
+    );
 
     /**
      * Check if an operation is valid.
@@ -56,13 +60,13 @@ interface ManagerInterface
      * Finds operations.
      *
      * @param Status   $status      status to filter upon
-     * @param DateTime $afterDate   after date to filter
+     * @param DateTime $maximumDate date for filtering
      *
      * @return OperationInterface[]
      */
     public function findByStatusAndBeforeUpdatedAt(
         Status $status,
-        DateTime $afterDate
+        DateTime $maximumDate
     );
 
     /**
@@ -77,14 +81,14 @@ interface ManagerInterface
     /**
      * Finds an operation.
      *
-     * @param int      $miraklId|false if operator
-     * @param DateTime $date          optional date to filter upon
+     * @param int $miraklId|null if operator
+     * @param int $paymentVoucherNumber optional date to filter upon
      *
      * @return OperationInterface|null
      */
-    public function findByMiraklIdAndCycleDate(
+    public function findByMiraklIdAndPaymentVoucherNumber(
         $miraklId,
-        DateTime $date
+        $paymentVoucherNumber
     );
 
     /**
