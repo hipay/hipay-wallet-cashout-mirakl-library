@@ -244,8 +244,8 @@ class Initializer extends AbstractProcessor
                 );
 
                 //Compute the operator amount for this payment voucher
-                $operatorAmount = round($operatorAmount, self::SCALE) +
-                    round($this->computeOperatorAmountByVendor($orderTransactions), self::SCALE);
+                $operatorAmount = round($operatorAmount, static::SCALE) +
+                    round($this->computeOperatorAmountByVendor($orderTransactions), static::SCALE);
             } catch (Exception $e) {
                 $transactionError = true;
                 /** @var Exception $transactionError */
@@ -336,11 +336,11 @@ class Initializer extends AbstractProcessor
         $amount = 0;
         $errors = false;
         foreach ($transactions as $transaction) {
-            $amount +=  round($transaction['amount_credited'], self::SCALE)
-                - round($transaction['amount_debited'], self::SCALE);
+            $amount +=  round($transaction['amount_credited'], static::SCALE)
+                - round($transaction['amount_debited'], static::SCALE);
             $errors |= !$this->transactionValidator->isValid($transaction);
         }
-        if (round($amount, self::SCALE) != round($payedAmount, self::SCALE)) {
+        if (round($amount, static::SCALE) != round($payedAmount, static::SCALE)) {
             throw new TransactionException(
                 array($transactions),
                 'There is a difference between the transactions'.
@@ -418,12 +418,12 @@ class Initializer extends AbstractProcessor
                 $this->getOperatorTransactionTypes()
             )
             ) {
-                $amount += round($transaction['amount_credited'], self::SCALE)
-                    - round($transaction['amount_debited'], self::SCALE);
+                $amount += round($transaction['amount_credited'], static::SCALE)
+                    - round($transaction['amount_debited'], static::SCALE);
             }
         }
 
-        return (-1) * round($amount, self::SCALE);
+        return (-1) * round($amount, static::SCALE);
     }
 
     /**
@@ -451,7 +451,7 @@ class Initializer extends AbstractProcessor
      */
     public function sumOperationAmounts(array $operations)
     {
-        $scale = self::SCALE;
+        $scale = static::SCALE;
         return array_reduce($operations, function ($carry, OperationInterface $item) use ($scale) {
             $carry = round($carry, $scale) + round($item->getAmount(), $scale);
             return $carry;
@@ -467,7 +467,7 @@ class Initializer extends AbstractProcessor
      */
     public function hasSufficientFunds($amount)
     {
-        return bccomp($this->hipay->getBalance($this->technicalAccount), $amount, self::SCALE) >= 0;
+        return bccomp($this->hipay->getBalance($this->technicalAccount), $amount, static::SCALE) >= 0;
     }
 
     /**

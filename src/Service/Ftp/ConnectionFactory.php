@@ -42,7 +42,7 @@ class ConnectionFactory
     {
         ModelValidator::validate($this->configuration);
         switch (strtolower($this->configuration->getConnectionType())) {
-            case self::FTP:
+            case static::FTP:
                 return new Connection(
                     $this->configuration->getHost(),
                     $this->configuration->getUsername(),
@@ -51,14 +51,14 @@ class ConnectionFactory
                     $this->configuration->getTimeout(),
                     $this->configuration->isPassive()
                 );
-            case self::SFTP:
+            case static::SFTP:
                 return new SSHConnection(
                     $this->configuration->getHost(),
                     $this->configuration->getPort()
 
                 );
                 break;
-            case self::FTP_SSL:
+            case static::FTP_SSL:
                 return new SSLConnection(
                     $this->configuration->getHost(),
                     $this->configuration->getUsername(),

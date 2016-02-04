@@ -86,7 +86,7 @@ class UserAccountBasic extends ModelAbstract
         array $miraklData
     ) {
         $this->email = $miraklData['contact_informations']['email'];
-        $this->title = self::formatTitle(
+        $this->title = static::formatTitle(
             $miraklData['contact_informations']['civility']
         );
         $this->firstname = $miraklData['contact_informations']['civility'];

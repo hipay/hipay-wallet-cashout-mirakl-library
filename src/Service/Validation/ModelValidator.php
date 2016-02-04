@@ -31,7 +31,7 @@ abstract class ModelValidator
      */
     public static function validate($object, $groups = false)
     {
-        self::initialize();
+        static::initialize();
         $errors = static::$validator->validate($object, $groups);
         if ($errors->count() != 0) {
             //Throw new exception containing the errors
