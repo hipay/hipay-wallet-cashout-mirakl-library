@@ -8,7 +8,10 @@ use HiPay\Wallet\Mirakl\Api\HiPay\Model\Status\Notification;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Status\NotificationStatus;
 use HiPay\Wallet\Mirakl\Cashout\Model\Operation\ManagerInterface
     as OperationManager;
+use HiPay\Wallet\Mirakl\Exception\ChecksumFailedException;
 use HiPay\Wallet\Mirakl\Exception\IllegalNotificationOperationException;
+use HiPay\Wallet\Mirakl\Exception\OperationNotFound;
+use HiPay\Wallet\Mirakl\Exception\WrongOperationStatus;
 use HiPay\Wallet\Mirakl\Notification\Event\BankInfoNotification;
 use HiPay\Wallet\Mirakl\Notification\Event\IdentificationNotification;
 use HiPay\Wallet\Mirakl\Notification\Event\OtherNotification;
@@ -76,14 +79,14 @@ class Handler
         $md5string = preg_replace('/\n/', '', $xml->result->asXML());
         /** @noinspection PhpUndefinedFieldInspection */
         if (md5($md5string) !=  $xml->md5content) {
-            throw new Exception('Wrong checksum');
+            throw new ChecksumFailedException();
         }
         /** @noinspection PhpUndefinedFieldInspection */
         $operation = $xml->result->operation;
         /** @noinspection PhpUndefinedFieldInspection */
         $status = ($xml->result->status == NotificationStatus::OK);
         /** @noinspection PhpUndefinedFieldInspection */
-        $date = new \DateTime($xml->result->date.' '.$xml->result->time);
+        $date = new DateTime($xml->result->date.' '.$xml->result->time);
         /** @noinspection PhpUndefinedFieldInspection */
         $hipayId = $xml->result->account_id;
 
@@ -128,7 +131,7 @@ class Handler
     }
 
     /**
-     * @param int             $transactionId
+     * @param int             $withdrawalId
      * @param int             $hipayId
      * @param DateTime        $date
      * @param bool            $status
@@ -137,19 +140,19 @@ class Handler
      */
     protected function withdrawalValidation(
         $hipayId,
-        \DateTime $date,
-        $transactionId,
+        DateTime $date,
+        $withdrawalId,
         $status
     ) {
         $operation = $this->operationManager
-            ->findByWithdrawalId($transactionId);
+            ->findByWithdrawalId($withdrawalId);
 
         if (!$operation) {
-            throw new Exception('Operation not found');
+            throw new OperationNotFound($withdrawalId);
         }
 
         if ($operation->getStatus() != Status::WITHDRAW_REQUESTED) {
-            throw new Exception('Wrong operation status in the database');
+            throw new WrongOperationStatus($operation);
         }
 
         if ($status) {
