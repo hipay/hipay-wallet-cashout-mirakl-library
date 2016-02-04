@@ -4,7 +4,7 @@ namespace HiPay\Wallet\Mirakl\Notification;
 
 use DateTime;
 use Exception;
-use HiPay\Wallet\Mirakl\Api\HiPay\Model\Status\NotificationOperation;
+use HiPay\Wallet\Mirakl\Api\HiPay\Model\Status\Notification;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Status\NotificationStatus;
 use HiPay\Wallet\Mirakl\Cashout\Model\Operation\ManagerInterface
     as OperationManager;
@@ -15,7 +15,6 @@ use HiPay\Wallet\Mirakl\Notification\Event\OtherNotification;
 use HiPay\Wallet\Mirakl\Vendor\Model\ManagerInterface as VendorManager;
 use HiPay\Wallet\Mirakl\Cashout\Model\Operation\Status;
 use HiPay\Wallet\Mirakl\Notification\Event\WithdrawNotification;
-use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 use SimpleXMLElement;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -66,46 +65,59 @@ class Handler
      */
     public function handleHiPayNotification($xml)
     {
-        $xml = new SimpleXMLElement($xml);
-
-        if (md5($xml->result) !=  $xml->md5content) {
-            throw new Exception('Wrong checksum');
+        if (!$xml) {
+            return;
         }
 
+        $xml = new SimpleXMLElement($xml);
+
+        //Check content
+        /** @noinspection PhpUndefinedFieldInspection */
+        $md5string = preg_replace('/\n/', '', $xml->result->asXML());
+        /** @noinspection PhpUndefinedFieldInspection */
+        if (md5($md5string) !=  $xml->md5content) {
+            throw new Exception('Wrong checksum');
+        }
+        /** @noinspection PhpUndefinedFieldInspection */
         $operation = $xml->result->operation;
+        /** @noinspection PhpUndefinedFieldInspection */
         $status = ($xml->result->status == NotificationStatus::OK);
+        /** @noinspection PhpUndefinedFieldInspection */
         $date = new \DateTime($xml->result->date.' '.$xml->result->time);
-        $vendor = $this->vendorManager->findByHiPayId($xml->result->account_id);
+        /** @noinspection PhpUndefinedFieldInspection */
+        $hipayId = $xml->result->account_id;
 
         switch ($operation) {
-            case NotificationOperation::BANK_INFO_VALIDATION:
+            case Notification::BANK_INFO_VALIDATION:
                 $this->bankInfoValidation(
-                    $vendor,
+                    $hipayId,
                     $date,
                     $status
                 );
                 break;
-            case NotificationOperation::IDENTIFICATION:
+            case Notification::IDENTIFICATION:
                 $this->identification(
-                    $vendor,
+                    $hipayId,
                     $date,
                     $status
                 );
                 break;
-            case NotificationOperation::WITHDRAW_VALIDATION:
+            case Notification::WITHDRAW_VALIDATION:
+                /** @noinspection PhpUndefinedFieldInspection */
                 $this->withdrawalValidation(
-                    $xml->result->transid,
-                    $vendor,
+                    $hipayId,
                     $date,
+                    $xml->result->transid,
                     $status
                 );
                 break;
-            case NotificationOperation::OTHER:
+            case Notification::OTHER:
+                /** @noinspection PhpUndefinedFieldInspection */
                 $this->other(
                     $xml->result->amount,
                     $xml->result->currency,
                     $xml->result->label,
-                    $vendor,
+                    $hipayId,
                     $date,
                     $status
                 );
@@ -116,17 +128,17 @@ class Handler
     }
 
     /**
-     * @param $transactionId
-     * @param VendorInterface $vendor
+     * @param int             $transactionId
+     * @param int             $hipayId
      * @param DateTime        $date
      * @param bool            $status
      *
      * @throws Exception
      */
     protected function withdrawalValidation(
-        $transactionId,
-        VendorInterface $vendor,
+        $hipayId,
         \DateTime $date,
+        $transactionId,
         $status
     ) {
         $operation = $this->operationManager
@@ -149,17 +161,17 @@ class Handler
         }
 
         $this->operationManager->save($operation);
-        $event = new WithdrawNotification($operation, $vendor, $date);
+        $event = new WithdrawNotification($hipayId, $date, $operation);
 
         $this->dispatcher->dispatch($eventName, $event);
     }
 
     /**
-     * @param VendorInterface $vendor
+     * @param int             $hipayId
      * @param DateTime        $date
      * @param bool            $status
      */
-    protected function bankInfoValidation($vendor, $date, $status)
+    protected function bankInfoValidation($hipayId, $date, $status)
     {
         if ($status) {
             $eventName = 'bankInfos.validation.notification.success';
@@ -167,17 +179,17 @@ class Handler
             $eventName = 'bankInfos.validation.notification.failed';
         }
 
-        $event = new BankInfoNotification($vendor, $date);
+        $event = new BankInfoNotification($hipayId, $date);
 
         $this->dispatcher->dispatch($eventName, $event);
     }
 
     /**
-     * @param VendorInterface $vendor
+     * @param int             $hipayId
      * @param DateTime        $date
      * @param bool            $status
      */
-    protected function identification($vendor, $date, $status)
+    protected function identification($hipayId, $date, $status)
     {
         if ($status) {
             $eventName = 'identification.notification.success';
@@ -185,7 +197,7 @@ class Handler
             $eventName = 'identification.notification.failed';
         }
 
-        $event = new IdentificationNotification($vendor, $date);
+        $event = new IdentificationNotification($hipayId, $date);
 
         $this->dispatcher->dispatch($eventName, $event);
     }
@@ -194,7 +206,7 @@ class Handler
      * @param float           $amount
      * @param string          $currency
      * @param string          $label
-     * @param VendorInterface $vendor
+     * @param int             $hipayId
      * @param DateTime        $date
      * @param bool            $status
      */
@@ -202,7 +214,7 @@ class Handler
         $amount,
         $currency,
         $label,
-        $vendor,
+        $hipayId,
         $date,
         $status
     ) {
@@ -213,11 +225,11 @@ class Handler
         }
 
         $event = new OtherNotification(
+            $hipayId,
+            $date,
             $amount,
             $currency,
-            $label,
-            $vendor,
-            $date
+            $label
         );
 
         $this->dispatcher->dispatch($eventName, $event);

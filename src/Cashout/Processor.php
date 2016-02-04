@@ -15,7 +15,7 @@ use HiPay\Wallet\Mirakl\Api\HiPay;
 use HiPay\Wallet\Mirakl\Api\HiPay\ConfigurationInterface
     as HiPayConfiguration;
 use HiPay\Wallet\Mirakl\Exception\WrongWalletBalance;
-use HiPay\Wallet\Mirakl\Exception\NoWalletFoundException;
+use HiPay\Wallet\Mirakl\Exception\WalletNotFoundException;
 use HiPay\Wallet\Mirakl\Exception\UnconfirmedBankAccountException;
 use HiPay\Wallet\Mirakl\Exception\UnidentifiedWalletException;
 use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
@@ -80,7 +80,7 @@ class Processor extends AbstractProcessor
      * Main processing function.
      *
      * @throws WrongWalletBalance
-     * @throws NoWalletFoundException
+     * @throws WalletNotFoundException
      * @throws UnconfirmedBankAccountException
      * @throws UnidentifiedWalletException
      */
@@ -141,7 +141,7 @@ class Processor extends AbstractProcessor
                 $this->handleException($e, 'critical');
             }
             $this->operationManager->save($operation);
-            $this->logger->info("[OK] Transfer operation executed");
+            $this->logger->info("[OK] Transfer operation ". $operation->getTransferId() ."executed");
         }
     }
     /**
@@ -195,7 +195,7 @@ class Processor extends AbstractProcessor
             }
             //Save operation
             $this->operationManager->save($operation);
-            $this->logger->info("[OK] Withdraw operation executed");
+            $this->logger->info("[OK] Withdraw operation " . $operation->getWithdrawId(). " executed");
         }
     }
 
@@ -207,14 +207,14 @@ class Processor extends AbstractProcessor
      *
      * @return int
      *
-     * @throws NoWalletFoundException if the wallet is not found
+     * @throws WalletNotFoundException if the wallet is not found
      */
     public function transferOperation(OperationInterface $operation)
     {
         $vendor = $this->getVendor($operation);
 
         if (!$vendor || $this->hipay->isAvailable($vendor->getEmail())) {
-            throw new NoWalletFoundException($vendor);
+            throw new WalletNotFoundException($vendor);
         }
 
         $operation->setHiPayId($vendor->getHiPayId());
@@ -236,7 +236,7 @@ class Processor extends AbstractProcessor
      *
      * @param OperationInterface $operation
      * @return int
-     * @throws NoWalletFoundException
+     * @throws WalletNotFoundException
      * @throws UnconfirmedBankAccountException if the bank account
      *                                         information is not the the status validated at HiPay
      * @throws UnidentifiedWalletException if the account is not identified by HiPay
@@ -248,7 +248,7 @@ class Processor extends AbstractProcessor
         $vendor = $this->getVendor($operation);
 
         if (!$vendor || $this->hipay->isAvailable($vendor->getEmail())) {
-            throw new NoWalletFoundException($vendor);
+            throw new WalletNotFoundException($vendor);
         }
 
         if (!$this->hipay->isIdentified($vendor)) {

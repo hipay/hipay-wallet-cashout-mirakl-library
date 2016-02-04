@@ -6,12 +6,12 @@ use Exception;
 use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 
 /**
- * Class NoWalletFoundException.
+ * Class WalletNotFoundException.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
  */
-class NoWalletFoundException extends DispatchableException
+class WalletNotFoundException extends DispatchableException
 {
     /** @var  VendorInterface */
     protected $vendor;
@@ -43,6 +43,6 @@ class NoWalletFoundException extends DispatchableException
      */
     public function getEventName()
     {
-        return 'no.wallet.found';
+        return 'wallet.not.found';
     }
 }
