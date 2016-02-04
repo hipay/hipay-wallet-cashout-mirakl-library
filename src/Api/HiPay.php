@@ -9,7 +9,7 @@ use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\BankInfo;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\Transfer;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\UserAccountBasic;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\UserAccountDetails;
-use HiPay\Wallet\Mirakl\Api\HiPay\ConfigurationInterface;
+use HiPay\Wallet\Mirakl\Api\HiPay\ConfigurationInterface as HiPayConfigurationInterface;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Status\Identified;
 use HiPay\Wallet\Mirakl\Api\Soap\SmileClient;
 use HiPay\Wallet\Mirakl\Service\Validation\ModelValidator;
@@ -96,11 +96,11 @@ class HiPay
     }
 
     /**
-     * @param ConfigurationInterface $configuration
+     * @param HiPayConfigurationInterface $configuration
      *
      * @return HiPay
      */
-    public static function factory(ConfigurationInterface $configuration)
+    public static function factory(HiPayConfigurationInterface $configuration)
     {
         ModelValidator::validate($configuration);
         return new self(

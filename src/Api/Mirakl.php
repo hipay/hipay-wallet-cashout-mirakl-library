@@ -5,7 +5,7 @@ namespace HiPay\Wallet\Mirakl\Api;
 use DateTime;
 use Guzzle\Service\Client;
 use Guzzle\Service\Description\ServiceDescription;
-use HiPay\Wallet\Mirakl\Api\Mirakl\ConfigurationInterface;
+use HiPay\Wallet\Mirakl\Api\Mirakl\ConfigurationInterface as MiraklConfigurationInterface;
 use HiPay\Wallet\Mirakl\Service\Validation\ModelValidator;
 
 /**
@@ -55,11 +55,11 @@ class Mirakl
     }
 
     /**
-     * @param ConfigurationInterface $configuration
+     * @param MiraklConfigurationInterface $configuration
      *
      * @return Mirakl
      */
-    public static function factory(ConfigurationInterface $configuration)
+    public static function factory(MiraklConfigurationInterface $configuration)
     {
         ModelValidator::validate($configuration);
         return new self(
