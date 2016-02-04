@@ -4,6 +4,7 @@ namespace HiPay\Wallet\Mirakl\Api\Mirakl;
 
 use HiPay\Wallet\Mirakl\Api\ConfigurationInterface
     as BaseConfigurationInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * The Mirakl configuration object interface.
@@ -17,6 +18,9 @@ interface ConfigurationInterface extends BaseConfigurationInterface
      * Returns the front api key.
      *
      * @return string
+     *
+     * @Assert\NotBlank()
+     * @Assert\Type("string")
      */
     public function getFrontKey();
 
@@ -24,6 +28,8 @@ interface ConfigurationInterface extends BaseConfigurationInterface
      * Return the shop api key.
      *
      * @return string
+     *
+     * @Assert\Type("string")
      */
     public function getShopKey();
 
@@ -31,6 +37,8 @@ interface ConfigurationInterface extends BaseConfigurationInterface
      * Return the operator api key.
      *
      * @return string
+     *
+     * @Assert\Type("string")
      */
     public function getOperatorKey();
 }
