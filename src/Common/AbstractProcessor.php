@@ -51,13 +51,7 @@ abstract class AbstractProcessor
         EventDispatcherInterface $dispatcher,
         LoggerInterface $logger
     ) {
-        $this->mirakl = new Mirakl(
-            $miraklConfig->getBaseUrl(),
-            $miraklConfig->getFrontKey(),
-            $miraklConfig->getShopKey(),
-            $miraklConfig->getOperatorKey(),
-            $miraklConfig->getOptions()
-        );
+        $this->mirakl = Mirakl::factory($miraklConfig);
 
         $this->hipay = HiPay::factory($hipayConfig);
 

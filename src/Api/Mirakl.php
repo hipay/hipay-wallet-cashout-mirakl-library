@@ -5,6 +5,7 @@ namespace HiPay\Wallet\Mirakl\Api;
 use DateTime;
 use Guzzle\Service\Client;
 use Guzzle\Service\Description\ServiceDescription;
+use HiPay\Wallet\Mirakl\Api\Mirakl\ConfigurationInterface;
 
 /**
  * Class Mirakl
@@ -51,6 +52,23 @@ class Mirakl
         $this->operatorKey = $operatorKey;
         $this->restClient->setDescription($description);
     }
+
+    /**
+     * @param ConfigurationInterface $configuration
+     *
+     * @return Mirakl
+     */
+    public static function factory(ConfigurationInterface $configuration)
+    {
+        return new self(
+            $configuration->getBaseUrl(),
+            $configuration->getFrontKey(),
+            $configuration->getOperatorKey(),
+            $configuration->getShopKey(),
+            $configuration->getOptions()
+        );
+    }
+
 
     /**
      * Fetch from Mirakl all vendors (uses S20).
