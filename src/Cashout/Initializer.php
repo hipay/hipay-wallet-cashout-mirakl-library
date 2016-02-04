@@ -80,10 +80,17 @@ class Initializer extends AbstractProcessor
         VendorManager $vendorManager
     ) {
         parent::__construct($miraklConfig, $hipayConfig, $dispatcher, $logger);
+
+        ModelValidator::validate($operatorAccount, 'Operator');
         $this->operator = $operatorAccount;
+
+        ModelValidator::validate($technicalAccount, 'Operator');
         $this->technicalAccount = $technicalAccount;
+
         $this->operationManager = $operationHandler;
+
         $this->transactionValidator = $transactionValidator;
+
         $this->vendorManager = $vendorManager;
     }
 

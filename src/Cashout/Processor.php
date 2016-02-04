@@ -18,6 +18,7 @@ use HiPay\Wallet\Mirakl\Exception\WrongWalletBalance;
 use HiPay\Wallet\Mirakl\Exception\WalletNotFoundException;
 use HiPay\Wallet\Mirakl\Exception\UnconfirmedBankAccountException;
 use HiPay\Wallet\Mirakl\Exception\UnidentifiedWalletException;
+use HiPay\Wallet\Mirakl\Service\Validation\ModelValidator;
 use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -72,7 +73,11 @@ class Processor extends AbstractProcessor
         parent::__construct($miraklConfig, $hipayConfig, $dispatcher, $logger);
         $this->operationManager = $operationManager;
         $this->vendorManager = $vendorManager;
+
+        ModelValidator::validate($operator, 'Operator');
         $this->operator = $operator;
+
+        ModelValidator::validate($technical, 'Operator');
         $this->technical = $technical;
     }
 

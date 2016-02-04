@@ -25,13 +25,14 @@ abstract class ModelValidator
      * Validate an object (Basic check).
      *
      * @param mixed $object the object to validate
+     * @param bool|null|string|string[] $groups
      *
      * @throws ValidationFailedException
      */
-    public static function validate($object)
+    public static function validate($object, $groups = false)
     {
         self::initialize();
-        $errors = static::$validator->validate($object);
+        $errors = static::$validator->validate($object, $groups);
         if ($errors->count() != 0) {
             //Throw new exception containing the errors
             throw new ValidationFailedException($errors, $object);
