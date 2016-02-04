@@ -48,7 +48,7 @@ class WrongOperationStatus extends DispatchableException
      */
     public function getEventName()
     {
-        return 'checksum.failed';
+        return 'wrong.operation.status';
     }
 
     /**

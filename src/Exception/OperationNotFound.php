@@ -41,6 +41,6 @@ class OperationNotFound extends DispatchableException
      */
     public function getEventName()
     {
-        return 'checksum.failed';
+        return 'operation.not.found';
     }
 }
