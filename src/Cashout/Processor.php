@@ -146,7 +146,7 @@ class Processor extends AbstractApiProcessor
                 $this->handleException($e, 'critical');
             }
             $this->operationManager->save($operation);
-            $this->logger->info("[OK] Transfer operation ". $operation->getTransferId() ."executed");
+            $this->logger->info("[OK] Transfer operation ". $operation->getTransferId() ." executed");
         }
     }
     /**
