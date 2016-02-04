@@ -2,6 +2,8 @@
 
 namespace HiPay\Wallet\Mirakl\Service\Ftp;
 
+use HiPay\Wallet\Mirakl\Service\Validation\ModelValidator;
+use InvalidArgumentException;
 use Touki\FTP\Connection\Connection;
 use Touki\FTP\Connection\SSLConnection;
 
@@ -38,6 +40,7 @@ class ConnectionFactory
      */
     public function build()
     {
+        ModelValidator::validate($this->configuration);
         switch (strtolower($this->configuration->getConnectionType())) {
             case self::FTP:
                 return new Connection(
@@ -66,7 +69,7 @@ class ConnectionFactory
                 );
                 break;
             default:
-                throw new \InvalidArgumentException(
+                throw new InvalidArgumentException(
                     'The connection type '.
                     $this->configuration->getConnectionType().
                     " don't exists"

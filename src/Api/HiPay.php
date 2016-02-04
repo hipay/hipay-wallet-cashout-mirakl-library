@@ -12,6 +12,7 @@ use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\UserAccountDetails;
 use HiPay\Wallet\Mirakl\Api\HiPay\ConfigurationInterface;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Status\Identified;
 use HiPay\Wallet\Mirakl\Api\Soap\SmileClient;
+use HiPay\Wallet\Mirakl\Service\Validation\ModelValidator;
 use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 
 /**
@@ -101,6 +102,7 @@ class HiPay
      */
     public static function factory(ConfigurationInterface $configuration)
     {
+        ModelValidator::validate($configuration);
         return new self(
             $configuration->getBaseUrl(),
             $configuration->getWebServiceLogin(),

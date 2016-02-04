@@ -6,6 +6,7 @@ use DateTime;
 use Guzzle\Service\Client;
 use Guzzle\Service\Description\ServiceDescription;
 use HiPay\Wallet\Mirakl\Api\Mirakl\ConfigurationInterface;
+use HiPay\Wallet\Mirakl\Service\Validation\ModelValidator;
 
 /**
  * Class Mirakl
@@ -60,6 +61,7 @@ class Mirakl
      */
     public static function factory(ConfigurationInterface $configuration)
     {
+        ModelValidator::validate($configuration);
         return new self(
             $configuration->getBaseUrl(),
             $configuration->getFrontKey(),
