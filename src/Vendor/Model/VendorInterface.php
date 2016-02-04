@@ -15,10 +15,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 interface VendorInterface
 {
     /**
-     * @Assert\NotBlank(group={"Default"})
-     * @Assert\Type(type="integer", group={"Default"})
-     * @Assert\GreaterThan(value = 0, group={"Default"})
-     * @Assert\IsNull(group={"Operator"})
+     * @Assert\NotBlank(groups={"Default"})
+     * @Assert\Type(type="integer", groups={"Default"})
+     * @Assert\GreaterThan(value = 0, groups={"Default"})
+     * @Assert\IsNull(groups={"Operator"})
      * @return int
      */
     public function getMiraklId();
