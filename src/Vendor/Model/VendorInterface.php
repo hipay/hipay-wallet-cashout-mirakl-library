@@ -15,26 +15,28 @@ use Symfony\Component\Validator\Constraints as Assert;
 interface VendorInterface
 {
     /**
+     * @return int|null if operator
+     *
      * @Assert\NotBlank(groups={"Default"})
      * @Assert\Type(type="integer", groups={"Default"})
      * @Assert\GreaterThan(value = 0, groups={"Default"})
      * @Assert\IsNull(groups={"Operator"})
-     * @return int
      */
     public function getMiraklId();
 
     /**
-     * @param int $id
+     * @param int $id|null if operator
+     *
      * @return void
      */
     public function setMiraklId($id);
 
     /**
+     * @return string
+     *
      * @Assert\NotBlank()
      * @Assert\Type(type="string")
-     * @Assert\Email
-     *
-     * @return string
+     * @Assert\Email()
      */
     public function getEmail();
 
@@ -46,11 +48,11 @@ interface VendorInterface
     public function setEmail($email);
 
     /**
+     * @return int
+     *
      * @Assert\NotBlank()
      * @Assert\Type(type="integer")
      * @Assert\GreaterThan(value = 0)
-     *
-     * @return int
      */
     public function getHiPayId();
 
