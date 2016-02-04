@@ -34,7 +34,7 @@ abstract class ModelValidator
         $errors = static::$validator->validate($object);
         if ($errors->count() != 0) {
             //Throw new exception containing the errors
-            throw new ValidationFailedException($errors);
+            throw new ValidationFailedException($errors, $object);
         }
     }
 

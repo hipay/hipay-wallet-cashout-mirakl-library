@@ -19,15 +19,22 @@ class ValidationFailedException extends DispatchableException
     protected $constraintViolationList;
 
     /**
+     * @var mixed
+     */
+    protected $object;
+
+    /**
      * ValidationFailedException constructor.
      *
-     * @param string    $constraintViolationList
-     * @param string    $message
-     * @param int       $code
+     * @param string $constraintViolationList
+     * @param int $object
+     * @param string $message
+     * @param int $code
      * @param Exception $previous
      */
     public function __construct(
         $constraintViolationList,
+        $object,
         $message = '',
         $code = 0,
         Exception $previous = null
@@ -39,6 +46,7 @@ class ValidationFailedException extends DispatchableException
             $code,
             $previous
         );
+        $this->object = $object;
     }
 
     /**
@@ -73,5 +81,13 @@ class ValidationFailedException extends DispatchableException
         }
 
         return $defaultMessage;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getObject()
+    {
+        return $this->object;
     }
 }
