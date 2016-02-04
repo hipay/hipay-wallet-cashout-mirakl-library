@@ -8,6 +8,7 @@ use HiPay\Wallet\Mirakl\Api\HiPay\Model\Status\Notification;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Status\NotificationStatus;
 use HiPay\Wallet\Mirakl\Cashout\Model\Operation\ManagerInterface
     as OperationManager;
+use HiPay\Wallet\Mirakl\Common\AbstractProcessor;
 use HiPay\Wallet\Mirakl\Exception\ChecksumFailedException;
 use HiPay\Wallet\Mirakl\Exception\IllegalNotificationOperationException;
 use HiPay\Wallet\Mirakl\Exception\OperationNotFound;
@@ -18,6 +19,7 @@ use HiPay\Wallet\Mirakl\Notification\Event\OtherNotification;
 use HiPay\Wallet\Mirakl\Vendor\Model\ManagerInterface as VendorManager;
 use HiPay\Wallet\Mirakl\Cashout\Model\Operation\Status;
 use HiPay\Wallet\Mirakl\Notification\Event\WithdrawNotification;
+use Psr\Log\LoggerInterface;
 use SimpleXMLElement;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -30,7 +32,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
  */
-class Handler
+class Handler extends AbstractProcessor
 {
     /** @var  OperationManager */
     protected $operationManager;
@@ -44,17 +46,19 @@ class Handler
     /**
      * Handler constructor.
      *
-     * @param OperationManager         $operationManager
-     * @param VendorManager            $vendorManager
+     * @param OperationManager $operationManager
+     * @param VendorManager $vendorManager
      * @param EventDispatcherInterface $dispatcher
+     * @param LoggerInterface $logger
      */
     public function __construct(
+        EventDispatcherInterface $dispatcher,
+        LoggerInterface $logger,
         OperationManager $operationManager,
-        VendorManager $vendorManager,
-        EventDispatcherInterface $dispatcher
+        VendorManager $vendorManager
     ) {
+        parent::__construct($dispatcher, $logger);
         $this->operationManager = $operationManager;
-        $this->dispatcher = $dispatcher;
         $this->vendorManager = $vendorManager;
     }
 

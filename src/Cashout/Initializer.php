@@ -6,7 +6,7 @@ use DateTime;
 use Exception;
 use HiPay\Wallet\Mirakl\Cashout\Model\Operation\OperationInterface;
 use HiPay\Wallet\Mirakl\Cashout\Model\Operation\Status;
-use HiPay\Wallet\Mirakl\Common\AbstractProcessor;
+use HiPay\Wallet\Mirakl\Common\AbstractApiProcessor;
 use HiPay\Wallet\Mirakl\Api\Mirakl\ConfigurationInterface
     as MiraklConfiguration;
 use HiPay\Wallet\Mirakl\Api\HiPay\ConfigurationInterface
@@ -36,7 +36,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
  */
-class Initializer extends AbstractProcessor
+class Initializer extends AbstractApiProcessor
 {
     const SCALE = 2;
 
@@ -69,17 +69,17 @@ class Initializer extends AbstractProcessor
      * @param VendorManager            $vendorManager
      */
     public function __construct(
-        MiraklConfiguration $miraklConfig,
-        HiPayConfiguration $hipayConfig,
         EventDispatcherInterface $dispatcher,
         LoggerInterface $logger,
+        MiraklConfiguration $miraklConfig,
+        HiPayConfiguration $hipayConfig,
         VendorInterface $operatorAccount,
         VendorInterface $technicalAccount,
         ValidatorInterface $transactionValidator,
         OperationManager $operationHandler,
         VendorManager $vendorManager
     ) {
-        parent::__construct($miraklConfig, $hipayConfig, $dispatcher, $logger);
+        parent::__construct($dispatcher, $logger, $miraklConfig, $hipayConfig);
 
         ModelValidator::validate($operatorAccount, 'Operator');
         $this->operator = $operatorAccount;

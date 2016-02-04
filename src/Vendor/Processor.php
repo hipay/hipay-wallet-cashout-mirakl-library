@@ -14,7 +14,7 @@ use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\UserAccountDetails;
 use HiPay\Wallet\Mirakl\Api\Mirakl;
 use HiPay\Wallet\Mirakl\Api\Mirakl\ConfigurationInterface
     as MiraklConfiguration;
-use HiPay\Wallet\Mirakl\Common\AbstractProcessor;
+use HiPay\Wallet\Mirakl\Common\AbstractApiProcessor;
 use HiPay\Wallet\Mirakl\Exception\BankAccountCreationFailedException;
 use HiPay\Wallet\Mirakl\Exception\DispatchableException;
 use HiPay\Wallet\Mirakl\Exception\FTPUploadFailed;
@@ -47,7 +47,7 @@ use Touki\FTP\Model\File;
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
  */
-class Processor extends AbstractProcessor
+class Processor extends AbstractApiProcessor
 {
     /** @var  FtpInterface */
     protected $ftp;
@@ -66,18 +66,18 @@ class Processor extends AbstractProcessor
      * @param ManagerInterface         $vendorManager
      */
     public function __construct(
-        MiraklConfiguration $miraklConfig,
-        HiPayConfiguration $hipayConfig,
         EventDispatcherInterface $dispatcherInterface,
         LoggerInterface $logger,
+        MiraklConfiguration $miraklConfig,
+        HiPayConfiguration $hipayConfig,
         FtpConfiguration $ftpConfiguration,
         ManagerInterface $vendorManager
     ) {
         parent::__construct(
-            $miraklConfig,
-            $hipayConfig,
             $dispatcherInterface,
-            $logger
+            $logger,
+            $miraklConfig,
+            $hipayConfig
         );
 
         $connectionFactory = new ConnectionFactory($ftpConfiguration);

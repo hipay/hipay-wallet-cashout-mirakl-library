@@ -8,7 +8,7 @@ use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\Transfer;
 use HiPay\Wallet\Mirakl\Cashout\Event\OperationEvent;
 use HiPay\Wallet\Mirakl\Cashout\Model\Operation\OperationInterface;
 use HiPay\Wallet\Mirakl\Cashout\Model\Operation\Status;
-use HiPay\Wallet\Mirakl\Common\AbstractProcessor;
+use HiPay\Wallet\Mirakl\Common\AbstractApiProcessor;
 use HiPay\Wallet\Mirakl\Api\Mirakl\ConfigurationInterface
     as MiraklConfiguration;
 use HiPay\Wallet\Mirakl\Api\HiPay;
@@ -33,7 +33,7 @@ use HiPay\Wallet\Mirakl\Api\HiPay\Model\Status\BankInfo as BankInfoStatus;
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
  */
-class Processor extends AbstractProcessor
+class Processor extends AbstractApiProcessor
 {
     /** @var  OperationManager */
     protected $operationManager;
@@ -61,16 +61,16 @@ class Processor extends AbstractProcessor
      * @param VendorInterface $technical
      */
     public function __construct(
-        MiraklConfiguration $miraklConfig,
-        HiPayConfiguration $hipayConfig,
         EventDispatcherInterface $dispatcher,
         LoggerInterface $logger,
+        MiraklConfiguration $miraklConfig,
+        HiPayConfiguration $hipayConfig,
         OperationManager $operationManager,
         VendorManager $vendorManager,
         VendorInterface $operator,
         VendorInterface $technical
     ) {
-        parent::__construct($miraklConfig, $hipayConfig, $dispatcher, $logger);
+        parent::__construct($dispatcher, $logger, $miraklConfig, $hipayConfig);
         $this->operationManager = $operationManager;
         $this->vendorManager = $vendorManager;
 

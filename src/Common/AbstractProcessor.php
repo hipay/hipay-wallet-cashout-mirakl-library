@@ -4,11 +4,7 @@ namespace HiPay\Wallet\Mirakl\Common;
 
 use Exception;
 use HiPay\Wallet\Mirakl\Api\Mirakl;
-use HiPay\Wallet\Mirakl\Api\Mirakl\ConfigurationInterface
-    as MiraklConfiguration;
 use HiPay\Wallet\Mirakl\Api\HiPay;
-use HiPay\Wallet\Mirakl\Api\HiPay\ConfigurationInterface
-    as HiPayConfiguration;
 use HiPay\Wallet\Mirakl\Exception\DispatchableException;
 use HiPay\Wallet\Mirakl\Exception\Event\ThrowException;
 use Psr\Log\LoggerInterface;
@@ -25,11 +21,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 abstract class AbstractProcessor
 {
-    /** @var Mirakl $mirakl */
-    protected $mirakl;
 
-    /** @var HiPay $hipay */
-    protected $hipay;
 
     /** @var EventDispatcherInterface event */
     protected $dispatcher;
@@ -40,20 +32,13 @@ abstract class AbstractProcessor
     /**
      * AbstractProcessor constructor.
      *
-     * @param MiraklConfiguration      $miraklConfig
-     * @param HiPayConfiguration       $hipayConfig
      * @param EventDispatcherInterface $dispatcher
      * @param LoggerInterface          $logger
      */
     public function __construct(
-        MiraklConfiguration $miraklConfig,
-        HiPayConfiguration $hipayConfig,
         EventDispatcherInterface $dispatcher,
         LoggerInterface $logger
     ) {
-        $this->mirakl = Mirakl::factory($miraklConfig);
-
-        $this->hipay = HiPay::factory($hipayConfig);
 
         $this->dispatcher = $dispatcher;
 
@@ -91,7 +76,7 @@ abstract class AbstractProcessor
      * @param array $context
      * @param string $level
      */
-    protected function handleException(Exception $exception, $level = 'warning', array $context = array())
+    public function handleException(Exception $exception, $level = 'warning', array $context = array())
     {
         $this->logger->$level(
             $exception->getMessage(), $context
