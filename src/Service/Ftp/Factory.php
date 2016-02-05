@@ -4,6 +4,7 @@ namespace HiPay\Wallet\Mirakl\Service\Ftp;
 
 use HiPay\Wallet\Mirakl\Service\Validation\ModelValidator;
 use InvalidArgumentException;
+use Touki\FTP\FTPFactory as BaseFactory;
 use Touki\FTP\Connection\Connection;
 use Touki\FTP\Connection\SSLConnection;
 
@@ -14,7 +15,7 @@ use Touki\FTP\Connection\SSLConnection;
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
  */
-class ConnectionFactory
+class Factory extends BaseFactory
 {
     const FTP = 'ftp';
     const SFTP = 'sftp';
@@ -43,7 +44,7 @@ class ConnectionFactory
         ModelValidator::validate($this->configuration);
         switch (strtolower($this->configuration->getConnectionType())) {
             case static::FTP:
-                return new Connection(
+                $connection = new Connection(
                     $this->configuration->getHost(),
                     $this->configuration->getUsername(),
                     $this->configuration->getPassword(),
@@ -51,15 +52,15 @@ class ConnectionFactory
                     $this->configuration->getTimeout(),
                     $this->configuration->isPassive()
                 );
+                break;
             case static::SFTP:
-                return new SSHConnection(
+                $connection =  new SSHConnection(
                     $this->configuration->getHost(),
                     $this->configuration->getPort()
-
                 );
                 break;
             case static::FTP_SSL:
-                return new SSLConnection(
+                $connection =  new SSLConnection(
                     $this->configuration->getHost(),
                     $this->configuration->getUsername(),
                     $this->configuration->getPassword(),
@@ -75,5 +76,6 @@ class ConnectionFactory
                     " don't exists"
                 );
         }
+        return parent::build($connection);
     }
 }

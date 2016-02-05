@@ -10,12 +10,11 @@
 
 namespace HiPay\Wallet\Mirakl\Common;
 
+use HiPay\Wallet\Mirakl\Api\Factory;
+use HiPay\Wallet\Mirakl\Api\HiPay\ApiInterface as HiPayInterface;
 use HiPay\Wallet\Mirakl\Api\Mirakl;
-use HiPay\Wallet\Mirakl\Api\Mirakl\ConfigurationInterface
-    as MiraklConfiguration;
+use HiPay\Wallet\Mirakl\Api\Mirakl\ApiInterface as MiraklInterface;
 use HiPay\Wallet\Mirakl\Api\HiPay;
-use HiPay\Wallet\Mirakl\Api\HiPay\ConfigurationInterface
-    as HiPayConfiguration;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -28,31 +27,29 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  */
 abstract class AbstractApiProcessor extends AbstractProcessor
 {
-    /** @var Mirakl $mirakl */
+    /** @var MiraklInterface $mirakl */
     protected $mirakl;
 
-    /** @var HiPay $hipay */
+    /** @var HiPayInterface $hipay */
     protected $hipay;
 
     /**
      * AbstractProcessor constructor.
      *
-     * @param MiraklConfiguration      $miraklConfig
-     * @param HiPayConfiguration       $hipayConfig
      * @param EventDispatcherInterface $dispatcher
-     * @param LoggerInterface          $logger
+     * @param LoggerInterface $logger
+     * @param Factory $factory
      */
     public function __construct(
         EventDispatcherInterface $dispatcher,
         LoggerInterface $logger,
-        MiraklConfiguration $miraklConfig,
-        HiPayConfiguration $hipayConfig
+        Factory $factory
     ) {
 
         parent::__construct($dispatcher, $logger);
 
-        $this->mirakl = Mirakl::factory($miraklConfig);
+        $this->mirakl = $factory->getMirakl();
 
-        $this->hipay = HiPay::factory($hipayConfig);
+        $this->hipay = $factory->getHiPay();
     }
 }

@@ -4,15 +4,14 @@ namespace HiPay\Wallet\Mirakl\Api;
 
 use DateTime;
 use Exception;
+use HiPay\Wallet\Mirakl\Api\HiPay\ApiInterface;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\MerchantData;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\BankInfo;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\Transfer;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\UserAccountBasic;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\UserAccountDetails;
-use HiPay\Wallet\Mirakl\Api\HiPay\ConfigurationInterface as HiPayConfigurationInterface;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Status\Identified;
 use HiPay\Wallet\Mirakl\Api\Soap\SmileClient;
-use HiPay\Wallet\Mirakl\Service\Validation\ModelValidator;
 use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 
 /**
@@ -22,7 +21,7 @@ use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
  */
-class HiPay
+class HiPay implements ApiInterface
 {
     /** @var  string the hipay webservice login */
     protected $login;
@@ -92,25 +91,6 @@ class HiPay
         $this->withdrawalClient = new SmileClient(
             $baseUrl.'soap/withdrawal?wsdl',
             $options
-        );
-    }
-
-    /**
-     * @param HiPayConfigurationInterface $configuration
-     *
-     * @return HiPay
-     */
-    public static function factory(HiPayConfigurationInterface $configuration)
-    {
-        ModelValidator::validate($configuration);
-        return new self(
-            $configuration->getBaseUrl(),
-            $configuration->getWebServiceLogin(),
-            $configuration->getWebServicePassword(),
-            $configuration->getEntity(),
-            $configuration->getLocale(),
-            $configuration->getTimezone(),
-            $configuration->getOptions()
         );
     }
 

@@ -4,16 +4,13 @@ namespace HiPay\Wallet\Mirakl\Cashout;
 
 use DateTime;
 use Exception;
+use HiPay\Wallet\Mirakl\Api\Factory;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\Transfer;
 use HiPay\Wallet\Mirakl\Cashout\Event\OperationEvent;
 use HiPay\Wallet\Mirakl\Cashout\Model\Operation\OperationInterface;
 use HiPay\Wallet\Mirakl\Cashout\Model\Operation\Status;
 use HiPay\Wallet\Mirakl\Common\AbstractApiProcessor;
-use HiPay\Wallet\Mirakl\Api\Mirakl\ConfigurationInterface
-    as MiraklConfiguration;
 use HiPay\Wallet\Mirakl\Api\HiPay;
-use HiPay\Wallet\Mirakl\Api\HiPay\ConfigurationInterface
-    as HiPayConfiguration;
 use HiPay\Wallet\Mirakl\Exception\WrongWalletBalance;
 use HiPay\Wallet\Mirakl\Exception\WalletNotFoundException;
 use HiPay\Wallet\Mirakl\Exception\UnconfirmedBankAccountException;
@@ -51,26 +48,27 @@ class Processor extends AbstractApiProcessor
     /**
      * Processor constructor.
      *
-     * @param MiraklConfiguration $miraklConfig
-     * @param HiPayConfiguration $hipayConfig
      * @param EventDispatcherInterface $dispatcher
      * @param LoggerInterface $logger
+     * @param Factory $factory
      * @param OperationManager $operationManager ,
      * @param VendorManager $vendorManager
      * @param VendorInterface $operator
      * @param VendorInterface $technical
+     *
+     * @throws \HiPay\Wallet\Mirakl\Exception\ValidationFailedException
      */
     public function __construct(
         EventDispatcherInterface $dispatcher,
         LoggerInterface $logger,
-        MiraklConfiguration $miraklConfig,
-        HiPayConfiguration $hipayConfig,
+        Factory $factory,
         OperationManager $operationManager,
         VendorManager $vendorManager,
         VendorInterface $operator,
         VendorInterface $technical
     ) {
-        parent::__construct($dispatcher, $logger, $miraklConfig, $hipayConfig);
+        parent::__construct($dispatcher, $logger, $factory);
+
         $this->operationManager = $operationManager;
         $this->vendorManager = $vendorManager;
 

@@ -4,13 +4,10 @@ namespace HiPay\Wallet\Mirakl\Cashout;
 
 use DateTime;
 use Exception;
+use HiPay\Wallet\Mirakl\Api\Factory;
 use HiPay\Wallet\Mirakl\Cashout\Model\Operation\OperationInterface;
 use HiPay\Wallet\Mirakl\Cashout\Model\Operation\Status;
 use HiPay\Wallet\Mirakl\Common\AbstractApiProcessor;
-use HiPay\Wallet\Mirakl\Api\Mirakl\ConfigurationInterface
-    as MiraklConfiguration;
-use HiPay\Wallet\Mirakl\Api\HiPay\ConfigurationInterface
-    as HiPayConfiguration;
 use HiPay\Wallet\Mirakl\Exception\AlreadyCreatedOperationException;
 use HiPay\Wallet\Mirakl\Cashout\Model\Transaction\ValidatorInterface;
 use HiPay\Wallet\Mirakl\Cashout\Model\Operation\ManagerInterface
@@ -58,28 +55,27 @@ class Initializer extends AbstractApiProcessor
     /**
      * Initializer constructor.
      *
-     * @param MiraklConfiguration      $miraklConfig
-     * @param HiPayConfiguration       $hipayConfig
      * @param EventDispatcherInterface $dispatcher
-     * @param LoggerInterface          $logger
-     * @param VendorInterface          $operatorAccount
-     * @param VendorInterface          $technicalAccount
-     * @param ValidatorInterface       $transactionValidator
-     * @param OperationManager         $operationHandler
-     * @param VendorManager            $vendorManager
+     * @param LoggerInterface $logger
+     * @param Factory $factory
+     * @param VendorInterface $operatorAccount
+     * @param VendorInterface $technicalAccount
+     * @param ValidatorInterface $transactionValidator
+     * @param OperationManager $operationHandler
+     * @param VendorManager $vendorManager
+     * @throws ValidationFailedException
      */
     public function __construct(
         EventDispatcherInterface $dispatcher,
         LoggerInterface $logger,
-        MiraklConfiguration $miraklConfig,
-        HiPayConfiguration $hipayConfig,
+        Factory $factory,
         VendorInterface $operatorAccount,
         VendorInterface $technicalAccount,
         ValidatorInterface $transactionValidator,
         OperationManager $operationHandler,
         VendorManager $vendorManager
     ) {
-        parent::__construct($dispatcher, $logger, $miraklConfig, $hipayConfig);
+        parent::__construct($dispatcher, $logger, $factory);
 
         ModelValidator::validate($operatorAccount, 'Operator');
         $this->operator = $operatorAccount;

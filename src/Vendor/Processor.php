@@ -3,17 +3,15 @@
 namespace HiPay\Wallet\Mirakl\Vendor;
 
 use DateTime;
+use Exception;
+use HiPay\Wallet\Mirakl\Api\Factory;
 use HiPay\Wallet\Mirakl\Api\HiPay;
-use HiPay\Wallet\Mirakl\Api\HiPay\ConfigurationInterface
-    as HiPayConfiguration;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Status\BankInfo as BankInfoStatus;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\BankInfo;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\MerchantData;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\UserAccountBasic;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\UserAccountDetails;
 use HiPay\Wallet\Mirakl\Api\Mirakl;
-use HiPay\Wallet\Mirakl\Api\Mirakl\ConfigurationInterface
-    as MiraklConfiguration;
 use HiPay\Wallet\Mirakl\Common\AbstractApiProcessor;
 use HiPay\Wallet\Mirakl\Exception\BankAccountCreationFailedException;
 use HiPay\Wallet\Mirakl\Exception\DispatchableException;
@@ -21,9 +19,7 @@ use HiPay\Wallet\Mirakl\Exception\FTPUploadFailed;
 use HiPay\Wallet\Mirakl\Exception\InvalidBankInfoException;
 use HiPay\Wallet\Mirakl\Exception\InvalidVendorException;
 use HiPay\Wallet\Mirakl\Service\Ftp;
-use HiPay\Wallet\Mirakl\Service\Ftp\ConfigurationInterface
-    as FtpConfiguration;
-use HiPay\Wallet\Mirakl\Service\Ftp\ConnectionFactory;
+use HiPay\Wallet\Mirakl\Service\Ftp\Factory as FtpFactory;
 use HiPay\Wallet\Mirakl\Service\Validation\ModelValidator;
 use HiPay\Wallet\Mirakl\Service\Zip;
 use HiPay\Wallet\Mirakl\Vendor\Event\AddBankAccount;
@@ -34,7 +30,6 @@ use HiPay\Wallet\Mirakl\Vendor\Model\ManagerInterface;
 use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Touki\FTP\FTPFactory;
 use Touki\FTP\FTPInterface;
 use Touki\FTP\Model\Directory;
 use Touki\FTP\Model\File;
@@ -58,31 +53,26 @@ class Processor extends AbstractApiProcessor
     /**
      * Processor constructor.
      *
-     * @param MiraklConfiguration      $miraklConfig
-     * @param HiPayConfiguration       $hipayConfig
      * @param EventDispatcherInterface $dispatcherInterface
-     * @param LoggerInterface          $logger
-     * @param FtpConfiguration         $ftpConfiguration
-     * @param ManagerInterface         $vendorManager
+     * @param LoggerInterface $logger
+     * @param Factory $factory
+     * @param FtpFactory $ftpFactory
+     * @param ManagerInterface $vendorManager
      */
     public function __construct(
         EventDispatcherInterface $dispatcherInterface,
         LoggerInterface $logger,
-        MiraklConfiguration $miraklConfig,
-        HiPayConfiguration $hipayConfig,
-        FtpConfiguration $ftpConfiguration,
+        Factory $factory,
+        FtpFactory $ftpFactory,
         ManagerInterface $vendorManager
     ) {
         parent::__construct(
             $dispatcherInterface,
             $logger,
-            $miraklConfig,
-            $hipayConfig
+            $factory
         );
 
-        $connectionFactory = new ConnectionFactory($ftpConfiguration);
-        $factory = new FTPFactory();
-        $this->ftp = $factory->build($connectionFactory->build());
+        $this->ftp = $ftpFactory->build();
 
         $this->vendorManager = $vendorManager;
     }
@@ -189,7 +179,7 @@ class Processor extends AbstractApiProcessor
                 $tmpZipFilePath,
                 $this->mirakl->downloadShopsDocuments($shopIds)
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->notice('No file was transferred');
             return;
         }
@@ -339,8 +329,6 @@ class Processor extends AbstractApiProcessor
                 '[OK] Fetched vendors from Mirakl : '.count($miraklData)
             );
 
-
-
             //Wallet creation
             $this->logger->info('Wallet creation');
             $vendorCollection = $this->registerWallets($miraklData);
@@ -360,16 +348,17 @@ class Processor extends AbstractApiProcessor
             );
             $this->logger->info('[OK] Files transferred');
 
-            $indexedMiraklData = array();
-            foreach ($miraklData as $data) {
-                $indexedMiraklData[$data['shop_id']] = $data;
-            }
+            //Index data fetched from Mirakl by shop id
+            $this->logger->info('Index mirakl data by shop Id');
+            $indexedMiraklData = $this->indexMiraklData($miraklData);
+            $this->logger->info('[OK] Data indexed by shopId');
 
             //Bank data updating
             $this->logger->info('Update bank data');
             $this->handleBankInfo($vendorCollection, $indexedMiraklData);
             $this->logger->info('[OK] Bank info updated');
-        } catch (\Exception $e) {
+
+        } catch (Exception $e) {
             $this->handleException($e, "critical");
         }
     }
@@ -571,5 +560,20 @@ class Processor extends AbstractApiProcessor
             $pastDate = new DateTime('1970-01-01');
         }
         return $this->hipay->getMerchantGroupAccounts($merchantGroupId, $pastDate);
+    }
+
+    /**
+     * Index mirakl data fetched with a call to S20 resource from their API
+     *
+     * @param $miraklData
+     * @return array
+     */
+    public function indexMiraklData($miraklData)
+    {
+        $indexedMiraklData = array();
+        foreach ($miraklData as $data) {
+            $indexedMiraklData[$data['shop_id']] = $data;
+        }
+        return $indexedMiraklData;
     }
 }
