@@ -139,12 +139,13 @@ class Processor extends AbstractApiProcessor
 
                 $operation->setStatus($transferSuccess);
                 $operation->setTransferId($transferId);
+                $this->logger->info("[OK] Transfer operation ". $operation->getTransferId() ." executed");
             } catch (Exception $e) {
                 $operation->setStatus($transferFailed);
+                $this->logger->info("[OK] Transfer operation failed");
                 $this->handleException($e, 'critical');
             }
             $this->operationManager->save($operation);
-            $this->logger->info("[OK] Transfer operation ". $operation->getTransferId() ." executed");
         }
     }
     /**
@@ -192,13 +193,14 @@ class Processor extends AbstractApiProcessor
                 //Set operation new data
                 $operation->setWithdrawId($withdrawId);
                 $operation->setStatus($withdrawRequested);
+                $this->logger->info("[OK] Withdraw operation " . $operation->getWithdrawId(). " executed");
             } catch (Exception $e) {
                 $operation->setStatus($withdrawFailed);
+                $this->logger->info("[OK] Withdraw operation failed");
                 $this->handleException($e, 'critical');
             }
             //Save operation
             $this->operationManager->save($operation);
-            $this->logger->info("[OK] Withdraw operation " . $operation->getWithdrawId(). " executed");
         }
     }
 
