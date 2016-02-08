@@ -39,7 +39,7 @@ class Factory extends BaseFactory
      *
      * @return Connection
      */
-    public function build()
+    public function getFtp()
     {
         ModelValidator::validate($this->configuration);
         switch (strtolower($this->configuration->getConnectionType())) {

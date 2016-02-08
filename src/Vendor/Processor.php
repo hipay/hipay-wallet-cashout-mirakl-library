@@ -72,7 +72,7 @@ class Processor extends AbstractApiProcessor
             $factory
         );
 
-        $this->ftp = $ftpFactory->build();
+        $this->ftp = $ftpFactory->getFtp();
 
         $this->vendorManager = $vendorManager;
     }

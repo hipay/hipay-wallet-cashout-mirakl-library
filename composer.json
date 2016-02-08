@@ -26,7 +26,8 @@
   },
   "autoload": {
     "psr-4": {
-      "HiPay\\Wallet\\Mirakl\\": "src"
+      "HiPay\\Wallet\\Mirakl\\": "src",
+      "HiPay\\Wallet\\Mirakl\\Test\\": "tests"
     }
   }
 }
