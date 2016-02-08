@@ -164,9 +164,11 @@ class Handler extends AbstractProcessor
 
         if ($status) {
             $operation->setStatus(new Status(Status::WITHDRAW_SUCCESS));
+            $this->logger->info("Withdraw {$operation->getWithdrawId()} successful");
             $eventName = 'withdraw.notification.success';
         } else {
             $operation->setStatus(new Status(Status::WITHDRAW_CANCELED));
+            $this->logger->info("Withdraw {$operation->getWithdrawId()} canceled");
             $eventName = 'withdraw.notification.failed';
         }
 
