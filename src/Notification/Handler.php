@@ -76,11 +76,14 @@ class Handler extends AbstractProcessor
             return;
         }
 
-        $xml = new SimpleXMLElement($xml);
+        if (is_string($xml)) {
+            $xml = new SimpleXMLElement($xml);
+        }
 
         //Check content
         /** @noinspection PhpUndefinedFieldInspection */
-        $md5string = preg_replace('/\n/', '', $xml->result->asXML());
+        $md5string = strtr($xml->result->asXML(), array("\n" => ''));
+
         /** @noinspection PhpUndefinedFieldInspection */
         if (md5($md5string) !=  $xml->md5content) {
             throw new ChecksumFailedException();

@@ -12,7 +12,6 @@ use HiPay\Wallet\Mirakl\Exception\AlreadyCreatedOperationException;
 use HiPay\Wallet\Mirakl\Cashout\Model\Transaction\ValidatorInterface;
 use HiPay\Wallet\Mirakl\Cashout\Model\Operation\ManagerInterface
     as OperationManager;
-use HiPay\Wallet\Mirakl\Exception\DispatchableException;
 use HiPay\Wallet\Mirakl\Exception\ValidationFailedException;
 use HiPay\Wallet\Mirakl\Vendor\Model\ManagerInterface
     as VendorManager;
@@ -173,7 +172,7 @@ class Initializer extends AbstractApiProcessor
      *
      * @return array
      */
-    protected function getPaymentTransactions(
+    public function getPaymentTransactions(
         DateTime $startDate,
         DateTime $endDate
     ) {
@@ -275,7 +274,7 @@ class Initializer extends AbstractApiProcessor
      *
      * @return array
      */
-    protected function getOrderTransactions($shopId, $paymentVoucher)
+    public function getOrderTransactions($shopId, $paymentVoucher)
     {
         $transactions = $this->mirakl->getTransactions(
             $shopId,
@@ -297,7 +296,7 @@ class Initializer extends AbstractApiProcessor
      *
      * @return array
      */
-    protected function getOrderTransactionTypes()
+    public function getOrderTransactionTypes()
     {
         return array(
             'COMMISSION_FEE',
@@ -364,7 +363,7 @@ class Initializer extends AbstractApiProcessor
      *
      * @return OperationInterface
      */
-    protected function createOperation(
+    public function createOperation(
         $amount,
         DateTime $cycleDate,
         $paymentVoucher,
@@ -412,8 +411,7 @@ class Initializer extends AbstractApiProcessor
             if (in_array(
                 $transaction['transaction_type'],
                 $this->getOperatorTransactionTypes()
-            )
-            ) {
+            )) {
                 $amount += round($transaction['amount_credited'], static::SCALE)
                     - round($transaction['amount_debited'], static::SCALE);
             }
@@ -427,7 +425,7 @@ class Initializer extends AbstractApiProcessor
      *
      * @return array
      */
-    protected function getOperatorTransactionTypes()
+    public function getOperatorTransactionTypes()
     {
         return array(
             'COMMISSION_FEE',
@@ -463,7 +461,7 @@ class Initializer extends AbstractApiProcessor
      */
     public function hasSufficientFunds($amount)
     {
-        return bccomp($this->hipay->getBalance($this->technicalAccount), $amount, static::SCALE) >= 0;
+        return round($this->hipay->getBalance($this->technicalAccount), static::SCALE) >= round($amount, static::SCALE);
     }
 
     /**
@@ -491,7 +489,7 @@ class Initializer extends AbstractApiProcessor
      *
      * @return bool
      */
-    protected function areOperationsValid(array $operations)
+    public function areOperationsValid(array $operations)
     {
         //Valid the operation and check if operation wasn't created before
         $this->logger->info('Validate the operations');
@@ -499,12 +497,7 @@ class Initializer extends AbstractApiProcessor
         $operationError = false;
         /** @var OperationInterface $operation */
         foreach ($operations as $operation) {
-            try {
-                $this->validateOperation($operation);
-            } catch (DispatchableException $e) {
-                $operationError = true;
-                $this->handleException($e);
-            }
+            $operationError = $operationError || !$this->isOperationValid($operation);
         }
 
         return !$operationError;
@@ -514,25 +507,30 @@ class Initializer extends AbstractApiProcessor
      * Validate an operation
      *
      * @param OperationInterface $operation
-     * @throws AlreadyCreatedOperationException
-     * @throws InvalidOperationException
-     * @throws ValidationFailedException
+     *
+     * @return bool
      */
-    public function validateOperation(OperationInterface $operation)
+    public function isOperationValid(OperationInterface $operation)
     {
-        if ($this->operationManager
-            ->findByMiraklIdAndPaymentVoucherNumber(
-                $operation->getMiraklId(),
-                $operation->getPaymentVoucher()
-            )
-        ) {
-            throw new AlreadyCreatedOperationException($operation);
-        }
+        try {
+            if ($this->operationManager
+                ->findByMiraklIdAndPaymentVoucherNumber(
+                    $operation->getMiraklId(),
+                    $operation->getPaymentVoucher()
+                )
+            ) {
+                throw new AlreadyCreatedOperationException($operation);
+            }
 
-        if (!$this->operationManager->isValid($operation)) {
-            throw new InvalidOperationException($operation);
-        }
+            if (!$this->operationManager->isValid($operation)) {
+                throw new InvalidOperationException($operation);
+            }
 
-        ModelValidator::validate($operation);
+            ModelValidator::validate($operation);
+        } catch (Exception $e) {
+            $this->handleException($e);
+            return false;
+        }
+        return true;
     }
 }
