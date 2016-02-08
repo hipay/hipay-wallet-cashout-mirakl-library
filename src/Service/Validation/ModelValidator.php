@@ -5,7 +5,7 @@ namespace HiPay\Wallet\Mirakl\Service\Validation;
 use HiPay\Wallet\Mirakl\Exception\UnauthorizedModificationException;
 use HiPay\Wallet\Mirakl\Exception\ValidationFailedException;
 use Symfony\Component\Validator\Validation;
-use Symfony\Component\Validator\Validator;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * Class ModelValidator
@@ -18,7 +18,7 @@ use Symfony\Component\Validator\Validator;
  */
 abstract class ModelValidator
 {
-    /** @var Validator */
+    /** @var ValidatorInterface */
     protected static $validator;
 
     /**
@@ -29,10 +29,10 @@ abstract class ModelValidator
      *
      * @throws ValidationFailedException
      */
-    public static function validate($object, $groups = false)
+    public static function validate($object, $groups = null)
     {
         static::initialize();
-        $errors = static::$validator->validate($object, $groups);
+        $errors = static::$validator->validate($object, null, $groups);
         if ($errors->count() != 0) {
             //Throw new exception containing the errors
             throw new ValidationFailedException($errors, $object);
