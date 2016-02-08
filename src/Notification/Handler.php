@@ -77,6 +77,7 @@ class Handler extends AbstractProcessor
         }
 
         if (is_string($xml)) {
+            $xml = strtr($xml, array("\n" => ''));
             $xml = new SimpleXMLElement($xml);
         }
 
@@ -173,8 +174,8 @@ class Handler extends AbstractProcessor
         }
 
         $this->operationManager->save($operation);
-        $event = new WithdrawNotification($hipayId, $date, $operation);
 
+        $event = new WithdrawNotification($hipayId, $date, $operation);
         $this->dispatcher->dispatch($eventName, $event);
     }
 
