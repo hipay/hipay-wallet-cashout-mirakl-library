@@ -98,6 +98,8 @@ class Initializer extends AbstractApiProcessor
      * @param DateTime $cycleDate
      *
      * @throws Exception
+     *
+     * @codeCoverageIgnore
      */
     public function process(
         DateTime $startDate,
@@ -113,23 +115,18 @@ class Initializer extends AbstractApiProcessor
             ' to '.
             $endDate->format('Y-m-d H:i')
         );
+
         $paymentTransactions = $this->getPaymentTransactions(
             $startDate,
             $endDate
         );
 
-        $paymentDebits = array();
-        $count = 0;
-        foreach ($paymentTransactions as $transaction) {
-            $paymentDebits[$transaction['payment_voucher_number']][$transaction['shop_id']] =
-                $transaction['amount_debited'];
-            $count++;
-        }
+        $paymentDebits = $this->extractPaymentAmounts($paymentTransactions);
 
         $transactionError = null;
         $operations = array();
 
-        $this->logger->info('[OK] Fetched '. $count . ' payment transactions');
+        $this->logger->info('[OK] Fetched '. count($paymentTransactions) . ' payment transactions');
 
         //Compute amounts (vendor and operator) by payment vouchers
         $this->logger->info('Compute amounts and create vendor operation');
@@ -239,8 +236,7 @@ class Initializer extends AbstractApiProcessor
                 );
 
                 //Compute the operator amount for this payment voucher
-                $operatorAmount = round($operatorAmount, static::SCALE) +
-                    round($this->computeOperatorAmountByVendor($orderTransactions), static::SCALE);
+                $operatorAmount += round($this->computeOperatorAmountByVendor($orderTransactions), static::SCALE);
             } catch (Exception $e) {
                 $transactionError = true;
                 /** @var Exception $transactionError */
@@ -440,10 +436,10 @@ class Initializer extends AbstractApiProcessor
     /**
      * Sum operations amounts
      *
-     * @param array $operations
+     * @param OperationInterface[] $operations
      * @return mixed
      */
-    public function sumOperationAmounts(array $operations)
+    protected function sumOperationAmounts(array $operations)
     {
         $scale = static::SCALE;
         return array_reduce($operations, function ($carry, OperationInterface $item) use ($scale) {
@@ -497,7 +493,7 @@ class Initializer extends AbstractApiProcessor
         $operationError = false;
         /** @var OperationInterface $operation */
         foreach ($operations as $operation) {
-            $operationError = $operationError || !$this->isOperationValid($operation);
+            $operationError = !$this->isOperationValid($operation) || $operationError;
         }
 
         return !$operationError;
@@ -532,5 +528,19 @@ class Initializer extends AbstractApiProcessor
             return false;
         }
         return true;
+    }
+
+    /**
+     * @param $paymentTransactions
+     * @return array
+     */
+    protected function extractPaymentAmounts($paymentTransactions)
+    {
+        $paymentDebits = array();
+        foreach ($paymentTransactions as $transaction) {
+            $paymentDebits[$transaction['payment_voucher_number']][$transaction['shop_id']] =
+                $transaction['amount_debited'];
+        }
+        return $paymentDebits;
     }
 }
