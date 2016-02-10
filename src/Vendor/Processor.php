@@ -316,6 +316,8 @@ class Processor extends AbstractApiProcessor
      * @param DateTime $lastUpdate
      * @param $zipPath
      * @param $ftpPath
+     *
+     * @codeCoverageIgnore
      */
     public function process($zipPath, $ftpPath, DateTime $lastUpdate = null)
     {
@@ -568,7 +570,7 @@ class Processor extends AbstractApiProcessor
      * @param $miraklData
      * @return array
      */
-    public function indexMiraklData($miraklData)
+    protected function indexMiraklData($miraklData)
     {
         $indexedMiraklData = array();
         foreach ($miraklData as $data) {
