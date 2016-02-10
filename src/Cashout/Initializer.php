@@ -227,13 +227,15 @@ class Initializer extends AbstractApiProcessor
 
                 $this->logger->debug("Vendor amount " . $vendorAmount);
 
-                //Create the vendor operation
-                $operations[] = $this->createOperation(
-                    $vendorAmount,
-                    $cycleDate,
-                    $paymentVoucher,
-                    $shopId
-                );
+                if ($vendorAmount > 0) {
+                    //Create the vendor operation
+                    $operations[] = $this->createOperation(
+                        $vendorAmount,
+                        $cycleDate,
+                        $paymentVoucher,
+                        $shopId
+                    );
+                }
 
                 //Compute the operator amount for this payment voucher
                 $operatorAmount += round($this->computeOperatorAmountByVendor($orderTransactions), static::SCALE);
@@ -253,12 +255,15 @@ class Initializer extends AbstractApiProcessor
 
         $this->logger->debug("Operator amount " . $operatorAmount);
 
-        // Create operator operation
-        $operations[] = $this->createOperation(
-            $operatorAmount,
-            $cycleDate,
-            $paymentVoucher
-        );
+        if ($operatorAmount > 0) {
+            // Create operator operation
+            $operations[] = $this->createOperation(
+                $operatorAmount,
+                $cycleDate,
+                $paymentVoucher
+            );
+        }
+
         return $transactionError ? false : $operations;
     }
 
@@ -357,7 +362,7 @@ class Initializer extends AbstractApiProcessor
      * @param string $paymentVoucher
      * @param bool|int $miraklId false if it an operator operation
      *
-     * @return OperationInterface
+     * @return OperationInterface|null
      */
     public function createOperation(
         $amount,
@@ -367,6 +372,7 @@ class Initializer extends AbstractApiProcessor
     ) {
         if ($amount <= 0) {
             $this->logger->notice("Operation wasn't created du to null amount");
+            return null;
         }
         //Call implementation function
         $operation = $this->operationManager->create($amount, $cycleDate, $paymentVoucher, $miraklId);
