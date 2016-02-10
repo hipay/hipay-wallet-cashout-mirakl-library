@@ -14,8 +14,8 @@ use HiPay\Wallet\Mirakl\Api\HiPay\Model\Status\BankInfo as BankInfoStatus;
  */
 class UnconfirmedBankAccountException extends DispatchableException
 {
-    /** @var  VendorInterface */
-    protected $vendor;
+    /** @var  int|false */
+    protected $miraklId;
 
     /** @var  BankInfoStatus */
     protected $status;
@@ -23,24 +23,25 @@ class UnconfirmedBankAccountException extends DispatchableException
     /**
      * UnconfirmedBankAccountException constructor.
      *
-     * @param VendorInterface $vendor
-     * @param BankInfoStatus  $status
-     * @param string          $message
-     * @param int             $code
-     * @param Exception       $previous
+     * @param BankInfoStatus $status
+     * @param int|bool $miraklId
+     * @param string $message
+     * @param int $code
+     * @param Exception $previous
      */
     public function __construct(
-        VendorInterface $vendor,
         BankInfoStatus $status,
+        $miraklId = null,
         $message = '',
         $code = 0,
         Exception $previous = null
     ) {
-        $this->vendor = $vendor;
+        $this->miraklId = $miraklId;
         $this->status = $status;
+        $identity = $miraklId ? "This vendor ($miraklId)" : "The operator";
         parent::__construct(
             $message ?:
-            "This vendor ({$vendor->getMiraklId()}) bank account is not validated.\n
+            "$identity bank account is not validated.\n
              Please contact HiPay",
             $code,
             $previous
@@ -50,9 +51,9 @@ class UnconfirmedBankAccountException extends DispatchableException
     /**
      * @return VendorInterface
      */
-    public function getVendor()
+    public function getMiraklId()
     {
-        return $this->vendor;
+        return $this->miraklId;
     }
 
     /**

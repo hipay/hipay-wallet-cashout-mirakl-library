@@ -3,7 +3,6 @@
 namespace HiPay\Wallet\Mirakl\Exception;
 
 use Exception;
-use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 
 /**
  * Class NoFundsAvailableException.
@@ -13,27 +12,27 @@ use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
  */
 class WrongWalletBalance extends DispatchableException
 {
-    /** @var VendorInterface  */
-    protected $vendor;
+    /** @var int  */
+    protected $miraklId;
 
     /**
      * NoFundsAvailable constructor.
      *
-     * @param VendorInterface $vendor
-     * @param string          $message
-     * @param int             $code
-     * @param Exception       $previous
+     * @param int       $miraklId
+     * @param string    $message
+     * @param int       $code
+     * @param Exception $previous
      */
     public function __construct(
-        $vendor,
+        $miraklId,
         $message = '',
         $code = 0,
         Exception $previous = null
     ) {
-        $this->vendor = $vendor;
+        $this->miraklId = $miraklId;
         parent::__construct(
             $message ?:
-            "This vendor ({$vendor->getMiraklId()}) balance is wrong",
+            "This vendor ({$miraklId}) balance is wrong",
             $code,
             $previous
         );
@@ -45,5 +44,13 @@ class WrongWalletBalance extends DispatchableException
     public function getEventName()
     {
         return 'wrong.wallet.balance';
+    }
+
+    /**
+     * @return int
+     */
+    public function getMiraklId()
+    {
+        return $this->miraklId;
     }
 }

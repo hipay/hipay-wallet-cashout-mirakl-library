@@ -23,8 +23,6 @@ interface OperationInterface
 {
     /**
      * @return int|null if it is an operator operation
-     *
-     * @Assert\Type(type="integer")
      */
     public function getMiraklId();
 
@@ -60,6 +58,17 @@ interface OperationInterface
     public function setWithdrawId($withdrawId);
 
     /**
+     * @return float
+     */
+    public function getWithdrawnAmount();
+
+    /**
+     * @param $amount
+     * @return void
+     */
+    public function setWithdrawnAmount($amount);
+
+    /**
      * @return string
      *
      */
@@ -79,6 +88,8 @@ interface OperationInterface
     public function getStatus();
 
     /**
+     * Set the status
+     * For information, the method Status::getValue return the int to set
      * @param Status $status
      */
     public function setStatus(Status $status);

@@ -223,8 +223,7 @@ class HiPay implements ApiInterface
      */
     public function getWalletId($email)
     {
-        $parameters = array('accountLogin' => $email);
-        $result = $this->callSoap('getAccountInfos', $parameters);
+        $result = $this->getAccountInfos($email);
 
         return $result['userAccountId'];
     }
@@ -232,20 +231,32 @@ class HiPay implements ApiInterface
     /**
      * Return the identified status of the account.
      *
-     * @param VendorInterface $vendor
-     *
+     * @param string $email
      * @return bool
+     * @throws Exception
      */
-    public function isIdentified(VendorInterface $vendor)
+    public function isIdentified($email)
     {
-        $parameters = array('accountId' => $vendor->getHiPayId());
-        $result = $this->callSoap('getAccountInfos', $parameters);
+        $result = $this->getAccountInfos($email);
 
         return $result['identified'] == Identified::YES ? true : false;
     }
 
     /**
-     * Return the account information.
+     * Return various information about a wallet
+     *
+     * @param $email
+     * @return array
+     * @throws Exception
+     */
+    protected function getAccountInfos($email)
+    {
+        $parameters = array('accountLogin' => $email);
+        return $this->callSoap('getAccountInfos', $parameters);
+    }
+
+    /**
+     * Return the wallet current balance
      *
      * @param VendorInterface $vendor
      *
@@ -267,7 +278,7 @@ class HiPay implements ApiInterface
      * @param Transfer        $transfer
      * @param VendorInterface $vendor
      *
-     * @return array
+     * @return int
      *
      * @throws Exception
      */
@@ -292,7 +303,7 @@ class HiPay implements ApiInterface
      * @param $amount
      * @param $label
      *
-     * @return array
+     * @return int
      *
      * @throws Exception
      */

@@ -111,11 +111,11 @@ interface ApiInterface
     /**
      * Return the identified status of the account.
      *
-     * @param VendorInterface $vendor
+     * @param string $email
      *
      * @return bool
      */
-    public function isIdentified(VendorInterface $vendor);
+    public function isIdentified($email);
 
     /**
      * Return the account information.
@@ -134,7 +134,7 @@ interface ApiInterface
      * @param Transfer $transfer
      * @param VendorInterface $vendor
      *
-     * @return array
+     * @return int
      *
      * @throws Exception
      */
@@ -147,7 +147,7 @@ interface ApiInterface
      * @param $amount
      * @param $label
      *
-     * @return array
+     * @return int
      *
      * @throws Exception
      */

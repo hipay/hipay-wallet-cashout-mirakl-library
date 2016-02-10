@@ -25,14 +25,16 @@ class WalletNotFoundException extends DispatchableException
      * @param Exception       $previous
      */
     public function __construct(
-        VendorInterface $vendor,
+        VendorInterface $vendor = null,
         $message = '',
         $code = 0,
         Exception $previous = null
     ) {
         $this->vendor = $vendor;
+        $defaultMessage = $vendor ?
+            "The wallet for {$vendor->getHiPayId()} is not found" : "The vendor is not found in the storage";
         parent::__construct(
-            $message ?: "The wallet for {$vendor->getHiPayId()} is not found",
+            $message ?: $defaultMessage,
             $code,
             $previous
         );
