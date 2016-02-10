@@ -257,12 +257,12 @@ class InitializerTest extends AbstractProcessorTest
      */
     public function testGetOrderTransaction()
     {
-        $shopId = 2001;
-        $paymentVoucher = "000001";
+        $shopId = 2031;
+        $paymentVoucher = "000002";
         $this->mirakl->getTransactions(Argument::cetera())->shouldBeCalled()
             ->will(
                 function () use ($shopId, $paymentVoucher) {
-                    return Mirakl::getOrderTransactions($shopId, $paymentVoucher);
+                    return Mirakl::getOrderTransactions($shopId, $paymentVoucher, "miscellaneousOrders.json");
                 }
             );
 
@@ -276,7 +276,6 @@ class InitializerTest extends AbstractProcessorTest
 
         foreach ($result as $paymentTransaction) {
             $this->assertArrayHasKey("transaction_type", $paymentTransaction);
-
             $this->assertEquals(
                 true,
                 in_array(
@@ -292,7 +291,162 @@ class InitializerTest extends AbstractProcessorTest
      * @covers ::computeOperatorAmount
      * @covers ::computeVendorAmount
      */
-    public function testHandlePaymentVoucher()
+    public function testSimpleOrder()
+    {
+        /** @var OperationInterface $operatorOperation */
+        $operations = $this->setOrderTestAssertion("simpleOrder.json");
+
+        $this->assertCount(2, $operations);
+
+        /** @var OperationInterface $vendorOperation */
+        $vendorOperation = reset($operations);
+
+        $this->assertTrue($vendorOperation->getMiraklId() != false);
+
+        $this->assertEquals((float) 5000, $vendorOperation->getAmount());
+
+        /** @var OperationInterface $operatorOperation */
+        $operatorOperation = end($operations);
+
+        $this->assertNull($operatorOperation->getMiraklId());
+
+        $this->assertEquals((float) 240, $operatorOperation->getAmount());
+    }
+
+    /**
+     * @covers ::handlePaymentVoucher
+     * @covers ::computeOperatorAmount
+     * @covers ::computeVendorAmount
+     */
+    public function testWithManualCredit()
+    {
+        /** @var OperationInterface $operatorOperation */
+        $operations = $this->setOrderTestAssertion("withManualCredit.json");
+
+        $this->assertCount(2, $operations);
+
+        /** @var OperationInterface $vendorOperation */
+        $vendorOperation = reset($operations);
+
+        $this->assertTrue($vendorOperation->getMiraklId() != false);
+
+        $this->assertEquals((float) 5000, $vendorOperation->getAmount());
+
+        /** @var OperationInterface $operatorOperation */
+        $operatorOperation = end($operations);
+
+        $this->assertNull($operatorOperation->getMiraklId());
+
+        $this->assertEquals((float) 2400, $operatorOperation->getAmount());
+    }
+
+    /**
+     * @covers ::handlePaymentVoucher
+     * @covers ::computeOperatorAmount
+     * @covers ::computeVendorAmount
+     */
+    public function testWithoutCommission()
+    {
+        /** @var OperationInterface $operatorOperation */
+        $operations = $this->setOrderTestAssertion("withoutCommission.json", false);
+
+        $this->assertCount(1, $operations);
+
+        /** @var OperationInterface $vendorOperation */
+        $vendorOperation = reset($operations);
+
+        $this->assertTrue($vendorOperation->getMiraklId() != false);
+
+        $this->assertEquals((float) 5000, $vendorOperation->getAmount());
+    }
+
+    /**
+     * @covers ::handlePaymentVoucher
+     * @covers ::computeOperatorAmount
+     * @covers ::computeVendorAmount
+     */
+    public function testWithoutShipping()
+    {
+        /** @var OperationInterface $operatorOperation */
+        $operations = $this->setOrderTestAssertion("withoutShipping.json");
+
+        $this->assertCount(2, $operations);
+
+        /** @var OperationInterface $vendorOperation */
+        $vendorOperation = reset($operations);
+
+        $this->assertTrue($vendorOperation->getMiraklId() != false);
+
+        $this->assertEquals((float) 5000, $vendorOperation->getAmount());
+
+        /** @var OperationInterface $operatorOperation */
+        $operatorOperation = end($operations);
+
+        $this->assertNull($operatorOperation->getMiraklId());
+
+        $this->assertEquals((float) 600, $operatorOperation->getAmount());
+    }
+
+    /**
+     * @covers ::handlePaymentVoucher
+     * @covers ::computeOperatorAmount
+     * @covers ::computeVendorAmount
+     */
+    public function testWithRefund()
+    {
+        /** @var OperationInterface $operatorOperation */
+        $operations = $this->setOrderTestAssertion("withRefund.json");
+
+        $this->assertCount(2, $operations);
+
+        /** @var OperationInterface $vendorOperation */
+        $vendorOperation = reset($operations);
+
+        $this->assertTrue($vendorOperation->getMiraklId() != false);
+
+        $this->assertEquals((float) 5000, $vendorOperation->getAmount());
+
+        /** @var OperationInterface $operatorOperation */
+        $operatorOperation = end($operations);
+
+        $this->assertNull($operatorOperation->getMiraklId());
+
+        $this->assertEquals((float) 500, $operatorOperation->getAmount());
+    }
+
+    /**
+     * @param $file
+     *
+     * @param $withOperatorOperation
+     * @return array
+     */
+    protected function setOrderTestAssertion($file, $withOperatorOperation = true)
+    {
+        $this->setOrderTestProphecy($file, $withOperatorOperation);
+
+        $operations = $this->cashoutInitializer->handlePaymentVoucher(
+            "000001",
+            array(2001 => 5000),
+            new DateTime()
+        );
+
+        $this->assertInternalType("array", $operations);
+
+        $this->assertContainsOnly(
+            "\\HiPay\\Wallet\\Mirakl\\Cashout\\Model\\Operation\\OperationInterface",
+            $operations
+        );
+
+
+
+        return $operations;
+    }
+
+    /**
+     * @param $file
+     * @param bool|true $withOperatorOperation
+     */
+    public function setOrderTestProphecy($file, $withOperatorOperation = true)
     {
         $this->mirakl->getTransactions(
             Argument::type('integer'),
@@ -303,13 +457,15 @@ class InitializerTest extends AbstractProcessorTest
             Argument::is(null),
             Argument::type("string"),
             Argument::cetera()
-        )->will(function ($args) {
+        )->will(function ($args) use ($file) {
             $shopId = $args[0];
             $paymentVoucher = $args[6];
-            return Mirakl::getOrderTransactions($shopId, $paymentVoucher);
+            $array = Mirakl::getOrderTransactions($shopId, $paymentVoucher, $file);
+            return $array;
         })->shouldBeCalled();
 
         $this->transactionValidator->isValid(Argument::type('array'))->willReturn(true)->shouldBeCalled();
+
         $this->operationManager->create(
             Argument::type('float'),
             Argument::type('DateTime'),
@@ -320,33 +476,16 @@ class InitializerTest extends AbstractProcessorTest
             return new Operation($amount, $cycleDate, $paymentVoucher, $miraklId);
         })->shouldBeCalled();
 
-        $this->operationManager->create(
-            Argument::type('float'),
-            Argument::type('DateTime'),
-            Argument::type('string'),
-            Argument::is(null)
-        )->will(function ($args) {
-            list($amount, $cycleDate, $paymentVoucher, $miraklId) = $args;
-            return new Operation($amount, $cycleDate, $paymentVoucher, $miraklId);
-        })->shouldBeCalled();
-
-        $operations = $this->cashoutInitializer->handlePaymentVoucher(
-            "000001",
-            array(2001 => 5000),
-            new DateTime()
-        );
-
-        $this->assertInternalType("array", $operations);
-        $this->assertContainsOnly(
-            "\\HiPay\\Wallet\\Mirakl\\Cashout\\Model\\Operation\\OperationInterface",
-            $operations
-        );
-        $this->assertCount(2, $operations);
-
-        $vendorOperation = reset($operations);
-        $this->assertEquals((float) 5000, $vendorOperation->getAmount());
-
-        $operatorOperation = end($operations);
-        $this->assertEquals((float) 2400, $operatorOperation->getAmount());
+        if ($withOperatorOperation) {
+            $this->operationManager->create(
+                Argument::type('float'),
+                Argument::type('DateTime'),
+                Argument::type('string'),
+                Argument::is(null)
+            )->will(function ($args) {
+                list($amount, $cycleDate, $paymentVoucher, $miraklId) = $args;
+                return new Operation($amount, $cycleDate, $paymentVoucher, $miraklId);
+            })->shouldBeCalled();
+        }
     }
 }

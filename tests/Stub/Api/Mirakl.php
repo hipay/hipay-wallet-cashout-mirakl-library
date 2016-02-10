@@ -50,15 +50,19 @@ class Mirakl
     /**
      * @param $shopId
      * @param $paymentVoucher
+     * @param $file
      * @return array
      */
-    public static function getOrderTransactions($shopId, $paymentVoucher)
+    public static function getOrderTransactions($shopId, $paymentVoucher, $file)
     {
-        $transactions = json_decode(file_get_contents(__DIR__ . "/../../../data/test/orders.json"), true);
+        $transactions = json_decode(file_get_contents(__DIR__ . "/../../../data/test/orders/$file"), true);
 
         $lines = $transactions['lines'];
+
         return array_filter($lines, function ($line) use ($shopId, $paymentVoucher) {
-            return $line['shop_id'] == $shopId && $line['payment_voucher_number'] == $paymentVoucher;
+            return  $line['shop_id'] == $shopId &&
+                    $line['payment_voucher_number'] == $paymentVoucher &&
+                    $line['transaction_type'] != "PAYMENT";
         });
     }
     /**

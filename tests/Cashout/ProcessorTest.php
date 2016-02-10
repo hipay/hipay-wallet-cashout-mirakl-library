@@ -4,6 +4,7 @@ namespace HiPay\Wallet\Mirakl\Test\Cashout;
 
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\Transfer;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Status\BankInfo;
+use HiPay\Wallet\Mirakl\Cashout\Model\Operation\OperationInterface;
 use HiPay\Wallet\Mirakl\Cashout\Model\Operation\Status;
 use HiPay\Wallet\Mirakl\Cashout\Processor;
 use HiPay\Wallet\Mirakl\Test\Common\AbstractProcessorTest;
@@ -50,6 +51,7 @@ class ProcessorTest extends AbstractProcessorTest
             $this->operator
         );
 
+        /** @var OperationInterface $operationArgument */
         $operationArgument = Argument::type("\\HiPay\\Wallet\\Mirakl\\Cashout\\Model\\Operation\\OperationInterface");
 
         $this->operationManager->generatePrivateLabel($operationArgument)->willReturn($this->getRandomString());
