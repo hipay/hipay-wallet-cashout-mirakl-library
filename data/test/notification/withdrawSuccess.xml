@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<notification>
+    <md5content>74aa1584c2b3d09609aaad91b482ac5f</md5content>
+    <result>
+        <operation>withdraw_validation</operation>
+        <status>ok</status>
+        <date>2015-07-30</date>
+        <time>16:56:07 UTC+0000</time>
+        <transid>55BA56C21B780240</transid>
+        <account_id>123481</account_id>
+    </result>
+</notification>

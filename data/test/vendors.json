@@ -1,0 +1,875 @@
+{
+  "shops": [
+    {
+      "approval_delay": null,
+      "approval_rate": null,
+      "banner": null,
+      "billing_info": {
+        "bank_city": "Adélka",
+        "bank_name": "BNP Paribas",
+        "bank_street": "56, Avenue de l'astéroide",
+        "bic": "BNPAFRPP",
+        "iban": "FR7630004012781111111111124",
+        "owner": "Cole McGrath",
+        "zip_code": "60001"
+      },
+      "channels": [
+        "INIT"
+      ],
+      "closed_from": null,
+      "closed_to": null,
+      "contact_informations": {
+        "city": "Paris",
+        "civility": "Mr",
+        "country": "FRA",
+        "email": "test+1@test.com",
+        "fax": null,
+        "firstname": "Test",
+        "lastname": "Test",
+        "phone": "0123456789",
+        "phone_secondary": "0123456789",
+        "state": null,
+        "street1": "1 rue des sports",
+        "street2": null,
+        "web_site": null,
+        "zip_code": "75007"
+      },
+      "currency_iso_code": "EUR",
+      "date_created": "2015-08-20T09:21:59Z",
+      "description": null,
+      "evaluations_count": 0,
+      "free_shipping": false,
+      "grade": null,
+      "immunity_date": null,
+      "is_professional": true,
+      "last_updated_date": "2016-10-06T00:00:00Z",
+      "logo": null,
+      "offers_count": 0,
+      "operator_internal_id": null,
+      "order_messages_response_delay": null,
+      "orders_count": 0,
+      "payment_details": {
+        "paid_balance": 0,
+        "pay_subscription": true,
+        "payable_balance": 0,
+        "payment_blocked": false,
+        "pending_balance": 0,
+        "subscription_free_from": null,
+        "subscription_free_to": null
+      },
+      "payment_info": {
+        "@type": "IBAN",
+        "bank_city": "Adélka",
+        "bank_name": "BNP Paribas",
+        "bank_street": "56, Avenue de l'astéroide",
+        "bank_zip": "60001",
+        "bic": "BNPAFRPP",
+        "iban": "FR7630004012781111111111124",
+        "owner": "Cole McGrath"
+      },
+      "premium": false,
+      "premium_state": "DEFAULT",
+      "pro_details": {
+        "VAT_number": "FR70442686259",
+        "corporate_name": "Test SAS",
+        "identification_number": "44268625900078",
+        "tax_identification_number": "FR70442686259"
+      },
+      "return_policy": "PAS DE RETOUR",
+      "shipping_country": "FRA",
+      "shipping_types": [
+        "SUV",
+        "express",
+        "so-colissimo",
+        "standard"
+      ],
+      "shipping_zones": [
+        "FR"
+      ],
+      "shippings": [
+        {
+          "shipping_free_amount": null,
+          "shipping_type_code": "SUV",
+          "shipping_type_label": "Suivi|5",
+          "shipping_zone_code": "FR",
+          "shipping_zone_label": "France Métropolitaine"
+        },
+        {
+          "shipping_free_amount": 200,
+          "shipping_type_code": "express",
+          "shipping_type_label": "Express|1",
+          "shipping_zone_code": "FR",
+          "shipping_zone_label": "France Métropolitaine"
+        },
+        {
+          "shipping_free_amount": null,
+          "shipping_type_code": "so-colissimo",
+          "shipping_type_label": "So Colissimo",
+          "shipping_zone_code": "FR",
+          "shipping_zone_label": "France Métropolitaine"
+        },
+        {
+          "shipping_free_amount": 100,
+          "shipping_type_code": "standard",
+          "shipping_type_label": "Recommandé|2",
+          "shipping_zone_code": "FR",
+          "shipping_zone_label": "France Métropolitaine"
+        }
+      ],
+      "shop_additional_fields": [
+        {
+          "code": "annonceur",
+          "value": "false"
+        },
+        {
+          "code": "brand-code"
+        },
+        {
+          "code": "client-groupe",
+          "value": "false"
+        },
+        {
+          "code": "is-brand",
+          "value": "false"
+        },
+        {
+          "code": "level",
+          "value": "1"
+        },
+        {
+          "code": "level-from"
+        },
+        {
+          "code": "level-to"
+        },
+        {
+          "code": "swift-code"
+        }
+      ],
+      "shop_id": 2001,
+      "shop_name": "Test 1",
+      "shop_state": "OPEN"
+    },
+    {
+      "approval_delay": null,
+      "approval_rate": null,
+      "banner": null,
+      "billing_info": {
+        "bank_city": "Adélka",
+        "bank_name": "BNP Paribas",
+        "bank_street": "56, Avenue de l'astéroide",
+        "bic": "BNPAFRPP",
+        "iban": "FR7630004012781111111111124",
+        "owner": "Cole McGrath",
+        "zip_code": "60001"
+      },
+      "channels": [
+        "INIT"
+      ],
+      "closed_from": null,
+      "closed_to": null,
+      "contact_informations": {
+        "city": "Paris",
+        "civility": "Mr",
+        "country": "FRA",
+        "email": "test+2@test.com",
+        "fax": null,
+        "firstname": "Test",
+        "lastname": "Test",
+        "phone": "0123456789",
+        "phone_secondary": "0123456789",
+        "state": null,
+        "street1": "1 rue des sports",
+        "street2": null,
+        "web_site": null,
+        "zip_code": "75007"
+      },
+      "currency_iso_code": "EUR",
+      "date_created": "2015-08-20T09:21:59Z",
+      "description": null,
+      "evaluations_count": 0,
+      "free_shipping": false,
+      "grade": null,
+      "immunity_date": null,
+      "is_professional": true,
+      "last_updated_date": "2016-10-05T00:00:00Z",
+      "logo": null,
+      "offers_count": 0,
+      "operator_internal_id": null,
+      "order_messages_response_delay": null,
+      "orders_count": 0,
+      "payment_details": {
+        "paid_balance": 0,
+        "pay_subscription": true,
+        "payable_balance": 0,
+        "payment_blocked": false,
+        "pending_balance": 0,
+        "subscription_free_from": null,
+        "subscription_free_to": null
+      },
+      "payment_info": {
+        "@type": "IBAN",
+        "bank_city": "Adélka",
+        "bank_name": "BNP Paribas",
+        "bank_street": "56, Avenue de l'astéroide",
+        "bank_zip": "60001",
+        "bic": "BNPAFRPP",
+        "iban": "FR7630004012781111111111124",
+        "owner": "Cole McGrath"
+      },
+      "premium": false,
+      "premium_state": "DEFAULT",
+      "pro_details": {
+        "VAT_number": "FR70442686259",
+        "corporate_name": "Test SAS",
+        "identification_number": "44268625900078",
+        "tax_identification_number": "FR70442686259"
+      },
+      "return_policy": "PAS DE RETOUR",
+      "shipping_country": "FRA",
+      "shipping_types": [
+        "SUV",
+        "express",
+        "so-colissimo",
+        "standard"
+      ],
+      "shipping_zones": [
+        "FR"
+      ],
+      "shippings": [
+        {
+          "shipping_free_amount": null,
+          "shipping_type_code": "SUV",
+          "shipping_type_label": "Suivi|5",
+          "shipping_zone_code": "FR",
+          "shipping_zone_label": "France Métropolitaine"
+        },
+        {
+          "shipping_free_amount": 200,
+          "shipping_type_code": "express",
+          "shipping_type_label": "Express|1",
+          "shipping_zone_code": "FR",
+          "shipping_zone_label": "France Métropolitaine"
+        },
+        {
+          "shipping_free_amount": null,
+          "shipping_type_code": "so-colissimo",
+          "shipping_type_label": "So Colissimo",
+          "shipping_zone_code": "FR",
+          "shipping_zone_label": "France Métropolitaine"
+        },
+        {
+          "shipping_free_amount": 100,
+          "shipping_type_code": "standard",
+          "shipping_type_label": "Recommandé|2",
+          "shipping_zone_code": "FR",
+          "shipping_zone_label": "France Métropolitaine"
+        }
+      ],
+      "shop_additional_fields": [
+        {
+          "code": "annonceur",
+          "value": "false"
+        },
+        {
+          "code": "brand-code"
+        },
+        {
+          "code": "client-groupe",
+          "value": "false"
+        },
+        {
+          "code": "is-brand",
+          "value": "false"
+        },
+        {
+          "code": "level",
+          "value": "1"
+        },
+        {
+          "code": "level-from"
+        },
+        {
+          "code": "level-to"
+        },
+        {
+          "code": "swift-code"
+        }
+      ],
+      "shop_id": 2002,
+      "shop_name": "Test 2",
+      "shop_state": "OPEN"
+    },
+    {
+      "approval_delay": null,
+      "approval_rate": null,
+      "banner": null,
+      "billing_info": {
+        "bank_city": "Adélka",
+        "bank_name": "BNP Paribas",
+        "bank_street": "56, Avenue de l'astéroide",
+        "bic": "BNPAFRPP",
+        "iban": "FR7630004012781111111111124",
+        "owner": "Cole McGrath",
+        "zip_code": "60001"
+      },
+      "channels": [
+        "INIT"
+      ],
+      "closed_from": null,
+      "closed_to": null,
+      "contact_informations": {
+        "city": "Paris",
+        "civility": "Mr",
+        "country": "FRA",
+        "email": "test+3@test.com",
+        "fax": null,
+        "firstname": "Test",
+        "lastname": "Test",
+        "phone": "0123456789",
+        "phone_secondary": "0123456789",
+        "state": null,
+        "street1": "1 rue des sports",
+        "street2": null,
+        "web_site": null,
+        "zip_code": "75007"
+      },
+      "currency_iso_code": "EUR",
+      "date_created": "2015-08-20T09:21:59Z",
+      "description": null,
+      "evaluations_count": 0,
+      "free_shipping": false,
+      "grade": null,
+      "immunity_date": null,
+      "is_professional": true,
+      "last_updated_date": "2016-10-05T00:00:00Z",
+      "logo": null,
+      "offers_count": 0,
+      "operator_internal_id": null,
+      "order_messages_response_delay": null,
+      "orders_count": 0,
+      "payment_details": {
+        "paid_balance": 0,
+        "pay_subscription": true,
+        "payable_balance": 0,
+        "payment_blocked": false,
+        "pending_balance": 0,
+        "subscription_free_from": null,
+        "subscription_free_to": null
+      },
+      "payment_info": {
+        "@type": "IBAN",
+        "bank_city": "Adélka",
+        "bank_name": "BNP Paribas",
+        "bank_street": "56, Avenue de l'astéroide",
+        "bank_zip": "60001",
+        "bic": "BNPAFRPP",
+        "iban": "FR7630004012781111111111124",
+        "owner": "Cole McGrath"
+      },
+      "premium": false,
+      "premium_state": "DEFAULT",
+      "pro_details": {
+        "VAT_number": "FR70442686259",
+        "corporate_name": "Test SAS",
+        "identification_number": "44268625900078",
+        "tax_identification_number": "FR70442686259"
+      },
+      "return_policy": "PAS DE RETOUR",
+      "shipping_country": "FRA",
+      "shipping_types": [
+        "SUV",
+        "express",
+        "so-colissimo",
+        "standard"
+      ],
+      "shipping_zones": [
+        "FR"
+      ],
+      "shippings": [
+        {
+          "shipping_free_amount": null,
+          "shipping_type_code": "SUV",
+          "shipping_type_label": "Suivi|5",
+          "shipping_zone_code": "FR",
+          "shipping_zone_label": "France Métropolitaine"
+        },
+        {
+          "shipping_free_amount": 200,
+          "shipping_type_code": "express",
+          "shipping_type_label": "Express|1",
+          "shipping_zone_code": "FR",
+          "shipping_zone_label": "France Métropolitaine"
+        },
+        {
+          "shipping_free_amount": null,
+          "shipping_type_code": "so-colissimo",
+          "shipping_type_label": "So Colissimo",
+          "shipping_zone_code": "FR",
+          "shipping_zone_label": "France Métropolitaine"
+        },
+        {
+          "shipping_free_amount": 100,
+          "shipping_type_code": "standard",
+          "shipping_type_label": "Recommandé|2",
+          "shipping_zone_code": "FR",
+          "shipping_zone_label": "France Métropolitaine"
+        }
+      ],
+      "shop_additional_fields": [
+        {
+          "code": "annonceur",
+          "value": "false"
+        },
+        {
+          "code": "brand-code"
+        },
+        {
+          "code": "client-groupe",
+          "value": "false"
+        },
+        {
+          "code": "is-brand",
+          "value": "false"
+        },
+        {
+          "code": "level",
+          "value": "1"
+        },
+        {
+          "code": "level-from"
+        },
+        {
+          "code": "level-to"
+        },
+        {
+          "code": "swift-code"
+        }
+      ],
+      "shop_id": 2003,
+      "shop_name": "Test 3",
+      "shop_state": "OPEN"
+    },
+    {
+      "approval_delay": null,
+      "approval_rate": null,
+      "banner": null,
+      "billing_info": {
+        "bank_city": "Adélka",
+        "bank_name": "BNP Paribas",
+        "bank_street": "56, Avenue de l'astéroide",
+        "bic": "BNPAFRPP",
+        "iban": "FR7630004012781111111111124",
+        "owner": "Cole McGrath",
+        "zip_code": "60001"
+      },
+      "channels": [
+        "INIT"
+      ],
+      "closed_from": null,
+      "closed_to": null,
+      "contact_informations": {
+        "city": "Paris",
+        "civility": "Mr",
+        "country": "FRA",
+        "email": "test+4@test.com",
+        "fax": null,
+        "firstname": "Test",
+        "lastname": "Test",
+        "phone": "0123456789",
+        "phone_secondary": "0123456789",
+        "state": null,
+        "street1": "1 rue des sports",
+        "street2": null,
+        "web_site": null,
+        "zip_code": "75007"
+      },
+      "currency_iso_code": "EUR",
+      "date_created": "2015-08-20T09:21:59Z",
+      "description": null,
+      "evaluations_count": 0,
+      "free_shipping": false,
+      "grade": null,
+      "immunity_date": null,
+      "is_professional": true,
+      "last_updated_date": "2016-10-04T00:00:00Z",
+      "logo": null,
+      "offers_count": 0,
+      "operator_internal_id": null,
+      "order_messages_response_delay": null,
+      "orders_count": 0,
+      "payment_details": {
+        "paid_balance": 0,
+        "pay_subscription": true,
+        "payable_balance": 0,
+        "payment_blocked": false,
+        "pending_balance": 0,
+        "subscription_free_from": null,
+        "subscription_free_to": null
+      },
+      "payment_info": {
+        "@type": "IBAN",
+        "bank_city": "Adélka",
+        "bank_name": "BNP Paribas",
+        "bank_street": "56, Avenue de l'astéroide",
+        "bank_zip": "60001",
+        "bic": "BNPAFRPP",
+        "iban": "FR7630004012781111111111124",
+        "owner": "Cole McGrath"
+      },
+      "premium": false,
+      "premium_state": "DEFAULT",
+      "pro_details": {
+        "VAT_number": "FR70442686259",
+        "corporate_name": "Test SAS",
+        "identification_number": "44268625900078",
+        "tax_identification_number": "FR70442686259"
+      },
+      "return_policy": "PAS DE RETOUR",
+      "shipping_country": "FRA",
+      "shipping_types": [
+        "SUV",
+        "express",
+        "so-colissimo",
+        "standard"
+      ],
+      "shipping_zones": [
+        "FR"
+      ],
+      "shippings": [
+        {
+          "shipping_free_amount": null,
+          "shipping_type_code": "SUV",
+          "shipping_type_label": "Suivi|5",
+          "shipping_zone_code": "FR",
+          "shipping_zone_label": "France Métropolitaine"
+        },
+        {
+          "shipping_free_amount": 200,
+          "shipping_type_code": "express",
+          "shipping_type_label": "Express|1",
+          "shipping_zone_code": "FR",
+          "shipping_zone_label": "France Métropolitaine"
+        },
+        {
+          "shipping_free_amount": null,
+          "shipping_type_code": "so-colissimo",
+          "shipping_type_label": "So Colissimo",
+          "shipping_zone_code": "FR",
+          "shipping_zone_label": "France Métropolitaine"
+        },
+        {
+          "shipping_free_amount": 100,
+          "shipping_type_code": "standard",
+          "shipping_type_label": "Recommandé|2",
+          "shipping_zone_code": "FR",
+          "shipping_zone_label": "France Métropolitaine"
+        }
+      ],
+      "shop_additional_fields": [
+        {
+          "code": "annonceur",
+          "value": "false"
+        },
+        {
+          "code": "brand-code"
+        },
+        {
+          "code": "client-groupe",
+          "value": "false"
+        },
+        {
+          "code": "is-brand",
+          "value": "false"
+        },
+        {
+          "code": "level",
+          "value": "1"
+        },
+        {
+          "code": "level-from"
+        },
+        {
+          "code": "level-to"
+        },
+        {
+          "code": "swift-code"
+        }
+      ],
+      "shop_id": 2004,
+      "shop_name": "Test 4",
+      "shop_state": "OPEN"
+    },
+    {
+      "approval_delay": null,
+      "approval_rate": null,
+      "banner": null,
+      "billing_info": {
+        "bank_city": "Adélka",
+        "bank_name": "BNP Paribas",
+        "bank_street": "56, Avenue de l'astéroide",
+        "bic": "BNPAFRPP",
+        "iban": "FR7630004012781111111111124",
+        "owner": "Cole McGrath",
+        "zip_code": "60001"
+      },
+      "channels": [
+        "INIT"
+      ],
+      "closed_from": null,
+      "closed_to": null,
+      "contact_informations": {
+        "city": "Paris",
+        "civility": "Mr",
+        "country": "FRA",
+        "email": "test+5@test.com",
+        "fax": null,
+        "firstname": "Test",
+        "lastname": "Test",
+        "phone": "0123456789",
+        "phone_secondary": "0123456789",
+        "state": null,
+        "street1": "1 rue des sports",
+        "street2": null,
+        "web_site": null,
+        "zip_code": "75007"
+      },
+      "currency_iso_code": "EUR",
+      "date_created": "2015-08-20T09:21:59Z",
+      "description": null,
+      "evaluations_count": 0,
+      "free_shipping": false,
+      "grade": null,
+      "immunity_date": null,
+      "is_professional": true,
+      "last_updated_date": "2016-10-10T00:00:00Z",
+      "logo": null,
+      "offers_count": 0,
+      "operator_internal_id": null,
+      "order_messages_response_delay": null,
+      "orders_count": 0,
+      "payment_details": {
+        "paid_balance": 0,
+        "pay_subscription": true,
+        "payable_balance": 0,
+        "payment_blocked": false,
+        "pending_balance": 0,
+        "subscription_free_from": null,
+        "subscription_free_to": null
+      },
+      "payment_info": {
+        "@type": "IBAN",
+        "bank_city": "Adélka",
+        "bank_name": "BNP Paribas",
+        "bank_street": "56, Avenue de l'astéroide",
+        "bank_zip": "60001",
+        "bic": "BNPAFRPP",
+        "iban": "FR7630004012781111111111124",
+        "owner": "Cole McGrath"
+      },
+      "premium": false,
+      "premium_state": "DEFAULT",
+      "pro_details": {
+        "VAT_number": "FR70442686259",
+        "corporate_name": "Test SAS",
+        "identification_number": "44268625900078",
+        "tax_identification_number": "FR70442686259"
+      },
+      "return_policy": "PAS DE RETOUR",
+      "shipping_country": "FRA",
+      "shipping_types": [
+        "SUV",
+        "express",
+        "so-colissimo",
+        "standard"
+      ],
+      "shipping_zones": [
+        "FR"
+      ],
+      "shippings": [
+        {
+          "shipping_free_amount": null,
+          "shipping_type_code": "SUV",
+          "shipping_type_label": "Suivi|5",
+          "shipping_zone_code": "FR",
+          "shipping_zone_label": "France Métropolitaine"
+        },
+        {
+          "shipping_free_amount": 200,
+          "shipping_type_code": "express",
+          "shipping_type_label": "Express|1",
+          "shipping_zone_code": "FR",
+          "shipping_zone_label": "France Métropolitaine"
+        },
+        {
+          "shipping_free_amount": null,
+          "shipping_type_code": "so-colissimo",
+          "shipping_type_label": "So Colissimo",
+          "shipping_zone_code": "FR",
+          "shipping_zone_label": "France Métropolitaine"
+        },
+        {
+          "shipping_free_amount": 100,
+          "shipping_type_code": "standard",
+          "shipping_type_label": "Recommandé|2",
+          "shipping_zone_code": "FR",
+          "shipping_zone_label": "France Métropolitaine"
+        }
+      ],
+      "shop_additional_fields": [
+        {
+          "code": "annonceur",
+          "value": "false"
+        },
+        {
+          "code": "brand-code"
+        },
+        {
+          "code": "client-groupe",
+          "value": "false"
+        },
+        {
+          "code": "is-brand",
+          "value": "false"
+        },
+        {
+          "code": "level",
+          "value": "1"
+        },
+        {
+          "code": "level-from"
+        },
+        {
+          "code": "level-to"
+        },
+        {
+          "code": "swift-code"
+        }
+      ],
+      "shop_id": 2005,
+      "shop_name": "Test 5",
+      "shop_state": "OPEN"
+    },
+    {
+      "approval_delay": null,
+      "approval_rate": null,
+      "banner": null,
+      "billing_info": {
+        "bank_city": "Adélka",
+        "bank_name": "BNP Paribas",
+        "bank_street": "56, Avenue de l'astéroide",
+        "bic": "BNPAFRPP",
+        "iban": "FR7630004012781111111111124",
+        "owner": "Cole McGrath",
+        "zip_code": "60001"
+      },
+      "channels": [
+        "INIT"
+      ],
+      "closed_from": null,
+      "closed_to": null,
+      "contact_informations": {
+        "city": "Paris",
+        "civility": "Mr",
+        "country": "FRA",
+        "email": "test+6@test.com",
+        "fax": null,
+        "firstname": "Test",
+        "lastname": "Test",
+        "phone": "0123456789",
+        "phone_secondary": "0123456789",
+        "state": null,
+        "street1": "1 rue des sports",
+        "street2": null,
+        "web_site": null,
+        "zip_code": "75007"
+      },
+      "currency_iso_code": "EUR",
+      "date_created": "2015-08-20T09:21:59Z",
+      "description": null,
+      "evaluations_count": 0,
+      "free_shipping": false,
+      "grade": null,
+      "immunity_date": null,
+      "is_professional": true,
+      "last_updated_date": "2016-10-12T00:00:00Z",
+      "logo": null,
+      "offers_count": 0,
+      "operator_internal_id": null,
+      "order_messages_response_delay": null,
+      "orders_count": 0,
+      "payment_details": {
+        "paid_balance": 0,
+        "pay_subscription": true,
+        "payable_balance": 0,
+        "payment_blocked": false,
+        "pending_balance": 0,
+        "subscription_free_from": null,
+        "subscription_free_to": null
+      },
+      "payment_info": {
+        "@type": "IBAN",
+        "bank_city": "Adélka",
+        "bank_name": "BNP Paribas",
+        "bank_street": "56, Avenue de l'astéroide",
+        "bank_zip": "60001",
+        "bic": "BNPAFRPP",
+        "iban": "FR7630004012781111111111124",
+        "owner": "Cole McGrath"
+      },
+      "premium": false,
+      "premium_state": "DEFAULT",
+      "pro_details": {
+        "VAT_number": "FR70442686259",
+        "corporate_name": "Test SAS",
+        "identification_number": "44268625900078",
+        "tax_identification_number": "FR70442686259"
+      },
+      "return_policy": "PAS DE RETOUR",
+      "shipping_country": "FRA",
+      "shipping_types": [
+        "SUV",
+        "express",
+        "so-colissimo",
+        "standard"
+      ],
+      "shipping_zones": [
+        "FR"
+      ],
+      "shippings": [
+        {
+          "shipping_free_amount": null,
+          "shipping_type_code": "SUV",
+          "shipping_type_label": "Suivi|5",
+          "shipping_zone_code": "FR",
+          "shipping_zone_label": "France Métropolitaine"
+        },
+        {
+          "shipping_free_amount": 200,
+          "shipping_type_code": "express",
+          "shipping_type_label": "Express|1",
+          "shipping_zone_code": "FR",
+          "shipping_zone_label": "France Métropolitaine"
+        },
+        {
+          "shipping_free_amount": null,
+          "shipping_type_code": "so-colissimo",
+          "shipping_type_label": "So Colissimo",
+          "shipping_zone_code": "FR",
+          "shipping_zone_label": "France Métropolitaine"
+        },
+        {
+          "shipping_free_amount": 100,
+          "shipping_type_code": "standard",
+          "shipping_type_label": "Recommandé|2",
+          "shipping_zone_code": "FR",
+          "shipping_zone_label": "France Métropolitaine"
+        }
+      ],
+      "shop_id": 2006,
+      "shop_name": "Test 6",
+      "shop_state": "OPEN"
+    }
+  ],
+  "total_count": 6
+}

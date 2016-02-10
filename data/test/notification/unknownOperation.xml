@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<notification>
+    <md5content>76c0ffccb348d09e85979a662288ca44</md5content>
+    <result>
+        <operation>wrong</operation>
+        <status>ok</status>
+        <date>2016-01-21</date>
+        <time>13:56:40 UTC+0000</time>
+        <account_id>123456</account_id>
+    </result>
+</notification>
