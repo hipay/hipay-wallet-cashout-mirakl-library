@@ -10,6 +10,8 @@ use HiPay\Wallet\Mirakl\Common\AbstractEnumeration;
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
+ *
+ * @method int getValue()
  */
 class Status extends AbstractEnumeration
 {
