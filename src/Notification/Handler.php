@@ -16,7 +16,6 @@ use HiPay\Wallet\Mirakl\Exception\WrongOperationStatus;
 use HiPay\Wallet\Mirakl\Notification\Event\BankInfoNotification;
 use HiPay\Wallet\Mirakl\Notification\Event\IdentificationNotification;
 use HiPay\Wallet\Mirakl\Notification\Event\OtherNotification;
-use HiPay\Wallet\Mirakl\Vendor\Model\ManagerInterface as VendorManager;
 use HiPay\Wallet\Mirakl\Cashout\Model\Operation\Status;
 use HiPay\Wallet\Mirakl\Notification\Event\WithdrawNotification;
 use Psr\Log\LoggerInterface;
@@ -37,29 +36,20 @@ class Handler extends AbstractProcessor
     /** @var  OperationManager */
     protected $operationManager;
 
-    /** @var EventDispatcherInterface */
-    protected $dispatcher;
-
-    /** @var VendorManager */
-    private $vendorManager;
-
     /**
      * Handler constructor.
      *
      * @param OperationManager $operationManager
-     * @param VendorManager $vendorManager
      * @param EventDispatcherInterface $dispatcher
      * @param LoggerInterface $logger
      */
     public function __construct(
         EventDispatcherInterface $dispatcher,
         LoggerInterface $logger,
-        OperationManager $operationManager,
-        VendorManager $vendorManager
+        OperationManager $operationManager
     ) {
         parent::__construct($dispatcher, $logger);
         $this->operationManager = $operationManager;
-        $this->vendorManager = $vendorManager;
     }
 
     /**
@@ -77,26 +67,27 @@ class Handler extends AbstractProcessor
         }
 
         if (is_string($xml)) {
-            $xml = strtr($xml, array("\n" => ''));
+            $xml = strtr(rawurldecode($xml), array("\n" => ''));
             $xml = new SimpleXMLElement($xml);
         }
 
         //Check content
         /** @noinspection PhpUndefinedFieldInspection */
-        $md5string = strtr($xml->result->asXML(), array("\n" => ''));
+        $md5string = strtr($xml->result->asXML(), array("\n" => '', "\t" => ''));
+        $md5string = trim(preg_replace("#\>( )+?\<#", "><", $md5string));
 
         /** @noinspection PhpUndefinedFieldInspection */
         if (md5($md5string) !=  $xml->md5content) {
             throw new ChecksumFailedException();
         }
         /** @noinspection PhpUndefinedFieldInspection */
-        $operation = $xml->result->operation;
+        $operation = (string) $xml->result->operation;
         /** @noinspection PhpUndefinedFieldInspection */
         $status = ($xml->result->status == NotificationStatus::OK);
         /** @noinspection PhpUndefinedFieldInspection */
-        $date = new DateTime($xml->result->date.' '.$xml->result->time);
+        $date = new DateTime((string) $xml->result->date.' '. (string) $xml->result->time);
         /** @noinspection PhpUndefinedFieldInspection */
-        $hipayId = $xml->result->account_id;
+        $hipayId = (int) $xml->result->account_id;
 
         switch ($operation) {
             case Notification::BANK_INFO_VALIDATION:
@@ -118,16 +109,16 @@ class Handler extends AbstractProcessor
                 $this->withdrawalValidation(
                     $hipayId,
                     $date,
-                    $xml->result->transid,
+                    (string) $xml->result->transid,
                     $status
                 );
                 break;
             case Notification::OTHER:
                 /** @noinspection PhpUndefinedFieldInspection */
                 $this->other(
-                    $xml->result->amount,
-                    $xml->result->currency,
-                    $xml->result->label,
+                    (float) $xml->result->amount,
+                    (string) $xml->result->currency,
+                    (string) $xml->result->label,
                     $hipayId,
                     $date,
                     $status
@@ -170,7 +161,7 @@ class Handler extends AbstractProcessor
         } else {
             $operation->setStatus(new Status(Status::WITHDRAW_CANCELED));
             $this->logger->info("Withdraw {$operation->getWithdrawId()} canceled");
-            $eventName = 'withdraw.notification.failed';
+            $eventName = 'withdraw.notification.canceled';
         }
 
         $this->operationManager->save($operation);
