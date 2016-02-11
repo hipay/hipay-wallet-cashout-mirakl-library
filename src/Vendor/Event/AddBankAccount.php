@@ -6,7 +6,6 @@ use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\BankInfo;
 use Symfony\Component\EventDispatcher\Event;
 
 /**
- * Class AddBankAccountEvent
  * * Event object used when the event 'before.bankAccount.add'
  * is dispatched from the processor.
  *

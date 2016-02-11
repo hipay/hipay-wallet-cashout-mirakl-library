@@ -5,7 +5,6 @@ namespace HiPay\Wallet\Mirakl\Service\Ftp;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Interface ConfigurationInterface
  * Represent an ftp configuration
  * Must be implemented by the integrator.
  *

@@ -8,7 +8,6 @@ use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * Class ModelValidator
  * Validate models using the annotation in the interfaces and concrete classes
  * Used when validating the vendor and operation interface implementation
  * and the soap models before sending.

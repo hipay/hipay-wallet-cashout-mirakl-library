@@ -6,13 +6,12 @@ use DateTime;
 use HiPay\Wallet\Mirakl\Cashout\Model\Operation\OperationInterface;
 
 /**
- * Class WithdrawNotification
  * Event used on the withdraw operation notification.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
  */
-class WithdrawNotification extends NotificationEvent
+class Withdraw extends AbstractEvent
 {
     /** @var  OperationInterface */
     protected $operation;

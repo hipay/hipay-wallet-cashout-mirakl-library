@@ -3,7 +3,6 @@
 namespace HiPay\Wallet\Mirakl\Service;
 
 /**
- * Class ZipArchive
  * Represent a Zip archive.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>

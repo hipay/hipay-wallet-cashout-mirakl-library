@@ -3,8 +3,8 @@
 namespace HiPay\Wallet\Mirakl\Common;
 
 use Exception;
-use HiPay\Wallet\Mirakl\Api\Mirakl;
 use HiPay\Wallet\Mirakl\Api\HiPay;
+use HiPay\Wallet\Mirakl\Api\Mirakl;
 use HiPay\Wallet\Mirakl\Exception\DispatchableException;
 use HiPay\Wallet\Mirakl\Exception\Event\ThrowException;
 use Psr\Log\LoggerInterface;
@@ -12,7 +12,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * Class AbstractProcessor.
  *
  * Abstract class for all processors
  *

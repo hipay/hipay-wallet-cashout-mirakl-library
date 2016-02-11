@@ -8,8 +8,8 @@ use HiPay\Wallet\Mirakl\Notification\Handler;
 use HiPay\Wallet\Mirakl\Test\Common\AbstractProcessorTest;
 use HiPay\Wallet\Mirakl\Test\Stub\Entity\Operation;
 use Prophecy\Argument;
+
 /**
- * Class Validator.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
@@ -61,7 +61,7 @@ class HandlerTest extends AbstractProcessorTest
     {
         $xml = $this->readFile("bankInfoValidation.xml");
 
-        $this->setEventAssertion("bankInfos", "BankInfoNotification");
+        $this->setEventAssertion("bankInfos", "BankInfo");
 
         $this->notificationHandler->handleHiPayNotification($xml);
     }
@@ -75,7 +75,7 @@ class HandlerTest extends AbstractProcessorTest
     {
         $xml = $this->readFile("other.xml");
 
-        $this->setEventAssertion("other", "OtherNotification");
+        $this->setEventAssertion("other", "Other");
 
         $this->notificationHandler->handleHiPayNotification($xml);
     }
@@ -89,7 +89,7 @@ class HandlerTest extends AbstractProcessorTest
     {
         $xml = $this->readFile("identification.xml");
 
-        $this->setEventAssertion("identification", "IdentificationNotification");
+        $this->setEventAssertion("identification", "Identification");
 
         $this->notificationHandler->handleHiPayNotification($xml);
     }
@@ -110,7 +110,7 @@ class HandlerTest extends AbstractProcessorTest
 
         $this->operationManager->save(Argument::is($operation))->shouldBeCalled();
 
-        $this->setEventAssertion(array("withdraw", "success"), "WithdrawNotification");
+        $this->setEventAssertion(array("withdraw", "success"), "Withdraw");
 
         $this->notificationHandler->handleHiPayNotification($xml);
 
@@ -133,7 +133,7 @@ class HandlerTest extends AbstractProcessorTest
 
         $this->operationManager->save(Argument::is($operation))->shouldBeCalled();
 
-        $this->setEventAssertion(array("withdraw", "canceled"), "WithdrawNotification");
+        $this->setEventAssertion(array("withdraw", "canceled"), "Withdraw");
 
         $this->notificationHandler->handleHiPayNotification($xml);
 

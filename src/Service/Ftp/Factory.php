@@ -4,12 +4,11 @@ namespace HiPay\Wallet\Mirakl\Service\Ftp;
 
 use HiPay\Wallet\Mirakl\Service\Validation\ModelValidator;
 use InvalidArgumentException;
-use Touki\FTP\FTPFactory as BaseFactory;
 use Touki\FTP\Connection\Connection;
 use Touki\FTP\Connection\SSLConnection;
+use Touki\FTP\FTPFactory as BaseFactory;
 
 /**
- * Class ConnectionFactory
  * Generate a connection according to the parameters given in the constructor.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>

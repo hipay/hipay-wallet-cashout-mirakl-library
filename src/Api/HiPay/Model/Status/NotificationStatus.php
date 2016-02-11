@@ -3,7 +3,7 @@
 namespace HiPay\Wallet\Mirakl\Api\HiPay\Model\Status;
 
 /**
- * Class NotificationStatus.
+ * Constants for the status of the notification
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile

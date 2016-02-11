@@ -7,8 +7,7 @@ use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 
 /**
- * Class ValidationFailedException
- * Exception thrown when a model validation failed.
+ * Thrown when a model validation failed.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile

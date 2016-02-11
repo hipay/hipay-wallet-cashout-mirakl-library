@@ -1,6 +1,5 @@
 <?php
 /**
- * File Mirakl.php
  *
  * @category
  * @package
@@ -13,7 +12,6 @@ namespace HiPay\Wallet\Mirakl\Test\Stub\Api;
 use DateTime;
 
 /**
- * Class Mirakl
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile

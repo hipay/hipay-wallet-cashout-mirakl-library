@@ -2,12 +2,11 @@
 
 namespace HiPay\Wallet\Mirakl\Api\Mirakl;
 
-use HiPay\Wallet\Mirakl\Api\ConfigurationInterface
-    as BaseConfigurationInterface;
+use HiPay\Wallet\Mirakl\Api\ConfigurationInterface as BaseConfigurationInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * The Mirakl configuration object interface.
+ * Mirakl configuration object interface.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile

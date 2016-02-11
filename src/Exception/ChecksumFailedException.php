@@ -1,6 +1,5 @@
 <?php
 /**
- * File ChecksumFailedException.php
  *
  * @category
  * @package
@@ -13,7 +12,7 @@ namespace HiPay\Wallet\Mirakl\Exception;
 use Exception;
 
 /**
- * Class ChecksumFailedException
+ * Thrown when the notification checksum (md5) failed
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile

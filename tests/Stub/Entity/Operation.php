@@ -1,6 +1,5 @@
 <?php
 /**
- * File Operation.php
  *
  * @category
  * @package
@@ -16,7 +15,6 @@ use HiPay\Wallet\Mirakl\Cashout\Model\Operation\OperationInterface;
 use HiPay\Wallet\Mirakl\Cashout\Model\Operation\Status;
 
 /**
- * Class Operation
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile

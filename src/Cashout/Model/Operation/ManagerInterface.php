@@ -5,7 +5,6 @@ namespace HiPay\Wallet\Mirakl\Cashout\Model\Operation;
 use DateTime;
 
 /**
- * Interface ManagerInterface.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile

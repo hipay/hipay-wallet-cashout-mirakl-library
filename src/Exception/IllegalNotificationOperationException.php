@@ -1,6 +1,5 @@
 <?php
 /**
- * File IllegalOperationException.php.
  *
  * @category
  *
@@ -12,7 +11,7 @@ namespace HiPay\Wallet\Mirakl\Exception;
 use Exception;
 
 /**
- * Class IllegalOperationException.
+ * Thrown when the operation field in the notification is not correct
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile.

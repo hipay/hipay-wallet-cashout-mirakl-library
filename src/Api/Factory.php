@@ -1,24 +1,15 @@
 <?php
-/**
- * File Factory.php
- *
- * @category
- * @package
- * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
- * @copyright 2015 Smile
- */
 
 namespace HiPay\Wallet\Mirakl\Api;
 
-
-use HiPay\Wallet\Mirakl\Api\Mirakl\ConfigurationInterface as MiraklConfiguration;
-use HiPay\Wallet\Mirakl\Api\Mirakl\ApiInterface as MiraklInterface;
-use HiPay\Wallet\Mirakl\Api\HiPay\ConfigurationInterface as HiPayConfiguration;
 use HiPay\Wallet\Mirakl\Api\HiPay\ApiInterface as HiPayInterface;
+use HiPay\Wallet\Mirakl\Api\HiPay\ConfigurationInterface as HiPayConfiguration;
+use HiPay\Wallet\Mirakl\Api\Mirakl\ApiInterface as MiraklInterface;
+use HiPay\Wallet\Mirakl\Api\Mirakl\ConfigurationInterface as MiraklConfiguration;
 use HiPay\Wallet\Mirakl\Service\Validation\ModelValidator;
 
 /**
- * Class Factory
+ * Api Factory from configuration objects
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile

@@ -3,7 +3,7 @@
 namespace HiPay\Wallet\Mirakl\Exception;
 
 /**
- * Class TransactionException.
+ * Thrown when there is a problem with the transaction
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile

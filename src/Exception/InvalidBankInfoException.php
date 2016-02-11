@@ -7,7 +7,7 @@ use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\BankInfo;
 use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 
 /**
- * Class InvalidBankInfoException.
+ * Thrown when the bank information in not synchronized
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile

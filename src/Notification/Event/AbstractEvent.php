@@ -1,12 +1,4 @@
 <?php
-/**
- * File NotificationEvent.php
- *
- * @category
- * @package
- * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
- * @copyright 2015 Smile
- */
 
 namespace HiPay\Wallet\Mirakl\Notification\Event;
 
@@ -14,12 +6,12 @@ use DateTime;
 use Symfony\Component\EventDispatcher\Event;
 
 /**
- * Class NotificationEvent
+ * Abstract base class for all notification event
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
  */
-class NotificationEvent extends Event
+abstract class AbstractEvent extends Event
 {
     /** @var int */
     protected $hipayId;

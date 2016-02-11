@@ -6,7 +6,7 @@ use Exception;
 use HiPay\Wallet\Mirakl\Cashout\Model\Operation\OperationInterface;
 
 /**
- * Class AlreadyCreatedOperationException.
+ * Thrown when an operation is already created
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile

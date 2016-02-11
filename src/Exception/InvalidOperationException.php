@@ -1,6 +1,5 @@
 <?php
 /**
- * File InvalidOperation.php.
  *
  * @category
  *
@@ -13,7 +12,8 @@ use Exception;
 use HiPay\Wallet\Mirakl\Cashout\Model\Operation\OperationInterface;
 
 /**
- * Class InvalidOperation.
+ * Thrown when the operation is invalid (The OperationManager says so)
+ * @see HiPay\Wallet\Mirakl\Cashout\Model\Operation\ManagerInterface::isValid()
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile

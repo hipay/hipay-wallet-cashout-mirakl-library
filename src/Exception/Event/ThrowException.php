@@ -6,7 +6,6 @@ use Exception;
 use Symfony\Component\EventDispatcher\Event;
 
 /**
- * File ThrowException.php.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile

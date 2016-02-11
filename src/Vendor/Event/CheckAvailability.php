@@ -5,7 +5,6 @@ namespace HiPay\Wallet\Mirakl\Vendor\Event;
 use Symfony\Component\EventDispatcher\Event;
 
 /**
- * Class CheckAvailability
  * Event object used when the event 'before.availability.check'
  * is dispatched from the processor.
  *

@@ -5,7 +5,6 @@ namespace HiPay\Wallet\Mirakl\Cashout\Event;
 use Symfony\Component\EventDispatcher\Event;
 
 /**
- * Class ValidateTransactions
  * Event object used when the event 'before.availability.check'
  * is dispatched from the processor.
  *

@@ -5,7 +5,7 @@ namespace HiPay\Wallet\Mirakl\Exception;
 use Exception;
 
 /**
- * Class DispatchableException.
+ * Base class for exception meant to be dispatched as a specific event
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile

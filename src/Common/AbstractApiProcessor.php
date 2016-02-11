@@ -1,6 +1,5 @@
 <?php
 /**
- * File AbstractApiProcessor.php
  *
  * @category
  * @package
@@ -11,15 +10,14 @@
 namespace HiPay\Wallet\Mirakl\Common;
 
 use HiPay\Wallet\Mirakl\Api\Factory;
+use HiPay\Wallet\Mirakl\Api\HiPay;
 use HiPay\Wallet\Mirakl\Api\HiPay\ApiInterface as HiPayInterface;
 use HiPay\Wallet\Mirakl\Api\Mirakl;
 use HiPay\Wallet\Mirakl\Api\Mirakl\ApiInterface as MiraklInterface;
-use HiPay\Wallet\Mirakl\Api\HiPay;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
- * Class AbstractApiProcessor
  *
  * Processor who need the API to function
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>

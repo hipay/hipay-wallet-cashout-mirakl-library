@@ -6,7 +6,7 @@ use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Class Transfer.
+ * Value object for transfer data.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile

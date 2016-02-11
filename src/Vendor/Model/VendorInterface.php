@@ -5,7 +5,6 @@ namespace HiPay\Wallet\Mirakl\Vendor\Model;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Interface VendorInterface
  * Represent an entity that is able to receive money from HiPay
  * Uses Symfony Validation assertion to ensure basic data integrity.
  *

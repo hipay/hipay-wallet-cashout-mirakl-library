@@ -1,6 +1,5 @@
 <?php
 /**
- * File Config.php.
  *
  * @category
  *
@@ -10,7 +9,6 @@
 namespace HiPay\Wallet\Mirakl\Api;
 
 /**
- * Interface ConfigurationInterface
  * Base Interface for the configuration of the Api class.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>

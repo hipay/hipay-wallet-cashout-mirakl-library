@@ -3,7 +3,6 @@
 namespace HiPay\Wallet\Mirakl\Service;
 
 /**
- * Class Countries
  * Convert a ISO1366Alpha3 country code into a ISO1366-Alpha3 country code.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>

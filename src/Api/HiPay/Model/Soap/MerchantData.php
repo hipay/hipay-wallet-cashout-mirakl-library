@@ -3,9 +3,8 @@
 namespace HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap;
 
 /**
- * File MerchantData.php
  * Value object for merchant data
- * Set the properties directly.
+ * Set the properties directly into the object.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile

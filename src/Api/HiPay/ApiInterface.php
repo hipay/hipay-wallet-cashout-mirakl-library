@@ -1,6 +1,5 @@
 <?php
 /**
- * File ApiInterface.php
  *
  * @category
  * @package
@@ -20,7 +19,6 @@ use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\UserAccountDetails;
 use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 
 /**
- * Class HiPay
  * Make the SOAP call to the HiPay API.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>

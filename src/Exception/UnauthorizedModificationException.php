@@ -5,7 +5,7 @@ namespace HiPay\Wallet\Mirakl\Exception;
 use Exception;
 
 /**
- * Class UnauthorizedModificationException.
+ * Thrown when immutable data from an object has been changed
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile

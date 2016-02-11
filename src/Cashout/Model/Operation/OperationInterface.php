@@ -15,7 +15,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 
 /**
- * Interface OperationInterface
  *
  * @package HiPay\Wallet\Mirakl\Cashout\Model\Operation
  */

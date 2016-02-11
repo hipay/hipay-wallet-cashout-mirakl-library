@@ -5,7 +5,6 @@ namespace HiPay\Wallet\Mirakl\Exception;
 use Exception;
 
 /**
- * Class FTPUploadFailed
  * Thrown when a ftp upload failed.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>

@@ -8,7 +8,6 @@ use Guzzle\Service\Description\ServiceDescription;
 use HiPay\Wallet\Mirakl\Api\Mirakl\ApiInterface;
 
 /**
- * Class Mirakl
  * Make the calls the Mirakl Rest API.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>

@@ -8,7 +8,6 @@ use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\UserAccountDetails;
 use Symfony\Component\EventDispatcher\Event;
 
 /**
- * Class CreateWallet
  * Event object used when the event 'before.wallet.creation'
  * is dispatched from the processor.
  *

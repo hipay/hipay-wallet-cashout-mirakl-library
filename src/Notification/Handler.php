@@ -6,24 +6,22 @@ use DateTime;
 use Exception;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Status\Notification;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Status\NotificationStatus;
-use HiPay\Wallet\Mirakl\Cashout\Model\Operation\ManagerInterface
-    as OperationManager;
+use HiPay\Wallet\Mirakl\Cashout\Model\Operation\ManagerInterface as OperationManager;
+use HiPay\Wallet\Mirakl\Cashout\Model\Operation\Status;
 use HiPay\Wallet\Mirakl\Common\AbstractProcessor;
 use HiPay\Wallet\Mirakl\Exception\ChecksumFailedException;
 use HiPay\Wallet\Mirakl\Exception\IllegalNotificationOperationException;
 use HiPay\Wallet\Mirakl\Exception\OperationNotFound;
 use HiPay\Wallet\Mirakl\Exception\WrongOperationStatus;
-use HiPay\Wallet\Mirakl\Notification\Event\BankInfoNotification;
-use HiPay\Wallet\Mirakl\Notification\Event\IdentificationNotification;
-use HiPay\Wallet\Mirakl\Notification\Event\OtherNotification;
-use HiPay\Wallet\Mirakl\Cashout\Model\Operation\Status;
-use HiPay\Wallet\Mirakl\Notification\Event\WithdrawNotification;
+use HiPay\Wallet\Mirakl\Notification\Event\BankInfo;
+use HiPay\Wallet\Mirakl\Notification\Event\Identification;
+use HiPay\Wallet\Mirakl\Notification\Event\Other;
+use HiPay\Wallet\Mirakl\Notification\Event\Withdraw;
 use Psr\Log\LoggerInterface;
 use SimpleXMLElement;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
- * Class Handler
  * Handle the notification server-server
  * sent by HiPay after the significant events
  * Hook in the notification by using the event dispatcher.
@@ -166,7 +164,7 @@ class Handler extends AbstractProcessor
 
         $this->operationManager->save($operation);
 
-        $event = new WithdrawNotification($hipayId, $date, $operation);
+        $event = new Withdraw($hipayId, $date, $operation);
         $this->dispatcher->dispatch($eventName, $event);
     }
 
@@ -183,7 +181,7 @@ class Handler extends AbstractProcessor
             $eventName = 'bankInfos.validation.notification.failed';
         }
 
-        $event = new BankInfoNotification($hipayId, $date);
+        $event = new BankInfo($hipayId, $date);
 
         $this->dispatcher->dispatch($eventName, $event);
     }
@@ -201,7 +199,7 @@ class Handler extends AbstractProcessor
             $eventName = 'identification.notification.failed';
         }
 
-        $event = new IdentificationNotification($hipayId, $date);
+        $event = new Identification($hipayId, $date);
 
         $this->dispatcher->dispatch($eventName, $event);
     }
@@ -228,7 +226,7 @@ class Handler extends AbstractProcessor
             $eventName = 'other.notification.failed';
         }
 
-        $event = new OtherNotification(
+        $event = new Other(
             $hipayId,
             $date,
             $amount,

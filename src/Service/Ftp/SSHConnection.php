@@ -5,7 +5,6 @@ namespace HiPay\Wallet\Mirakl\Service\Ftp;
 use Touki\FTP\Connection\Connection;
 
 /**
- * Class SSHConnection
  * Represent a ssh connection.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>

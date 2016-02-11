@@ -6,11 +6,11 @@ use DateTime;
 use Exception;
 use HiPay\Wallet\Mirakl\Api\Factory;
 use HiPay\Wallet\Mirakl\Api\HiPay;
-use HiPay\Wallet\Mirakl\Api\HiPay\Model\Status\BankInfo as BankInfoStatus;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\BankInfo;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\MerchantData;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\UserAccountBasic;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\UserAccountDetails;
+use HiPay\Wallet\Mirakl\Api\HiPay\Model\Status\BankInfo as BankInfoStatus;
 use HiPay\Wallet\Mirakl\Api\Mirakl;
 use HiPay\Wallet\Mirakl\Common\AbstractApiProcessor;
 use HiPay\Wallet\Mirakl\Exception\BankAccountCreationFailedException;
@@ -35,7 +35,6 @@ use Touki\FTP\Model\Directory;
 use Touki\FTP\Model\File;
 
 /**
- * Class Processor
  * Vendor processor handling the wallet creation
  * and the bank info registration and verification.
  *

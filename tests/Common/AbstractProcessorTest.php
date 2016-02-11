@@ -3,27 +3,24 @@
 namespace HiPay\Wallet\Mirakl\Test\Common;
 
 use HiPay\Wallet\Mirakl\Api\Factory;
-use HiPay\Wallet\Mirakl\Api\Mirakl\ApiInterface as MiraklApiInterface;
 use HiPay\Wallet\Mirakl\Api\HiPay\ApiInterface as HiPayApiInterface;
+use HiPay\Wallet\Mirakl\Api\Mirakl\ApiInterface as MiraklApiInterface;
+use HiPay\Wallet\Mirakl\Cashout\Model\Operation\ManagerInterface as OperationManagerInterface;
 use HiPay\Wallet\Mirakl\Cashout\Model\Transaction\ValidatorInterface;
 use HiPay\Wallet\Mirakl\Test\Stub\Entity\Vendor;
+use HiPay\Wallet\Mirakl\Vendor\Model\ManagerInterface as VendorManagerInterface;
 use PHPUnit_Framework_TestCase;
 use Prophecy\Prophecy\ObjectProphecy;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use HiPay\Wallet\Mirakl\Cashout\Model\Operation\ManagerInterface
-    as OperationManagerInterface;
-use HiPay\Wallet\Mirakl\Vendor\Model\ManagerInterface
-    as VendorManagerInterface;
 
 /**
- * File AbstractProcessorTest.php
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
  */
-class AbstractProcessorTest extends PHPUnit_Framework_TestCase
+abstract class AbstractProcessorTest extends PHPUnit_Framework_TestCase
 {
     /** @var  EventDispatcherInterface|ObjectProphecy */
     protected $eventDispatcher;

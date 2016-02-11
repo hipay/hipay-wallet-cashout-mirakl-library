@@ -5,7 +5,6 @@ namespace HiPay\Wallet\Mirakl\Common;
 use ReflectionClass;
 
 /**
- * Class AbstractEnumeration
  * Represent an enumeration similar to the Enum class in Java.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>

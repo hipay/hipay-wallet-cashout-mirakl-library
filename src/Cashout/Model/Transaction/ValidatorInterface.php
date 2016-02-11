@@ -3,7 +3,6 @@
 namespace HiPay\Wallet\Mirakl\Cashout\Model\Transaction;
 
 /**
- * Class ValidatorInterface
  * Used to validated transaction like orders.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>

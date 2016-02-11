@@ -1,6 +1,5 @@
 <?php
 /**
- * File OperationNotFound.php
  *
  * @category
  * @package
@@ -14,7 +13,7 @@ use Exception;
 use HiPay\Wallet\Mirakl\Cashout\Model\Operation\OperationInterface;
 
 /**
- * Class OperationNotFound
+ * Thrown when the oepration is not in the expected status
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile

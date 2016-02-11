@@ -6,7 +6,6 @@ use HiPay\Wallet\Mirakl\Cashout\Model\Operation\OperationInterface;
 use Symfony\Component\EventDispatcher\Event;
 
 /**
- * Class CreateOperation
  * Event object used when the event 'before.availability.check'
  * is dispatched from the processor.
  *

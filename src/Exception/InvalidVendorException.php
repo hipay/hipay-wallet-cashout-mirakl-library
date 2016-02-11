@@ -6,7 +6,8 @@ use Exception;
 use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 
 /**
- * Class InvalidVendorException.
+ * Thrown when the vendor is invalid (The VendorManager says so)
+ * @see HiPay\Wallet\Mirakl\Vendor\Model\ManagerInterface::isValid()
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile

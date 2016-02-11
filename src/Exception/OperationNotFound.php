@@ -1,6 +1,5 @@
 <?php
 /**
- * File OperationNotFound.php
  *
  * @category
  * @package
@@ -13,7 +12,7 @@ namespace HiPay\Wallet\Mirakl\Exception;
 use Exception;
 
 /**
- * Class OperationNotFound
+ * Thrown when the operation is not found in the storage
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile

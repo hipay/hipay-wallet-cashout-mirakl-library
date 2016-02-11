@@ -9,11 +9,10 @@ use HiPay\Wallet\Mirakl\Test\Common\AbstractProcessorTest;
 use HiPay\Wallet\Mirakl\Test\Stub\Api\Mirakl;
 use HiPay\Wallet\Mirakl\Test\Stub\Entity\Vendor;
 use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
-use Prophecy\Argument;
 use HiPay\Wallet\Mirakl\Vendor\Processor;
+use Prophecy\Argument;
 
 /**
- * File Processor.php.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile

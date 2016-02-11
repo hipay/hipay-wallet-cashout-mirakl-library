@@ -6,7 +6,6 @@ use HiPay\Wallet\Mirakl\Service\Country;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * File AccountDetail.php
  * Value object for detailed account data.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>

@@ -5,7 +5,6 @@ namespace HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * File AccountBasic.php
  * Value object for basic account data.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>

@@ -6,7 +6,7 @@ use Exception;
 use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 
 /**
- * Class WalletNotFoundException.
+ * Thrown when a wallet is not found
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile

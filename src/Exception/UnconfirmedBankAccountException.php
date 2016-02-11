@@ -3,11 +3,11 @@
 namespace HiPay\Wallet\Mirakl\Exception;
 
 use Exception;
-use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Status\BankInfo as BankInfoStatus;
+use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 
 /**
- * Class UnconfirmedBankAccountException.
+ * Thrown when attempting to withdraw money from a wallet with unvalidated bank information
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile

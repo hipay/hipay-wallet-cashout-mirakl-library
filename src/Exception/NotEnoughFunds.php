@@ -3,7 +3,7 @@
 namespace HiPay\Wallet\Mirakl\Exception;
 
 /**
- * Class NotEnoughFunds.
+ * Thrown when there is not enough funds in the technical wallet balance
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile

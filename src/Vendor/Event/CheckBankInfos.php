@@ -6,7 +6,6 @@ use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\BankInfo;
 use Symfony\Component\EventDispatcher\Event;
 
 /**
- * Class CheckBankInfos
  * Event made to customize the validation process of the bank info
  * 
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>

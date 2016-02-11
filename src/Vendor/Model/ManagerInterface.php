@@ -3,7 +3,6 @@
 namespace HiPay\Wallet\Mirakl\Vendor\Model;
 
 /**
- * Interface VendorManager
  * Contains utility methods to create, save and find vendors
  * To be implemented by the integrator of the library.
  *

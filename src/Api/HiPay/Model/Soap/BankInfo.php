@@ -5,7 +5,6 @@ namespace HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Class BankInfo
  * Value object for bank data.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>

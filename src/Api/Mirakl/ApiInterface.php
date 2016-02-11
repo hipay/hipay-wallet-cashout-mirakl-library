@@ -1,6 +1,5 @@
 <?php
 /**
- * File ApiInterface.php
  *
  * @category
  * @package
@@ -13,7 +12,6 @@ use DateTime;
 use HiPay\Wallet\Mirakl\Api\Mirakl;
 
 /**
- * Class Mirakl
  * Make the calls the Mirakl Rest API.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>

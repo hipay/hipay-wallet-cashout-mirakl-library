@@ -5,7 +5,6 @@ namespace HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap;
 use HiPay\Wallet\Mirakl\Service\Validation\ModelValidator;
 
 /**
- * Class SoapModelAbstract
  * Base class for the models used as a request or response of a soap call.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>

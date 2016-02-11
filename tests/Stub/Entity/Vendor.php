@@ -1,6 +1,5 @@
 <?php
 /**
- * File Vendor.php
  *
  * @category
  * @package
@@ -14,7 +13,6 @@ namespace HiPay\Wallet\Mirakl\Test\Stub\Entity;
 use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 
 /**
- * Class Vendor
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile

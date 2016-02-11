@@ -5,7 +5,7 @@ namespace HiPay\Wallet\Mirakl\Api\HiPay\Model\Status;
 use HiPay\Wallet\Mirakl\Common\AbstractEnumeration;
 
 /**
- * Class Error.
+ * Constants for the error descriptions
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile

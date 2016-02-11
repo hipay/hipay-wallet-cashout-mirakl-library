@@ -5,29 +5,24 @@ namespace HiPay\Wallet\Mirakl\Cashout;
 use DateTime;
 use Exception;
 use HiPay\Wallet\Mirakl\Api\Factory;
+use HiPay\Wallet\Mirakl\Cashout\Model\Operation\ManagerInterface as OperationManager;
 use HiPay\Wallet\Mirakl\Cashout\Model\Operation\OperationInterface;
 use HiPay\Wallet\Mirakl\Cashout\Model\Operation\Status;
+use HiPay\Wallet\Mirakl\Cashout\Model\Transaction\ValidatorInterface;
 use HiPay\Wallet\Mirakl\Common\AbstractApiProcessor;
 use HiPay\Wallet\Mirakl\Exception\AlreadyCreatedOperationException;
-use HiPay\Wallet\Mirakl\Cashout\Model\Transaction\ValidatorInterface;
-use HiPay\Wallet\Mirakl\Cashout\Model\Operation\ManagerInterface
-    as OperationManager;
-use HiPay\Wallet\Mirakl\Exception\ValidationFailedException;
-use HiPay\Wallet\Mirakl\Vendor\Model\ManagerInterface
-    as VendorManager;
 use HiPay\Wallet\Mirakl\Exception\InvalidOperationException;
 use HiPay\Wallet\Mirakl\Exception\NotEnoughFunds;
 use HiPay\Wallet\Mirakl\Exception\TransactionException;
+use HiPay\Wallet\Mirakl\Exception\ValidationFailedException;
 use HiPay\Wallet\Mirakl\Service\Validation\ModelValidator;
+use HiPay\Wallet\Mirakl\Vendor\Model\ManagerInterface as VendorManager;
 use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
- * Class Initializer
  * Generate and save the operation to be executed by the processor.
- * Use bc function
- * http://php.net/manual/en/book.bc.php
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile

@@ -5,7 +5,7 @@ namespace HiPay\Wallet\Mirakl\Exception;
 use Exception;
 
 /**
- * Class NoFundsAvailableException.
+ * Thrown when a vendor don't have the correct balance for a withdraw
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile

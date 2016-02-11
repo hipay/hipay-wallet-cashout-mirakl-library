@@ -5,7 +5,7 @@ namespace HiPay\Wallet\Mirakl\Api\HiPay\Model\Status;
 use HiPay\Wallet\Mirakl\Common\AbstractEnumeration;
 
 /**
- * Class holding different constants for hipay.
+ * Constants for the status of identification
  * 
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile

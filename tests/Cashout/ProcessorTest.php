@@ -15,7 +15,6 @@ use Prophecy\Argument;
 use Symfony\Component\Validator\Constraints\DateTime;
 
 /**
- * File Processor.php.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile

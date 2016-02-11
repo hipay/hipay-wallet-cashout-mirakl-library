@@ -3,8 +3,7 @@
 namespace HiPay\Wallet\Mirakl\Api\HiPay\Model\Status;
 
 /**
- * Class Notification
- * Contains the notification constants.
+ * Constants for the operations of the notification
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile

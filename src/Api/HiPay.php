@@ -5,8 +5,8 @@ namespace HiPay\Wallet\Mirakl\Api;
 use DateTime;
 use Exception;
 use HiPay\Wallet\Mirakl\Api\HiPay\ApiInterface;
-use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\MerchantData;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\BankInfo;
+use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\MerchantData;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\Transfer;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\UserAccountBasic;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\UserAccountDetails;
@@ -15,7 +15,6 @@ use HiPay\Wallet\Mirakl\Api\Soap\SmileClient;
 use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 
 /**
- * Class HiPay
  * Make the SOAP call to the HiPay API.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>

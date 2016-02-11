@@ -5,13 +5,12 @@ namespace HiPay\Wallet\Mirakl\Notification\Event;
 use DateTime;
 
 /**
- * Class OtherNotification
  * Event used on the others operation notification.
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
  */
-class OtherNotification extends NotificationEvent
+class Other extends AbstractEvent
 {
     /** @var  float */
     protected $amount;
