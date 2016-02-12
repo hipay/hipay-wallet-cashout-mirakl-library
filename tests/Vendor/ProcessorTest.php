@@ -13,6 +13,9 @@ use HiPay\Wallet\Mirakl\Vendor\Processor;
 use Prophecy\Argument;
 
 /**
+ * VendorProcessor test
+ *
+ * @coversDefaultClass \HiPay\Wallet\Mirakl\Vendor\Processor
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
@@ -59,6 +62,9 @@ class ProcessorTest extends AbstractProcessorTest
         );
     }
 
+    /**
+     * @covers ::getVendors
+     */
     public function testGetVendors()
     {
         $this->mirakl->getVendors(Argument::is(null))->will(function () {
@@ -73,6 +79,9 @@ class ProcessorTest extends AbstractProcessorTest
 
     }
 
+    /**
+     * @covers ::getVendors
+     */
     public function testGetVendorWithDate()
     {
         $this->mirakl->getVendors(Argument::type('DateTime'))->will(function ($args) {
@@ -89,7 +98,7 @@ class ProcessorTest extends AbstractProcessorTest
     }
 
     /**
-     * @cover registerWallets
+     * @cover ::registerWallets
      */
     public function testUnavailableEmail()
     {
@@ -129,7 +138,7 @@ class ProcessorTest extends AbstractProcessorTest
     }
 
     /**
-     * @cover registerWallets
+     * @cover ::registerWallets
      */
     public function testNewWallets()
     {
@@ -173,7 +182,7 @@ class ProcessorTest extends AbstractProcessorTest
     }
 
     /**
-     * @cover registerWallets
+     * @cover ::registerWallets
      */
     public function testAlreadyRecordedWallets()
     {
@@ -199,6 +208,9 @@ class ProcessorTest extends AbstractProcessorTest
         $this->assertContainsOnlyInstancesOf("HiPay\\Wallet\\Mirakl\\Vendor\\Model\\VendorInterface", $vendors);
     }
 
+    /**
+     * @covers ::handleBankInfo
+     */
     public function testBankInfoBlank()
     {
         $miraklData = reset(Mirakl::getVendor());
@@ -220,6 +232,9 @@ class ProcessorTest extends AbstractProcessorTest
         $this->vendorProcessor->handleBankInfo(array($vendor), $miraklData);
     }
 
+    /**
+     * @cover ::handleBankInfo
+     */
     public function testBankInfoValidate()
     {
         $miraklData = reset(Mirakl::getVendor());
@@ -238,6 +253,9 @@ class ProcessorTest extends AbstractProcessorTest
         $this->vendorProcessor->handleBankInfo(array($vendor), $miraklData);
     }
 
+    /**
+     * @covers ::handleBankInfo
+     */
     public function testBankInfoOther()
     {
         $miraklData = reset(Mirakl::getVendor());
