@@ -368,8 +368,8 @@ class Processor extends AbstractApiProcessor
                 continue;
             }
 
-            $shopDirectoryPath = $tmpExtractPath.
-                DIRECTORY_SEPARATOR.$shopId;
+            $shopDirectoryPath = rtrim($tmpExtractPath, '/') .
+                DIRECTORY_SEPARATOR. $shopId;
 
             //Check if $shopDirectoryPath is a directory
             if (!is_dir($shopDirectoryPath)) {
@@ -379,7 +379,7 @@ class Processor extends AbstractApiProcessor
             }
 
             //Construct the path for the ftp
-            $ftpShopDirectoryPath = $ftpShopsPath.
+            $ftpShopDirectoryPath = rtrim($ftpShopsPath, '/').
                 DIRECTORY_SEPARATOR. $vendor->getHiPayId();
 
             //Check directory existence
