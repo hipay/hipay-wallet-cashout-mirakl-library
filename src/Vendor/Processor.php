@@ -4,7 +4,7 @@ namespace HiPay\Wallet\Mirakl\Vendor;
 
 use DateTime;
 use Exception;
-use HiPay\Wallet\Mirakl\Api\Factory;
+use HiPay\Wallet\Mirakl\Api\Factory as ApiFactory;
 use HiPay\Wallet\Mirakl\Api\HiPay;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\BankInfo;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\MerchantData;
@@ -19,7 +19,7 @@ use HiPay\Wallet\Mirakl\Exception\FTPUploadFailed;
 use HiPay\Wallet\Mirakl\Exception\InvalidBankInfoException;
 use HiPay\Wallet\Mirakl\Exception\InvalidVendorException;
 use HiPay\Wallet\Mirakl\Service\Ftp;
-use HiPay\Wallet\Mirakl\Service\Ftp\Factory as FtpFactory;
+use HiPay\Wallet\Mirakl\Service\Ftp\Factory\AbstractFactory as FTPFactory;
 use HiPay\Wallet\Mirakl\Service\Validation\ModelValidator;
 use HiPay\Wallet\Mirakl\Service\Zip;
 use HiPay\Wallet\Mirakl\Vendor\Event\AddBankAccount;
@@ -54,15 +54,15 @@ class Processor extends AbstractApiProcessor
      *
      * @param EventDispatcherInterface $dispatcherInterface
      * @param LoggerInterface $logger
-     * @param Factory $factory
-     * @param FtpFactory $ftpFactory
+     * @param ApiFactory $factory
+     * @param FTPFactory $ftpFactory
      * @param ManagerInterface $vendorManager
      */
     public function __construct(
         EventDispatcherInterface $dispatcherInterface,
         LoggerInterface $logger,
-        Factory $factory,
-        FtpFactory $ftpFactory,
+        ApiFactory $factory,
+        FTPFactory $ftpFactory,
         ManagerInterface $vendorManager
     ) {
         parent::__construct(
@@ -71,7 +71,7 @@ class Processor extends AbstractApiProcessor
             $factory
         );
 
-        $this->ftp = $ftpFactory->getFtp();
+        $this->ftp = $ftpFactory->getFTP();
 
         $this->vendorManager = $vendorManager;
     }

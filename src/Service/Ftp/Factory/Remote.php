@@ -1,46 +1,44 @@
 <?php
+namespace HiPay\Wallet\Mirakl\Service\Ftp\Factory;
 
-namespace HiPay\Wallet\Mirakl\Service\Ftp;
-
-use HiPay\Wallet\Mirakl\Service\Validation\ModelValidator;
+use HiPay\Wallet\Mirakl\Service\Ftp\Configuration\RemoteConfigurationInterface;
+use HiPay\Wallet\Mirakl\Service\Ftp\SSHConnection;
 use InvalidArgumentException;
 use Touki\FTP\Connection\Connection;
 use Touki\FTP\Connection\SSLConnection;
-use Touki\FTP\FTPFactory as BaseFactory;
+use Touki\FTP\FTP;
 
 /**
- * Generate a connection according to the parameters given in the constructor.
+ * File Remote.php
  *
+ * @category
+ * @package
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
  */
-class Factory extends BaseFactory
+class Remote extends AbstractFactory
 {
+
     const FTP = 'ftp';
     const SFTP = 'sftp';
     const FTP_SSL = 'ftp_ssl';
 
-    /** @var  ConfigurationInterface */
-    protected $configuration;
-
     /**
      * ConnectionFactory constructor.
      *
-     * @param ConfigurationInterface $configuration
+     * @param RemoteConfigurationInterface $configuration
      */
-    public function __construct(ConfigurationInterface $configuration)
+    public function __construct(RemoteConfigurationInterface $configuration)
     {
         $this->configuration = $configuration;
     }
 
     /**
-     * Construct a connection from a ftp configuration.
-     *
-     * @return Connection
+     * @return FTP
+     * @throws InvalidArgumentException
      */
-    public function getFtp()
+    protected function buildFTP()
     {
-        ModelValidator::validate($this->configuration);
         switch (strtolower($this->configuration->getConnectionType())) {
             case static::FTP:
                 $connection = new Connection(
@@ -75,6 +73,7 @@ class Factory extends BaseFactory
                     " don't exists"
                 );
         }
-        return parent::build($connection);
+        $ftp = parent::build($connection);
+        return $ftp;
     }
 }
