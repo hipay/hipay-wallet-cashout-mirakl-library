@@ -347,6 +347,7 @@ class Processor extends AbstractApiProcessor
             unlink($tmpZipFilePath);
         };
 
+        $treatedShopIds = array();
         $tmpExtractDirectory = opendir($tmpExtractPath);
 
         while (($shopId = readdir($tmpExtractDirectory)) !== false) {
@@ -357,7 +358,7 @@ class Processor extends AbstractApiProcessor
             }
 
             if (!in_array($shopId, $shopIds)) {
-                $this->logger->notice("The shop $shopId has no documents");
+                $this->logger->notice("$shopIds is ignored (not in the passed array)");
                 continue;
             }
 
@@ -405,6 +406,14 @@ class Processor extends AbstractApiProcessor
                     throw new FTPUploadFailed($source, $destination);
                 };
             }
+
+            $treatedShopIds[] = $shopId;
+        }
+
+        $untreatedShop = array_diff($shopIds, $treatedShopIds);
+
+        foreach ($untreatedShop as $shopId) {
+            $this->logger->notice("$shopId had no document to transfer");
         }
     }
 
