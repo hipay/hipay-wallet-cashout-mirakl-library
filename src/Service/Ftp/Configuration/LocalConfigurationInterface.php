@@ -10,6 +10,7 @@
 
 namespace HiPay\Wallet\Mirakl\Service\Ftp\Configuration;
 
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Interface RemoteConfigurationInterface
