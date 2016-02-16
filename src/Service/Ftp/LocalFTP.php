@@ -246,15 +246,13 @@ class LocalFTP implements FTPInterface
         if ($filesystem instanceof Directory) {
             $mode = isset($options['mode']) ?: '0755';
             $recursive = isset($options['recursive']) ?: false;
-            $context = isset($options['context']) ?: null;
-            mkdir($filesystem->getRealpath(), $mode, $recursive, $context);
+            mkdir($filesystem->getRealpath(), $mode, $recursive);
         }
 
         if ($filesystem instanceof File) {
             $mode = isset($options['mode']) ?: 'w';
             $useIncludePath = isset($options['use_include_path']) ?: null;
-            $context = isset($options['context']) ?: null;
-            fopen($filesystem->getRealpath(), $mode, $useIncludePath, $context);
+            fopen($filesystem->getRealpath(), $mode, $useIncludePath);
         }
 
         return true;
