@@ -219,6 +219,7 @@ class LocalFTP implements FTPInterface
     public function download($local, Filesystem $remote, array $options = array())
     {
         copy($remote->getRealpath(), $local);
+        return true;
     }
 
     /**
@@ -232,6 +233,7 @@ class LocalFTP implements FTPInterface
     public function upload(Filesystem $remote, $local, array $options = array())
     {
         copy($local, $remote->getRealpath());
+        return true;
     }
 
     /**
