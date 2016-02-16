@@ -28,12 +28,4 @@ interface LocalConfigurationInterface extends ConfigurationInterface
      * @Assert\EqualTo("local")
      */
     public function getConnectionType();
-
-    /**
-     * @return string
-     *
-     * @Assert\NotBlank()
-     * @Assert\Type("string")
-     */
-    public function getPath();
 }
