@@ -1,21 +1,17 @@
 <?php
+
+namespace HiPay\Wallet\Mirakl\Service\Ftp;
+
+use Symfony\Component\Validator\Constraints as Assert;
+
 /**
- * File RemoteConfigurationInterface.php
+ * Represent an ftp configuration
+ * Must be implemented by the integrator.
  *
- * @category
- * @package
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
  */
-
-namespace HiPay\Wallet\Mirakl\Service\Ftp\Configuration;
-
-use Symfony\Component\Validator\Constraints as Assert;
-/**
- * Interface RemoteConfigurationInterface
- * @package HiPay\Wallet\Mirakl\Service\Ftp
- */
-interface RemoteConfigurationInterface extends ConfigurationInterface
+interface ConfigurationInterface
 {
     /**
      * Returns the ftp host.
@@ -86,7 +82,7 @@ interface RemoteConfigurationInterface extends ConfigurationInterface
      *
      * @Assert\NotBlank()
      * @Assert\Type("string")
-     * @Assert\Choice({"ftp", "ftp_ssl", "sftp"})
+     * @Assert\Choice({"ftp", "ftp_ssl", "sftp", "local"})
      */
     public function getConnectionType();
 }

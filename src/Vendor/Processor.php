@@ -19,7 +19,7 @@ use HiPay\Wallet\Mirakl\Exception\FTPUploadFailed;
 use HiPay\Wallet\Mirakl\Exception\InvalidBankInfoException;
 use HiPay\Wallet\Mirakl\Exception\InvalidVendorException;
 use HiPay\Wallet\Mirakl\Service\Ftp;
-use HiPay\Wallet\Mirakl\Service\Ftp\Factory\AbstractFactory as FTPFactory;
+use HiPay\Wallet\Mirakl\Service\Ftp\Factory as FTPFactory;
 use HiPay\Wallet\Mirakl\Service\Validation\ModelValidator;
 use HiPay\Wallet\Mirakl\Service\Zip;
 use HiPay\Wallet\Mirakl\Vendor\Event\AddBankAccount;

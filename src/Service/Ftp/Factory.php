@@ -1,34 +1,38 @@
 <?php
-namespace HiPay\Wallet\Mirakl\Service\Ftp\Factory;
+namespace HiPay\Wallet\Mirakl\Service\Ftp;
 
-use HiPay\Wallet\Mirakl\Service\Ftp\Configuration\RemoteConfigurationInterface;
-use HiPay\Wallet\Mirakl\Service\Ftp\SSHConnection;
+use HiPay\Wallet\Mirakl\Service\Validation\ModelValidator;
 use InvalidArgumentException;
 use Touki\FTP\Connection\Connection;
 use Touki\FTP\Connection\SSLConnection;
 use Touki\FTP\FTP;
+use Touki\FTP\FTPFactory;
 
 /**
- * File Remote.php
+ * File Factory.php
  *
  * @category
  * @package
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
  */
-class Remote extends AbstractFactory
+class Factory extends FTPFactory
 {
 
     const FTP = 'ftp';
     const SFTP = 'sftp';
     const FTP_SSL = 'ftp_ssl';
+    const LOCAL = 'local';
+
+    /** @var  ConfigurationInterface */
+    protected $configuration;
 
     /**
      * ConnectionFactory constructor.
      *
-     * @param RemoteConfigurationInterface $configuration
+     * @param ConfigurationInterface $configuration
      */
-    public function __construct(RemoteConfigurationInterface $configuration)
+    public function __construct(ConfigurationInterface $configuration)
     {
         $this->configuration = $configuration;
     }
@@ -37,9 +41,10 @@ class Remote extends AbstractFactory
      * @return FTP
      * @throws InvalidArgumentException
      */
-    protected function buildFTP()
+    public function getFTP()
     {
-        switch (strtolower($this->configuration->getConnectionType())) {
+        ModelValidator::validate($this->configuration);
+        switch ($this->configuration->getConnectionType()) {
             case static::FTP:
                 $connection = new Connection(
                     $this->configuration->getHost(),
@@ -66,6 +71,8 @@ class Remote extends AbstractFactory
                     $this->configuration->isPassive()
                 );
                 break;
+            case static::LOCAL:
+                return new LocalFTP();
             default:
                 throw new InvalidArgumentException(
                     'The connection type '.
