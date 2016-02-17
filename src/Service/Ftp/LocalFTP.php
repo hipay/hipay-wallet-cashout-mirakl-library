@@ -247,7 +247,7 @@ class LocalFTP implements FTPInterface
     {
         if ($filesystem instanceof Directory) {
             $mode = isset($options['mode']) ?: 0755;
-            $recursive = isset($options['recursive']) ?: false;
+            $recursive = isset($options['recursive']) ?: true;
             mkdir($filesystem->getRealpath(), $mode, $recursive);
         }
 
