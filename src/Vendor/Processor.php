@@ -346,7 +346,7 @@ class Processor extends AbstractApiProcessor
 
         $zip = new Zip($tmpZipFilePath);
 
-        $tmpExtractPath = $tmpExtractPath ?: dirname($tmpZipFilePath);
+        $tmpExtractPath = $tmpExtractPath ?: rtrim(dirname($tmpZipFilePath), '/') .  DIRECTORY_SEPARATOR . 'hipay';
 
         if ($zip->extractFiles($tmpExtractPath)) {
             unlink($tmpZipFilePath);
@@ -375,7 +375,7 @@ class Processor extends AbstractApiProcessor
             }
 
             $shopDirectoryPath = rtrim($tmpExtractPath, '/') .
-                DIRECTORY_SEPARATOR. $shopId;
+                DIRECTORY_SEPARATOR . $shopId;
 
             //Check if $shopDirectoryPath is a directory
             if (!is_dir($shopDirectoryPath)) {
@@ -386,7 +386,7 @@ class Processor extends AbstractApiProcessor
 
             //Construct the path for the ftp
             $ftpShopDirectoryPath = rtrim($ftpShopsPath, '/').
-                DIRECTORY_SEPARATOR. $vendor->getHiPayId();
+                DIRECTORY_SEPARATOR . $vendor->getHiPayId();
 
             //Check directory existence
             $ftpShopDirectory = new Directory($ftpShopDirectoryPath);
