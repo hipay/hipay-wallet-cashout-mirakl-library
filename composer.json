@@ -2,7 +2,7 @@
   "name": "hipay/mirakl-connector",
   "description": "Library to ease the connection between Mirakl and HiPay",
   "minimum-stability": "stable",
-  "version" : "1.0.3",
+  "version" : "1.0.4",
   "license": "proprietary",
   "authors": [
     {

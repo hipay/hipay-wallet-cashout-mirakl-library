@@ -363,7 +363,7 @@ class Processor extends AbstractApiProcessor
             }
 
             if (!in_array($shopId, $shopIds)) {
-                $this->logger->notice("$shopIds is ignored (not in the passed array)");
+                $this->logger->notice("$shopId is ignored (not in the passed array)");
                 continue;
             }
 
