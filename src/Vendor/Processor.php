@@ -29,6 +29,7 @@ use HiPay\Wallet\Mirakl\Vendor\Event\CreateWallet;
 use HiPay\Wallet\Mirakl\Vendor\Model\ManagerInterface;
 use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Touki\FTP\FTPInterface;
 use Touki\FTP\Model\Directory;
@@ -110,11 +111,15 @@ class Processor extends AbstractApiProcessor
 
             //File transfer
             $this->logger->info('Transfer files');
-            $this->transferFiles(
+            $errors = $this->transferFiles(
                 array_keys($vendorCollection),
                 $zipPath,
                 $ftpPath
             );
+            if ($errors) {
+                $this->logger->error("There was some errors while transferring the files");
+                return;
+            }
             $this->logger->info('[OK] Files transferred');
 
             //Bank data updating
@@ -314,8 +319,7 @@ class Processor extends AbstractApiProcessor
      * @param $tmpZipFilePath
      * @param $ftpShopsPath
      * @param null $tmpExtractPath
-     *
-     * @throws FTPUploadFailed
+     * @return bool
      */
     public function transferFiles(
         array $shopIds,
@@ -323,9 +327,10 @@ class Processor extends AbstractApiProcessor
         $ftpShopsPath,
         $tmpExtractPath = null
     ) {
+        $errors = false;
         //Check the zip path
         if (is_dir($tmpZipFilePath)) {
-            throw new \RuntimeException("The given path $tmpZipFilePath is a directory");
+            throw new RuntimeException("The given path $tmpZipFilePath is a directory");
         }
 
         //Downloads the zip file containing the documents
@@ -336,7 +341,7 @@ class Processor extends AbstractApiProcessor
             );
         } catch (Exception $e) {
             $this->logger->notice('No file was transferred');
-            return;
+            return true;
         }
 
         $zip = new Zip($tmpZipFilePath);
@@ -374,7 +379,7 @@ class Processor extends AbstractApiProcessor
 
             //Check if $shopDirectoryPath is a directory
             if (!is_dir($shopDirectoryPath)) {
-                throw new \RuntimeException(
+                throw new RuntimeException(
                     "$shopDirectoryPath should be a directory"
                 );
             }
@@ -403,10 +408,10 @@ class Processor extends AbstractApiProcessor
                 $file = new File($destination);
                 //Upload the files
                 if ($this->ftp->upload($file, $source) == false) {
-                    throw new FTPUploadFailed($source, $destination);
+                    $errors = true;
+                    $this->handleException(new FTPUploadFailed($source, $destination));
                 };
             }
-
             $treatedShopIds[] = $shopId;
         }
 
@@ -415,6 +420,8 @@ class Processor extends AbstractApiProcessor
         foreach ($untreatedShop as $shopId) {
             $this->logger->notice("$shopId had no document to transfer");
         }
+
+        return $errors;
     }
 
     /**
@@ -483,7 +490,7 @@ class Processor extends AbstractApiProcessor
             } catch (InvalidBankInfoException $e) {
                 $this->handleException($e, 'critical', array('shopId' => $vendor->getMiraklId()));
             }
-            catch (DispatchableException $e) {
+            catch (Exception $e) {
                 $this->handleException($e, 'warning', array('shopId' => $vendor->getMiraklId()));
             }
         }
