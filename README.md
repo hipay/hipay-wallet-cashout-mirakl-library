@@ -206,6 +206,7 @@ This library is following Semantic Versioning v2.0.0. Please see their documenta
 # Annex
 
 All operation statuses are constants from the class Cashout/Model/Operation/Status.
+
 | Name               | Value | Description                                    |
 |--------------------|-------|------------------------------------------------|
 | CREATED            | 1     | The operation was created                      |
@@ -217,6 +218,7 @@ All operation statuses are constants from the class Cashout/Model/Operation/Stat
 | WITHDRAW_CANCELED  | -8    | The withdrawal has been cancelled              |
 
 Comprehensive list of the interfaces to implement to use the library (not for the integration)
+
 | Classpath                                  | Needed for                           | Description                                                                                  |
 |--------------------------------------------|--------------------------------------|----------------------------------------------------------------------------------------------|
 | `Api\HiPay\ConfigurationInterface`           | All                                  | Represents the data for a HiPay connection                                                   |
