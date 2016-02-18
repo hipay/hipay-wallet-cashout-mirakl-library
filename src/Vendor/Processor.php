@@ -404,7 +404,7 @@ class Processor extends AbstractApiProcessor
                     DIRECTORY_SEPARATOR .$shopDocument;
                 $destination = $ftpShopDirectoryPath.
                     DIRECTORY_SEPARATOR .$shopDocument;
-
+                $this->logger->info("Transfering $source");
                 $file = new File($destination);
                 //Upload the files
                 if ($this->ftp->upload($file, $source) == false) {

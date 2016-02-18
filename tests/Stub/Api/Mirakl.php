@@ -42,7 +42,9 @@ class Mirakl
      */
     public static function getVendor()
     {
-        return array(reset(static::getVendors()));
+        $vendors = static::getVendors();
+        $vendor = reset($vendors);
+        return array($vendor);
     }
 
     /**

@@ -60,6 +60,7 @@ class Factory extends FTPFactory
                     $this->configuration->getHost(),
                     $this->configuration->getPort()
                 );
+                return new SSHFTP($connection);
                 break;
             case static::FTP_SSL:
                 $connection =  new SSLConnection(

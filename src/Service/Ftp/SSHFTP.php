@@ -1,6 +1,6 @@
 <?php
 /**
- * File LocalFTP.php
+ * File SSHFTP.php
  *
  * @category
  * @package
@@ -11,19 +11,32 @@
 namespace HiPay\Wallet\Mirakl\Service\Ftp;
 
 
+use Touki\FTP\Exception\ConnectionUnestablishedException;
 use Touki\FTP\FTPInterface;
 use Touki\FTP\Model\Directory;
 use Touki\FTP\Model\File;
 use Touki\FTP\Model\Filesystem;
 
 /**
- * Ftp on the same machine
+ * Class SSHFTP
  *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
  */
-class LocalFTP implements FTPInterface
+class SSHFTP implements FTPInterface
 {
+    protected $connection;
+
+    /**
+     * SSHFTP constructor.
+     * @param SSHConnection $connection
+     */
+    public function __construct(SSHConnection $connection)
+    {
+        $this->connection = $connection;
+        $this->connection->connect();
+    }
+
     /**
      * Finds remote filesystems in the given remote directory
      *
@@ -34,19 +47,14 @@ class LocalFTP implements FTPInterface
      */
     public function findFilesystems(Directory $directory, $filterFiles = false, $filterDir = false)
     {
-        if ($filterFiles && $filterDir) {
-            return array();
-        }
-
+        $handle = opendir($this->getHandleString($directory));
         $result = array();
-        $dirPath = $directory->getRealpath();
-        $handle = opendir($dirPath);
-        while (($entry = readdir($handle) !== false)) {
+        while (false != ($entry = readdir($handle))) {
             if ($entry == "." || $entry == "..") {
                 continue;
             }
 
-            $entryPath = $dirPath . $entry;
+            $entryPath = $directory->getRealpath() . $entry;
 
             if (!$filterFiles && is_file($entryPath)) {
                 $result[] = new File($entryPath);
@@ -90,7 +98,7 @@ class LocalFTP implements FTPInterface
      */
     public function filesystemExists(Filesystem $fs)
     {
-        return file_exists($fs->getRealpath());
+        return file_exists($this->getHandleString($fs));
     }
 
     /**
@@ -101,8 +109,7 @@ class LocalFTP implements FTPInterface
      */
     public function fileExists(File $file)
     {
-
-        return $this->filesystemExists($file) && is_file($file->getRealpath());
+        return is_file($this->getHandleString($file));
     }
 
     /**
@@ -113,127 +120,126 @@ class LocalFTP implements FTPInterface
      */
     public function directoryExists(Directory $directory)
     {
-        return $this->filesystemExists($directory) && is_dir($directory->getRealpath());
+        return is_dir($this->getHandleString($directory));
     }
 
     /**
      * Finds a remote Filesystem by its name
      *
      * @param  string $filename Filesystem name
-     * @param Directory $inDirectory
      * @return Filesystem A Filesystem instance, NULL if it doesn't exists
      */
     public function findFilesystemByName($filename, Directory $inDirectory = null)
     {
-        $cwd = getcwd();
+        $path = "";
 
         if ($inDirectory) {
-            chdir($inDirectory->getRealpath());
+            $path = rtrim($inDirectory->getRealpath(), '/') . DIRECTORY_SEPARATOR;
         }
 
-        $return = null;
+        $path .= $filename;
 
-        if (is_file($filename)) {
-            $return = new File(getcwd() . DIRECTORY_SEPARATOR .$filename);
+        $filesystem = new File($path);
+
+        if ($this->fileExists($filesystem)) {
+            return $filesystem;
         }
 
-        if (is_dir($filename)) {
-            $return = new Directory(getcwd() . DIRECTORY_SEPARATOR .$filename);
+        $filesystem = new Directory($path);
+
+        if ($this->directoryExists($filesystem)) {
+            return $filesystem;
         }
 
-        chdir($cwd);
-
-        return $return;
+        return null;
     }
 
     /**
      * Finds a remote File by its name
      *
      * @param  string $filename File name
-     * @param Directory $inDirectory
-     * @return File A File instance, NULL if it doesn't exists
+     * @return File   A File instance, NULL if it doesn't exists
      */
     public function findFileByName($filename, Directory $inDirectory = null)
     {
-        $cwd = getcwd();
+        $path = "";
 
         if ($inDirectory) {
-            chdir($inDirectory->getRealpath());
+            $path = rtrim($inDirectory->getRealpath(), '/') . DIRECTORY_SEPARATOR;
         }
 
-        $return = null;
+        $path .= $filename;
 
-        if (is_file($filename)) {
-            $return = new File(getcwd() . DIRECTORY_SEPARATOR .$filename);
+        $filesystem = new File($path);
+
+        if ($this->fileExists($filesystem)) {
+            return $filesystem;
         }
 
-        chdir($cwd);
-
-        return $return;
+        return null;
     }
 
     /**
      * Finds a directory by its name
      *
      * @param  string $directory Directory name
-     * @param Directory $inDirectory
      * @return Directory A Directory instance, NULL if it doesn't exists
      */
     public function findDirectoryByName($directory, Directory $inDirectory = null)
     {
-        $cwd = getcwd();
+        $path = "";
 
         if ($inDirectory) {
-            chdir($inDirectory->getRealpath());
+            $path = rtrim($inDirectory->getRealpath(), '/') . DIRECTORY_SEPARATOR;
         }
 
-        $return = null;
+        $path .= $directory;
 
-        if (is_dir($directory)) {
-            $return = new Directory(getcwd() . DIRECTORY_SEPARATOR . $directory);
+        $filesystem = new Directory($path);
+
+        if ($this->directoryExists($filesystem)) {
+            return $filesystem;
         }
 
-        chdir($cwd);
-
-        return $return;
+        return null;
     }
 
     /**
      * Returns the current working directory
+     * Doesn't work for this ftp
      *
      * @return Directory A Directory instance
      */
     public function getCwd()
     {
-        return new Directory(getcwd());
+        return getcwd();
     }
 
     /**
      * Downloads a remote Filesystem into the given local
      *
-     * @param  string $local Local file path
+     * @param  string $local Local file, resource
      * @param  Filesystem $remote The remote Filesystem
      * @param  array $options Downloader's options
      * @return boolean    TRUE on success, FALSE on failure
      */
     public function download($local, Filesystem $remote, array $options = array())
     {
-        copy($remote->getRealpath(), $local);
-        return true;
+        return ssh2_scp_recv($this->connection->getStream(), $remote->getRealpath(), $local);
     }
 
     /**
      * Uploads to a remote Filesystem from a given local
      *
      * @param  Filesystem $remote The remote Filesystem
-     * @param  string $local Local file, resource
+     * @param  mixed $local Local file, resource
      * @param  array $options Uploader's options
      * @return boolean    TRUE on success, FALSE on failure
      */
     public function upload(Filesystem $remote, $local, array $options = array())
     {
-        copy($local, $remote->getRealpath());
-        return true;
+        $mode = isset($options['mode']) ? $options['mode'] : 0644;
+        return ssh2_scp_send($this->connection->getStream(), $local, $remote->getRealpath(), $mode);
     }
 
     /**
@@ -248,15 +254,25 @@ class LocalFTP implements FTPInterface
         if ($filesystem instanceof Directory) {
             $mode = isset($options['mode']) ? $options['mode'] : 0755;
             $recursive = isset($options['recursive']) ? $options['recursive'] : true;
-            mkdir($filesystem->getRealpath(), $mode, $recursive);
+            return ssh2_sftp_mkdir($this->connection->getStream(), $filesystem->getRealpath(), $mode, $recursive);
         }
 
         if ($filesystem instanceof File) {
             $mode = isset($options['mode']) ? $options['mode'] : 'w';
             $useIncludePath = isset($options['use_include_path']) ? $options['use_include_path'] : null;
-            fopen($filesystem->getRealpath(), $mode, $useIncludePath);
+            fopen($this->getHandleString($filesystem), $mode, $useIncludePath);
         }
+    }
 
-        return true;
+    /**
+     * @param Filesystem $filesystem
+     * @return string
+     * @throws ConnectionUnestablishedException
+     */
+    protected function getHandleString(Filesystem $filesystem)
+    {
+        return "ssh2.sftp://{$this->connection->getStream()}"
+        . DIRECTORY_SEPARATOR .
+        ssh2_sftp_realpath($this->connection->getStream(), $filesystem->getRealpath());
     }
 }
