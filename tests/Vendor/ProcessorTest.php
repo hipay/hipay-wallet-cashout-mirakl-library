@@ -5,6 +5,7 @@ namespace HiPay\Wallet\Mirakl\Test\Vendor;
 use DateTime;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\BankInfo;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Status\BankInfo as BankInfoStatus;
+use HiPay\Wallet\Mirakl\Service\Ftp\Factory as FTPFactory;
 use HiPay\Wallet\Mirakl\Test\Common\AbstractProcessorTest;
 use HiPay\Wallet\Mirakl\Test\Stub\Api\Mirakl;
 use HiPay\Wallet\Mirakl\Test\Stub\Entity\Vendor;
@@ -47,11 +48,12 @@ class ProcessorTest extends AbstractProcessorTest
         /** @var BankInfo bankInfoArgument */
         $this->bankInfoArgument = Argument::type("\\HiPay\\Wallet\\Mirakl\\Api\\HiPay\\Model\\Soap\\BankInfo");
 
+        /** @var FTPFactory $factory */
         $factory = $this->prophesize("\\HiPay\\Wallet\\Mirakl\\Service\\Ftp\\Factory");
 
         $ftp = $this->prophesize("\\Touki\\\FTP\\FTP");
 
-        $factory->getFtp()->willReturn($ftp->reveal());
+        $factory->getFTP()->willReturn($ftp->reveal());
 
         $this->vendorProcessor = new Processor(
             $this->eventDispatcher->reveal(),
