@@ -215,7 +215,8 @@ class ProcessorTest extends AbstractProcessorTest
      */
     public function testBankInfoBlank()
     {
-        $miraklData = reset(Mirakl::getVendor());
+        $vendors = Mirakl::getVendor();
+        $miraklData = reset($vendors);
         $vendor = $this->getVendorInstance($miraklData);
         $miraklData = array($vendor->getMiraklId() => $miraklData);
 
@@ -239,7 +240,8 @@ class ProcessorTest extends AbstractProcessorTest
      */
     public function testBankInfoValidate()
     {
-        $miraklData = reset(Mirakl::getVendor());
+        $vendors = Mirakl::getVendor();
+        $miraklData = reset($vendors);
         $vendor = $this->getVendorInstance($miraklData);
         $miraklData = array($vendor->getMiraklId() => $miraklData);
 
@@ -260,7 +262,8 @@ class ProcessorTest extends AbstractProcessorTest
      */
     public function testBankInfoOther()
     {
-        $miraklData = reset(Mirakl::getVendor());
+        $vendors = Mirakl::getVendor();
+        $miraklData = reset($vendors);
         $vendor = $this->getVendorInstance($miraklData);
         $miraklData = array($vendor->getMiraklId() => $miraklData);
 
