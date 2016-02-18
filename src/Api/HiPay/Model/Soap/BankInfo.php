@@ -17,7 +17,7 @@ class BankInfo extends ModelAbstract
      *
      * @Assert\NotBlank
      * @Assert\Regex(
-     *     pattern="/^[a-zA-Z0-9]+$/",
+     *     pattern="/^[a-zA-Z0-9 ]+$/",
      *      message="Only alphanumeric characters allowed"
      * )
      */
@@ -42,7 +42,7 @@ class BankInfo extends ModelAbstract
      *
      * @Assert\NotBlank
      * @Assert\Regex(
-     *     pattern="/^[a-zA-Z0-9]+$/",
+     *     pattern="/^[a-zA-Z0-9 ]+$/",
      *      message="Only alphanumeric characters allowed"
      * )
      */
