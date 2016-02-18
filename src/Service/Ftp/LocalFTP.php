@@ -246,14 +246,14 @@ class LocalFTP implements FTPInterface
     public function create(Filesystem $filesystem, array $options = array())
     {
         if ($filesystem instanceof Directory) {
-            $mode = isset($options['mode']) ?: 0755;
-            $recursive = isset($options['recursive']) ?: true;
+            $mode = isset($options['mode']) ? $options['mode'] : 0755;
+            $recursive = isset($options['recursive']) ? $options['recursive'] : true;
             mkdir($filesystem->getRealpath(), $mode, $recursive);
         }
 
         if ($filesystem instanceof File) {
-            $mode = isset($options['mode']) ?: 'w';
-            $useIncludePath = isset($options['use_include_path']) ?: null;
+            $mode = isset($options['mode']) ? $options['mode'] : 'w';
+            $useIncludePath = isset($options['use_include_path']) ? $options['use_include_path'] : null;
             fopen($filesystem->getRealpath(), $mode, $useIncludePath);
         }
 
