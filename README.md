@@ -101,7 +101,7 @@ The `ManagerInterface` under the vendor namespace is obviously related to the ve
 |`isValid`|Used to implement custom validation before save.
 
 ###### Operation/ManagerInterface
-Analogously, the `ManagerInterface` below the Cashout/Operation will handle operations. The create, save, saveAll and isValid method are the same as before only transposed to operations. Below some explanation for the other methods implementation :
+Analogously, the `ManagerInterface` below the namespace Cashout/Operation will handle operations. The create, save, saveAll and isValid method are the same as before only transposed to operations. Below some explanation for the other methods implementation :
 
 |Method name|Implementation advice|
 |-----------|---------------------|
@@ -117,7 +117,7 @@ These interfaces must be implemented to create the instance of the classes who c
 
 #### Model interfaces
 
-There is only one interface in this category. The `TransactionValidator` is used to validate the transaction before computing them in an operation to be recorded. The sole method to implement, `isValid`, should do the validation (returning true if it passes).
+There is only one interface in this category. The `TransactionValidator` is used to validate the transaction before computing them in an operation to be recorded (saved in a database or in a file for exemple). The sole method to implement, `isValid`, should do the validation (returning true if it passes).
 
 ### Event
 
@@ -204,3 +204,25 @@ There should not be any errors.
 This library is following Semantic Versioning v2.0.0. Please see their documentation for more information.
 
 # Annex
+
+All operation statuses are constants from the class Cashout/Model/Operation/Status.
+| Name               | Value | Description                                    |
+|--------------------|-------|------------------------------------------------|
+| CREATED            | 1     | The operation was created                      |
+| TRANSFER_SUCCESS   | 3     | The transfer has been executed with success    |
+| TRANSFER_FAILED    | -9    | The transfer has been executed and failed      |
+| WITHDRAW_REQUESTED | 5     | The withdrawal has been requested with success |
+| WITHDRAW_SUCCESS   | 6     | The withdrawal has been executed with success  |
+| WITHDRAW_FAILED    | -7    | The withdrawal has been executed and failed    |
+| WITHDRAW_CANCELED  | -8    | The withdrawal has been cancelled              |
+
+Comprehensive list of the interfaces to implement to use the library (not for the integration)
+| Classpath                                  | Needed for                           | Description                                                                                  |
+|--------------------------------------------|--------------------------------------|----------------------------------------------------------------------------------------------|
+| `Api\HiPay\ConfigurationInterface`           | All                                  | Represents the data for a HiPay connection                                                   |
+| `Api\Mirakl\ConfigurationInterface`          | All                                  | Represents the data for a Mirakl connection                                                  |
+| `Service\Ftp\ConfigurationInterface`         | VendorProcessor                      | Represents the data for a FTP connection                                                     |
+| `Vendor\Model\VendorInterface`               | All                                  | Represents an entity to send or receive money                                                |
+| `Vendor\Model\ManagerInterface`              | All                                  | Manages vendor entities                                                                      |
+| `Cashout\Model\Operation\OperationInterface` | CashoutInitializer, CashoutProcessor | Represents a transfer from the technical account and a withdrawal to the vendor bank account |
+| `Cashout\Model\Operation\ManagerInterface`   | CashoutInitializer, CashoutProcessor | Manages the operation entities                                                               |
