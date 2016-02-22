@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<notification>
+    <md5content>6d904d38f027ae41179c772645adcdcf</md5content>
+    <result>
+        <operation>other_transaction</operation>
+        <status>ok</status>
+        <date>2015-11-30</date>
+        <time>00:13:46 UTC+0000</time>
+        <transid>565c6eb04d10b000</transid>
+        <account_id>1234567</account_id>
+        <amount>235.84</amount>
+        <currency>EUR</currency>
+        <label>SALES transactions: Batch n°203493 November-04-2015</label>
+    </result>
+</notification>
