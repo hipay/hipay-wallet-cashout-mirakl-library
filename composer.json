@@ -1,5 +1,5 @@
 {
-  "name": "hipay/mirakl-connector",
+  "name": "hipay/hipay-wallet-cashout-mirakl-library",
   "description": "Library to ease the connection between Mirakl and HiPay",
   "minimum-stability": "stable",
   "version" : "1.0.4",
