@@ -2,7 +2,7 @@
   "name": "hipay/hipay-wallet-cashout-mirakl-library",
   "description": "Library to ease the connection between Mirakl and HiPay",
   "minimum-stability": "stable",
-  "version" : "1.0.4",
+  "version" : "1.0.5",
   "license": "proprietary",
   "authors": [
     {
