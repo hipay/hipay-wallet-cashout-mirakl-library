@@ -34,7 +34,7 @@ The **HiPay Wallet cash-out library for Mirakl** is available under the **Apache
 
 [hipay-help]: http://help.hipay.com
 
-[project-issues]: https://github.com/hipay/hipay-wallet-cashout-mirakl-library/blob/master/README.md
+[project-issues]: https://github.com/hipay/hipay-wallet-cashout-mirakl-library/issues
 [project-license]: https://github.com/hipay/hipay-wallet-cashout-mirakl-library/blob/master/LICENSE.md
 [project-changelog]: https://github.com/hipay/hipay-wallet-cashout-mirakl-library/blob/master/CHANGELOG.md
 
