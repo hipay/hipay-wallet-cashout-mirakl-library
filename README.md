@@ -6,7 +6,9 @@ The **HiPay Wallet cash-out library for Mirakl** is a PHP library which intends 
 
 ## Important notice
 
-Before getting started, be aware that this library needs to be integrated. **In most cases, you won't need to integrate it yourself** and will rather install the [turnkey Silex integration][repo-integration]. You may want to integrate this library yourself if you already have a back-end application and want to manage the cash-out workflow in it. 
+Before getting started, be aware that this library needs to be integrated. **In most cases, you won't need to integrate it yourself** and will rather install the [standalone integration][repo-integration]. You may want to integrate this library yourself if you already have a back-end application and want to manage the cash-out workflow in it. 
+
+**Unless you have specific needs, do not integrate this library**, but install the [standalone integration][repo-integration] which integrates it.
 
 ## Getting started
 
