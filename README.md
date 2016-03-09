@@ -1,4 +1,4 @@
-# HiPay Wallet cash-out library for Mirakl
+# HiPay Wallet cash-out library for Mirakl (advanced installation)
 
 [![Build Status](https://circleci.com/gh/hipay/hipay-wallet-cashout-mirakl-library/tree/master.svg?style=shield)](https://circleci.com/gh/hipay/hipay-wallet-cashout-mirakl-library/tree/master) [![Code Climate](https://codeclimate.com/github/hipay/hipay-wallet-cashout-mirakl-library/badges/gpa.svg)](https://codeclimate.com/github/hipay/hipay-wallet-cashout-mirakl-library) [![Package version](https://img.shields.io/packagist/v/hipay/hipay-wallet-cashout-mirakl-library.svg)](https://packagist.org/packages/hipay/hipay-wallet-cashout-mirakl-library) [![GitHub license](https://img.shields.io/badge/license-Apache%202-blue.svg)](https://raw.githubusercontent.com/hipay/hipay-wallet-cashout-mirakl-library/master/LICENSE.md)
 
