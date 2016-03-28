@@ -9,6 +9,7 @@ use HiPay\Wallet\Mirakl\Test\Common\AbstractProcessorTest;
 use HiPay\Wallet\Mirakl\Test\Stub\Api\Mirakl;
 use HiPay\Wallet\Mirakl\Test\Stub\Entity\Operation;
 use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
+use HiPay\Wallet\Mirakl\Vendor\Model\VendorManagerInterface;
 use Prophecy\Argument;
 use Prophecy\Argument\Token\TypeToken;
 

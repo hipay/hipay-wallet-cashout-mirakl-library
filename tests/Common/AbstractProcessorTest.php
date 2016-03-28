@@ -8,7 +8,8 @@ use HiPay\Wallet\Mirakl\Api\Mirakl\ApiInterface as MiraklApiInterface;
 use HiPay\Wallet\Mirakl\Cashout\Model\Operation\ManagerInterface as OperationManagerInterface;
 use HiPay\Wallet\Mirakl\Cashout\Model\Transaction\ValidatorInterface;
 use HiPay\Wallet\Mirakl\Test\Stub\Entity\Vendor;
-use HiPay\Wallet\Mirakl\Vendor\Model\ManagerInterface as VendorManagerInterface;
+use HiPay\Wallet\Mirakl\Vendor\Model\DocumentManagerInterface as DocumentManagerInterface;
+use HiPay\Wallet\Mirakl\Vendor\Model\VendorManagerInterface as VendorManagerInterface;
 use PHPUnit_Framework_TestCase;
 use Prophecy\Prophecy\ObjectProphecy;
 use Psr\Log\LoggerInterface;
@@ -39,6 +40,9 @@ abstract class AbstractProcessorTest extends PHPUnit_Framework_TestCase
 
     /** @var VendorManagerInterface|ObjectProphecy  */
     protected $vendorManager;
+
+    /** @var DocumentManagerInterface|ObjectProphecy  */
+    protected $documentManager;
 
     /** @var OperationManagerInterface|ObjectProphecy  */
     protected $operationManager;
@@ -74,7 +78,10 @@ abstract class AbstractProcessorTest extends PHPUnit_Framework_TestCase
         $this->apiFactory->getMirakl()->willReturn($this->mirakl->reveal());
 
         /** @var VendorManagerInterface|ObjectProphecy $vendorManager */
-        $this->vendorManager = $this->prophesize("HiPay\\Wallet\\Mirakl\\Vendor\\Model\\ManagerInterface");
+        $this->vendorManager = $this->prophesize("HiPay\\Wallet\\Mirakl\\Vendor\\Model\\VendorManagerInterface");
+
+        /** @var DocumentManagerInterface|ObjectProphecy $documentManager */
+        $this->documentManager = $this->prophesize("HiPay\\Wallet\\Mirakl\\Vendor\\Model\\DocumentManagerInterface");
 
         /** @var OperationManagerInterface|ObjectProphecy $operationManager */
         $this->operationManager =
@@ -98,5 +105,6 @@ abstract class AbstractProcessorTest extends PHPUnit_Framework_TestCase
         $this->operationManager->checkProphecyMethodsPredictions();
         $this->hipay->checkProphecyMethodsPredictions();
         $this->mirakl->checkProphecyMethodsPredictions();
+        $this->documentManager->checkProphecyMethodsPredictions();
     }
 }
