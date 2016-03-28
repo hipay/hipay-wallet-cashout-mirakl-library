@@ -347,6 +347,29 @@ class Processor extends AbstractApiProcessor
     }
 
     /**
+     * Checks if the document is a proof of bank account. If so, checks if this document is necessary (if the bank account has already been validated).
+     *
+     * @param VendorInterface $vendor
+     * @param $type The type of document being uploaded
+     * @return bool Whether this document should be uploaded or not
+     */
+    private function shouldSendDocumentForVendor(VendorInterface $vendor, $type)
+    {
+        if ($this->documentTypes[$type] === HiPay::DOCUMENT_ALL_PROOF_OF_BANK_ACCOUNT)
+        {
+            if (trim($this->hipay->bankInfosStatus($vendor)) === BankInfoStatus::VALIDATED)
+            {
+                $this->logger->info('The file '.$type.' for Mirakl shop '.$vendor->getMiraklId() .' should not be sent (bank account already validated)');
+                return false;
+            }
+
+            $this->logger->info('The file '.$type.' for Mirakl shop '.$vendor->getMiraklId() .' can be sent (bank account not validated yet)');
+        }
+
+        return true;
+    }
+
+    /**
      * Transfer the files from Mirakl to HiPay using REST endpoint.
      *
      * @param array $shopIds
@@ -393,7 +416,7 @@ class Processor extends AbstractApiProcessor
                     }));
 
                     // File not uploaded (or outdated)
-                    if (count($filesAlreadyUploaded) === 0) {
+                    if ((count($filesAlreadyUploaded) === 0) && $this->shouldSendDocumentForVendor($vendor, $theFile['type'])) {
 
                         $this->logger->info('Document '.$theFile['id'].' (type: '.$theFile['type'].') for Mirakl for shop '. $shopId.' is not uploaded or not up to date. Will upload');
 
@@ -444,7 +467,7 @@ class Processor extends AbstractApiProcessor
                         }
                     }
 
-                    else {
+                    else if (count($filesAlreadyUploaded) > 0) {
                         $this->logger->info('Document '.$theFile['id'].' (type: '.$theFile['type'].') for Mirakl for shop '. $shopId.' is already uploaded with ID ' . $filesAlreadyUploaded[0]->getId());
                     }
                 }

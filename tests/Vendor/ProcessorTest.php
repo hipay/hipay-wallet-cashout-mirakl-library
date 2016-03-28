@@ -338,6 +338,9 @@ class ProcessorTest extends AbstractProcessorTest
         $this->documentManager->save(Argument::exact($document1))->shouldBeCalledTimes(1);
         $this->documentManager->save(Argument::exact($document2))->shouldBeCalledTimes(1);
 
+        // Checks if documents should be sent
+        $this->hipay->bankInfosStatus($vendor1)->willReturn(BankInfoStatus::TO_VALIDATE);
+
         $this->vendorProcessor->transferFiles($shops, $tmpDir);
 
         $prophet->checkPredictions();
