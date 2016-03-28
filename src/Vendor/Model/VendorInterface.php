@@ -48,10 +48,6 @@ interface VendorInterface
 
     /**
      * @return int
-     *
-     * @Assert\NotBlank()
-     * @Assert\Type(type="integer")
-     * @Assert\GreaterThan(value = 0)
      */
     public function getHiPayId();
 
@@ -61,4 +57,28 @@ interface VendorInterface
      * @return void
      */
     public function setHiPayId($id);
+
+    /**
+     * @return int
+     */
+    public function getHiPayUserSpaceId();
+
+    /**
+     * @param int $id
+     *
+     * @return void
+     */
+    public function setHiPayUserSpaceId($id);
+
+    /**
+     * @return int
+     */
+    public function getHiPayIdentified();
+
+    /**
+     * @param int $id
+     *
+     * @return void
+     */
+    public function setHiPayIdentified($id);
 }

@@ -1,0 +1,8 @@
+lib:
+  build: .
+  container_name: hipay-mirakl-lib-running
+  volumes:
+    - .:/usr/src/myapp
+  environment:
+    XDEBUG_CONFIG: idekey=PHPSTORM remote_enable=on remote_port=9000 remote_connect_back=On remote_handler=dbgp profiler_enable=0 profiler_output_dir="/temp/profiledir"
+

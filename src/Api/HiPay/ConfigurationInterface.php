@@ -14,6 +14,26 @@ use Symfony\Component\Validator\Constraints as Assert;
 interface ConfigurationInterface extends BaseConfigurationInterface
 {
     /**
+     * Returns the web service base URL given by HiPay (Soap).
+     *
+     * @return string
+     *
+     * @Assert\NotBlank()
+     * @Assert\Type("string")
+     */
+    public function getBaseSoapUrl();
+
+    /**
+     * Returns the web service base URL given by HiPay (REST).
+     *
+     * @return string
+     *
+     * @Assert\NotBlank()
+     * @Assert\Type("string")
+     */
+    public function getBaseRestUrl();
+
+    /**
      * Returns the web service login given by HiPay.
      *
      * @return string

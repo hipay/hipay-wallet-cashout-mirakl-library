@@ -9,7 +9,7 @@ namespace HiPay\Wallet\Mirakl\Vendor\Model;
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
  */
-interface ManagerInterface
+interface VendorManagerInterface
 {
     /**
      * Create a vendor
@@ -18,6 +18,8 @@ interface ManagerInterface
      * @param $email
      * @param $miraklId
      * @param $hipayId
+     * @param $hipayUserSpaceId
+     * @param $identified
      * @param array $miraklData
      *
      * @return VendorInterface
@@ -26,6 +28,8 @@ interface ManagerInterface
         $email,
         $miraklId,
         $hipayId,
+        $hipayUserSpaceId,
+        $identified,
         array $miraklData
     );
 

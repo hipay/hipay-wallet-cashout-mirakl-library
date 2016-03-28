@@ -1,0 +1,48 @@
+{
+  "name": "HiPay Wallet",
+  "apiVersion": 1.0,
+  "description": "",
+  "operations": {
+    "UploadDocument": {
+      "httpMethod": "POST",
+      "uri": "/api/identification/upload",
+      "summary": "Upload merchant document to HiPay",
+      "parameters": {
+        "userSpaceId": {
+          "type": "integer",
+          "description": "User space Id of the HiPay Wallet account",
+          "location": "postField",
+          "sentAs": "user_space",
+          "required": true
+        },
+        "type": {
+          "type": "integer",
+          "description": "Type of document to be uploaded",
+          "location": "postField",
+          "sentAs": "type",
+          "required": true
+        },
+        "file": {
+          "type": "any",
+          "description": "The document to be uploaded",
+          "location": "postFile",
+          "sentAs": "file",
+          "required": true
+        },
+        "validityDate": {
+          "type": "object",
+          "instanceOf" : "DateTime",
+          "location": "postField",
+          "required": false,
+          "sentAs": "validity_date",
+          "filters" : [
+            {
+              "method": "date_format",
+              "args" : ["@value", "Y-m-d"]
+            }
+          ]
+        }
+      }
+    }
+  }
+}

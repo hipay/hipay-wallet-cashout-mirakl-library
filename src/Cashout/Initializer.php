@@ -16,7 +16,7 @@ use HiPay\Wallet\Mirakl\Exception\NotEnoughFunds;
 use HiPay\Wallet\Mirakl\Exception\TransactionException;
 use HiPay\Wallet\Mirakl\Exception\ValidationFailedException;
 use HiPay\Wallet\Mirakl\Service\Validation\ModelValidator;
-use HiPay\Wallet\Mirakl\Vendor\Model\ManagerInterface as VendorManager;
+use HiPay\Wallet\Mirakl\Vendor\Model\VendorManagerInterface as VendorManager;
 use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
