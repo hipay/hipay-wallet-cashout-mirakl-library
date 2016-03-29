@@ -33,7 +33,7 @@ class UnidentifiedWalletException extends DispatchableException
     ) {
         $this->vendor = $vendor;
         parent::__construct(
-            $message ?: "The wallet {$vendor->getHiPayId()} is unidentified",
+            $message ?: "The HiPay Wallet account {$vendor->getHiPayId()} is unidentified. Please upload identification documents for Mirakl shop " . $vendor->getMiraklId() ." if you didn't already do so.",
             $code,
             $previousException
         );
