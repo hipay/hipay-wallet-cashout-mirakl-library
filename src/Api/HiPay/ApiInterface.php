@@ -17,6 +17,7 @@ use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\Transfer;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\UserAccountBasic;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\UserAccountDetails;
 use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
+use HiPay\Wallet\Mirakl\Api\HiPay\Wallet\AccountInfo;
 
 /**
  * Make the SOAP call to the HiPay API.
@@ -107,6 +108,17 @@ interface ApiInterface
     public function getWalletId($email);
 
     /**
+     * Return the hipay account information.
+     *
+     * @param string $email
+     *
+     * @return AccountInfo HiPay Wallet account information
+     *
+     * @throws Exception
+     */
+    public function getWalletInfo($email);
+
+    /**
      * Return the identified status of the account.
      *
      * @param string $email
@@ -165,4 +177,7 @@ interface ApiInterface
      * @return array
      */
     public function getMerchantGroupAccounts($merchantGroupId, DateTime $pastDate);
+
+
+    public function uploadDocument($userSpaceId, $documentType, $fileName, \DateTime $validityDate = null);
 }

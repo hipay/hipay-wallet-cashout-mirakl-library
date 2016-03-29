@@ -40,7 +40,7 @@ class InvalidBankInfoException extends DispatchableException
         $this->bankInfo = $bankInfo;
         parent::__construct(
             $message ?:
-            "The Bank info for shop {$vendor->getMiraklId()} is incorrect",
+            "The Bank info for shop {$vendor->getMiraklId()} are not synchronized with HiPay Wallet (which means that bank info have been updated in Mirakl though they were already registered into HiPay Wallet). Please contact HiPay in order to update the bank info for this shop.",
             $code,
             $previous
         );

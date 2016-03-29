@@ -18,7 +18,7 @@ use HiPay\Wallet\Mirakl\Exception\UnidentifiedWalletException;
 use HiPay\Wallet\Mirakl\Exception\WalletNotFoundException;
 use HiPay\Wallet\Mirakl\Exception\WrongWalletBalance;
 use HiPay\Wallet\Mirakl\Service\Validation\ModelValidator;
-use HiPay\Wallet\Mirakl\Vendor\Model\ManagerInterface as VendorManager;
+use HiPay\Wallet\Mirakl\Vendor\Model\VendorManagerInterface as VendorManager;
 use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;

@@ -17,13 +17,6 @@ namespace HiPay\Wallet\Mirakl\Api;
 interface ConfigurationInterface
 {
     /**
-     * Returns the base url who serve to construct the call.
-     *
-     * @return string
-     */
-    public function getBaseUrl();
-
-    /**
      * Returns the configuration array
      * compatible with the rest or soap client used.
      *

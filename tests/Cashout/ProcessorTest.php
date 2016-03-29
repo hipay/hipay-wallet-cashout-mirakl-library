@@ -73,7 +73,7 @@ class ProcessorTest extends AbstractProcessorTest
                             ->willReturn(new Vendor("test@test.com", rand(), rand()))
                             ->shouldBeCalled();
 
-        $this->hipay->isAvailable(Argument::containingString("@"))
+        $this->hipay->isAvailable(Argument::containingString("@"), Argument::any())
                     ->willReturn(false)
                     ->shouldBeCalled();
 
@@ -101,7 +101,7 @@ class ProcessorTest extends AbstractProcessorTest
         $transferId = rand();
         $operation = new Operation(2000, new DateTime(), "000001", false);
 
-        $this->hipay->isAvailable(Argument::containingString("@"))->willReturn(false)->shouldBeCalled();
+        $this->hipay->isAvailable(Argument::containingString("@"), Argument::any())->willReturn(false)->shouldBeCalled();
         $this->hipay->transfer($this->transferArgument, Argument::cetera())->willReturn($transferId)->shouldBeCalled();
 
         $result = $this->cashoutProcessor->transfer($operation);
@@ -121,7 +121,7 @@ class ProcessorTest extends AbstractProcessorTest
     {
         $operation = new Operation(2000, new DateTime(), "000001", rand());
 
-        $this->hipay->isAvailable(Argument::containingString("@"))->willReturn(true)->shouldBeCalled();
+        $this->hipay->isAvailable(Argument::containingString("@"), Argument::any())->willReturn(true)->shouldBeCalled();
 
         $this->hipay->transfer(Argument::any())->shouldNotBeCalled();
 

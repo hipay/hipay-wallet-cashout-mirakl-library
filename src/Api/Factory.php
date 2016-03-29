@@ -45,7 +45,6 @@ class Factory
             $this->miraklConfiguration->getBaseUrl(),
             $this->miraklConfiguration->getFrontKey(),
             $this->miraklConfiguration->getOperatorKey(),
-            $this->miraklConfiguration->getShopKey(),
             $this->miraklConfiguration->getOptions()
         );
     }
@@ -57,7 +56,8 @@ class Factory
     {
         ModelValidator::validate($this->hiPayConfiguration);
         return new HiPay(
-            $this->hiPayConfiguration->getBaseUrl(),
+            $this->hiPayConfiguration->getBaseSoapUrl(),
+            $this->hiPayConfiguration->getBaseRestUrl(),
             $this->hiPayConfiguration->getWebServiceLogin(),
             $this->hiPayConfiguration->getWebServicePassword(),
             $this->hiPayConfiguration->getEntity(),

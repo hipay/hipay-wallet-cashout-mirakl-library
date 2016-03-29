@@ -38,6 +38,25 @@ class Mirakl
     }
 
     /**
+     * List shop documents (uses S30).
+     *
+     * @param $shops
+     * @return array
+     */
+    public static function getShopDocuments($shops)
+    {
+        $documentsResponse = json_decode(file_get_contents(__DIR__ . "/../../../data/test/documents.json"), true);
+
+        $allDocuments = $documentsResponse['shop_documents'];
+
+        $documents = array_filter($allDocuments, function($element) use ($shops) {
+            return in_array($element['shop_id'], $shops);
+        });
+
+        return $documents;
+    }
+
+    /**
      * @return array
      */
     public static function getVendor()

@@ -1,4 +1,0 @@
-var class_hi_pay_1_1_wallet_1_1_mirakl_1_1_api_1_1_hi_pay_1_1_model_1_1_soap_1_1_merchant_data =
-[
-    [ "mergeIntoParameters", "class_hi_pay_1_1_wallet_1_1_mirakl_1_1_api_1_1_hi_pay_1_1_model_1_1_soap_1_1_merchant_data.html#a7e3c69bf1e297847f5260c0fa155692a", null ]
-];
