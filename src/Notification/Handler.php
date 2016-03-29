@@ -17,6 +17,7 @@ use HiPay\Wallet\Mirakl\Notification\Event\BankInfo;
 use HiPay\Wallet\Mirakl\Notification\Event\Identification;
 use HiPay\Wallet\Mirakl\Notification\Event\Other;
 use HiPay\Wallet\Mirakl\Notification\Event\Withdraw;
+use HiPay\Wallet\Mirakl\Vendor\Model\VendorManagerInterface;
 use Psr\Log\LoggerInterface;
 use SimpleXMLElement;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -34,20 +35,26 @@ class Handler extends AbstractProcessor
     /** @var  OperationManager */
     protected $operationManager;
 
+    /** @var  VendorManagerInterface */
+    protected $vendorManager;
+
     /**
      * Handler constructor.
      *
      * @param OperationManager $operationManager
      * @param EventDispatcherInterface $dispatcher
      * @param LoggerInterface $logger
+     * @param VendorManagerInterface $vendorManager
      */
     public function __construct(
         EventDispatcherInterface $dispatcher,
         LoggerInterface $logger,
-        OperationManager $operationManager
+        OperationManager $operationManager,
+        VendorManagerInterface $vendorManager
     ) {
         parent::__construct($dispatcher, $logger);
         $this->operationManager = $operationManager;
+        $this->vendorManager = $vendorManager;
     }
 
     /**
@@ -197,6 +204,13 @@ class Handler extends AbstractProcessor
             $eventName = 'identification.notification.success';
         } else {
             $eventName = 'identification.notification.failed';
+        }
+
+        $vendor = $this->vendorManager->findByHiPayId($hipayId);
+
+        if ($vendor !== null) {
+            $vendor->setHiPayIdentified($status);
+            $this->vendorManager->save($vendor);
         }
 
         $event = new Identification($hipayId, $date);

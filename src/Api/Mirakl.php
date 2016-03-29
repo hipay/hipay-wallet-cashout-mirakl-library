@@ -21,9 +21,6 @@ class Mirakl implements ApiInterface
     /** @var string front api key */
     protected $frontKey;
 
-    /** @var string shop api key */
-    protected $shopKey;
-
     /** @var string operator api key */
     protected $operatorKey;
 
@@ -32,14 +29,12 @@ class Mirakl implements ApiInterface
      *
      * @param string                               $baseUrl
      * @param string                               $frontKey
-     * @param string                               $shopKey
      * @param string                               $operatorKey
      * @param array|\Guzzle\Common\Collection|null $config
      */
     public function __construct(
         $baseUrl,
         $frontKey,
-        $shopKey,
         $operatorKey,
         $config = array()
     ) {
@@ -47,7 +42,6 @@ class Mirakl implements ApiInterface
         $description = ServiceDescription::factory(__DIR__.'../../../data/api/mirakl.json');
         $description->setBaseUrl($baseUrl);
         $this->frontKey = $frontKey;
-        $this->shopKey = $shopKey;
         $this->operatorKey = $operatorKey;
         $this->restClient->setDescription($description);
     }
@@ -88,7 +82,7 @@ class Mirakl implements ApiInterface
      *
      * @param array $shopIds the shops id to list document from
      *
-     * @return string the JSON response
+     * @return array The documents
      */
     public function getFiles(array $shopIds)
     {
@@ -103,7 +97,9 @@ class Mirakl implements ApiInterface
             )
         );
 
-        return $this->restClient->execute($command)->getBody();
+        $result = $this->restClient->execute($command);
+
+        return $result['shop_documents'];
     }
 
     /**

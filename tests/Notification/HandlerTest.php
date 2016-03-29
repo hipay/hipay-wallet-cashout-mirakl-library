@@ -7,6 +7,7 @@ use HiPay\Wallet\Mirakl\Cashout\Model\Operation\Status;
 use HiPay\Wallet\Mirakl\Notification\Handler;
 use HiPay\Wallet\Mirakl\Test\Common\AbstractProcessorTest;
 use HiPay\Wallet\Mirakl\Test\Stub\Entity\Operation;
+use HiPay\Wallet\Mirakl\Test\Stub\Entity\Vendor;
 use Prophecy\Argument;
 
 /**
@@ -31,7 +32,8 @@ class HandlerTest extends AbstractProcessorTest
         $this->notificationHandler = new Handler(
             $this->eventDispatcher->reveal(),
             $this->logger->reveal(),
-            $this->operationManager->reveal()
+            $this->operationManager->reveal(),
+            $this->vendorManager->reveal()
         );
 
     }
@@ -88,6 +90,14 @@ class HandlerTest extends AbstractProcessorTest
     public function testIdentificationNotification()
     {
         $xml = $this->readFile("identification.xml");
+
+        $vendor = new Vendor('test@test', 123456, null, null, false);
+
+        $this->vendorManager->findByHiPayId(123456)->willReturn($vendor)->shouldBeCalledTimes(1);
+        $this->vendorManager->save(Argument::that(function($vendorUpdated) {
+            // Should have been updated to identified
+            return $vendorUpdated->getHipayIdentified() === true;
+        }))->shouldBeCalledTimes(1);
 
         $this->setEventAssertion("identification", "Identification");
 

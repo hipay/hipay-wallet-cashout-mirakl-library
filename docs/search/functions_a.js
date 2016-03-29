@@ -1,6 +1,0 @@
-var searchData=
-[
-  ['mergeintoparameters',['mergeIntoParameters',['../class_hi_pay_1_1_wallet_1_1_mirakl_1_1_api_1_1_hi_pay_1_1_model_1_1_soap_1_1_merchant_data.html#a7e3c69bf1e297847f5260c0fa155692a',1,'HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\MerchantData\mergeIntoParameters()'],['../class_hi_pay_1_1_wallet_1_1_mirakl_1_1_api_1_1_hi_pay_1_1_model_1_1_soap_1_1_model_abstract.html#a7e3c69bf1e297847f5260c0fa155692a',1,'HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\ModelAbstract\mergeIntoParameters()'],['../class_hi_pay_1_1_wallet_1_1_mirakl_1_1_api_1_1_hi_pay_1_1_model_1_1_soap_1_1_user_account_basic.html#a7e3c69bf1e297847f5260c0fa155692a',1,'HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\UserAccountBasic\mergeIntoParameters()'],['../class_hi_pay_1_1_wallet_1_1_mirakl_1_1_api_1_1_hi_pay_1_1_model_1_1_soap_1_1_user_account_details.html#a7e3c69bf1e297847f5260c0fa155692a',1,'HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\UserAccountDetails\mergeIntoParameters()']]],
-  ['mergeloginparameters',['mergeLoginParameters',['../class_hi_pay_1_1_wallet_1_1_mirakl_1_1_api_1_1_hi_pay.html#ad53257be1a5fb59c501a1105280a0f3b',1,'HiPay::Wallet::Mirakl::Api::HiPay']]],
-  ['mergesubaccountparameters',['mergeSubAccountParameters',['../class_hi_pay_1_1_wallet_1_1_mirakl_1_1_api_1_1_hi_pay.html#a8e10a4a1428cd35cfad7363695f8a65e',1,'HiPay::Wallet::Mirakl::Api::HiPay']]]
-];

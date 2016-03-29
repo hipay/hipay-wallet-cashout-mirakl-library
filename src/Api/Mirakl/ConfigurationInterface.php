@@ -14,6 +14,16 @@ use Symfony\Component\Validator\Constraints as Assert;
 interface ConfigurationInterface extends BaseConfigurationInterface
 {
     /**
+     * Returns the web service base URL given by Mirakl.
+     *
+     * @return string
+     *
+     * @Assert\NotBlank()
+     * @Assert\Type("string")
+     */
+    public function getBaseUrl();
+
+    /**
      * Returns the front api key.
      *
      * @return string
@@ -22,15 +32,6 @@ interface ConfigurationInterface extends BaseConfigurationInterface
      * @Assert\Type("string")
      */
     public function getFrontKey();
-
-    /**
-     * Return the shop api key.
-     *
-     * @return string
-     *
-     * @Assert\Type("string")
-     */
-    public function getShopKey();
 
     /**
      * Return the operator api key.

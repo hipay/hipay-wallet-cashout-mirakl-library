@@ -4,6 +4,7 @@ namespace HiPay\Wallet\Mirakl\Api;
 
 use DateTime;
 use Exception;
+use Guzzle\Http\Message\PostFile;
 use HiPay\Wallet\Mirakl\Api\HiPay\ApiInterface;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\BankInfo;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\MerchantData;
@@ -11,8 +12,12 @@ use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\Transfer;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\UserAccountBasic;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\UserAccountDetails;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Status\Identified;
+use HiPay\Wallet\Mirakl\Api\HiPay\Wallet\AccountInfo;
 use HiPay\Wallet\Mirakl\Api\Soap\SmileClient;
 use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
+use Guzzle\Service\Client;
+use Guzzle\Service\Description\ServiceDescription;
+use Loco\Utils\Swizzle;
 
 /**
  * Make the SOAP call to the HiPay API.
@@ -46,10 +51,31 @@ class HiPay implements ApiInterface
     /** @var string the timezone */
     protected $timezone;
 
+    /** @var Client guzzle client used for the request */
+    protected $restClient;
+
+    // For all types of businesses
+    CONST DOCUMENT_ALL_PROOF_OF_BANK_ACCOUNT = 6;
+
+    // For individual only
+    CONST DOCUMENT_INDIVIDUAL_IDENTITY = 1;
+    CONST DOCUMENT_INDIVIDUAL_PROOF_OF_ADDRESS = 2;
+
+    // For legal entity businesses only
+    CONST DOCUMENT_LEGAL_IDENTITY_OF_REPRESENTATIVE = 3;
+    CONST DOCUMENT_LEGAL_PROOF_OF_REGISTRATION_NUMBER = 4;
+    CONST DOCUMENT_LEGAL_ARTICLES_DISTR_OF_POWERS = 5;
+
+    // For one man businesses only
+    CONST DOCUMENT_SOLE_BUS_IDENTITY = 7;
+    CONST DOCUMENT_SOLE_BUS_PROOF_OF_REG_NUMBER = 8;
+    CONST DOCUMENT_SOLE_BUS_PROOF_OF_TAX_STATUS = 9;
+
     /**
      * Constructor.
      *
-     * @param string $baseUrl
+     * @param string $baseSoapUrl
+     * @param string $baseRestUrl
      * @param string $login
      * @param string $password
      * @param string $entity
@@ -58,7 +84,8 @@ class HiPay implements ApiInterface
      * @param array  $options
      */
     public function __construct(
-        $baseUrl,
+        $baseSoapUrl,
+        $baseRestUrl,
         $login,
         $password,
         $entity,
@@ -80,17 +107,48 @@ class HiPay implements ApiInterface
         );
         $options = array_merge($defaults, $options);
         $this->userAccountClient = new SmileClient(
-            $baseUrl.'soap/user-account-v2?wsdl',
+            $baseSoapUrl.'/soap/user-account-v2?wsdl',
             $options
         );
         $this->transferClient = new SmileClient(
-            $baseUrl.'soap/transfer?wsdl',
+            $baseSoapUrl.'/soap/transfer?wsdl',
             $options
         );
         $this->withdrawalClient = new SmileClient(
-            $baseUrl.'soap/withdrawal?wsdl',
+            $baseSoapUrl.'/soap/withdrawal?wsdl',
             $options
         );
+
+        $this->restClient = new Client();
+
+        $description = ServiceDescription::factory(__DIR__.'../../../data/api/hipay.json');
+        $description->setBaseUrl($baseRestUrl);
+        $this->restClient->setDescription($description);
+
+        $this->restClient->getConfig()->setPath(
+            'request.options/headers/php-auth-user',
+            $login
+        );
+
+        $this->restClient->getConfig()->setPath(
+            'request.options/headers/php-auth-pw',
+            $password
+        );
+    }
+
+    public function uploadDocument($userSpaceId, $documentType, $fileName, \DateTime $validityDate = null)
+    {
+        $command = $this->restClient->getCommand(
+            'UploadDocument',
+            array(
+                'userSpaceId' => $userSpaceId,
+                'validityDate' => $validityDate,
+                'type' => $documentType,
+                'file' => new PostFile('file', $fileName)
+            )
+        );
+
+        return $this->restClient->execute($command);
     }
 
     /**
@@ -118,11 +176,11 @@ class HiPay implements ApiInterface
      * Enforce the locale to the one given on object construction if false
      * Enforce the timezone to the one given on object construction if false.
      *
-     * @param UserAccountBasic   $accountBasic
-     * @param UserAccountDetails $accountDetails
-     * @param MerchantData       $merchantData
+     * @param UserAccountBasic      $accountBasic
+     * @param UserAccountDetails    $accountDetails
+     * @param MerchantData          $merchantData
      *
-     * @return int the user account id
+     * @return AccountInfo The HiPay Wallet account information
      *
      * @throws Exception
      */
@@ -149,7 +207,7 @@ class HiPay implements ApiInterface
 
         $result = $this->callSoap('createFullUseraccount', $parameters);
 
-        return $result['userAccountId'];
+        return new AccountInfo($result['userAccountId'], $result['userSpaceId'], $result['identified'] === Identified::YES);
     }
 
     /**
@@ -225,6 +283,22 @@ class HiPay implements ApiInterface
         $result = $this->getAccountInfos($email);
 
         return $result['userAccountId'];
+    }
+
+    /**
+     * Return the hipay account information.
+     *
+     * @param string $email
+     *
+     * @return AccountInfo HiPay Wallet account information
+     *
+     * @throws Exception
+     */
+    public function getWalletInfo($email)
+    {
+        $result = $this->getAccountInfos($email);
+
+        return new AccountInfo($result['userAccountId'], $result['userSpaceId'], $result['identified'] === Identified::YES);
     }
 
     /**

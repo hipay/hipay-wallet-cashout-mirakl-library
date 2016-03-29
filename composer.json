@@ -8,6 +8,10 @@
     {
       "name": "Ivanis Kouamé",
       "email": "ivanis.kouame@smile.fr"
+    },
+    {
+      "name": "Jonathan Tiret",
+      "email": "jtiret@hipay.com"
     }
   ],
   "require": {
@@ -19,13 +23,13 @@
     "doctrine/annotations": "^1.2",
     "doctrine/cache": "^1.5",
     "symfony/intl": "^2.8",
-    "touki/ftp": "^1.2",
     "psr/log": "*"
   },
   "require-dev": {
     "phpunit/phpunit" : "^4.8",
     "phpspec/prophecy": "~1.0",
-    "symfony/phpunit-bridge": "^2.8"
+    "symfony/phpunit-bridge": "^2.8",
+    "php-mock/php-mock-prophecy": "dev-master"
   },
   "autoload": {
     "psr-4": {
