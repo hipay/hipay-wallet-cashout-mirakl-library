@@ -1,3 +1,7 @@
+# Version 2.0.0
+- This new version handles KYC documents upload from Mirakl to HiPay Wallet through REST API. You no longer need to set up a FTP server to upload those documents.
+- Some notification messages have been clarified.
+
 # Version 1.0.10
 README file update.
 
