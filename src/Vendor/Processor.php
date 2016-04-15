@@ -361,7 +361,11 @@ class Processor extends AbstractApiProcessor
         if (count($shopIds) > 0)
         {
             // Fetches all Mirakl file names
-            $allMiraklFiles = $this->mirakl->getFiles($shopIds);
+            $allMiraklFiles = array();
+
+            foreach (array_chunk($shopIds, 50) as $someShopIds) {
+                $allMiraklFiles = array_merge($allMiraklFiles, $this->mirakl->getFiles($someShopIds));
+            }
 
             $docTypes = $this->documentTypes;
 
