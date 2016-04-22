@@ -307,6 +307,8 @@ class Initializer extends AbstractApiProcessor
             'REFUND_ORDER_AMOUNT',
             'MANUAL_CREDIT',
             'MANUAL_CREDIT_VAT',
+            'MANUAL_INVOICE',
+            'MANUAL_INVOICE_VAT',
         );
     }
 
