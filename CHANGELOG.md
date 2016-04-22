@@ -1,3 +1,6 @@
+# Version 2.0.2
+Fixes issue occurring with manual invoice amounts not taken into account in the payment calculation. This raised a warning which is now fixed.
+
 # Version 2.0.1
 This version groups Mirakl files fetching by paquets (the web service has a limitation on the number of shops for which documents can be retrieved).
 
