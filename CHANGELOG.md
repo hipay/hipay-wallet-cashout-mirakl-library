@@ -1,3 +1,6 @@
+# Version 1.0.11
+Fixes account synchronization issue.
+
 # Version 1.0.10
 README file update.
 
