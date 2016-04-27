@@ -1,3 +1,6 @@
+# Version 2.0.3
+Fixes synchronization issue with erroneous information being sent when creating the HiPay Wallet account.
+
 # Version 2.0.2
 Fixes issue occurring with manual invoice amounts not taken into account in the payment calculation. This raised a warning which is now fixed.
 
