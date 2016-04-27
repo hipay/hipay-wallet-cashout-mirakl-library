@@ -88,8 +88,8 @@ class UserAccountBasic extends ModelAbstract
         $this->title = static::formatTitle(
             $miraklData['contact_informations']['civility']
         );
-        $this->firstname = $miraklData['contact_informations']['civility'];
-        $this->lastname = $miraklData['contact_informations']['civility'];
+        $this->firstname = $miraklData['contact_informations']['firstname'];
+        $this->lastname = $miraklData['contact_informations']['lastname'];
         $this->currency = $miraklData['currency_iso_code'];
     }
 
