@@ -415,19 +415,66 @@ class InitializerTest extends AbstractProcessorTest
     }
 
     /**
+     * @covers ::handlePaymentVoucher
+     * @covers ::computeOperatorAmount
+     * @covers ::computeVendorAmount
+     */
+    public function testMatchTransactionNumber()
+    {
+        $operations = $this->setOrderTestAssertion("withTransactionNumberFilter.json", true, "#^hipay#", array(2001 => 5000, 2002 => 5000, 2003 => 5000, 2004 => 5000));
+        $this->assertCount(3, $operations);
+
+        $shops = array_map(function($operation) {
+            return $operation->getMiraklId();
+        }, $operations);
+
+        $this->assertContains(2001, $shops);
+        $this->assertContains(2004, $shops);
+        $this->assertContains(null, $shops);
+
+        $operations = $this->setOrderTestAssertion("withTransactionNumberFilter.json", true, null, array(2001 => 5000, 2002 => 5000, 2003 => 5000, 2004 => 5000));
+        $this->assertCount(5, $operations);
+
+        $shops = array_map(function($operation) {
+            return $operation->getMiraklId();
+        }, $operations);
+
+        $this->assertContains(2001, $shops);
+        $this->assertContains(2002, $shops);
+        $this->assertContains(2003, $shops);
+        $this->assertContains(2004, $shops);
+        $this->assertContains(null, $shops);
+
+
+        $operations = $this->setOrderTestAssertion("withTransactionNumberFilter.json", true, "#hipay$#", array(2001 => 5000, 2002 => 5000, 2003 => 5000, 2004 => 5000));
+        $this->assertCount(2, $operations);
+
+        $shops = array_map(function($operation) {
+            return $operation->getMiraklId();
+        }, $operations);
+
+        $this->assertContains(2002, $shops);
+        $this->assertContains(null, $shops);
+
+    }
+
+    /**
      * @param $file
      *
      * @param $withOperatorOperation
+     * @param $transactionRegex
+     * @param $debitedAmounts
      * @return array
      */
-    protected function setOrderTestAssertion($file, $withOperatorOperation = true)
+    protected function setOrderTestAssertion($file, $withOperatorOperation = true, $transactionRegex = null, $debitedAmounts = array(2001 => 5000))
     {
         $this->setOrderTestProphecy($file, $withOperatorOperation);
 
         $operations = $this->cashoutInitializer->handlePaymentVoucher(
             "000001",
-            array(2001 => 5000),
-            new DateTime()
+            $debitedAmounts,
+            new DateTime(),
+            $transactionRegex
         );
 
         $this->assertInternalType("array", $operations);
