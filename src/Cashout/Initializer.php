@@ -130,7 +130,7 @@ class Initializer extends AbstractApiProcessor
 
         foreach ($paymentDebits as $paymentVoucher => $debitedAmounts) {
             $voucherOperations = $this->handlePaymentVoucher($paymentVoucher, $debitedAmounts, $cycleDate, $transactionFilterRegex);
-            if ($voucherOperations) {
+            if (is_array($voucherOperations)) {
                 $operations = array_merge($voucherOperations, $operations);
             } else {
                 $transactionError[] = $paymentVoucher;
