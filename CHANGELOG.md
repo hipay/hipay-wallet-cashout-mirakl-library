@@ -1,3 +1,6 @@
+# Version 2.1.0
+This version adds an option to filter shops by testing a regex on the payment lines' transaction number parameter during the cash-out initialization process.
+
 # Version 2.0.3
 Fixes synchronization issue with erroneous information being sent when creating the HiPay Wallet account.
 
