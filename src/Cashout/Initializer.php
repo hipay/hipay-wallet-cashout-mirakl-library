@@ -91,6 +91,7 @@ class Initializer extends AbstractApiProcessor
      * @param DateTime $startDate
      * @param DateTime $endDate
      * @param DateTime $cycleDate
+     * @param string $transactionFilterRegex
      *
      * @throws Exception
      *
@@ -99,7 +100,8 @@ class Initializer extends AbstractApiProcessor
     public function process(
         DateTime $startDate,
         DateTime $endDate,
-        DateTime $cycleDate
+        DateTime $cycleDate,
+        $transactionFilterRegex = null
     ) {
         $this->logger->info('Cashout Initializer');
 
@@ -125,9 +127,10 @@ class Initializer extends AbstractApiProcessor
 
         //Compute amounts (vendor and operator) by payment vouchers
         $this->logger->info('Compute amounts and create vendor operation');
+
         foreach ($paymentDebits as $paymentVoucher => $debitedAmounts) {
-            $voucherOperations = $this->handlePaymentVoucher($paymentVoucher, $debitedAmounts, $cycleDate);
-            if ($voucherOperations) {
+            $voucherOperations = $this->handlePaymentVoucher($paymentVoucher, $debitedAmounts, $cycleDate, $transactionFilterRegex);
+            if (is_array($voucherOperations)) {
                 $operations = array_merge($voucherOperations, $operations);
             } else {
                 $transactionError[] = $paymentVoucher;
@@ -184,14 +187,36 @@ class Initializer extends AbstractApiProcessor
     }
 
     /**
+     * Tells if at least one transaction's transactionNumber parameter matches the filter regex.
+     *
+     * @param array $transactions
+     * @param string $transactionFilterRegex
+     * @return bool
+     */
+    protected function transactionsMatchFilterRegex(array $transactions, $transactionFilterRegex = null)
+    {
+        // No regex configured, they all match
+        if ($transactionFilterRegex == null) {
+            return true;
+        }
+
+        else {
+            return array_reduce($transactions, function ($bool, $transaction) use ($transactionFilterRegex) {
+                return $bool || preg_match($transactionFilterRegex, $transaction['transaction_number']);
+            }, false);
+        }
+    }
+
+    /**
      * Create the operations for a payment voucher
      *
      * @param $paymentVoucher
      * @param $debitedAmountsByShop
      * @param $cycleDate
+     * @param $transactionFilterRegex
      * @return bool|array
      */
-    public function handlePaymentVoucher($paymentVoucher, $debitedAmountsByShop, $cycleDate)
+    public function handlePaymentVoucher($paymentVoucher, $debitedAmountsByShop, $cycleDate, $transactionFilterRegex = null)
     {
         $operatorAmount = 0;
         $transactionError = false;
@@ -199,6 +224,11 @@ class Initializer extends AbstractApiProcessor
             "Payment Voucher : $paymentVoucher",
             array('paymentVoucherNumber' => $paymentVoucher)
         );
+
+        $this->logger->debug(
+            "Transaction filter regex: " . var_export($transactionFilterRegex, true)
+        );
+
         $orderTransactions = array();
         $operations = array();
         foreach ($debitedAmountsByShop as $shopId => $debitedAmount) {
@@ -214,26 +244,40 @@ class Initializer extends AbstractApiProcessor
                     $paymentVoucher
                 );
 
-                //Compute the vendor amount for this payment voucher
-                $vendorAmount = $this->computeVendorAmount(
-                    $orderTransactions,
-                    $debitedAmount
-                );
+                $shouldIncludeShop = $this->transactionsMatchFilterRegex($orderTransactions, $transactionFilterRegex);
 
-                $this->logger->debug("Vendor amount " . $vendorAmount);
+                if ($shouldIncludeShop)
+                {
+                    //Compute the vendor amount for this payment voucher
+                    $vendorAmount = $this->computeVendorAmount(
+                        $orderTransactions,
+                        $debitedAmount
+                    );
 
-                if ($vendorAmount > 0) {
-                    //Create the vendor operation
-                    $operations[] = $this->createOperation(
-                        $vendorAmount,
-                        $cycleDate,
-                        $paymentVoucher,
-                        $shopId
+                    $this->logger->debug("Vendor amount " . $vendorAmount);
+
+                    if ($vendorAmount > 0) {
+                        //Create the vendor operation
+                        $operations[] = $this->createOperation(
+                            $vendorAmount,
+                            $cycleDate,
+                            $paymentVoucher,
+                            $shopId
+                        );
+                    }
+
+                    //Compute the operator amount for this payment voucher
+                    $operatorAmount += round($this->computeOperatorAmountByVendor($orderTransactions), static::SCALE);
+                }
+
+                else
+                {
+                    $this->logger->debug(
+                        "Skipped shop because no transaction for this shop matched the transaction filter regex.",
+                        array('shopId' => $shopId)
                     );
                 }
 
-                //Compute the operator amount for this payment voucher
-                $operatorAmount += round($this->computeOperatorAmountByVendor($orderTransactions), static::SCALE);
             } catch (Exception $e) {
                 $transactionError = true;
                 /** @var Exception $transactionError */
