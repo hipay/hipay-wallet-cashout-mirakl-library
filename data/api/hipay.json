@@ -5,7 +5,7 @@
   "operations": {
     "UploadDocument": {
       "httpMethod": "POST",
-      "uri": "/api/identification/upload",
+      "uri": "/api/identification",
       "summary": "Upload merchant document to HiPay",
       "parameters": {
         "userSpaceId": {

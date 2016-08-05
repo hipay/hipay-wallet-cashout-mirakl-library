@@ -151,8 +151,18 @@ class Processor extends AbstractApiProcessor
             catch(\Exception $ex) {
                 $this->handleException($e, "critical");
             }
-        } catch (\Exception $e) {
-            $this->handleException($e, "critical");
+        }
+
+        catch (\Exception $e) {
+
+            $trace = array_map(function ($item) {
+                return array(
+                    'file' => $item['file'],
+                    'line' => $item['line']
+                );
+            }, $e->getTrace());
+
+            $this->handleException($e, "critical", $trace);
         }
     }
 
