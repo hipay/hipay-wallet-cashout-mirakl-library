@@ -1,3 +1,6 @@
+# Version 2.1.1
+This version fixes an issue with KYC files downloaded from Mirakl being parsed by the REST client. Instead, files are now downloaded in raw mode.
+
 # Version 2.1.0
 This version adds an option to filter shops by testing a regex on the payment lines' transaction number parameter during the cash-out initialization process.
 
