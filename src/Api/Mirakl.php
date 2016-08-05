@@ -4,6 +4,7 @@ namespace HiPay\Wallet\Mirakl\Api;
 
 use DateTime;
 use Guzzle\Service\Client;
+use Guzzle\Service\Command\AbstractCommand;
 use Guzzle\Service\Description\ServiceDescription;
 use HiPay\Wallet\Mirakl\Api\Mirakl\ApiInterface;
 
@@ -125,6 +126,8 @@ class Mirakl implements ApiInterface
                 'typeCodes' => $typeCodes,
             )
         );
+
+        $command[AbstractCommand::RESPONSE_PROCESSING] = AbstractCommand::TYPE_RAW;
 
         return $this->restClient->execute($command)->getBody();
     }
