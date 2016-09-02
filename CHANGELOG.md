@@ -1,4 +1,10 @@
+
+# Version 2.2.0
+
+This version allows Mirakl shop emails to be updated.
+
 # Version 2.1.1
+
 This version fixes an issue with KYC files downloaded from Mirakl being parsed by the REST client. Instead, files are now downloaded in raw mode.
 
 # Version 2.1.0
