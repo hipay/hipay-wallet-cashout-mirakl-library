@@ -99,52 +99,6 @@ class ProcessorTest extends AbstractProcessorTest
     /**
      * @cover ::registerWallets
      */
-    public function testUnavailableEmail()
-    {
-        $this->hipay->isAvailable($this->emailArgument, Argument::any())->willReturn(false);
-
-        $walletInfo = new HiPay\Wallet\AccountInfo(mt_rand(), mt_rand(), true);
-
-        $this->hipay->getWalletInfo($this->emailArgument)
-            ->willReturn($walletInfo)
-            ->shouldBeCalled();
-
-        $this->vendorManager->findByEmail($this->emailArgument)->willReturn()->shouldBeCalled();
-
-        $this->vendorManager->update(
-            $this->vendorArgument,
-            Argument::type('array')
-        )->willReturn()->shouldBeCalled();
-
-        $this->vendorManager->create(
-            $this->emailArgument,
-            Argument::type('integer'),
-            $walletInfo->getUserAccountld(),
-            $walletInfo->getUserSpaceld(),
-            $walletInfo->getIdentified(),
-            Argument::type('array')
-        )
-            ->will(function ($args) {
-                return new Vendor($args[0], rand(), $args[2]);
-            })
-            ->shouldBeCalled();
-
-        $this->vendorManager->isValid(
-            $this->vendorArgument
-        )->willReturn(true)->shouldBeCalled();
-
-        $vendors = $this->vendorProcessor->registerWallets(Mirakl::getVendor());
-
-        $this->assertInternalType('array', $vendors);
-
-        $this->assertEquals(1, count($vendors));
-
-        $this->assertContainsOnlyInstancesOf("HiPay\\Wallet\\Mirakl\\Vendor\\Model\\VendorInterface", $vendors);
-    }
-
-    /**
-     * @cover ::registerWallets
-     */
     public function testNewWallets()
     {
         $this->hipay->isAvailable(Argument::containingString('@'), Argument::is(false))->willReturn(true);
@@ -157,7 +111,7 @@ class ProcessorTest extends AbstractProcessorTest
             Argument::type("\\HiPay\\Wallet\\Mirakl\\Api\\HiPay\\Model\\Soap\\MerchantData")
         )->willReturn($walletInfo)->shouldBeCalled();
 
-        $this->vendorManager->findByEmail(Argument::containingString('@'))->willReturn()->shouldBeCalled();
+        $this->vendorManager->findByMiraklId(Argument::any())->willReturn()->shouldBeCalled();
 
         $this->vendorManager->create(
             $this->emailArgument,
@@ -196,8 +150,8 @@ class ProcessorTest extends AbstractProcessorTest
      */
     public function testAlreadyRecordedWallets()
     {
-        $this->vendorManager->findByEmail($this->emailArgument)->will(function ($email) {
-            return new Vendor(reset($email), rand(), rand());
+        $this->vendorManager->findByMiraklId(2001)->will(function ($email) {
+            return new Vendor("foo@bar.com", rand(), rand());
         })->shouldBeCalled();
 
         $this->vendorManager->update(
