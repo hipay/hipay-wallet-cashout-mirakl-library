@@ -1,3 +1,7 @@
+# Version 2.2.2
+
+Updates links to documentation.
+
 # Version 2.2.1
 
 README file update.

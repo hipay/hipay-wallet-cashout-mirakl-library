@@ -32,7 +32,7 @@ Read the **[project documentation][doc-home]** for comprehensive information abo
 
 The **HiPay Wallet cash-out library for Mirakl** is available under the **Apache 2.0 License**. Check out the [license file][project-license] for more information.
 
-[doc-home]: https://github.com/hipay/hipay-wallet-cashout-mirakl-library/wiki
+[doc-home]: https://developer.hipay.com/doc/hipay-marketplace-cashout-mirakl-library/
 
 [hipay-help]: http://help.hipay.com
 
