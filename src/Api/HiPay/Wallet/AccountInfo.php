@@ -80,7 +80,7 @@ class AccountInfo
     }
 
     /**
-     * @return mixed $vatNumber User VAT Number
+     * @return string $vatNumber User VAT Number
      */
     public function getVatNumber()
     {
@@ -88,7 +88,7 @@ class AccountInfo
     }
 
     /**
-     * @param mixed $identified Whether the account is identified or not
+     * @param string $vatNumber User VAT Number
      */
     public function setVatNumber($vatNumber)
     {
