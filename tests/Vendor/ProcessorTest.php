@@ -103,7 +103,7 @@ class ProcessorTest extends AbstractProcessorTest
     {
         $this->hipay->isAvailable(Argument::containingString('@'), Argument::is(false))->willReturn(true);
 
-        $walletInfo = new HiPay\Wallet\AccountInfo(mt_rand(), mt_rand(), true, 'VATNUMBER111222');
+        $walletInfo = new HiPay\Wallet\AccountInfo(mt_rand(), mt_rand(), true, true);
 
         $this->hipay->createFullUseraccount(
             Argument::type("\\HiPay\\Wallet\\Mirakl\\Api\\HiPay\\Model\\Soap\\UserAccountBasic"),
@@ -306,6 +306,6 @@ class ProcessorTest extends AbstractProcessorTest
      */
     private function getVendorInstance($miraklData)
     {
-        return new Vendor($miraklData['contact_informations']['email'], rand(), $miraklData['shop_id']);
+        return new Vendor($miraklData['contact_informations']['email'], rand(), $miraklData['shop_id'], $miraklData['VAT_number']);
     }
 }
