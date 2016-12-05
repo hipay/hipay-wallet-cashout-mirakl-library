@@ -323,7 +323,6 @@ class Processor extends AbstractApiProcessor
      * @param int $walletSpaceId
      * @param boolean $identified
      * @param int $miraklId
-     * @param string $vatNumber
      * @param array $miraklData
      * @return VendorInterface
      */
