@@ -119,7 +119,7 @@ class ProcessorTest extends AbstractProcessorTest
             $walletInfo->getUserAccountld(),
             $walletInfo->getUserSpaceld(),
             $walletInfo->getIdentified(),
-            $walletInfo->getVatNumber(),
+            Argument::type('string'),
             Argument::type('array')
         )
 
