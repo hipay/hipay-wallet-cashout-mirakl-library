@@ -327,7 +327,7 @@ class Processor extends AbstractApiProcessor
      * @param array $miraklData
      * @return VendorInterface
      */
-    protected function createVendor($email, $walletId, $walletSpaceId, $identified, $miraklId, $vatNumber, $miraklData)
+    protected function createVendor($email, $walletId, $walletSpaceId, $identified, $miraklId, $miraklData)
     {
         $this->logger->debug("The wallet number is $walletId");
         $vendor = $this->vendorManager->create(
@@ -336,7 +336,6 @@ class Processor extends AbstractApiProcessor
             $walletId,
             $walletSpaceId,
             $identified,
-            $vatNumber,
             $miraklData
         );
 
@@ -345,7 +344,7 @@ class Processor extends AbstractApiProcessor
         $vendor->setMiraklId($miraklId);
         $vendor->setHiPayUserSpaceId($walletSpaceId);
         $vendor->setHiPayIdentified($identified);
-        $vendor->setVatNumber($vatNumber);
+        $vendor->setVatNumber($miraklData['pro_details']['VAT_number']);
 
         $this->logger->info('[OK] Wallet recorded');
 
