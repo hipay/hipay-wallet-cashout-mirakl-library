@@ -224,7 +224,6 @@ class Processor extends AbstractApiProcessor
                         $walletInfo->getUserAccountld(),
                         $walletInfo->getUserSpaceld(),
                         $walletInfo->getIdentified(),
-                        $walletInfo->getVatNumber(),
                         $vendorData['shop_id'],
                         $vendorData
                     );
