@@ -306,6 +306,6 @@ class ProcessorTest extends AbstractProcessorTest
      */
     private function getVendorInstance($miraklData)
     {
-        return new Vendor($miraklData['contact_informations']['email'], rand(), $miraklData['shop_id'], $miraklData['pro_detail']['VAT_number']);
+        return new Vendor($miraklData['contact_informations']['email'], rand(), $miraklData['shop_id'], $miraklData['premium']['pro_detail']['VAT_number']);
     }
 }
