@@ -13,7 +13,6 @@ class AccountInfo
     private $userAccountld;
     private $userSpaceld;
     private $identified;
-    private $vatNumber;
 
     /**
      * AccountInfo constructor.
@@ -23,12 +22,11 @@ class AccountInfo
      * @param $identified Whether the account is identified or not
      * @param $vatNumber User VAT Number
      */
-    public function __construct($userAccountld, $userSpaceld, $identified, $vatNumber)
+    public function __construct($userAccountld, $userSpaceld, $identified)
     {
         $this->userAccountld = $userAccountld;
         $this->userSpaceld = $userSpaceld;
         $this->identified = $identified;
-        $this->vatNumber = $vatNumber;
     }
 
     /**
@@ -79,19 +77,4 @@ class AccountInfo
         $this->identified = $identified;
     }
 
-    /**
-     * @return string $vatNumber User VAT Number
-     */
-    public function getVatNumber()
-    {
-        return $this->vatNumber;
-    }
-
-    /**
-     * @param string $vatNumber User VAT Number
-     */
-    public function setVatNumber($vatNumber)
-    {
-        $this->vatNumber = $vatNumber;
-    }
 }
