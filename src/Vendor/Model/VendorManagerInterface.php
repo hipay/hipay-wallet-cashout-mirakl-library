@@ -31,7 +31,6 @@ interface VendorManagerInterface
         $hipayId,
         $hipayUserSpaceId,
         $identified,
-        $vatNumber,
         array $miraklData
     );
 
