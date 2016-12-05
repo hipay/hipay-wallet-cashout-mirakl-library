@@ -224,6 +224,7 @@ class Processor extends AbstractApiProcessor
                         $walletInfo->getUserAccountld(),
                         $walletInfo->getUserSpaceld(),
                         $walletInfo->getIdentified(),
+                        $walletInfo->getVatNumber(),
                         $vendorData['shop_id'],
                         $vendorData
                     );
@@ -323,10 +324,11 @@ class Processor extends AbstractApiProcessor
      * @param int $walletSpaceId
      * @param boolean $identified
      * @param int $miraklId
+     * @param string $vatNumber
      * @param array $miraklData
      * @return VendorInterface
      */
-    protected function createVendor($email, $walletId, $walletSpaceId, $identified, $miraklId, $miraklData)
+    protected function createVendor($email, $walletId, $walletSpaceId, $identified, $miraklId, $vatNumber, $miraklData)
     {
         $this->logger->debug("The wallet number is $walletId");
         $vendor = $this->vendorManager->create(
@@ -335,6 +337,7 @@ class Processor extends AbstractApiProcessor
             $walletId,
             $walletSpaceId,
             $identified,
+            $vatNumber,
             $miraklData
         );
 
@@ -343,6 +346,7 @@ class Processor extends AbstractApiProcessor
         $vendor->setMiraklId($miraklId);
         $vendor->setHiPayUserSpaceId($walletSpaceId);
         $vendor->setHiPayIdentified($identified);
+        $vendor->setVatNumber($vatNumber);
 
         $this->logger->info('[OK] Wallet recorded');
 
@@ -692,7 +696,7 @@ class Processor extends AbstractApiProcessor
             $this->mirakl->getVendors(null, false, array($miraklId))
         );
         $hipayInfo = $this->hipay->getWalletInfo($miraklData['contact_informations']['email']);
-        $vendor = $this->createVendor($email, $hipayInfo->getUserAccountld(), $hipayInfo->getUserSpaceld(), $hipayInfo->getIdentified(), $miraklId, $miraklData);
+        $vendor = $this->createVendor($email, $hipayInfo->getUserAccountld(), $hipayInfo->getUserSpaceld(), $hipayInfo->getIdentified(), $miraklId, $hipayInfo->getVatNumber(), $miraklData);
         $this->vendorManager->save($vendor);
     }
 

@@ -20,6 +20,7 @@ interface VendorManagerInterface
      * @param $hipayId
      * @param $hipayUserSpaceId
      * @param $identified
+     * @param $vatNumber
      * @param array $miraklData
      *
      * @return VendorInterface
@@ -30,6 +31,7 @@ interface VendorManagerInterface
         $hipayId,
         $hipayUserSpaceId,
         $identified,
+        $vatNumber,
         array $miraklData
     );
 

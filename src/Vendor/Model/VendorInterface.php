@@ -81,4 +81,16 @@ interface VendorInterface
      * @return void
      */
     public function setHiPayIdentified($id);
+
+    /**
+     * @return string
+     */
+    public function getVatNumber();
+
+    /**
+     * @param vatNumber $string
+     *
+     * @return void
+     */
+    public function setVatNumber($string);
 }
