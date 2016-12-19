@@ -36,7 +36,7 @@ class Vendor implements VendorInterface
      * @param $hipayIdentified
      * @param $vatNumber
      */
-    public function __construct($email = null, $hipayId = null, $miraklId = null, $hipayUserSpaceId = null, $hipayIdentified = true, $vatNumber = true)
+    public function __construct($email = null, $hipayId = null, $miraklId = null, $hipayUserSpaceId = null, $hipayIdentified = true, $vatNumber = null)
     {
         $this->miraklId = $miraklId;
         $this->hipayId = $hipayId;

@@ -694,7 +694,7 @@ class Processor extends AbstractApiProcessor
         );
         $hipayInfo = $this->hipay->getWalletInfo($miraklData['contact_informations']['email']);
         $hipayInfo->setVatNumber($miraklData['pro_details']['VAT_number']);
-        $vendor = $this->createVendor($email, $hipayInfo->getUserAccountld(), $hipayInfo->getUserSpaceld(), $hipayInfo->getIdentified(), $miraklId, $hipayInfo->getVatNumber(), $miraklData);
+        $vendor = $this->createVendor($email, $hipayInfo->getUserAccountld(), $hipayInfo->getUserSpaceld(), $hipayInfo->getIdentified(), $miraklId, $miraklData);
         $this->vendorManager->save($vendor);
     }
 
