@@ -1,3 +1,7 @@
+# Version 2.2.3
+
+Fix Transfers the vat number in the Wallet account creation 
+
 # Version 2.2.2
 
 Updates links to documentation.
