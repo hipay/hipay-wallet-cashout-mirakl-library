@@ -65,7 +65,7 @@ class Handler extends AbstractProcessor
      * @throws Exception
      * @throws IllegalNotificationOperationException
      */
-    public function handleHiPayNotification($xml)
+    public function handleHiPayNotification($app, $xml)
     {
         if (!$xml) {
             return;
@@ -132,6 +132,26 @@ class Handler extends AbstractProcessor
             default:
                 throw new IllegalNotificationOperationException($operation);
         }
+        // init email content with response API
+        $body = '<ul>
+                    <li>Operation: ' . $operation . '</li>
+                    <li>Status: ' . $status . '</li>
+                    <li>Message: ' . $xml->result->message . '</li>
+                    <li>Date: ' . $date . '</li>
+                    <li>Document type: ' . $xml->result->document_type . '</li>
+                    <li>Document type label: ' . $xml->result->document_type_label . '</li>
+                    <li>Account ID: ' . $hipayId . '</li>
+                </ul>';
+
+        // Send email to operator
+        $message = \Swift_Message::newInstance()
+            ->setSubject('[HiPay Notification - ' .$hipayId. '] ' . $operation)
+            ->setFrom(array($app['parameters']['mail.from']))
+            ->setTo(array($app['parameters']['mail.to']))
+            ->setBody($body);
+
+        $app['mailer']->send($message);
+
     }
 
     /**
