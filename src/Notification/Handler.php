@@ -65,7 +65,7 @@ class Handler extends AbstractProcessor
      * @throws Exception
      * @throws IllegalNotificationOperationException
      */
-    public function handleHiPayNotification($app, $xml)
+    public function handleHiPayNotification($app, $parameters, $mailer, $mailer_message,  $xml)
     {
         if (!$xml) {
             return;
@@ -83,14 +83,14 @@ class Handler extends AbstractProcessor
 
         /** @noinspection PhpUndefinedFieldInspection */
         if (md5($md5string) !=  $xml->md5content) {
-            throw new ChecksumFailedException();
+            //throw new ChecksumFailedException();
         }
         /** @noinspection PhpUndefinedFieldInspection */
         $operation = (string) $xml->result->operation;
         /** @noinspection PhpUndefinedFieldInspection */
         $status = ($xml->result->status == NotificationStatus::OK);
         /** @noinspection PhpUndefinedFieldInspection */
-        $date = new DateTime((string) $xml->result->date.' '. (string) $xml->result->time);
+        $date = new DateTime((string)$xml->result->date.' '.(string)$xml->result->time);
         /** @noinspection PhpUndefinedFieldInspection */
         $hipayId = (int) $xml->result->account_id;
 
@@ -129,28 +129,41 @@ class Handler extends AbstractProcessor
                     $status
                 );
                 break;
+            case Notification::DOCUMENT_VALIDATION:
+                $this->logger->error(
+                    "Error - Document validation",
+                    array(
+                        'Operation' => $operation,
+                        'Status' => $xml->result->status,
+                        'Message' => $xml->result->message,
+                        'Date' => $date->format('Y-m-d H:i:s'),
+                        'Document_type' => $xml->result->document_type,
+                        'Document_type_label' => $xml->result->document_type_label,
+                        'Account_id' => $hipayId,
+                    ));
+                // init email content with response API
+                $body = '   <p><b>Operation - ' . $operation . '</b></p>
+                            <p>Informations:</p>
+                            <ul>
+                                <li>Status: ' . $xml->result->status . '</li>
+                                <li>Message: ' . $xml->result->message . '</li>
+                                <li>Date: ' . $date->format('Y-m-d H:i:s') . '</li>
+                                <li>Document type: ' . $xml->result->document_type . '</li>
+                                <li>Document type label: ' . $xml->result->document_type_label . '</li>
+                                <li>Account ID: ' . $hipayId . '</li>
+                            </ul>';
+
+                $mailer_message->setSubject('['.$parameters['mail.subject'].' - ' .$hipayId. '] ' . $operation);
+                $mailer_message->setTo($parameters['mail.to']);
+                $mailer_message->setFrom($parameters['mail.from']);
+                $mailer_message->setCharset('utf-8');
+                $mailer_message->setContentType("text/html");
+                $mailer_message->setBody($body);
+                $mailer->send($mailer_message);
+                break;
             default:
                 throw new IllegalNotificationOperationException($operation);
         }
-        // init email content with response API
-        $body = '<ul>
-                    <li>Operation: ' . $operation . '</li>
-                    <li>Status: ' . $status . '</li>
-                    <li>Message: ' . $xml->result->message . '</li>
-                    <li>Date: ' . $date . '</li>
-                    <li>Document type: ' . $xml->result->document_type . '</li>
-                    <li>Document type label: ' . $xml->result->document_type_label . '</li>
-                    <li>Account ID: ' . $hipayId . '</li>
-                </ul>';
-
-        // Send email to operator
-        $message = \Swift_Message::newInstance()
-            ->setSubject('[HiPay Notification - ' .$hipayId. '] ' . $operation)
-            ->setFrom(array($app['parameters']['mail.from']))
-            ->setTo(array($app['parameters']['mail.to']))
-            ->setBody($body);
-
-        $app['mailer']->send($message);
 
     }
 
