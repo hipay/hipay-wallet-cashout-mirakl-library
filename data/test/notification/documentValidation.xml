@@ -1,0 +1,13 @@
+<notification>
+    <md5content>2015be42b4b195d2b0994a3ab4c59437</md5content>
+    <result>
+        <operation>document_validation</operation>
+        <status>nok</status>
+        <message>Incoherence : error with address</message>
+        <date>2016-12-22</date>
+        <time>06:15:34 UTC+0000</time>
+        <document_type>2</document_type>
+        <document_type_label>Proof of address</document_type_label>
+        <account_id>6897787</account_id>
+    </result>
+</notification>
