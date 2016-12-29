@@ -186,8 +186,7 @@ class HandlerTest extends AbstractProcessorTest
             'mail.to' => 'marketplace.operator@hipay.com',
             'mail.from' => 'mirakl.hipay.connector@hipay.com',
         );
-
-        $this->setExpectedException("HiPay\\Wallet\\Mirakl\\Exception\\IllegalNotificationOperationException");
+        
         $this->notificationHandler->handleHiPayNotification($xml, $parameters);
     }
 
