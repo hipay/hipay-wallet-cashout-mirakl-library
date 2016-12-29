@@ -14,4 +14,5 @@ class Notification
     const BANK_INFO_VALIDATION = 'bank_info_validation';
     const IDENTIFICATION = 'identification';
     const OTHER = 'other_transaction';
+    const DOCUMENT_VALIDATION = 'document_validation';
 }

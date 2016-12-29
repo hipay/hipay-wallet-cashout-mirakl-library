@@ -166,6 +166,32 @@ class HandlerTest extends AbstractProcessorTest
     }
 
     /**
+     * @cover ::handleHiPayNotification
+     * @throws \HiPay\Wallet\Mirakl\Exception\ChecksumFailedException
+     * @throws \HiPay\Wallet\Mirakl\Exception\IllegalNotificationOperationException
+     */
+    public function testDocumentValidation()
+    {
+        $xml = $this->readFile("documentValidation.xml");
+
+        $this->eventDispatcher->dispatch(Argument::any())->shouldNotBeCalled();
+
+        $parameters = array(
+            'mail.host' => 'smtp',
+            'mail.port' => '1025',
+            'mail.security' => null,
+            'mail.username' => null,
+            'mail.password' => null,
+            'mail.subject'=> 'Mirakl HiPay Connector Notification',
+            'mail.to' => 'marketplace.operator@hipay.com',
+            'mail.from' => 'mirakl.hipay.connector@hipay.com',
+        );
+        
+        $this->notificationHandler->handleHiPayNotification($xml, $parameters);
+    }
+
+
+    /**
      * Read a test file
      *
      * @param $file

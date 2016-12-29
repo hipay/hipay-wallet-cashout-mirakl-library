@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <notification>
-    <md5content>azd63fc0be37959d2ee3583zadzad93bf2</md5content>
+    <md5content>azd63fc0be37959d2ee3583zadzcxb93bf2</md5content>
     <result>
-        <operation>bank_info_validatioddazdn</operation>
+        <operation>bank_info_validation</operation>
         <status>ok</status>
         <date>2015-07-29</date>
         <time>15:57:27 UTC+0000</time>
