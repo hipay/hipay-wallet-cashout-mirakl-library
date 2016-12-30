@@ -90,21 +90,24 @@ class BankInfo extends ModelAbstract
         $paymentData = array_key_exists('payment_info', $miraklData) ?
             $miraklData['payment_info'] : $miraklData['billing_info'];
         $this->bankName = isset($paymentData['bank_name']) ?
-            $paymentData['bank_name'] : '';
+            preg_replace("/[^A-Za-z0-9 ]/", '', $paymentData['bank_name']) : '';
         $this->bankAddress = isset($paymentData['bank_street']) ?
-            $paymentData['bank_street'] : '';
+            preg_replace("/[^A-Za-z0-9 ]/", '', $paymentData['bank_street']) : '';
 
         if (isset($paymentData['zip_code'])) {
-            $this->bankZipCode = $paymentData['zip_code'];
+            $this->bankZipCode = preg_replace("/[^A-Za-z0-9 ]/", '', $paymentData['zip_code']);
         } elseif (isset($paymentData['bank_zip'])) {
-            $this->bankZipCode = $paymentData['bank_zip'];
+            $this->bankZipCode = preg_replace("/[^A-Za-z0-9 ]/", '', $paymentData['bank_zip']);
         } else {
             $this->bankZipCode = '';
         }
 
-        $this->bankCity = isset($paymentData['bank_city']) ? $paymentData['bank_city'] : '';
-        $this->swift = isset($paymentData['bic']) ? $paymentData['bic'] : '';
-        $this->iban = isset($paymentData['iban']) ? $paymentData['iban'] : '';
+        $this->bankCity = isset($paymentData['bank_city']) ?
+            preg_replace("/[^A-Za-z0-9 ]/", '', $paymentData['bank_city']) : '';
+        $this->swift = isset($paymentData['bic']) ?
+            preg_replace("/[^A-Za-z0-9 ]/", '', $paymentData['bic']) : '';
+        $this->iban = isset($paymentData['iban']) ?
+            preg_replace("/[^A-Za-z0-9 ]/", '', $paymentData['iban']) : '';
         // Take the first to characters to fill the country
         $this->bankCountry = substr($this->iban, 0, 2);
 
