@@ -58,6 +58,7 @@ class BankInfo extends ModelAbstract
     /**
      * @var string
      *
+     * @Assert\NotBlank
      * @Assert\Iban
      */
     protected $iban;
@@ -65,6 +66,7 @@ class BankInfo extends ModelAbstract
     /**
      * @var string
      *
+     * @Assert\NotBlank
      * @Assert\Bic
      */
     protected $swift;
