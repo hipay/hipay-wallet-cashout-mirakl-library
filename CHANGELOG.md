@@ -1,3 +1,10 @@
+# Version 2.3.0
+
+- Send a notification by Email when KYC is invalidated
+- New mandatory fields for the bank Informations
+- Remove all special characters when the bank informations are sent to Wallet
+- Bugfix iso code Bank country 
+
 # Version 2.2.3
 
 Fix Transfers the vat number in the Wallet account creation 
