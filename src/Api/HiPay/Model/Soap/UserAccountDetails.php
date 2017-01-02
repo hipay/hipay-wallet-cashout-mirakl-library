@@ -197,6 +197,7 @@ class UserAccountDetails extends ModelAbstract
         $this->receiveCommercialInformation = false;
         $this->receiveHiPayInformation = false;
         $this->legalStatus = 1;
+        $this->europeanVATNumber = $miraklData['pro_details']['VAT_number'];
     }
 
     /**

@@ -123,7 +123,7 @@ class ProcessorTest extends AbstractProcessorTest
         )
 
             ->will(function ($args) {
-                return new Vendor($args[0], rand(), $args[2]);
+                return new Vendor($args[0], rand(), $args[2], $args[3]);
             })
             ->shouldBeCalled();
 
@@ -305,6 +305,6 @@ class ProcessorTest extends AbstractProcessorTest
      */
     private function getVendorInstance($miraklData)
     {
-        return new Vendor($miraklData['contact_informations']['email'], rand(), $miraklData['shop_id']);
+        return new Vendor($miraklData['contact_informations']['email'], rand(), $miraklData['shop_id'], $miraklData['pro_details']['VAT_number']);
     }
 }

@@ -25,6 +25,7 @@ class Vendor implements VendorInterface
     protected $email;
     protected $hipayUserSpaceId;
     protected $hipayIdentified;
+    protected $vatNumber;
 
     /**
      * Vendor constructor.
@@ -33,14 +34,16 @@ class Vendor implements VendorInterface
      * @param $email
      * @param $hipayUserSpaceId
      * @param $hipayIdentified
+     * @param $vatNumber
      */
-    public function __construct($email = null, $hipayId = null, $miraklId = null, $hipayUserSpaceId = null, $hipayIdentified = true)
+    public function __construct($email = null, $hipayId = null, $miraklId = null, $hipayUserSpaceId = null, $hipayIdentified = true, $vatNumber = null)
     {
         $this->miraklId = $miraklId;
         $this->hipayId = $hipayId;
         $this->email = $email;
         $this->hipayUserSpaceId = $hipayUserSpaceId;
         $this->hipayIdentified = $hipayIdentified;
+        $this->vatNumber = $vatNumber;
     }
 
     /**
@@ -121,6 +124,22 @@ class Vendor implements VendorInterface
     public function setHipayIdentified($hipayIdentified)
     {
         $this->hipayIdentified = $hipayIdentified;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getVatNumber()
+    {
+        return $this->vatNumber;
+    }
+
+    /**
+     * @param mixed $hipayIdentified
+     */
+    public function setVatNumber($vatNumber)
+    {
+        $this->vatNumber = $vatNumber;
     }
 
 

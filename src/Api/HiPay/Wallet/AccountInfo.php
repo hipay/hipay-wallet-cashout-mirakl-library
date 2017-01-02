@@ -20,6 +20,7 @@ class AccountInfo
      * @param $userAccountld User account ID
      * @param $userSpaceld User space ID
      * @param $identified Whether the account is identified or not
+     * @param $vatNumber User VAT Number
      */
     public function __construct($userAccountld, $userSpaceld, $identified)
     {
@@ -75,4 +76,5 @@ class AccountInfo
     {
         $this->identified = $identified;
     }
+
 }
