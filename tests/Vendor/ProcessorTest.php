@@ -105,10 +105,9 @@ class ProcessorTest extends AbstractProcessorTest
 
         $walletInfo = new HiPay\Wallet\AccountInfo(mt_rand(), mt_rand(), true);
 
-        $this->hipay->createFullUseraccount(
-            Argument::type("\\HiPay\\Wallet\\Mirakl\\Api\\HiPay\\Model\\Soap\\UserAccountBasic"),
-            Argument::type("\\HiPay\\Wallet\\Mirakl\\Api\\HiPay\\Model\\Soap\\UserAccountDetails"),
-            Argument::type("\\HiPay\\Wallet\\Mirakl\\Api\\HiPay\\Model\\Soap\\MerchantData")
+        $this->hipay->createFullUseraccountV2(
+            Argument::type("\\HiPay\\Wallet\\Mirakl\\Api\\HiPay\\Model\\Rest\\UserAccount"),
+            Argument::type("\\HiPay\\Wallet\\Mirakl\\Api\\HiPay\\Model\\Rest\\MerchantDataRest")
         )->willReturn($walletInfo)->shouldBeCalled();
 
         $this->vendorManager->findByMiraklId(Argument::any())->willReturn()->shouldBeCalled();

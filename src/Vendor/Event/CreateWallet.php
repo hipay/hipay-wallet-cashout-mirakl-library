@@ -3,6 +3,8 @@
 namespace HiPay\Wallet\Mirakl\Vendor\Event;
 
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\MerchantData;
+use HiPay\Wallet\Mirakl\Api\HiPay\Model\Rest\MerchantDataRest;
+use HiPay\Wallet\Mirakl\Api\HiPay\Model\Rest\UserAccount;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\UserAccountBasic;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\UserAccountDetails;
 use Symfony\Component\EventDispatcher\Event;
@@ -11,11 +13,14 @@ use Symfony\Component\EventDispatcher\Event;
  * Event object used when the event 'before.wallet.creation'
  * is dispatched from the processor.
  *
- * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
- * @copyright 2015 Smile
+ * @author    HiPay <support.wallet@hipay.com>
+ * @copyright 2017 HiPay
  */
 class CreateWallet extends Event
 {
+    /** @var  UserAccount */
+    protected $userAccount;
+
     /** @var  UserAccountBasic */
     protected $userAccountBasic;
 
@@ -28,18 +33,35 @@ class CreateWallet extends Event
     /**
      * CreateWalletEvent constructor.
      *
-     * @param UserAccountBasic   $userAccountBasic
-     * @param UserAccountDetails $userAccountDetails
+     * @param UserAccount        $userAccount
      * @param MerchantData       $merchantData
      */
     public function __construct(
-        UserAccountBasic $userAccountBasic,
-        UserAccountDetails $userAccountDetails,
-        MerchantData $merchantData
+        UserAccount $userAccount,
+        MerchantDataRest $merchantData
     ) {
-        $this->userAccountBasic = $userAccountBasic;
-        $this->userAccountDetails = $userAccountDetails;
+        $this->userAccount = $userAccount;
         $this->merchantData = $merchantData;
+    }
+
+    /**
+     * @return UserAccount
+     */
+    public function getUserAccount()
+    {
+        return $this->userAccount;
+    }
+
+    /**
+     * @param UserAccount $userAccount
+     *
+     * @return CreateWallet
+     */
+    public function setUserAccount($userAccount)
+    {
+        $this->userAccount = $userAccount;
+
+        return $this;
     }
 
     /**

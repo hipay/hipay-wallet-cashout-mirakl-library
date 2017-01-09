@@ -43,6 +43,372 @@
           ]
         }
       }
+    },
+    "RegisterBankInfo": {
+      "httpMethod": "POST",
+      "uri": "/api/user-account/bank-info",
+      "summary": "Register new bank-details on an HiPay account.",
+      "parameters": {
+        "bankCountry": {
+          "type": "string",
+          "description": "Bank Country",
+          "location": "postField",
+          "sentAs": "bank_country",
+          "required": true
+        },
+        "bankName": {
+          "type": "string",
+          "description": "Bank Name",
+          "location": "postField",
+          "sentAs": "bank_name",
+          "required": true
+        },
+        "bankAddress": {
+          "type": "string",
+          "description": "Bank Address",
+          "location": "postField",
+          "sentAs": "bank_address",
+          "required": false
+        },
+        "bankZipCode": {
+          "type": "string",
+          "description": "Bank Zip Code",
+          "location": "postField",
+          "sentAs": "bank_zip_code",
+          "required": false
+        },
+        "bankCity": {
+          "type": "string",
+          "description": "Bank City",
+          "location": "postField",
+          "sentAs": "bank_city",
+          "required": false
+        },
+        "iban": {
+          "type": "string",
+          "description": "IBAN",
+          "location": "postField",
+          "sentAs": "iban",
+          "required": true
+        },
+        "swift": {
+          "type": "string",
+          "description": "SWIFT \/ BIC ",
+          "location": "postField",
+          "sentAs": "swift",
+          "required": true
+        },
+        "abaNum": {
+          "type": "string",
+          "description": "ABA Number",
+          "location": "postField",
+          "sentAs": "aba_num",
+          "required": false
+        },
+        "bsbNum": {
+          "type": "string",
+          "description": "BSB Number",
+          "location": "postField",
+          "sentAs": "bsb_num",
+          "required": false
+        },
+        "bankNum": {
+          "type": "string",
+          "description": "Bank Number",
+          "location": "postField",
+          "sentAs": "bank_num",
+          "required": false
+        },
+        "acctNum": {
+          "type": "string",
+          "description": "Account Number",
+          "location": "postField",
+          "sentAs": "acct_num",
+          "required": false
+        },
+        "transitNum": {
+          "type": "string",
+          "description": "Transit Number",
+          "location": "postField",
+          "sentAs": "transit_num",
+          "required": false
+        }
+      }
+    },
+    "RegisterNewAccount": {
+      "httpMethod": "POST",
+      "uri": "/api/user-account",
+      "summary": "Create a HiPay account",
+      "parameters": {
+        "email": {
+          "type": "string",
+          "description": "New account email",
+          "location": "postField",
+          "sentAs": "email",
+          "required": true
+        },
+        "controleType": {
+          "type": "string",
+          "description": "Bank Name",
+          "location": "postField",
+          "sentAs": "bank_name",
+          "required": true
+        },
+        "credential": {
+          "type": "object",
+          "properties": {
+            "wslogin": {
+              "description": "Your API Webservice Login.",
+              "location": "postField",
+              "type": "string",
+              "required": true
+            },
+            "wspassword": {
+              "description": "Your API Webservice Password.",
+              "location": "postField",
+              "type": "string",
+              "required": true
+            }
+          }
+        },
+        "firstname": {
+          "type": "string",
+          "description": "First name of new account owner.",
+          "location": "postField",
+          "sentAs": "firstname",
+          "required": true
+        },
+        "lastname": {
+          "type": "string",
+          "description": "Last name of new account owner.",
+          "location": "postField",
+          "sentAs": "lastname",
+          "required": true
+        },
+        "currency": {
+          "type": "string",
+          "description": "Currency of created account.",
+          "location": "postField",
+          "sentAs": "currency",
+          "required": true
+        },
+        "locale": {
+          "type": "string",
+          "description": "New account language and country formatted like \"[language_territory]\".",
+          "location": "postField",
+          "sentAs": "locale",
+          "required": true
+        },
+        "login": {
+          "type": "string",
+          "description": "New account login.",
+          "location": "postField",
+          "sentAs": "login",
+          "required": false
+        },
+        "civility": {
+          "type": "integer",
+          "description": "Title of owner account (1=>Mr, 2=>Mrs, 3=>Miss)",
+          "location": "postField",
+          "sentAs": "civility",
+          "required": false
+        },
+        "ipAddress": {
+          "type": "string",
+          "description": "P of initial query to create account. Ipv4 valid IP accepted.",
+          "location": "postField",
+          "sentAs": "ip_address",
+          "required": false
+        },
+        "merchantGroupId": {
+          "type": "string",
+          "description": "Merchant group ID to apply to new account",
+          "location": "postField",
+          "sentAs": "merchant_group_id",
+          "required": false
+        },
+        "entityCode": {
+          "type": "string",
+          "description": "Entity to apply to new account (HiPay will inform the merchant the entity to use)",
+          "location": "postField",
+          "sentAs": "entity_code",
+          "required": false
+        },
+        "accountType": {
+          "type": "integer",
+          "description": "0=>personal account, 1=>business account",
+          "location": "postField",
+          "sentAs": "account_type",
+          "required": false
+        },
+        "proType": {
+          "type": "integer",
+          "description": "1=>corporation, 2=>person, 3=>association",
+          "location": "postField",
+          "sentAs": "pro_type",
+          "required": false
+        },
+        "alias": {
+          "type": "string",
+          "description": "Type of company (ltd..)",
+          "location": "postField",
+          "sentAs": "alias",
+          "required": false
+        },
+        "companyName": {
+          "type": "string",
+          "description": "Name of company.",
+          "location": "postField",
+          "sentAs": "company_name",
+          "required": false
+        },
+        "vatNumber": {
+          "type": "string",
+          "description": "VAT company number.",
+          "location": "postField",
+          "sentAs": "vat_number",
+          "required": false
+        },
+        "address": {
+          "type": "object",
+          "properties": {
+            "address": {
+              "description": "Street address.",
+              "location": "postField",
+              "type": "string",
+              "required": false
+            },
+            "zipcode": {
+              "description": "The zip or postal code.",
+              "location": "postField",
+              "type": "string",
+              "required": false
+            },
+            "city": {
+              "description": "City.",
+              "location": "postField",
+              "type": "string",
+              "required": false
+            },
+            "country": {
+              "description": "The country code. This two-letter country code complies with ISO 3166-1",
+              "location": "postField",
+              "type": "string",
+              "required": false
+            },
+            "phone_number": {
+              "description": "Phone number",
+              "location": "postField",
+              "type": "string",
+              "required": false
+            },
+            "mobile_phone_number": {
+              "description": "Mobile phone number",
+              "location": "postField",
+              "type": "string",
+              "required": false
+            },
+            "fax_number": {
+              "description": "Fax number",
+              "location": "postField",
+              "type": "string",
+              "required": false
+            }
+          }
+        },
+        "timezone": {
+          "type": "string",
+          "description": "Timezone (default : 'Europe/Paris')",
+          "location": "postField",
+          "sentAs": "alias",
+          "required": false
+        },
+        "birthday": {
+          "type": "object",
+          "description": "Birthdate of account owner. Ex. '1965-11-12' for November 12, 1965",
+          "instanceOf" : "DateTime",
+          "location": "postField",
+          "required": false,
+          "sentAs": "birthdate",
+          "filters" : [
+            {
+              "method": "date_format",
+              "args" : ["@value", "Y-m-d"]
+            }
+          ]
+        },
+        "antiPhishingKey": {
+          "type": "string",
+          "description": "Antiphishing string.",
+          "location": "postField",
+          "sentAs": "anti_phishing_key",
+          "required": false
+        },
+        "hipayInformation": {
+          "type": "integer",
+          "description": "0 or 1 if user agrees.",
+          "location": "postField",
+          "sentAs": "hipay_information",
+          "required": false
+        },
+        "commercialInformation": {
+          "type": "integer",
+          "description": "0 or 1 if user agrees.",
+          "location": "postField",
+          "sentAs": "commercial_information",
+          "required": false
+        },
+        "callbackUrl": {
+          "type": "string",
+          "description": "URL where the notifications concerning this account will be sent",
+          "location": "postField",
+          "sentAs": "callback_url",
+          "required": false
+        },
+        "callbackSalt": {
+          "type": "string",
+          "description": "salt used in notification signature",
+          "location": "postField",
+          "sentAs": "callback_salt",
+          "required": false
+        },
+        "cpf": {
+          "type": "objet",
+          "properties": {
+            "cpf": {
+              "description": "“Cadastro de Pessoas Físicas”",
+              "location": "postField",
+              "type": "integer",
+              "required": false
+            },
+            "id": {
+              "description": "Identification number",
+              "location": "postField",
+              "type": "string",
+              "required": false
+            },
+            "id_type": {
+              "description": "“RG” or “RNE”",
+              "location": "postField",
+              "type": "string",
+              "required": false
+            },
+            "state": {
+              "description": "State",
+              "location": "postField",
+              "type": "string",
+              "required": false
+            }
+          }
+        },
+        "activationType": {
+          "type": "integer",
+          "description": "0 => Activation by link, 1 => Activation by code",
+          "location": "postField",
+          "sentAs": "activation_type",
+          "required": false
+        }
+      }
     }
   }
 }

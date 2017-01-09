@@ -16,14 +16,16 @@ use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\MerchantData;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\Transfer;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\UserAccountBasic;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\UserAccountDetails;
+use HiPay\Wallet\Mirakl\Api\HiPay\Model\Rest\UserAccount;
+use HiPay\Wallet\Mirakl\Api\HiPay\Model\Rest\MerchantDataRest;
 use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 use HiPay\Wallet\Mirakl\Api\HiPay\Wallet\AccountInfo;
 
 /**
- * Make the SOAP call to the HiPay API.
+ * Make the SOAP & REST call to the HiPay API.
  *
- * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
- * @copyright 2015 Smile
+ * @author    HiPay <support.wallet@hipay.com>
+ * @copyright 2017 HiPay
  */
 interface ApiInterface
 {
@@ -54,10 +56,27 @@ interface ApiInterface
      *
      * @throws Exception
      */
-    public function createFullUseraccount(
+    /*public function createFullUseraccount(
         UserAccountBasic $accountBasic,
         UserAccountDetails $accountDetails,
         MerchantData $merchantData
+    );*/
+    /**
+     * Create an new account on HiPay wallet
+     * Enforce the entity to the one given on object construction
+     * Enforce the locale to the one given on object construction if false
+     * Enforce the timezone to the one given on object construction if false.
+     *
+     * @param UserAccount $userAccount
+     * @param MerchantData $merchantData
+     *
+     * @return int the user account id
+     *
+     * @throws Exception
+     */
+    public function createFullUseraccountV2(
+        UserAccount $userAccount,
+        MerchantDataRest $merchantData
     );
 
     /**

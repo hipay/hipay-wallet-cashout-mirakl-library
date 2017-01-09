@@ -6,6 +6,8 @@ use DateTime;
 use Exception;
 use Guzzle\Http\Message\PostFile;
 use HiPay\Wallet\Mirakl\Api\HiPay\ApiInterface;
+use HiPay\Wallet\Mirakl\Api\HiPay\Model\Rest\UserAccount;
+use HiPay\Wallet\Mirakl\Api\HiPay\Model\Rest\MerchantDataRest;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\BankInfo;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\MerchantData;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\Transfer;
@@ -17,13 +19,12 @@ use HiPay\Wallet\Mirakl\Api\Soap\SmileClient;
 use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 use Guzzle\Service\Client;
 use Guzzle\Service\Description\ServiceDescription;
-use Loco\Utils\Swizzle;
 
 /**
- * Make the SOAP call to the HiPay API.
+ * Make the SOAP & REST call to the HiPay API.
  *
- * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
- * @copyright 2015 Smile
+ * @author    HiPay <support.wallet@hipay.com>
+ * @copyright 2017 HiPay
  */
 class HiPay implements ApiInterface
 {
@@ -98,7 +99,7 @@ class HiPay implements ApiInterface
         $this->entity = $entity;
         $this->timezone = $timeZone;
         $this->locale = $locale;
-        $defaults = array(
+        /*$defaults = array(
             'compression' => SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP,
             'cache_wsdl' => WSDL_CACHE_NONE,
             'soap_version' => SOAP_1_1,
@@ -117,7 +118,7 @@ class HiPay implements ApiInterface
         $this->withdrawalClient = new SmileClient(
             $baseSoapUrl.'/soap/withdrawal?wsdl',
             $options
-        );
+        );*/
 
         $this->restClient = new Client();
 
@@ -125,7 +126,7 @@ class HiPay implements ApiInterface
         $description->setBaseUrl($baseRestUrl);
         $this->restClient->setDescription($description);
 
-        $this->restClient->getConfig()->setPath(
+        /*$this->restClient->getConfig()->setPath(
             'request.options/headers/php-auth-user',
             $login
         );
@@ -133,11 +134,20 @@ class HiPay implements ApiInterface
         $this->restClient->getConfig()->setPath(
             'request.options/headers/php-auth-pw',
             $password
-        );
+        );*/
     }
 
     public function uploadDocument($userSpaceId, $documentType, $fileName, \DateTime $validityDate = null)
     {
+        $this->restClient->getConfig()->setPath(
+            'request.options/headers/php-auth-user',
+            $this->login
+        );
+
+        $this->restClient->getConfig()->setPath(
+            'request.options/headers/php-auth-pw',
+            $this->password
+        );
         $command = $this->restClient->getCommand(
             'UploadDocument',
             array(
@@ -184,10 +194,10 @@ class HiPay implements ApiInterface
      *
      * @throws Exception
      */
-    public function createFullUseraccount(
+    /*public function createFullUseraccount(
         UserAccountBasic $accountBasic,
         UserAccountDetails $accountDetails,
-        MerchantData $merchantData
+        MerchantDataRest $merchantData
     ) {
         if (!$accountBasic->getEntity()) {
             $accountBasic->setEntity($this->entity);
@@ -206,6 +216,58 @@ class HiPay implements ApiInterface
         $parameters = $merchantData->mergeIntoParameters($parameters);
 
         $result = $this->callSoap('createFullUseraccount', $parameters);
+
+        return new AccountInfo($result['userAccountId'], $result['userSpaceId'], $result['identified'] === Identified::YES);
+    }*/
+
+    /**
+     * Create an new account on HiPay wallet
+     * Enforce the entity to the one given on object construction
+     * Enforce the locale to the one given on object construction if false
+     * Enforce the timezone to the one given on object construction if false.
+     *
+     * @param UserAccountBasic      $accountBasic
+     * @param UserAccountDetails    $accountDetails
+     * @param MerchantDataRest      $merchantData
+     *
+     * @return AccountInfo The HiPay Wallet account information
+     *
+     * @throws Exception
+     */
+    public function createFullUseraccountV2(
+        UserAccount $userAccount,
+        MerchantDataRest $merchantData
+    ) {
+
+        if (!$userAccount->getLocale()) {
+            $userAccount->setLocale($this->locale);
+        }
+
+        if (!$userAccount->getTimeZone()) {
+            $userAccount->setTimeZone($this->timezone);
+        }
+
+        if(!$userAccount->getCredential()) {
+            $userAccount->setCredential(
+                array(
+                    'wsLogin' => $this->login,
+                    'wsPassword' => $this->password,
+                )
+            );
+        }
+
+        $parameters = $userAccount->mergeIntoParameters();
+        $parameters = $merchantData->mergeIntoParameters($parameters);
+        $parameters = $this->mergeLoginParameters($parameters);
+
+        //$result = $this->callSoap('createFullUseraccount', $parameters);
+        $command = $this->restClient->getCommand(
+            'RegisterNewAccount',
+            $parameters
+        );
+
+        $result_to_json = $this->restClient->execute($command);
+        $result = $result_to_json;
 
         return new AccountInfo($result['userAccountId'], $result['userSpaceId'], $result['identified'] === Identified::YES);
     }
@@ -429,8 +491,10 @@ class HiPay implements ApiInterface
     protected function mergeLoginParameters(array $parameters = array())
     {
         $parameters = $parameters + array(
-                'wsLogin' => $this->login,
-                'wsPassword' => $this->password,
+            'credential' => array(
+                    'wsLogin' => $this->login,
+                    'wsPassword' => $this->password,
+                )
             );
 
         return $parameters;
