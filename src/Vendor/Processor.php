@@ -209,7 +209,7 @@ class Processor extends AbstractApiProcessor
 
                 $vendor = $this->vendorManager->findByMiraklId($miraklId);
                 if (!$vendor) {
-                    if (!$this->hasWallet($email)) {
+                    //if (!$this->hasWallet($email)) {
                         //Wallet create (call to HiPay)
                         $walletInfo = $this->createWallet($vendorData);
                         $this->logger->info(
@@ -217,10 +217,10 @@ class Processor extends AbstractApiProcessor
                             $vendorData['shop_id'],
                             array('shopId' => $vendorData['shop_id'])
                         );
-                    } else {
+                    //} else {
                         //Fetch the wallet id from HiPay
-                        $walletInfo = $this->hipay->getWalletInfo($email);
-                    }
+                    //    $walletInfo = $this->hipay->getWalletInfo($email);
+                    //}
                     $vendor = $this->createVendor(
                         $email,
                         $walletInfo->getUserAccountld(),
