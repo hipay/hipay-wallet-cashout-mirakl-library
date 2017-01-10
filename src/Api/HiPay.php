@@ -7,7 +7,6 @@ use Exception;
 use Guzzle\Http\Message\PostFile;
 use HiPay\Wallet\Mirakl\Api\HiPay\ApiInterface;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Rest\UserAccount;
-use HiPay\Wallet\Mirakl\Api\HiPay\Model\Rest\MerchantDataRest;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\BankInfo;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\MerchantData;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\Transfer;
@@ -235,8 +234,7 @@ class HiPay implements ApiInterface
      * @throws Exception
      */
     public function createFullUseraccountV2(
-        UserAccount $userAccount,
-        MerchantDataRest $merchantData
+        UserAccount $userAccount
     ) {
 
         if (!$userAccount->getLocale()) {
@@ -250,20 +248,17 @@ class HiPay implements ApiInterface
         if(!$userAccount->getCredential()) {
             $userAccount->setCredential(
                 array(
-                    'wsLogin' => $this->login,
-                    'wsPassword' => $this->password,
+                    'wslogin' => $this->login,
+                    'wspassword' => $this->password,
                 )
             );
         }
 
         $parameters = $userAccount->mergeIntoParameters();
-        $parameters = $merchantData->mergeIntoParameters($parameters);
-        $parameters = $this->mergeLoginParameters($parameters);
 
-        //$result = $this->callSoap('createFullUseraccount', $parameters);
         $command = $this->restClient->getCommand(
             'RegisterNewAccount',
-            $parameters
+            $parameters['userAccount']
         );
 
         $result_to_json = $this->restClient->execute($command);
@@ -492,8 +487,8 @@ class HiPay implements ApiInterface
     {
         $parameters = $parameters + array(
             'credential' => array(
-                    'wsLogin' => $this->login,
-                    'wsPassword' => $this->password,
+                    'wslogin' => $this->login,
+                    'wspassword' => $this->password,
                 )
             );
 

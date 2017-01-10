@@ -17,7 +17,6 @@ use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\Transfer;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\UserAccountBasic;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\UserAccountDetails;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Rest\UserAccount;
-use HiPay\Wallet\Mirakl\Api\HiPay\Model\Rest\MerchantDataRest;
 use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 use HiPay\Wallet\Mirakl\Api\HiPay\Wallet\AccountInfo;
 
@@ -75,8 +74,7 @@ interface ApiInterface
      * @throws Exception
      */
     public function createFullUseraccountV2(
-        UserAccount $userAccount,
-        MerchantDataRest $merchantData
+        UserAccount $userAccount
     );
 
     /**

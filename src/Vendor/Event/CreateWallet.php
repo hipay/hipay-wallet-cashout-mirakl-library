@@ -34,14 +34,11 @@ class CreateWallet extends Event
      * CreateWalletEvent constructor.
      *
      * @param UserAccount        $userAccount
-     * @param MerchantData       $merchantData
      */
     public function __construct(
-        UserAccount $userAccount,
-        MerchantDataRest $merchantData
+        UserAccount $userAccount
     ) {
         $this->userAccount = $userAccount;
-        $this->merchantData = $merchantData;
     }
 
     /**
@@ -100,26 +97,6 @@ class CreateWallet extends Event
     public function setUserAccountDetails($userAccountDetails)
     {
         $this->userAccountDetails = $userAccountDetails;
-
-        return $this;
-    }
-
-    /**
-     * @return MerchantData
-     */
-    public function getMerchantData()
-    {
-        return $this->merchantData;
-    }
-
-    /**
-     * @param MerchantData $merchantData
-     *
-     * @return CreateWallet
-     */
-    public function setMerchantData($merchantData)
-    {
-        $this->merchantData = $merchantData;
 
         return $this;
     }

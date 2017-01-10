@@ -10,7 +10,6 @@ use HiPay\Wallet\Mirakl\Api\Factory as ApiFactory;
 use HiPay\Wallet\Mirakl\Api\HiPay;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\BankInfo;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\MerchantData;
-use HiPay\Wallet\Mirakl\Api\HiPay\Model\Rest\MerchantDataRest;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Rest\UserAccount;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\UserAccountBasic;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\UserAccountDetails;
@@ -289,11 +288,9 @@ class Processor extends AbstractApiProcessor
     protected function createWallet(array $shopData)
     {
         $userAccount = new UserAccount($shopData);
-        $merchantData = new MerchantDataRest($shopData);
 
         $event = new CreateWallet(
-            $userAccount,
-            $merchantData
+            $userAccount
         );
 
         $this->dispatcher->dispatch(
@@ -302,8 +299,7 @@ class Processor extends AbstractApiProcessor
         );
 
         $walletInfo = $this->hipay->createFullUseraccountV2(
-            $event->getUserAccount(),
-            $event->getMerchantData()
+            $event->getUserAccount()
         );
 
         $this->dispatcher->dispatch(
