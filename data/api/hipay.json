@@ -163,9 +163,9 @@
         },
         "controleType": {
           "type": "string",
-          "description": "Bank Name",
+          "description": "Controle type",
           "location": "postField",
-          "sentAs": "bank_name",
+          "sentAs": "controle_type",
           "required": true
         },
         "credential": {
