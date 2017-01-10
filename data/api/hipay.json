@@ -44,6 +44,20 @@
         }
       }
     },
+    "getBankInfo": {
+      "httpMethod": "GET",
+      "uri": "/api/user-account",
+      "summary": "Get HiPay Account bank details.",
+      "parameters": {
+        "local": {
+          "type": "string",
+          "description": "Account language and country formatted like '[language_territory]'.",
+          "location": "local",
+          "sentAs": "transit_num",
+          "required": true
+        }
+      }
+    },
     "RegisterBankInfo": {
       "httpMethod": "POST",
       "uri": "/api/user-account/bank-info",

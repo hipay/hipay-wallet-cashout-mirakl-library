@@ -6,8 +6,9 @@ use DateTime;
 use Exception;
 use Guzzle\Http\Message\PostFile;
 use HiPay\Wallet\Mirakl\Api\HiPay\ApiInterface;
+use HiPay\Wallet\Mirakl\Api\HiPay\Model\Rest\BankInfo;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Rest\UserAccount;
-use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\BankInfo;
+//use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\BankInfo;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\MerchantData;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\Transfer;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\UserAccountBasic;
@@ -261,8 +262,8 @@ class HiPay implements ApiInterface
             $parameters['userAccount']
         );
 
-        $result_to_json = $this->restClient->execute($command);
-        $result = $result_to_json;
+        $result_json = $this->restClient->execute($command);
+        $result = json_decode($result_json);
 
         return new AccountInfo($result['userAccountId'], $result['userSpaceId'], $result['identified'] === Identified::YES);
     }
@@ -278,12 +279,22 @@ class HiPay implements ApiInterface
      */
     public function bankInfosCheck(VendorInterface $vendor)
     {
-        $parameters = $this->mergeSubAccountParameters($vendor);
         $bankInfo = new BankInfo();
 
-        return $bankInfo->setHiPayData(
-            $this->callSoap('bankInfosCheck', $parameters)
+        $parameters['credential'] = array(
+            'wslogin' => $this->login,
+            'wspassword' => $this->password,
         );
+        $parameters['locale'] = 'en_GB';
+
+        $command = $this->restClient->getCommand(
+            'getBankInfo',
+            $parameters
+        );
+        $result_json = $this->restClient->execute($command);
+        $result = json_decode($result_json);
+
+        return $bankInfo->setHiPayData($result);
     }
 
     /**
@@ -291,17 +302,27 @@ class HiPay implements ApiInterface
      * To be checked against the constant defined in
      * HiPay\Wallet\Mirakl\Api\HiPay\Model\Status\BankInfo.
      *
-     * @param VendorInterface $vendor
+     * @param UserAccount $userAccount
      *
      * @return string
      *
      * @throws Exception
      */
-    public function bankInfosStatus(VendorInterface $vendor)
-    {
-        $parameters = $this->mergeSubAccountParameters($vendor);
+    public function bankInfosStatus(
+        VendorInterface $vendor
+    ) {
+        $parameters['credential'] = array(
+            'wslogin' => $this->login,
+            'wspassword' => $this->password,
+        );
         $parameters['locale'] = 'en_GB';
-        $result = $this->callSoap('bankInfosStatus', $parameters);
+
+        $command = $this->restClient->getCommand(
+            'getBankInfo',
+            $parameters
+        );
+        $result_json = $this->restClient->execute($command);
+        $result = json_decode($result_json);
 
         return $result['status'];
     }
@@ -309,7 +330,6 @@ class HiPay implements ApiInterface
     /**
      * Create a bank account in HiPay.
      *
-     * @param VendorInterface $vendor
      * @param BankInfo        $bankInfo
      *
      * @return array|bool if array is empty
@@ -320,10 +340,20 @@ class HiPay implements ApiInterface
         VendorInterface $vendor,
         BankInfo $bankInfo
     ) {
-        $parameters = $this->mergeSubAccountParameters($vendor);
-        $parameters = $bankInfo->mergeIntoParameters($parameters);
+        $parameters['credential'] = array(
+            'wslogin' => $this->login,
+            'wspassword' => $this->password,
+        );
+        $parameters = $bankInfo->mergeIntoParameters();
 
-        return $this->callSoap('bankInfosRegister', $parameters);
+        $command = $this->restClient->getCommand(
+            'getBankInfo',
+            $parameters
+        );
+        $result_json = $this->restClient->execute($command);
+        $result = json_decode($result_json);
+
+        return $result;
     }
 
     /**
@@ -549,7 +579,7 @@ class HiPay implements ApiInterface
 
         //Make the call
         $response = $this->getClient($name)->$name(
-            array('parameters' => $parameters)
+            array('parameters' => $parameters['userAccount'])
         );
 
         //Parse the response

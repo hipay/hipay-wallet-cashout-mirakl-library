@@ -6,7 +6,8 @@ use DateTime;
 use Guzzle\Http\Exception\BadResponseException;
 use Guzzle\Http\Exception\ClientErrorResponseException;
 use HiPay\Wallet\Mirakl\Api\HiPay;
-use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\BankInfo;
+//use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\BankInfo;
+use HiPay\Wallet\Mirakl\Api\HiPay\Model\Rest\BankInfo;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Status\BankInfo as BankInfoStatus;
 use HiPay\Wallet\Mirakl\Test\Common\AbstractProcessorTest;
 use HiPay\Wallet\Mirakl\Test\Stub\Api\Mirakl;
@@ -50,7 +51,7 @@ class ProcessorTest extends AbstractProcessorTest
         $this->vendorArgument = Argument::type("\\HiPay\\Wallet\\Mirakl\\Vendor\\Model\\VendorInterface");
 
         /** @var BankInfo bankInfoArgument */
-        $this->bankInfoArgument = Argument::type("\\HiPay\\Wallet\\Mirakl\\Api\\HiPay\\Model\\Soap\\BankInfo");
+        $this->bankInfoArgument = Argument::type("\\HiPay\\Wallet\\Mirakl\\Api\\HiPay\\Model\\Rest\\BankInfo");
 
         $this->vendorProcessor = new Processor(
             $this->eventDispatcher->reveal(),
@@ -183,14 +184,14 @@ class ProcessorTest extends AbstractProcessorTest
         /** @var VendorInterface $vendorArgument */
         $vendorArgument = Argument::is($vendor);
 
-        $this->hipay->bankInfosStatus($vendorArgument)->willReturn(BankInfoStatus::BLANK)->shouldBeCalled();
+        $this->hipay->bankInfosStatus(
+                $vendorArgument
+            )->willReturn(BankInfoStatus::BLANK)->shouldBeCalled();
 
         $this->hipay
             ->bankInfosRegister($vendorArgument, $this->bankInfoArgument)
             ->willReturn(true)
             ->shouldBeCalled();
-
-        $this->hipay->bankInfosRegister($vendorArgument, $this->bankInfoArgument)->willReturn(true)->shouldBeCalled();
 
         $this->vendorProcessor->handleBankInfo(array($vendor), $miraklData);
     }

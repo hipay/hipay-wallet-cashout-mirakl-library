@@ -3,7 +3,8 @@
 namespace HiPay\Wallet\Mirakl\Exception;
 
 use Exception;
-use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\BankInfo;
+//use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\BankInfo;
+use HiPay\Wallet\Mirakl\Api\HiPay\Model\Rest\BankInfo;
 use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 
 /**

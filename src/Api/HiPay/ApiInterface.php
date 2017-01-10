@@ -11,11 +11,11 @@ namespace HiPay\Wallet\Mirakl\Api\HiPay;
 use DateTime;
 use Exception;
 use HiPay\Wallet\Mirakl\Api\HiPay;
-use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\BankInfo;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\MerchantData;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\Transfer;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\UserAccountBasic;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\UserAccountDetails;
+use HiPay\Wallet\Mirakl\Api\HiPay\Model\Rest\BankInfo;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Rest\UserAccount;
 use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 use HiPay\Wallet\Mirakl\Api\HiPay\Wallet\AccountInfo;
@@ -94,6 +94,7 @@ interface ApiInterface
      * HiPay\Wallet\Mirakl\Api\HiPay\Model\Status\BankInfo.
      *
      * @param VendorInterface $vendor
+     * @param UserAccount $userAccount
      *
      * @return string
      *
@@ -104,7 +105,6 @@ interface ApiInterface
     /**
      * Create a bank account in HiPay.
      *
-     * @param VendorInterface $vendor
      * @param BankInfo $bankInfo
      *
      * @return array|bool if array is empty
