@@ -8,8 +8,6 @@ use Guzzle\Http\Message\PostFile;
 use HiPay\Wallet\Mirakl\Api\HiPay\ApiInterface;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Rest\BankInfo;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Rest\UserAccount;
-//use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\BankInfo;
-use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\MerchantData;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\Transfer;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\UserAccountBasic;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\UserAccountDetails;
@@ -99,18 +97,7 @@ class HiPay implements ApiInterface
         $this->entity = $entity;
         $this->timezone = $timeZone;
         $this->locale = $locale;
-        /*$defaults = array(
-            'compression' => SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP,
-            'cache_wsdl' => WSDL_CACHE_NONE,
-            'soap_version' => SOAP_1_1,
-            'encoding' => 'UTF-8',
-            'trace' => true
-        );
-        $options = array_merge($defaults, $options);
-        $this->userAccountClient = new SmileClient(
-            $baseSoapUrl.'/soap/user-account-v2?wsdl',
-            $options
-        );
+        /*
         $this->transferClient = new SmileClient(
             $baseSoapUrl.'/soap/transfer?wsdl',
             $options
@@ -125,16 +112,6 @@ class HiPay implements ApiInterface
         $description = ServiceDescription::factory(__DIR__.'../../../data/api/hipay.json');
         $description->setBaseUrl($baseRestUrl);
         $this->restClient->setDescription($description);
-
-        /*$this->restClient->getConfig()->setPath(
-            'request.options/headers/php-auth-user',
-            $login
-        );
-
-        $this->restClient->getConfig()->setPath(
-            'request.options/headers/php-auth-pw',
-            $password
-        );*/
     }
 
     public function uploadDocument($userSpaceId, $documentType, $fileName, \DateTime $validityDate = null)
@@ -188,46 +165,6 @@ class HiPay implements ApiInterface
      *
      * @param UserAccountBasic      $accountBasic
      * @param UserAccountDetails    $accountDetails
-     * @param MerchantData          $merchantData
-     *
-     * @return AccountInfo The HiPay Wallet account information
-     *
-     * @throws Exception
-     */
-    /*public function createFullUseraccount(
-        UserAccountBasic $accountBasic,
-        UserAccountDetails $accountDetails,
-        MerchantDataRest $merchantData
-    ) {
-        if (!$accountBasic->getEntity()) {
-            $accountBasic->setEntity($this->entity);
-        }
-
-        if (!$accountBasic->getLocale()) {
-            $accountBasic->setLocale($this->locale);
-        }
-
-        if (!$accountDetails->getTimeZone()) {
-            $accountDetails->setTimeZone($this->timezone);
-        }
-
-        $parameters = $accountBasic->mergeIntoParameters();
-        $parameters = $accountDetails->mergeIntoParameters($parameters);
-        $parameters = $merchantData->mergeIntoParameters($parameters);
-
-        $result = $this->callSoap('createFullUseraccount', $parameters);
-
-        return new AccountInfo($result['userAccountId'], $result['userSpaceId'], $result['identified'] === Identified::YES);
-    }*/
-
-    /**
-     * Create an new account on HiPay wallet
-     * Enforce the entity to the one given on object construction
-     * Enforce the locale to the one given on object construction if false
-     * Enforce the timezone to the one given on object construction if false.
-     *
-     * @param UserAccountBasic      $accountBasic
-     * @param UserAccountDetails    $accountDetails
      * @param MerchantDataRest      $merchantData
      *
      * @return AccountInfo The HiPay Wallet account information
@@ -246,6 +183,10 @@ class HiPay implements ApiInterface
             $userAccount->setTimeZone($this->timezone);
         }
 
+        if (!$userAccount->getEntityCode()) {
+            $userAccount->setEntityCode($this->entity);
+        }
+
         if(!$userAccount->getCredential()) {
             $userAccount->setCredential(
                 array(
@@ -262,10 +203,9 @@ class HiPay implements ApiInterface
             $parameters['userAccount']
         );
 
-        $result_json = $this->restClient->execute($command);
-        $result = json_decode($result_json);
+        $result = $this->restClient->execute($command);
 
-        return new AccountInfo($result['userAccountId'], $result['userSpaceId'], $result['identified'] === Identified::YES);
+        return new AccountInfo($result['account_id'], $result['user_space_id'], $result['status'] === Identified::YES);
     }
 
     /**
@@ -281,18 +221,23 @@ class HiPay implements ApiInterface
     {
         $bankInfo = new BankInfo();
 
-        $parameters['credential'] = array(
-            'wslogin' => $this->login,
-            'wspassword' => $this->password,
+        $this->restClient->getConfig()->setPath(
+            'request.options/headers/php-auth-user',
+            $this->login
         );
+
+        $this->restClient->getConfig()->setPath(
+            'request.options/headers/php-auth-pw',
+            $this->password
+        );
+
         $parameters['locale'] = 'en_GB';
 
         $command = $this->restClient->getCommand(
             'getBankInfo',
             $parameters
         );
-        $result_json = $this->restClient->execute($command);
-        $result = json_decode($result_json);
+        $result = $this->restClient->execute($command);
 
         return $bankInfo->setHiPayData($result);
     }
@@ -311,18 +256,23 @@ class HiPay implements ApiInterface
     public function bankInfosStatus(
         VendorInterface $vendor
     ) {
-        $parameters['credential'] = array(
-            'wslogin' => $this->login,
-            'wspassword' => $this->password,
+        $this->restClient->getConfig()->setPath(
+            'request.options/headers/php-auth-user',
+            $this->login
         );
+
+        $this->restClient->getConfig()->setPath(
+            'request.options/headers/php-auth-pw',
+            $this->password
+        );
+
         $parameters['locale'] = 'en_GB';
 
         $command = $this->restClient->getCommand(
             'getBankInfo',
             $parameters
         );
-        $result_json = $this->restClient->execute($command);
-        $result = json_decode($result_json);
+        $result = $this->restClient->execute($command);
 
         return $result['status'];
     }
@@ -330,6 +280,7 @@ class HiPay implements ApiInterface
     /**
      * Create a bank account in HiPay.
      *
+     * @param VendorInterface $vendor
      * @param BankInfo        $bankInfo
      *
      * @return array|bool if array is empty
@@ -340,18 +291,23 @@ class HiPay implements ApiInterface
         VendorInterface $vendor,
         BankInfo $bankInfo
     ) {
-        $parameters['credential'] = array(
-            'wslogin' => $this->login,
-            'wspassword' => $this->password,
+        $this->restClient->getConfig()->setPath(
+            'request.options/headers/php-auth-user',
+            $this->login
         );
+
+        $this->restClient->getConfig()->setPath(
+            'request.options/headers/php-auth-pw',
+            $this->password
+        );
+
         $parameters = $bankInfo->mergeIntoParameters();
 
         $command = $this->restClient->getCommand(
             'getBankInfo',
             $parameters
         );
-        $result_json = $this->restClient->execute($command);
-        $result = json_decode($result_json);
+        $result = $this->restClient->execute($command);
 
         return $result;
     }
@@ -359,45 +315,51 @@ class HiPay implements ApiInterface
     /**
      * Return the hipay account id.
      *
-     * @param string $email
+     * @param VendorInterface $vendor
      *
      * @return array|bool if array is empty
      *
      * @throws Exception
      */
-    public function getWalletId($email)
+    public function getWalletId(
+        VendorInterface $vendor
+    )
     {
-        $result = $this->getAccountInfos($email);
+        $result = $this->getAccountInfos($vendor);
 
-        return $result['userAccountId'];
+        return $result['account_id'];
     }
 
     /**
      * Return the hipay account information.
      *
-     * @param string $email
+     * @param VendorInterface $vendor
      *
      * @return AccountInfo HiPay Wallet account information
      *
      * @throws Exception
      */
-    public function getWalletInfo($email)
+    public function getWalletInfo(
+        VendorInterface $vendor
+    )
     {
-        $result = $this->getAccountInfos($email);
+        $result = $this->getAccountInfos($vendor);
 
-        return new AccountInfo($result['userAccountId'], $result['userSpaceId'], $result['identified'] === Identified::YES);
+        return new AccountInfo($result['account_id'], $result['user_space_id'], $result['identified'] === Identified::YES);
     }
 
     /**
      * Return the identified status of the account.
      *
-     * @param string $email
+     * @param VendorInterface $vendor
      * @return bool
      * @throws Exception
      */
-    public function isIdentified($email)
+    public function isIdentified(
+        VendorInterface $vendor
+    )
     {
-        $result = $this->getAccountInfos($email);
+        $result = $this->getAccountInfos($vendor);
 
         return $result['identified'] == Identified::YES ? true : false;
     }
@@ -405,14 +367,35 @@ class HiPay implements ApiInterface
     /**
      * Return various information about a wallet
      *
-     * @param $email
+     * @param VendorInterface $vendor
+     *
      * @return array
+     *
      * @throws Exception
      */
-    protected function getAccountInfos($email)
+    protected function getAccountInfos(
+        VendorInterface $vendor
+    )
     {
-        $parameters = array('accountLogin' => $email);
-        return $this->callSoap('getAccountInfos', $parameters);
+        $this->restClient->getConfig()->setPath(
+            'request.options/headers/php-auth-user',
+            $this->login
+        );
+
+        $this->restClient->getConfig()->setPath(
+            'request.options/headers/php-auth-pw',
+            $this->password
+        );
+
+        $parameters = $this->mergeSubAccountParameters($vendor, array());
+
+        $command = $this->restClient->getCommand(
+            'getBankInfo',
+            $parameters
+        );
+        $result = $this->restClient->execute($command);
+
+        return $result;
     }
 
     /**
@@ -534,11 +517,10 @@ class HiPay implements ApiInterface
      * @return array
      */
     protected function mergeSubAccountParameters(
-        VendorInterface $vendor,
+        $vendor,
         $parameters = array()
     ) {
         $parameters += array(
-            'wsSubAccountLogin' => $vendor->getEmail(),
             'wsSubAccountId' => $vendor->getHiPayId(),
         );
 

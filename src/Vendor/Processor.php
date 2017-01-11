@@ -198,8 +198,6 @@ class Processor extends AbstractApiProcessor
 
             try {
                 //Vendor recording
-
-
                 $email = $vendorData['contact_informations']['email'];
                 $miraklId = $vendorData['shop_id'];
 

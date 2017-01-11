@@ -189,7 +189,7 @@ class UserAccount extends ModelAbstract
         $this->firstname = $miraklData['contact_informations']['firstname'];
         $this->lastname = $miraklData['contact_informations']['lastname'];
         $this->currency = $miraklData['currency_iso_code'];
-        $this->login = 'mirakl_' . preg_replace("/[^A-Za-z0-9 ]/", '',$miraklData['shop_name']) . '_' . $miraklData['shop_id'];
+        $this->login = 'mirakl_' . preg_replace("/[^A-Za-z0-9]/", '',$miraklData['shop_name']) . '_' . $miraklData['shop_id'];
         $this->civility = static::formatTitle(
             $miraklData['contact_informations']['civility']
         );
@@ -413,7 +413,7 @@ class UserAccount extends ModelAbstract
     }
 
     /**
-     * @return mixed
+     * @return int
      */
     public function getMerchantGroupId()
     {
@@ -421,7 +421,7 @@ class UserAccount extends ModelAbstract
     }
 
     /**
-     * @param mixed $merchantGroupId
+     * @param int $merchantGroupId
      */
     public function setMerchantGroupId($merchantGroupId)
     {

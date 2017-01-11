@@ -116,33 +116,33 @@ interface ApiInterface
     /**
      * Return the hipay account id.
      *
-     * @param string $email
+     * @param VendorInterface $vendor
      *
      * @return array|bool if array is empty
      *
      * @throws Exception
      */
-    public function getWalletId($email);
+    public function getWalletId(VendorInterface $vendor);
 
     /**
      * Return the hipay account information.
      *
-     * @param string $email
+     * @param VendorInterface $vendor
      *
      * @return AccountInfo HiPay Wallet account information
      *
      * @throws Exception
      */
-    public function getWalletInfo($email);
+    public function getWalletInfo(VendorInterface $vendor);
 
     /**
      * Return the identified status of the account.
      *
-     * @param string $email
+     * @param VendorInterface $vendor
      *
      * @return bool
      */
-    public function isIdentified($email);
+    public function isIdentified(VendorInterface $vendor);
 
     /**
      * Return the account information.

@@ -170,17 +170,21 @@
         },
         "credential": {
           "type": "object",
+          "location": "postField",
+          "sentAs": "credential",
           "properties": {
             "wslogin": {
               "description": "Your API Webservice Login.",
               "location": "postField",
               "type": "string",
+              "sentAs": "wslogin",
               "required": true
             },
             "wspassword": {
               "description": "Your API Webservice Password.",
               "location": "postField",
               "type": "string",
+              "sentAs": "wspassword",
               "required": true
             }
           }
@@ -235,7 +239,7 @@
           "required": false
         },
         "merchantGroupId": {
-          "type": "string",
+          "type": "integer",
           "description": "Merchant group ID to apply to new account",
           "location": "postField",
           "sentAs": "merchant_group_id",
@@ -285,6 +289,8 @@
         },
         "address": {
           "type": "object",
+          "location": "postField",
+          "sentAs": "address",
           "properties": {
             "address": {
               "description": "Street address.",
@@ -387,7 +393,9 @@
           "required": false
         },
         "cpf": {
-          "type": "objet",
+          "type": "object",
+          "location": "postField",
+          "sentAs": "cpf",
           "properties": {
             "cpf": {
               "description": "“Cadastro de Pessoas Físicas”",
