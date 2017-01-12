@@ -301,6 +301,13 @@ class HiPay implements ApiInterface
             $this->password
         );
 
+        if( !is_null($vendor->getHiPayId())) {
+            $this->restClient->getConfig()->setPath(
+                'request.options/headers/php-auth-subaccount-id',
+                $vendor->getHiPayId()
+            );
+        }
+
         $parameters = $bankInfo->mergeIntoParameters();
 
         $command = $this->restClient->getCommand(
@@ -387,11 +394,16 @@ class HiPay implements ApiInterface
             $this->password
         );
 
-        $parameters = $this->mergeSubAccountParameters($vendor, array());
+        if( !is_null($vendor->getHiPayId())) {
+            $this->restClient->getConfig()->setPath(
+                'request.options/headers/php-auth-subaccount-id',
+                $vendor->getHiPayId()
+            );
+        }
 
         $command = $this->restClient->getCommand(
             'getBankInfo',
-            $parameters
+            array()
         );
         $result = $this->restClient->execute($command);
 
@@ -409,10 +421,30 @@ class HiPay implements ApiInterface
      */
     public function getBalance(VendorInterface $vendor)
     {
-        $parameters = $this->mergeSubAccountParameters($vendor);
-        $result = $this->callSoap('getBalance', $parameters);
+        $this->restClient->getConfig()->setPath(
+            'request.options/headers/php-auth-user',
+            $this->login
+        );
 
-        return $result['balances']->item[0]->balance;
+        $this->restClient->getConfig()->setPath(
+            'request.options/headers/php-auth-pw',
+            $this->password
+        );
+
+        if( !is_null($vendor->getHiPayId())) {
+            $this->restClient->getConfig()->setPath(
+                'request.options/headers/php-auth-subaccount-id',
+                $vendor->getHiPayId()
+            );
+        }
+
+        $command = $this->restClient->getCommand(
+            'getBalance',
+            array()
+        );
+        $result = $this->restClient->execute($command);
+
+        return $result['balances'][0]['balance'];
     }
 
     /**

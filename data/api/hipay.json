@@ -44,6 +44,26 @@
         }
       }
     },
+    "getBalance": {
+      "httpMethod": "GET",
+      "uri": "/api/user-account/balance",
+      "summary": "Get the balance of a specific HiPay account.",
+      "parameters": {
+        "validityDate": {
+          "type": "object",
+          "instanceOf" : "DateTime",
+          "location": "postField",
+          "required": false,
+          "sentAs": "date",
+          "filters" : [
+            {
+              "method": "date_format",
+              "args" : ["@value", "Y-m-d"]
+            }
+          ]
+        }
+      }
+    },
     "getBankInfo": {
       "httpMethod": "GET",
       "uri": "/api/user-account",
