@@ -152,7 +152,7 @@ class ProcessorTest extends AbstractProcessorTest
         $this->hipay->isAvailable(Argument::containingString("@"), Argument::any())
                     ->willReturn(false)
                     ->shouldBeCalled();
-        $this->hipay->isIdentified(Argument::type("\\HiPay\\Wallet\\Mirakl\\Vendor\\Model\\VendorInterface"))
+        $this->hipay->isIdentified($operatorArgument)
                     ->willReturn(true)
                     ->shouldBeCalled();
         $this->hipay->bankInfosStatus($operatorArgument)
@@ -188,7 +188,7 @@ class ProcessorTest extends AbstractProcessorTest
 
         $this->hipay->isAvailable(Argument::containingString("@"), Argument::any())
             ->willReturn(false);
-        $this->hipay->isIdentified(Argument::type("\\HiPay\\Wallet\\Mirakl\\Vendor\\Model\\VendorInterface"))
+        $this->hipay->isIdentified($operatorArgument)
             ->willReturn(true);
         $this->hipay->bankInfosStatus($operatorArgument)
             ->willReturn(BankInfo::VALIDATED)
@@ -230,7 +230,7 @@ class ProcessorTest extends AbstractProcessorTest
         $this->hipay->isAvailable(Argument::containingString("@"), Argument::any())
             ->willReturn(false)
             ->shouldBeCalled();
-        $this->hipay->isIdentified(Argument::type("\\HiPay\\Wallet\\Mirakl\\Vendor\\Model\\VendorInterface"))
+        $this->hipay->isIdentified($vendorArgument)
             ->willReturn(true)
             ->shouldBeCalled();
         $this->hipay->getBalance($vendorArgument)
@@ -272,7 +272,7 @@ class ProcessorTest extends AbstractProcessorTest
 
         $this->hipay->isAvailable(Argument::containingString("@"), Argument::any())
             ->willReturn(false);
-        $this->hipay->isIdentified(Argument::type("\\HiPay\\Wallet\\Mirakl\\Vendor\\Model\\VendorInterface"))
+        $this->hipay->isIdentified($vendorArgument)
             ->willReturn(true);
         $this->hipay->bankInfosStatus($vendorArgument)
             ->willReturn(BankInfo::VALIDATED);
@@ -304,7 +304,7 @@ class ProcessorTest extends AbstractProcessorTest
 
         $this->hipay->isAvailable(Argument::containingString("@"), Argument::any())
             ->willReturn(true)->shouldBeCalled();
-        $this->hipay->isIdentified(Argument::type("\\HiPay\\Wallet\\Mirakl\\Vendor\\Model\\VendorInterface"))
+        $this->hipay->isIdentified($vendorArgument)
             ->willReturn(true);
         $this->hipay->bankInfosStatus($vendorArgument)
             ->willReturn(BankInfo::VALIDATED);
@@ -336,7 +336,7 @@ class ProcessorTest extends AbstractProcessorTest
 
         $this->hipay->isAvailable(Argument::containingString("@"), Argument::any())
             ->willReturn(false);
-        $this->hipay->isIdentified(Argument::type("\\HiPay\\Wallet\\Mirakl\\Vendor\\Model\\VendorInterface"))
+        $this->hipay->isIdentified($vendorArgument)
             ->willReturn(false)->shouldBeCalled();
         $this->hipay->bankInfosStatus($vendorArgument)
             ->willReturn(BankInfo::VALIDATED);
@@ -368,7 +368,7 @@ class ProcessorTest extends AbstractProcessorTest
 
         $this->hipay->isAvailable(Argument::containingString("@"), Argument::any())
             ->willReturn(false);
-        $this->hipay->isIdentified(Argument::type("\\HiPay\\Wallet\\Mirakl\\Vendor\\Model\\VendorInterface"))
+        $this->hipay->isIdentified($vendorArgument)
             ->willReturn(true);
         $this->hipay->bankInfosStatus($vendorArgument)
             ->willReturn(BankInfo::BLANK)->shouldBeCalled();
