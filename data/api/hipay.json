@@ -44,7 +44,7 @@
         }
       }
     },
-    "getBalance": {
+    "GetBalance": {
       "httpMethod": "GET",
       "uri": "/api/user-account/balance",
       "summary": "Get the balance of a specific HiPay account.",
@@ -52,7 +52,7 @@
         "validityDate": {
           "type": "object",
           "instanceOf" : "DateTime",
-          "location": "postField",
+          "location": "uri",
           "required": false,
           "sentAs": "date",
           "filters" : [
@@ -64,19 +64,24 @@
         }
       }
     },
-    "getBankInfo": {
+    "GetBankInfo": {
       "httpMethod": "GET",
-      "uri": "/api/user-account",
+      "uri": "/api/user-account/bank-info",
       "summary": "Get HiPay Account bank details.",
       "parameters": {
-        "local": {
+        "locale": {
           "type": "string",
           "description": "Account language and country formatted like '[language_territory]'.",
-          "location": "local",
-          "sentAs": "transit_num",
+          "location": "uri",
+          "sentAs": "locale",
           "required": true
         }
       }
+    },
+    "getUserAccount": {
+      "httpMethod": "GET",
+      "uri": "/api/user-account",
+      "summary": "Get HiPay Account bank details."
     },
     "RegisterBankInfo": {
       "httpMethod": "POST",

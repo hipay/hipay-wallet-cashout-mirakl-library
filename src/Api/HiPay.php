@@ -97,15 +97,6 @@ class HiPay implements ApiInterface
         $this->entity = $entity;
         $this->timezone = $timeZone;
         $this->locale = $locale;
-        /*
-        $this->transferClient = new SmileClient(
-            $baseSoapUrl.'/soap/transfer?wsdl',
-            $options
-        );
-        $this->withdrawalClient = new SmileClient(
-            $baseSoapUrl.'/soap/withdrawal?wsdl',
-            $options
-        );*/
 
         $this->restClient = new Client();
 
@@ -231,6 +222,13 @@ class HiPay implements ApiInterface
             $this->password
         );
 
+        if( !is_null($vendor->getHiPayId())) {
+            $this->restClient->getConfig()->setPath(
+                'request.options/headers/php-auth-subaccount-id',
+                $vendor->getHiPayId()
+            );
+        }
+
         $parameters['locale'] = 'en_GB';
 
         $command = $this->restClient->getCommand(
@@ -265,6 +263,13 @@ class HiPay implements ApiInterface
             'request.options/headers/php-auth-pw',
             $this->password
         );
+
+        if( !empty($vendor->getHiPayId())) {
+            $this->restClient->getConfig()->setPath(
+                'request.options/headers/php-auth-subaccount-id',
+                $vendor->getHiPayId()
+            );
+        }
 
         $parameters['locale'] = 'en_GB';
 
@@ -311,7 +316,7 @@ class HiPay implements ApiInterface
         $parameters = $bankInfo->mergeIntoParameters();
 
         $command = $this->restClient->getCommand(
-            'getBankInfo',
+            'RegisterBankInfo',
             $parameters
         );
         $result = $this->restClient->execute($command);
@@ -402,7 +407,7 @@ class HiPay implements ApiInterface
         }
 
         $command = $this->restClient->getCommand(
-            'getBankInfo',
+            'GetUserAccount',
             array()
         );
         $result = $this->restClient->execute($command);
@@ -439,7 +444,7 @@ class HiPay implements ApiInterface
         }
 
         $command = $this->restClient->getCommand(
-            'getBalance',
+            'GetBalance',
             array()
         );
         $result = $this->restClient->execute($command);
@@ -531,7 +536,7 @@ class HiPay implements ApiInterface
     protected function mergeLoginParameters(array $parameters = array())
     {
         $parameters = $parameters + array(
-            'credential' => array(
+                'credential' => array(
                     'wslogin' => $this->login,
                     'wspassword' => $this->password,
                 )
