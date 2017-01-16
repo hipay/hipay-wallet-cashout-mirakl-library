@@ -99,7 +99,7 @@
         }
       }
     },
-    "getUserAccount": {
+    "GetUserAccount": {
       "httpMethod": "GET",
       "uri": "/api/user-account",
       "summary": "Get HiPay Account bank details."

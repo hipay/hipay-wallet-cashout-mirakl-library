@@ -127,13 +127,13 @@ interface ApiInterface
     /**
      * Return the hipay account information.
      *
-     * @param VendorInterface $vendor
+     * @param UserAccount $userAccount
      *
      * @return AccountInfo HiPay Wallet account information
      *
      * @throws Exception
      */
-    public function getWalletInfo(VendorInterface $vendor);
+    public function getWalletInfo(UserAccount $userAccount);
 
     /**
      * Return the identified status of the account.
@@ -143,6 +143,15 @@ interface ApiInterface
      * @return bool
      */
     public function isIdentified(VendorInterface $vendor);
+
+    /**
+     * Return the identified status of the account.
+     *
+     * @param VendorInterface $vendor
+     *
+     * @return array
+     */
+    public function getAccountInfos(UserAccount $userAccount);
 
     /**
      * Return the account information.

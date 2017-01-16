@@ -9,8 +9,6 @@ use HiPay\Wallet\Mirakl\Api\HiPay\ApiInterface;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Rest\BankInfo;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Rest\UserAccount;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\Transfer;
-use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\UserAccountBasic;
-use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\UserAccountDetails;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Status\Identified;
 use HiPay\Wallet\Mirakl\Api\HiPay\Wallet\AccountInfo;
 use HiPay\Wallet\Mirakl\Api\Soap\SmileClient;
@@ -357,7 +355,7 @@ class HiPay implements ApiInterface
     {
         $result = $this->getAccountInfos($vendor);
 
-        return $result['account_id'];
+        return $result['user_account_id'];
     }
 
     /**
@@ -370,12 +368,12 @@ class HiPay implements ApiInterface
      * @throws Exception
      */
     public function getWalletInfo(
-        VendorInterface $vendor
+        UserAccount $userAccount
     )
     {
-        $result = $this->getAccountInfos($vendor);
+        $result = $this->getAccountInfos($userAccount);
 
-        return new AccountInfo($result['account_id'], $result['user_space_id'], $result['identified'] === Identified::YES);
+        return new AccountInfo($result['user_account_id'], $result['user_space_id'], $result['identified'] === Identified::YES);
     }
 
     /**
@@ -403,8 +401,8 @@ class HiPay implements ApiInterface
      *
      * @throws Exception
      */
-    protected function getAccountInfos(
-        VendorInterface $vendor
+    public function getAccountInfos(
+        UserAccount $userAccount
     )
     {
         $this->restClient->getConfig()->setPath(
@@ -417,15 +415,10 @@ class HiPay implements ApiInterface
             $this->password
         );
 
-        if( !is_null($vendor->getHiPayId())) {
-            $this->restClient->getConfig()->setPath(
-                'request.options/headers/php-auth-subaccount-id',
-                $vendor->getHiPayId()
-            );
-        } else {
+        if( !empty($userAccount->getLogin())) {
             $this->restClient->getConfig()->setPath(
                 'request.options/headers/php-auth-subaccount-login',
-                $vendor->getLogin()
+                $userAccount->getLogin()
             );
         }
 

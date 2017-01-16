@@ -319,7 +319,11 @@ class Processor extends AbstractApiProcessor
     {
         $userAccount = new UserAccount($shopData);
 
-        $walletInfo = $this->hipay->getWalletInfo($userAccount);
+        $event = new CreateWallet(
+            $userAccount
+        );
+
+        $walletInfo = $this->hipay->getWalletInfo($event->getUserAccount());
 
         return $walletInfo;
     }
