@@ -68,7 +68,7 @@ class Handler extends AbstractProcessor
     public function handleHiPayNotification($xml)
     {
         // bool for notification error
-        $bool = true;
+        $bool_semdmail = true;
 
         if (!$xml) {
             return;
@@ -144,14 +144,14 @@ class Handler extends AbstractProcessor
                         'Document_type_label' => $xml->result->document_type_label,
                         'Account_id' => $hipayId,
                     ));
-                $bool = false;
+                $bool_semdmail = false;
                 break;
             default:
                 throw new IllegalNotificationOperationException($operation);
         }
 
-        if ( !$bool ) {
-            return $bool;
+        if ( !$bool_semdmail ) {
+            return $bool_semdmail;
         }
     }
 
