@@ -32,14 +32,14 @@ interface ApiInterface
      * Check if given email can be used to create an HiPay wallet
      * Enforce the entity to the one given on object construction if false.
      *
-     * @param string $email
+     * @param string $vendorData
      * @param bool $entity
      *
      * @return bool if array is empty
      *
      * @throws Exception
      */
-    public function isAvailable($email, $entity = false);
+    public function isAvailable($vendorData, $entity = false);
 
     /**
      * Create an new account on HiPay wallet

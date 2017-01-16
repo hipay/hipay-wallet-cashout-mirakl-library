@@ -140,9 +140,18 @@ class HiPay implements ApiInterface
      *
      * @throws Exception
      */
-    public function isAvailable($vendorData, $entity = false)
+    public function isAvailable($email, $entity = false)
     {
-        $email = $vendorData['contact_informations']['email'];
+        $this->restClient->getConfig()->setPath(
+            'request.options/headers/php-auth-user',
+            $this->login
+        );
+
+        $this->restClient->getConfig()->setPath(
+            'request.options/headers/php-auth-pw',
+            $this->password
+        );
+
         $parameters = array(
             'userEmail' => $email,
             'entity' => $entity ?: $this->entity

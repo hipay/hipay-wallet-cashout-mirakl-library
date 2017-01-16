@@ -203,7 +203,7 @@ class Processor extends AbstractApiProcessor
 
                 $vendor = $this->vendorManager->findByMiraklId($miraklId);
                 if (!$vendor) {
-                    if (!$this->hasWallet($vendorData)) {
+                    if (!$this->hasWallet($email)) {
                         //Wallet create (call to HiPay)
                         $walletInfo = $this->createWallet($vendorData);
                         $this->logger->info(
@@ -261,11 +261,11 @@ class Processor extends AbstractApiProcessor
      *
      * @return bool
      */
-    public function hasWallet($vendorData)
+    public function hasWallet($email)
     {
-        $event = new CheckAvailability($vendorData);
+        $event = new CheckAvailability($email);
         $this->dispatcher->dispatch('before.availability.check', $event);
-        $result = $this->hipay->isAvailable($vendorData, $event->getEntity());
+        $result = $this->hipay->isAvailable($email, $event->getEntity());
         $this->dispatcher->dispatch('after.availability.check', $event);
         return !$result;
     }
