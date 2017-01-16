@@ -78,6 +78,27 @@
         }
       }
     },
+    "IsAvailable": {
+      "httpMethod": "POST",
+      "uri": "/api/user-account/is-available",
+      "summary": "Verify if an email is available to create a new HiPay account.",
+      "parameters": {
+        "userEmail": {
+          "type": "string",
+          "description": "Account language and country formatted like '[language_territory]'.",
+          "location": "postField",
+          "sentAs": "user_email",
+          "required": true
+        },
+        "entity": {
+          "type": "string",
+          "description": "Entity to apply to new account (HiPay will inform the merchant the entity to use), default is wallet",
+          "location": "postField",
+          "sentAs": "entity",
+          "required": false
+        }
+      }
+    },
     "getUserAccount": {
       "httpMethod": "GET",
       "uri": "/api/user-account",

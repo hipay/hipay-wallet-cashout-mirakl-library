@@ -140,12 +140,21 @@ class HiPay implements ApiInterface
      *
      * @throws Exception
      */
-    public function isAvailable($email, $entity = false)
+    public function isAvailable($vendorData, $entity = false)
     {
-        $parameters = array('email' => $email, 'entity' => $entity ?: $this->entity);
-        $result = $this->callSoap('isAvailable', $parameters);
+        $email = $vendorData['contact_informations']['email'];
+        $parameters = array(
+            'userEmail' => $email,
+            'entity' => $entity ?: $this->entity
+        );
+        $command = $this->restClient->getCommand(
+            'IsAvailable',
+            $parameters
+        );
 
-        return $result['isAvailable'];
+        $result = $this->restClient->execute($command);
+
+        return $result['is_available'];
     }
 
     /**
@@ -403,6 +412,11 @@ class HiPay implements ApiInterface
             $this->restClient->getConfig()->setPath(
                 'request.options/headers/php-auth-subaccount-id',
                 $vendor->getHiPayId()
+            );
+        } else {
+            $this->restClient->getConfig()->setPath(
+                'request.options/headers/php-auth-subaccount-login',
+                $vendor->getLogin()
             );
         }
 

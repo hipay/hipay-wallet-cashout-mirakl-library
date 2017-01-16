@@ -203,7 +203,7 @@ class Processor extends AbstractApiProcessor
 
                 $vendor = $this->vendorManager->findByMiraklId($miraklId);
                 if (!$vendor) {
-                    //if (!$this->hasWallet($email)) {
+                    if (!$this->hasWallet($vendorData)) {
                         //Wallet create (call to HiPay)
                         $walletInfo = $this->createWallet($vendorData);
                         $this->logger->info(
@@ -211,10 +211,10 @@ class Processor extends AbstractApiProcessor
                             $vendorData['shop_id'],
                             array('shopId' => $vendorData['shop_id'])
                         );
-                    //} else {
+                    } else {
                         //Fetch the wallet id from HiPay
-                    //    $walletInfo = $this->hipay->getWalletInfo($email);
-                    //}
+                        $walletInfo = $this->getWalletUserInfo($vendor);
+                    }
                     $vendor = $this->createVendor(
                         $email,
                         $walletInfo->getUserAccountld(),
@@ -261,11 +261,11 @@ class Processor extends AbstractApiProcessor
      *
      * @return bool
      */
-    public function hasWallet($email)
+    public function hasWallet($vendorData)
     {
-        $event = new CheckAvailability($email);
+        $event = new CheckAvailability($vendorData);
         $this->dispatcher->dispatch('before.availability.check', $event);
-        $result = $this->hipay->isAvailable($email, $event->getEntity());
+        $result = $this->hipay->isAvailable($vendorData, $event->getEntity());
         $this->dispatcher->dispatch('after.availability.check', $event);
         return !$result;
     }
@@ -301,6 +301,25 @@ class Processor extends AbstractApiProcessor
             'after.wallet.create',
             $event
         );
+
+        return $walletInfo;
+    }
+
+    /**
+     * Get a HiPay wallet.
+     *
+     * Dispatch the event <b>before.wallet.create</b>
+     * before sending the data to HiPay
+     *
+     * @param array $shopData
+     *
+     * @return AccountInfo the get account info
+     */
+    protected function getWalletUserInfo (array $shopData)
+    {
+        $userAccount = new UserAccount($shopData);
+
+        $walletInfo = $this->hipay->getWalletInfo($userAccount);
 
         return $walletInfo;
     }
