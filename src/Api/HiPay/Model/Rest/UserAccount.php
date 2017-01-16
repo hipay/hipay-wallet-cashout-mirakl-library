@@ -208,7 +208,7 @@ class UserAccount extends ModelAbstract
         ];
         $this->hipayInformation = 1;
         $this->commercialInformation = 1;
-        $this->activationType = 1;
+        $this->activationType = 0;
     }
 
     /**
