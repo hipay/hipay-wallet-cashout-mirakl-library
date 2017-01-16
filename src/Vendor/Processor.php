@@ -213,7 +213,7 @@ class Processor extends AbstractApiProcessor
                         );
                     } else {
                         //Fetch the wallet id from HiPay
-                        $walletInfo = $this->getWalletUserInfo($vendor);
+                        $walletInfo = $this->getWalletUserInfo($vendorData);
                     }
                     $vendor = $this->createVendor(
                         $email,
