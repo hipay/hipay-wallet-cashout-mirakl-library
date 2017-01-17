@@ -74,11 +74,7 @@ class Handler extends AbstractProcessor
             return;
         }
 
-        if (is_string($xml)) {
-            $xml = strtr(rawurldecode($xml), array("\n" => ''));
-            $xml = new SimpleXMLElement($xml);
-        }
-
+        $xml = new SimpleXMLElement($xml);
         //Check content
         /** @noinspection PhpUndefinedFieldInspection */
         $md5string = strtr($xml->result->asXML(), array("\n" => '', "\t" => ''));
