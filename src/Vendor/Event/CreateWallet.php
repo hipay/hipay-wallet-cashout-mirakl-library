@@ -2,102 +2,48 @@
 
 namespace HiPay\Wallet\Mirakl\Vendor\Event;
 
-use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\MerchantData;
-use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\UserAccountBasic;
-use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\UserAccountDetails;
+use HiPay\Wallet\Mirakl\Api\HiPay\Model\Rest\UserAccount;
 use Symfony\Component\EventDispatcher\Event;
 
 /**
  * Event object used when the event 'before.wallet.creation'
  * is dispatched from the processor.
  *
- * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
- * @copyright 2015 Smile
+ * @author    HiPay <support.wallet@hipay.com>
+ * @copyright 2017 HiPay
  */
 class CreateWallet extends Event
 {
-    /** @var  UserAccountBasic */
-    protected $userAccountBasic;
-
-    /** @var  UserAccountDetails */
-    protected $userAccountDetails;
-
-    /** @var  MerchantData */
-    protected $merchantData;
+    /** @var  UserAccount */
+    protected $userAccount;
 
     /**
      * CreateWalletEvent constructor.
      *
-     * @param UserAccountBasic   $userAccountBasic
-     * @param UserAccountDetails $userAccountDetails
-     * @param MerchantData       $merchantData
+     * @param UserAccount        $userAccount
      */
     public function __construct(
-        UserAccountBasic $userAccountBasic,
-        UserAccountDetails $userAccountDetails,
-        MerchantData $merchantData
+        UserAccount $userAccount
     ) {
-        $this->userAccountBasic = $userAccountBasic;
-        $this->userAccountDetails = $userAccountDetails;
-        $this->merchantData = $merchantData;
+        $this->userAccount = $userAccount;
     }
 
     /**
-     * @return UserAccountBasic
+     * @return UserAccount
      */
-    public function getUserAccountBasic()
+    public function getUserAccount()
     {
-        return $this->userAccountBasic;
+        return $this->userAccount;
     }
 
     /**
-     * @param UserAccountBasic $userAccountBasic
+     * @param UserAccount $userAccount
      *
      * @return CreateWallet
      */
-    public function setUserAccountBasic($userAccountBasic)
+    public function setUserAccount($userAccount)
     {
-        $this->userAccountBasic = $userAccountBasic;
-
-        return $this;
-    }
-
-    /**
-     * @return UserAccountDetails
-     */
-    public function getUserAccountDetails()
-    {
-        return $this->userAccountDetails;
-    }
-
-    /**
-     * @param UserAccountDetails $userAccountDetails
-     *
-     * @return CreateWallet
-     */
-    public function setUserAccountDetails($userAccountDetails)
-    {
-        $this->userAccountDetails = $userAccountDetails;
-
-        return $this;
-    }
-
-    /**
-     * @return MerchantData
-     */
-    public function getMerchantData()
-    {
-        return $this->merchantData;
-    }
-
-    /**
-     * @param MerchantData $merchantData
-     *
-     * @return CreateWallet
-     */
-    public function setMerchantData($merchantData)
-    {
-        $this->merchantData = $merchantData;
+        $this->userAccount = $userAccount;
 
         return $this;
     }

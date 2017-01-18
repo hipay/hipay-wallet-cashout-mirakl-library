@@ -65,17 +65,16 @@ class Handler extends AbstractProcessor
      * @throws Exception
      * @throws IllegalNotificationOperationException
      */
-    public function handleHiPayNotification($xml, $parameters = null, $mailer = null, $mailer_message = null)
+    public function handleHiPayNotification($xml)
     {
+        // bool for notification error
+        $bool_semdmail = true;
+
         if (!$xml) {
             return;
         }
 
-        if (is_string($xml)) {
-            $xml = strtr(rawurldecode($xml), array("\n" => ''));
-            $xml = new SimpleXMLElement($xml);
-        }
-
+        $xml = new SimpleXMLElement($xml);
         //Check content
         /** @noinspection PhpUndefinedFieldInspection */
         $md5string = strtr($xml->result->asXML(), array("\n" => '', "\t" => ''));
@@ -141,32 +140,15 @@ class Handler extends AbstractProcessor
                         'Document_type_label' => $xml->result->document_type_label,
                         'Account_id' => $hipayId,
                     ));
-                if ( !is_null($mailer) && !is_null($mailer_message) ) {
-                    // init email content with response API
-                    $body = '   <p><b>Operation - ' . $operation . '</b></p>
-                            <p>Informations:</p>
-                            <ul>
-                                <li>Status: ' . $xml->result->status . '</li>
-                                <li>Message: ' . $xml->result->message . '</li>
-                                <li>Date: ' . $date->format('Y-m-d H:i:s') . '</li>
-                                <li>Document type: ' . $xml->result->document_type . '</li>
-                                <li>Document type label: ' . $xml->result->document_type_label . '</li>
-                                <li>Account ID: ' . $hipayId . '</li>
-                            </ul>';
-
-                    $mailer_message->setSubject('[' . $parameters['mail.subject'] . ' - ' . $hipayId . '] ' . $operation);
-                    $mailer_message->setTo($parameters['mail.to']);
-                    $mailer_message->setFrom($parameters['mail.from']);
-                    $mailer_message->setCharset('utf-8');
-                    $mailer_message->setContentType("text/html");
-                    $mailer_message->setBody($body);
-                    $mailer->send($mailer_message);
-                }
+                $bool_semdmail = false;
                 break;
             default:
                 throw new IllegalNotificationOperationException($operation);
         }
 
+        if ( !$bool_semdmail ) {
+            return $bool_semdmail;
+        }
     }
 
     /**

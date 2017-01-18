@@ -220,7 +220,7 @@ class Processor extends AbstractApiProcessor
                 throw new WalletNotFoundException($vendor);
             }
 
-            if (!$this->hipay->isIdentified($vendor->getEmail())) {
+            if (!$this->hipay->isIdentified($vendor)) {
                 throw new UnidentifiedWalletException($vendor);
             }
 
