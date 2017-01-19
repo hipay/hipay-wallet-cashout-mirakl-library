@@ -2,7 +2,7 @@
   "name": "hipay/hipay-wallet-cashout-mirakl-library",
   "description": "This library intends to facilitate cash-out operations between HiPay and the Mirakl marketplace solution.",
   "minimum-stability": "stable",
-  "version" : "2.3.0",
+  "version" : "2.4.0",
   "license": "Apache-2.0",
   "authors": [
     {
