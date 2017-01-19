@@ -1,3 +1,10 @@
+# Version 2.4.0
+
+- The login is no longer the email, it is now registered by the concatenation of the name of the shop and its ID
+- Migration to REST API for Bank info management 
+- Migration to REST API for account creation
+- New management of callback notifications 
+
 # Version 2.3.0
 
 - Send a notification by Email when KYC is invalidated

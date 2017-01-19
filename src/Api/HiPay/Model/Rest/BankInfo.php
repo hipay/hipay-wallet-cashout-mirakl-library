@@ -1,14 +1,14 @@
 <?php
 
-namespace HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap;
+namespace HiPay\Wallet\Mirakl\Api\HiPay\Model\Rest;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Value object for bank data.
  *
- * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
- * @copyright 2015 Smile
+ * @author    HiPay <support.wallet@hipay.com>
+ * @copyright 2017 HiPay
  */
 class BankInfo extends ModelAbstract
 {

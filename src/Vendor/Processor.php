@@ -8,10 +8,8 @@ use Exception;
 use Guzzle\Http\Exception\ClientErrorResponseException;
 use HiPay\Wallet\Mirakl\Api\Factory as ApiFactory;
 use HiPay\Wallet\Mirakl\Api\HiPay;
-use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\BankInfo;
-use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\MerchantData;
-use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\UserAccountBasic;
-use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\UserAccountDetails;
+use HiPay\Wallet\Mirakl\Api\HiPay\Model\Rest\BankInfo;
+use HiPay\Wallet\Mirakl\Api\HiPay\Model\Rest\UserAccount;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Status\BankInfo as BankInfoStatus;
 use HiPay\Wallet\Mirakl\Api\Mirakl;
 use HiPay\Wallet\Mirakl\Common\AbstractApiProcessor;
@@ -200,8 +198,6 @@ class Processor extends AbstractApiProcessor
 
             try {
                 //Vendor recording
-
-
                 $email = $vendorData['contact_informations']['email'];
                 $miraklId = $vendorData['shop_id'];
 
@@ -217,7 +213,7 @@ class Processor extends AbstractApiProcessor
                         );
                     } else {
                         //Fetch the wallet id from HiPay
-                        $walletInfo = $this->hipay->getWalletInfo($email);
+                        $walletInfo = $this->getWalletUserInfo($vendorData);
                     }
                     $vendor = $this->createVendor(
                         $email,
@@ -286,14 +282,10 @@ class Processor extends AbstractApiProcessor
      */
     protected function createWallet(array $shopData)
     {
-        $userAccountBasic = new UserAccountBasic($shopData);
-        $userAccountDetails = new UserAccountDetails($shopData);
-        $merchantData = new MerchantData($shopData);
+        $userAccount = new UserAccount($shopData);
 
         $event = new CreateWallet(
-            $userAccountBasic,
-            $userAccountDetails,
-            $merchantData
+            $userAccount
         );
 
         $this->dispatcher->dispatch(
@@ -301,16 +293,37 @@ class Processor extends AbstractApiProcessor
             $event
         );
 
-        $walletInfo = $this->hipay->createFullUseraccount(
-            $event->getUserAccountBasic(),
-            $event->getUserAccountDetails(),
-            $event->getMerchantData()
+        $walletInfo = $this->hipay->createFullUseraccountV2(
+            $event->getUserAccount()
         );
 
         $this->dispatcher->dispatch(
             'after.wallet.create',
             $event
         );
+
+        return $walletInfo;
+    }
+
+    /**
+     * Get a HiPay wallet.
+     *
+     * Dispatch the event <b>before.wallet.create</b>
+     * before sending the data to HiPay
+     *
+     * @param array $shopData
+     *
+     * @return AccountInfo the get account info
+     */
+    protected function getWalletUserInfo (array $shopData)
+    {
+        $userAccount = new UserAccount($shopData);
+
+        $event = new CreateWallet(
+            $userAccount
+        );
+
+        $walletInfo = $this->hipay->getWalletInfo($event->getUserAccount());
 
         return $walletInfo;
     }

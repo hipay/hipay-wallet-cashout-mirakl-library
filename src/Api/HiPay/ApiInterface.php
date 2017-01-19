@@ -11,19 +11,20 @@ namespace HiPay\Wallet\Mirakl\Api\HiPay;
 use DateTime;
 use Exception;
 use HiPay\Wallet\Mirakl\Api\HiPay;
-use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\BankInfo;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\MerchantData;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\Transfer;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\UserAccountBasic;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\UserAccountDetails;
+use HiPay\Wallet\Mirakl\Api\HiPay\Model\Rest\BankInfo;
+use HiPay\Wallet\Mirakl\Api\HiPay\Model\Rest\UserAccount;
 use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 use HiPay\Wallet\Mirakl\Api\HiPay\Wallet\AccountInfo;
 
 /**
- * Make the SOAP call to the HiPay API.
+ * Make the SOAP & REST call to the HiPay API.
  *
- * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
- * @copyright 2015 Smile
+ * @author    HiPay <support.wallet@hipay.com>
+ * @copyright 2017 HiPay
  */
 interface ApiInterface
 {
@@ -31,14 +32,14 @@ interface ApiInterface
      * Check if given email can be used to create an HiPay wallet
      * Enforce the entity to the one given on object construction if false.
      *
-     * @param string $email
+     * @param string $vendorData
      * @param bool $entity
      *
      * @return bool if array is empty
      *
      * @throws Exception
      */
-    public function isAvailable($email, $entity = false);
+    public function isAvailable($vendorData, $entity = false);
 
     /**
      * Create an new account on HiPay wallet
@@ -54,10 +55,26 @@ interface ApiInterface
      *
      * @throws Exception
      */
-    public function createFullUseraccount(
+    /*public function createFullUseraccount(
         UserAccountBasic $accountBasic,
         UserAccountDetails $accountDetails,
         MerchantData $merchantData
+    );*/
+    /**
+     * Create an new account on HiPay wallet
+     * Enforce the entity to the one given on object construction
+     * Enforce the locale to the one given on object construction if false
+     * Enforce the timezone to the one given on object construction if false.
+     *
+     * @param UserAccount $userAccount
+     * @param MerchantData $merchantData
+     *
+     * @return int the user account id
+     *
+     * @throws Exception
+     */
+    public function createFullUseraccountV2(
+        UserAccount $userAccount
     );
 
     /**
@@ -77,6 +94,7 @@ interface ApiInterface
      * HiPay\Wallet\Mirakl\Api\HiPay\Model\Status\BankInfo.
      *
      * @param VendorInterface $vendor
+     * @param UserAccount $userAccount
      *
      * @return string
      *
@@ -87,7 +105,6 @@ interface ApiInterface
     /**
      * Create a bank account in HiPay.
      *
-     * @param VendorInterface $vendor
      * @param BankInfo $bankInfo
      *
      * @return array|bool if array is empty
@@ -99,33 +116,42 @@ interface ApiInterface
     /**
      * Return the hipay account id.
      *
-     * @param string $email
+     * @param VendorInterface $vendor
      *
      * @return array|bool if array is empty
      *
      * @throws Exception
      */
-    public function getWalletId($email);
+    public function getWalletId(VendorInterface $vendor);
 
     /**
      * Return the hipay account information.
      *
-     * @param string $email
+     * @param UserAccount $userAccount
      *
      * @return AccountInfo HiPay Wallet account information
      *
      * @throws Exception
      */
-    public function getWalletInfo($email);
+    public function getWalletInfo(UserAccount $userAccount);
 
     /**
      * Return the identified status of the account.
      *
-     * @param string $email
+     * @param VendorInterface $vendor
      *
      * @return bool
      */
-    public function isIdentified($email);
+    public function isIdentified(VendorInterface $vendor);
+
+    /**
+     * Return the identified status of the account.
+     *
+     * @param VendorInterface $vendor
+     *
+     * @return array
+     */
+    public function getAccountInfos(UserAccount $userAccount);
 
     /**
      * Return the account information.
