@@ -14,8 +14,8 @@ use HiPay\Wallet\Mirakl\Api\Mirakl;
 /**
  * Make the calls the Mirakl Rest API.
  *
- * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
- * @copyright 2015 Smile
+ * @author    HiPay <support.wallet@hipay.com>
+ * @copyright 2017 HiPay
  */
 interface ApiInterface
 {
@@ -79,4 +79,20 @@ interface ApiInterface
      * @return \Guzzle\Http\EntityBodyInterface|string
      */
     public function getTransactions($shopId = null, DateTime $startDate = null, DateTime $endDate = null, DateTime $startTransactionDate = null, DateTime $endTransactionDate = null, DateTime $updatedSince = null, $paymentVoucher = null, $paymentStates = null, array $transactionTypes = array(), $paginate = false, $accountingDocumentNumber = null, array $orderIds = array(), array $orderLineIds = array());
+
+    /**
+     * Fetch from Mirakl additional_fields (uses DO01).
+     *
+     * @param entities $entities (SHOP)
+     *
+     * @return array the response
+     */
+    public function getDocumentTypesDto($entities = null);
+
+    /**
+     * Getter DocumentTypes
+     *
+     * @return array the response
+     */
+    public function getDocumentTypes();
 }

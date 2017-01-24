@@ -3,15 +3,14 @@
 namespace HiPay\Wallet\Mirakl\Exception;
 
 use Exception;
-//use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\BankInfo;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Rest\BankInfo;
 use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 
 /**
  * Thrown when the bank information in not synchronized
  *
- * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
- * @copyright 2015 Smile
+ * @author    HiPay <support.wallet@hipay.com>
+ * @copyright 2017 HiPay
  */
 class InvalidBankInfoException extends DispatchableException
 {

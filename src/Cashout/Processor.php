@@ -26,8 +26,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * Process the operations created by the cashout/initializer
  *
- * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
- * @copyright 2015 Smile
+ * @author    HiPay <support.wallet@hipay.com>
+ * @copyright 2017 HiPay
  */
 class Processor extends AbstractApiProcessor
 {

@@ -11,8 +11,8 @@ use HiPay\Wallet\Mirakl\Api\Mirakl\ApiInterface;
 /**
  * Make the calls the Mirakl Rest API.
  *
- * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
- * @copyright 2015 Smile
+ * @author    HiPay <support.wallet@hipay.com>
+ * @copyright 2017 HiPay
  */
 class Mirakl implements ApiInterface
 {
@@ -24,6 +24,28 @@ class Mirakl implements ApiInterface
 
     /** @var string operator api key */
     protected $operatorKey;
+
+    /** @var array documents additional fields */
+    public $documentTypes = array(
+
+        // For all types of businesses
+        'ALL_PROOF_OF_BANK_ACCOUNT' => HiPay::DOCUMENT_ALL_PROOF_OF_BANK_ACCOUNT,
+
+        // For individual only
+        'INDIVIDUAL_IDENTITY' => HiPay::DOCUMENT_INDIVIDUAL_IDENTITY,
+        'INDIVIDUAL_PROOF_OF_ADDRESS' => HiPay::DOCUMENT_INDIVIDUAL_PROOF_OF_ADDRESS,
+
+        // For legal entity businesses only
+        'LEGAL_IDENTITY_OF_REPRESENTATIVE' => HiPay::DOCUMENT_LEGAL_IDENTITY_OF_REPRESENTATIVE,
+        'LEGAL_PROOF_OF_REGISTRATION_NUMBER' => HiPay::DOCUMENT_LEGAL_PROOF_OF_REGISTRATION_NUMBER,
+        'LEGAL_ARTICLES_DISTR_OF_POWERS' => HiPay::DOCUMENT_LEGAL_ARTICLES_DISTR_OF_POWERS,
+
+        // For one man businesses only
+        'SOLE_BUS_IDENTITY' => HiPay::DOCUMENT_SOLE_BUS_IDENTITY,
+        'SOLE_BUS_PROOF_OF_REG_NUMBER' => HiPay::DOCUMENT_SOLE_BUS_PROOF_OF_REG_NUMBER,
+        'SOLE_BUS_PROOF_OF_TAX_STATUS' => HiPay::DOCUMENT_SOLE_BUS_PROOF_OF_TAX_STATUS
+
+    );
 
     /**
      * Mirakl Api Client constructor (Extends Guzzle service client).
@@ -218,5 +240,39 @@ class Mirakl implements ApiInterface
         $result = $this->restClient->execute($command);
 
         return $result['lines'];
+    }
+
+    /**
+     * Fetch from Mirakl additional_fields (uses DO01).
+     *
+     * @param entities $entities (SHOP)
+     *
+     * @return array the response
+     */
+    public function getDocumentTypesDto(
+        $entities = 'SHOP'
+    ) {
+        $this->restClient->getConfig()->setPath(
+            'request.options/headers/Authorization',
+            $this->frontKey
+        );
+        $command = $this->restClient->getCommand(
+            'DocumentTypesDto',
+            array(
+                'entities' => $entities,
+            )
+        );
+        $result = $this->restClient->execute($command);
+
+        return $result['documents'];
+    }
+
+    /**
+     * Getter DocumentTypes
+     *
+     * @return array the response
+     */
+    public function getDocumentTypes() {
+        return $this->documentTypes;
     }
 }
