@@ -15,6 +15,7 @@ use HiPay\Wallet\Mirakl\Api\Mirakl;
 use HiPay\Wallet\Mirakl\Common\AbstractApiProcessor;
 use HiPay\Wallet\Mirakl\Exception\BankAccountCreationFailedException;
 use HiPay\Wallet\Mirakl\Exception\DispatchableException;
+use HiPay\Wallet\Mirakl\Exception\InvalidMiraklSettingException;
 use HiPay\Wallet\Mirakl\Exception\InvalidBankInfoException;
 use HiPay\Wallet\Mirakl\Exception\InvalidVendorException;
 use HiPay\Wallet\Mirakl\Service\Validation\ModelValidator;
@@ -47,8 +48,6 @@ class Processor extends AbstractApiProcessor
      */
     protected $documentManager;
 
-    private $documentTypes;
-
     /**
      * Processor constructor.
      *
@@ -73,7 +72,6 @@ class Processor extends AbstractApiProcessor
 
         $this->vendorManager = $vendorManager;
         $this->documentManager = $documentManager;
-        $this->documentTypes = $this->mirakl->getDocumentTypes();
     }
 
     /**
@@ -88,6 +86,14 @@ class Processor extends AbstractApiProcessor
     public function process($tmpFilesPath, DateTime $lastUpdate = null)
     {
         try {
+
+            $this->logger->info('Control Mirakl Settings');
+
+            // control mirakl settings
+            if (!$this->getControlMiraklSettings($this->documentTypes)) {
+                throw new InvalidMiraklSettingException();
+            }
+
             $this->logger->info('Vendor Processing');
 
             //Vendor data fetching from Mirakl
@@ -707,5 +713,13 @@ class Processor extends AbstractApiProcessor
             $pastDate = new DateTime('1970-01-01');
         }
         return $this->hipay->getMerchantGroupAccounts($merchantGroupId, $pastDate);
+    }
+
+    /**
+     * Control if Mirakl Setting is ok with HiPay prerequisites
+     */
+    public function getControlMiraklSettings($docTypes)
+    {
+        $this->mirakl->controlMiraklSettings($docTypes);
     }
 }

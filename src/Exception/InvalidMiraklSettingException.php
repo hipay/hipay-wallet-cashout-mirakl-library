@@ -32,4 +32,14 @@ class InvalidMiraklSettingException extends Exception
             $previous
         );
     }
+
+    /**
+     * Return the event name.
+     *
+     * @return string
+     */
+    public function getEventName()
+    {
+        return 'invalid.mirakl.settings';
+    }
 }

@@ -10,6 +10,7 @@ use HiPay\Wallet\Mirakl\Cashout\Model\Operation\OperationInterface;
 use HiPay\Wallet\Mirakl\Cashout\Model\Operation\Status;
 use HiPay\Wallet\Mirakl\Cashout\Model\Transaction\ValidatorInterface;
 use HiPay\Wallet\Mirakl\Common\AbstractApiProcessor;
+use HiPay\Wallet\Mirakl\Exception\InvalidMiraklSettingException;
 use HiPay\Wallet\Mirakl\Exception\AlreadyCreatedOperationException;
 use HiPay\Wallet\Mirakl\Exception\InvalidOperationException;
 use HiPay\Wallet\Mirakl\Exception\NotEnoughFunds;
@@ -103,6 +104,12 @@ class Initializer extends AbstractApiProcessor
         DateTime $cycleDate,
         $transactionFilterRegex = null
     ) {
+        $this->logger->info('Control Mirakl Settings');
+        // control mirakl settings
+        if (!$this->getControlMiraklSettings($docTypes)) {
+            throw new InvalidMiraklSettingException();
+        }
+
         $this->logger->info('Cashout Initializer');
 
         //Fetch 'PAYMENT' transaction
@@ -589,5 +596,13 @@ class Initializer extends AbstractApiProcessor
                 $transaction['amount_debited'];
         }
         return $paymentDebits;
+    }
+
+    /**
+     * Control if Mirakl Setting is ok with HiPay prerequisites
+     */
+    public function getControlMiraklSettings($docTypes)
+    {
+        $this->mirakl->controlMiraklSettings($docTypes);
     }
 }

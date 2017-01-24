@@ -7,6 +7,8 @@ use Guzzle\Service\Client;
 use Guzzle\Service\Command\AbstractCommand;
 use Guzzle\Service\Description\ServiceDescription;
 use HiPay\Wallet\Mirakl\Api\Mirakl\ApiInterface;
+use HiPay\Wallet\Mirakl\Exception\InvalidMiraklSettingException;
+
 
 /**
  * Make the calls the Mirakl Rest API.
@@ -24,28 +26,6 @@ class Mirakl implements ApiInterface
 
     /** @var string operator api key */
     protected $operatorKey;
-
-    /** @var array documents additional fields */
-    public $documentTypes = array(
-
-        // For all types of businesses
-        'ALL_PROOF_OF_BANK_ACCOUNT' => HiPay::DOCUMENT_ALL_PROOF_OF_BANK_ACCOUNT,
-
-        // For individual only
-        'INDIVIDUAL_IDENTITY' => HiPay::DOCUMENT_INDIVIDUAL_IDENTITY,
-        'INDIVIDUAL_PROOF_OF_ADDRESS' => HiPay::DOCUMENT_INDIVIDUAL_PROOF_OF_ADDRESS,
-
-        // For legal entity businesses only
-        'LEGAL_IDENTITY_OF_REPRESENTATIVE' => HiPay::DOCUMENT_LEGAL_IDENTITY_OF_REPRESENTATIVE,
-        'LEGAL_PROOF_OF_REGISTRATION_NUMBER' => HiPay::DOCUMENT_LEGAL_PROOF_OF_REGISTRATION_NUMBER,
-        'LEGAL_ARTICLES_DISTR_OF_POWERS' => HiPay::DOCUMENT_LEGAL_ARTICLES_DISTR_OF_POWERS,
-
-        // For one man businesses only
-        'SOLE_BUS_IDENTITY' => HiPay::DOCUMENT_SOLE_BUS_IDENTITY,
-        'SOLE_BUS_PROOF_OF_REG_NUMBER' => HiPay::DOCUMENT_SOLE_BUS_PROOF_OF_REG_NUMBER,
-        'SOLE_BUS_PROOF_OF_TAX_STATUS' => HiPay::DOCUMENT_SOLE_BUS_PROOF_OF_TAX_STATUS
-
-    );
 
     /**
      * Mirakl Api Client constructor (Extends Guzzle service client).
@@ -254,8 +234,9 @@ class Mirakl implements ApiInterface
     ) {
         $this->restClient->getConfig()->setPath(
             'request.options/headers/Authorization',
-            $this->frontKey
+            $this->operatorKey
         );
+
         $command = $this->restClient->getCommand(
             'DocumentTypesDto',
             array(
@@ -268,11 +249,21 @@ class Mirakl implements ApiInterface
     }
 
     /**
-     * Getter DocumentTypes
+     * Control if the mirakl settings is ok with the HiPay Prerequisites
      *
-     * @return array the response
+     * @return boolean
      */
-    public function getDocumentTypes() {
-        return $this->documentTypes;
+    public function controlMiraklSettings($docTypes)
+    {
+        // init mirakl settings by API Mirakl
+        $documentDto = $this->getDocumentTypesDto();
+
+        foreach ($documentDto as $document)
+        {
+            if (!array_key_exists($document['code'], $docTypes)) {
+                return false;
+            }
+        }
+        return true;
     }
 }

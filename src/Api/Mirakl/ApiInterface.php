@@ -85,14 +85,14 @@ interface ApiInterface
      *
      * @param entities $entities (SHOP)
      *
-     * @return array the response
+     * @return array response
      */
     public function getDocumentTypesDto($entities = null);
 
     /**
-     * Getter DocumentTypes
+     * controlMiraklSettings
      *
-     * @return array the response
+     * @return boolean
      */
-    public function getDocumentTypes();
+    public function controlMiraklSettings($docTypes);
 }

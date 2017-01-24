@@ -16,7 +16,6 @@ use HiPay\Wallet\Mirakl\Api\Mirakl;
 use HiPay\Wallet\Mirakl\Api\Mirakl\ApiInterface as MiraklInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use HiPay\Wallet\Mirakl\Exception;
 
 /**
  *
@@ -33,6 +32,27 @@ abstract class AbstractApiProcessor extends AbstractProcessor
     /** @var HiPayInterface $hipay */
     protected $hipay;
 
+    /** @var Mirakl\ConfigurationInterface $miraklConfig */
+    protected $miraklConfig;
+
+    /** @var HiPay documents $documentTypes */
+    /** @var array documents additional fields */
+    public $documentTypes = array(
+        // For all types of businesses
+        'ALL_PROOF_OF_BANK_ACCOUNT' => HiPay::DOCUMENT_ALL_PROOF_OF_BANK_ACCOUNT,
+        // For individual only
+        'INDIVIDUAL_IDENTITY' => HiPay::DOCUMENT_INDIVIDUAL_IDENTITY,
+        'INDIVIDUAL_PROOF_OF_ADDRESS' => HiPay::DOCUMENT_INDIVIDUAL_PROOF_OF_ADDRESS,
+        // For legal entity businesses only
+        'LEGAL_IDENTITY_OF_REPRESENTATIVE' => HiPay::DOCUMENT_LEGAL_IDENTITY_OF_REPRESENTATIVE,
+        'LEGAL_PROOF_OF_REGISTRATION_NUMBER' => HiPay::DOCUMENT_LEGAL_PROOF_OF_REGISTRATION_NUMBER,
+        'LEGAL_ARTICLES_DISTR_OF_POWERS' => HiPay::DOCUMENT_LEGAL_ARTICLES_DISTR_OF_POWERS,
+        // For one man businesses only
+        'SOLE_BUS_IDENTITY' => HiPay::DOCUMENT_SOLE_BUS_IDENTITY,
+        'SOLE_BUS_PROOF_OF_REG_NUMBER' => HiPay::DOCUMENT_SOLE_BUS_PROOF_OF_REG_NUMBER,
+        'SOLE_BUS_PROOF_OF_TAX_STATUS' => HiPay::DOCUMENT_SOLE_BUS_PROOF_OF_TAX_STATUS
+    );
+
     /**
      * AbstractProcessor constructor.
      *
@@ -48,27 +68,5 @@ abstract class AbstractApiProcessor extends AbstractProcessor
         parent::__construct($dispatcher, $logger);
         $this->mirakl = $factory->getMirakl();
         $this->hipay = $factory->getHiPay();
-
-        // the treatment is stopped if the Mirakl settings is not correct
-        $this->controlMiraklSettings();
-    }
-
-    /**
-     * Control if the mirakl settings is ok with the HiPay Prerequisites
-     */
-    private function controlMiraklSettings()
-    {
-        // init mirakl settings by API Mirakl
-        $documentDto = $this->mirakl->getDocumentTypesDto();
-        $documentTypes = $this->mirakl->getDocumentTypes();
-
-        foreach ($documentDto as $document)
-        {
-            if (!array_key_exists($document['code'], $documentTypes)) {
-                throw new Exception\InvalidMiraklSettingException();
-            }
-        }
-
-
     }
 }
