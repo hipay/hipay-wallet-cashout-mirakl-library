@@ -48,10 +48,13 @@ abstract class AbstractApiProcessor extends AbstractProcessor
         'LEGAL_PROOF_OF_REGISTRATION_NUMBER' => HiPay::DOCUMENT_LEGAL_PROOF_OF_REGISTRATION_NUMBER,
         'LEGAL_ARTICLES_DISTR_OF_POWERS' => HiPay::DOCUMENT_LEGAL_ARTICLES_DISTR_OF_POWERS,
         // For one man businesses only
-        'SOLE_BUS_IDENTITY' => HiPay::DOCUMENT_SOLE_BUS_IDENTITY,
-        'SOLE_BUS_PROOF_OF_REG_NUMBER' => HiPay::DOCUMENT_SOLE_BUS_PROOF_OF_REG_NUMBER,
-        'SOLE_BUS_PROOF_OF_TAX_STATUS' => HiPay::DOCUMENT_SOLE_BUS_PROOF_OF_TAX_STATUS
+        'SOLE_MAN_BUS_IDENTITY' => HiPay::DOCUMENT_SOLE_MAN_BUS_IDENTITY,
+        'SOLE_MAN_BUS_PROOF_OF_REG_NUMBER' => HiPay::DOCUMENT_SOLE_MAN_BUS_PROOF_OF_REG_NUMBER,
+        'SOLE_MAN_BUS_PROOF_OF_TAX_STATUS' => HiPay::DOCUMENT_SOLE_MAN_BUS_PROOF_OF_TAX_STATUS
     );
+
+    /** @var string critical message about mirakl settings */
+    public $criticalMessageMiraklSettings = "Your Mirakl account is not configured with the HiPay prerequisites as indicated in the HiPay documentation. You must configure the Mirakl account with the additional fields.";
 
     /**
      * AbstractProcessor constructor.

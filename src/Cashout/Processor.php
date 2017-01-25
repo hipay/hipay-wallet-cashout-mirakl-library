@@ -82,6 +82,13 @@ class Processor extends AbstractApiProcessor
      */
     public function process()
     {
+        $this->logger->info('Control Mirakl Settings');
+
+        // control mirakl settings
+        if (!$this->getControlMiraklSettings($this->documentTypes)) {
+            $this->logger->critical($this->criticalMessageMiraklSettings);
+        }
+
         $this->logger->info("Cashout Processor");
 
         //Transfer
@@ -332,5 +339,13 @@ class Processor extends AbstractApiProcessor
                 )
         );
         return $toTransfer;
+    }
+
+    /**
+     * Control if Mirakl Setting is ok with HiPay prerequisites
+     */
+    public function getControlMiraklSettings($docTypes)
+    {
+        $this->mirakl->controlMiraklSettings($docTypes);
     }
 }

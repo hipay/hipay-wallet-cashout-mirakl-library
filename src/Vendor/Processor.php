@@ -15,7 +15,6 @@ use HiPay\Wallet\Mirakl\Api\Mirakl;
 use HiPay\Wallet\Mirakl\Common\AbstractApiProcessor;
 use HiPay\Wallet\Mirakl\Exception\BankAccountCreationFailedException;
 use HiPay\Wallet\Mirakl\Exception\DispatchableException;
-use HiPay\Wallet\Mirakl\Exception\InvalidMiraklSettingException;
 use HiPay\Wallet\Mirakl\Exception\InvalidBankInfoException;
 use HiPay\Wallet\Mirakl\Exception\InvalidVendorException;
 use HiPay\Wallet\Mirakl\Service\Validation\ModelValidator;
@@ -91,7 +90,7 @@ class Processor extends AbstractApiProcessor
 
             // control mirakl settings
             if (!$this->getControlMiraklSettings($this->documentTypes)) {
-                throw new InvalidMiraklSettingException();
+                $this->logger->critical($this->criticalMessageMiraklSettings);
             }
 
             $this->logger->info('Vendor Processing');
@@ -424,7 +423,7 @@ class Processor extends AbstractApiProcessor
                         $validityDate = null;
 
                         if (in_array($this->documentTypes[$theFile['type']], array(
-                            HiPay::DOCUMENT_SOLE_BUS_IDENTITY,
+                            HiPay::DOCUMENT_SOLE_MAN_BUS_IDENTITY,
                             HiPay::DOCUMENT_INDIVIDUAL_IDENTITY,
                             HiPay::DOCUMENT_LEGAL_IDENTITY_OF_REPRESENTATIVE
                         ))) {

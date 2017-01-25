@@ -10,7 +10,6 @@ use HiPay\Wallet\Mirakl\Cashout\Model\Operation\OperationInterface;
 use HiPay\Wallet\Mirakl\Cashout\Model\Operation\Status;
 use HiPay\Wallet\Mirakl\Cashout\Model\Transaction\ValidatorInterface;
 use HiPay\Wallet\Mirakl\Common\AbstractApiProcessor;
-use HiPay\Wallet\Mirakl\Exception\InvalidMiraklSettingException;
 use HiPay\Wallet\Mirakl\Exception\AlreadyCreatedOperationException;
 use HiPay\Wallet\Mirakl\Exception\InvalidOperationException;
 use HiPay\Wallet\Mirakl\Exception\NotEnoughFunds;
@@ -25,8 +24,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * Generate and save the operation to be executed by the processor.
  *
- * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
- * @copyright 2015 Smile
+ * @author    HiPay <support.wallet@hipay.com>
+ * @copyright 2017 HiPay
  */
 class Initializer extends AbstractApiProcessor
 {
@@ -105,9 +104,10 @@ class Initializer extends AbstractApiProcessor
         $transactionFilterRegex = null
     ) {
         $this->logger->info('Control Mirakl Settings');
+
         // control mirakl settings
-        if (!$this->getControlMiraklSettings($docTypes)) {
-            throw new InvalidMiraklSettingException();
+        if (!$this->getControlMiraklSettings($this->documentTypes)) {
+            $this->logger->critical($this->criticalMessageMiraklSettings);
         }
 
         $this->logger->info('Cashout Initializer');

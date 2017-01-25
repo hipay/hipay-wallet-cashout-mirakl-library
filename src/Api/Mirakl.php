@@ -7,8 +7,6 @@ use Guzzle\Service\Client;
 use Guzzle\Service\Command\AbstractCommand;
 use Guzzle\Service\Description\ServiceDescription;
 use HiPay\Wallet\Mirakl\Api\Mirakl\ApiInterface;
-use HiPay\Wallet\Mirakl\Exception\InvalidMiraklSettingException;
-
 
 /**
  * Make the calls the Mirakl Rest API.
@@ -257,13 +255,19 @@ class Mirakl implements ApiInterface
     {
         // init mirakl settings by API Mirakl
         $documentDto = $this->getDocumentTypesDto();
-
+        $countDocHiPay = count($docTypes);
+        $cpt = 0;
         foreach ($documentDto as $document)
         {
-            if (!array_key_exists($document['code'], $docTypes)) {
-                return false;
+            if (array_key_exists($document['code'], $docTypes)) {
+                $cpt++;
             }
         }
-        return true;
+        print_r($countDocHiPay . ' == ' . $cpt);
+        if ($countDocHiPay == $cpt) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }
