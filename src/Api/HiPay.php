@@ -562,6 +562,22 @@ class HiPay implements ApiInterface
     }
 
     /**
+     * Add the api SOAP login parameters to the parameters.
+     *
+     * @param array $parameters the call parameters
+     *
+     * @return array
+     */
+    protected function mergeLoginParametersSoap(array $parameters = array())
+    {
+        $parameters = $parameters + array(
+                'wsLogin' => $this->login,
+                'wsPassword' => $this->password,
+            );
+        return $parameters;
+    }
+
+    /**
      * Add sub account informations.
      *
      * @param array           $parameters the parameters array to add the info to
@@ -610,7 +626,7 @@ class HiPay implements ApiInterface
      */
     protected function callSoap($name, array $parameters)
     {
-        $parameters = $this->mergeLoginParameters($parameters);
+        $parameters = $this->mergeLoginParametersSoap($parameters);
 
         //Make the call
         $response = $this->getClient($name)->$name(
