@@ -1,3 +1,7 @@
+# Version 2.4.1
+
+- Fix API Soap - Replace mergeLoginParameters() by mergeLoginParametersSoap()
+
 # Version 2.4.0
 
 - The login is no longer the email, it is now registered by the concatenation of the name of the shop and its ID
