@@ -543,7 +543,7 @@ class HiPay implements ApiInterface
     }
 
     /**
-     * Add the api login parameters to the parameters.
+     * Add the api REST login parameters to the parameters.
      *
      * @param array $parameters the call parameters
      *
@@ -558,6 +558,21 @@ class HiPay implements ApiInterface
                 )
             );
 
+        return $parameters;
+    }
+    /**
+     * Add the api SOAP login parameters to the parameters.
+     *
+     * @param array $parameters the call parameters
+     *
+     * @return array
+     */
+    protected function mergeLoginParametersSoap(array $parameters = array())
+    {
+        $parameters = $parameters + array(
+                'wsLogin' => $this->login,
+                'wsPassword' => $this->password,
+            );
         return $parameters;
     }
 
@@ -610,7 +625,7 @@ class HiPay implements ApiInterface
      */
     protected function callSoap($name, array $parameters)
     {
-        $parameters = $this->mergeLoginParameters($parameters);
+        $parameters = $this->mergeLoginParametersSoap($parameters);
 
         //Make the call
         $response = $this->getClient($name)->$name(
