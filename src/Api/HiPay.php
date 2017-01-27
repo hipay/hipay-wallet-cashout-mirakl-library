@@ -9,6 +9,8 @@ use HiPay\Wallet\Mirakl\Api\HiPay\ApiInterface;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Rest\BankInfo;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Rest\UserAccount;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\Transfer;
+use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\UserAccountBasic;
+use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\UserAccountDetail;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Status\Identified;
 use HiPay\Wallet\Mirakl\Api\HiPay\Wallet\AccountInfo;
 use HiPay\Wallet\Mirakl\Api\Soap\SmileClient;
@@ -630,7 +632,7 @@ class HiPay implements ApiInterface
 
         //Make the call
         $response = $this->getClient($name)->$name(
-            array('parameters' => $parameters['userAccount'])
+            array('parameters' => $parameters)
         );
 
         //Parse the response
