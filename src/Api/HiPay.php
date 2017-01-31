@@ -428,6 +428,20 @@ class HiPay implements ApiInterface
         );
         $result = $this->restClient->execute($command);
 
+        /** retro compatible if old account */
+        if ($result['code'] == '401') {
+            /** retry with email in php-auth-subaccount-login */
+            $this->restClient->getConfig()->setPath(
+                'request.options/headers/php-auth-subaccount-login',
+                $userAccount->getEmail()
+            );
+            $command = $this->restClient->getCommand(
+                'GetUserAccount',
+                array()
+            );
+            $result = $this->restClient->execute($command);
+        }
+
         return $result;
     }
 
@@ -457,6 +471,11 @@ class HiPay implements ApiInterface
                 'request.options/headers/php-auth-subaccount-id',
                 $vendor->getHiPayId()
             );
+        } else if (!is_null($vendor->getLogin())) {
+            $this->restClient->getConfig()->setPath(
+                'request.options/headers/php-auth-subaccount-login',
+                $vendor->getLogin()
+            );
         }
 
         $command = $this->restClient->getCommand(
@@ -464,6 +483,20 @@ class HiPay implements ApiInterface
             array()
         );
         $result = $this->restClient->execute($command);
+
+        /** retro compatible if old account */
+        if ($result['code'] == '401') {
+            /** retry with email in php-auth-subaccount-login */
+            $this->restClient->getConfig()->setPath(
+                'request.options/headers/php-auth-subaccount-login',
+                $vendor->getEmail()
+            );
+            $command = $this->restClient->getCommand(
+                'GetUserAccount',
+                array()
+            );
+            $result = $this->restClient->execute($command);
+        }
 
         return $result['balances'][0]['balance'];
     }
@@ -629,7 +662,7 @@ class HiPay implements ApiInterface
 
         //Make the call
         $response = $this->getClient($name)->$name(
-            array('parameters' => $parameters['userAccount'])
+            array('parameters' => $parameters)
         );
 
         //Parse the response

@@ -257,13 +257,38 @@ class Mirakl implements ApiInterface
         $documentDto = $this->getDocumentTypesDto();
         $countDocHiPay = count($docTypes);
         $cpt = 0;
+        $cptLegal = 3;
+        $cptSoleMan = 3;
+
+        // control exist between mirakl settings and HiPay
         foreach ($documentDto as $document)
         {
+            $pattern1 = '/^LEGAL_/';
+            $pattern2 = '/^SOLE_MAN_/';
+            // read if document mirakl is a Legal document
+            if (preg_match($pattern1, $document['code'])) {
+                $cptLegal--;
+            }
+            // read if document mirakl is a Sole man document
+            if (preg_match($pattern2, $document['code'])) {
+                $cptSoleMan--;
+            }
+            // if exist in HiPay Prerequisites
             if (array_key_exists($document['code'], $docTypes)) {
                 $cpt++;
             }
         }
-        print_r($countDocHiPay . ' == ' . $cpt);
+
+        // Update count calculation
+        if ($cptLegal < 0) {
+            $cptLegal = 0;
+        }
+        if ($cptSoleMan < 0) {
+            $cptSoleMan = 0;
+        }
+        $cpt = $cpt-($cptLegal+$cptSoleMan);
+        $countDocHiPay = $countDocHiPay-($cptLegal+$cptSoleMan);
+        // if equal it's ok else mirakl settings not ok
         if ($countDocHiPay == $cpt) {
             return true;
         } else {
