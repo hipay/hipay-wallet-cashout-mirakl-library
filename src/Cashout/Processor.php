@@ -26,8 +26,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * Process the operations created by the cashout/initializer
  *
- * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
- * @copyright 2015 Smile
+ * @author    HiPay <support.wallet@hipay.com>
+ * @copyright 2017 HiPay
  */
 class Processor extends AbstractApiProcessor
 {
@@ -82,6 +82,15 @@ class Processor extends AbstractApiProcessor
      */
     public function process()
     {
+        $this->logger->info('Control Mirakl Settings');
+        // control mirakl settings
+        $boolControl = $this->getControlMiraklSettings($this->documentTypes);
+        if ($boolControl === false) {
+            $this->logger->critical($this->criticalMessageMiraklSettings);
+        } else {
+            $this->logger->info('Control Mirakl Settings OK');
+        }
+
         $this->logger->info("Cashout Processor");
 
         //Transfer
@@ -332,5 +341,13 @@ class Processor extends AbstractApiProcessor
                 )
         );
         return $toTransfer;
+    }
+
+    /**
+     * Control if Mirakl Setting is ok with HiPay prerequisites
+     */
+    public function getControlMiraklSettings($docTypes)
+    {
+        $this->mirakl->controlMiraklSettings($docTypes);
     }
 }

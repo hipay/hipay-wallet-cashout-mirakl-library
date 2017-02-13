@@ -66,9 +66,9 @@ class HiPay implements ApiInterface
     CONST DOCUMENT_LEGAL_ARTICLES_DISTR_OF_POWERS = 5;
 
     // For one man businesses only
-    CONST DOCUMENT_SOLE_BUS_IDENTITY = 7;
-    CONST DOCUMENT_SOLE_BUS_PROOF_OF_REG_NUMBER = 8;
-    CONST DOCUMENT_SOLE_BUS_PROOF_OF_TAX_STATUS = 9;
+    CONST DOCUMENT_SOLE_MAN_BUS_IDENTITY = 7;
+    CONST DOCUMENT_SOLE_MAN_BUS_PROOF_OF_REG_NUMBER = 8;
+    CONST DOCUMENT_SOLE_MAN_BUS_PROOF_OF_TAX_STATUS = 9;
 
     /**
      * Constructor.
@@ -428,8 +428,24 @@ class HiPay implements ApiInterface
             'GetUserAccount',
             array()
         );
-        $result = $this->restClient->execute($command);
 
+        try {
+            $result = $this->restClient->execute($command);
+        } catch (ClientErrorResponseException $e) {
+            if ($e->getResponse()->getStatusCode() == '401') {
+                /** retry with email in php-auth-subaccount-login */
+                $this->restClient->getConfig()->setPath(
+                    'request.options/headers/php-auth-subaccount-login',
+                    strtolower($userAccount->getEmail())
+                );
+
+                $command = $this->restClient->getCommand(
+                    'GetUserAccount',
+                    array()
+                );
+                $result = $this->restClient->execute($command);
+            }
+        }
         return $result;
     }
 
@@ -459,6 +475,11 @@ class HiPay implements ApiInterface
                 'request.options/headers/php-auth-subaccount-id',
                 $vendor->getHiPayId()
             );
+        } else if (!is_null($vendor->getLogin())) {
+            $this->restClient->getConfig()->setPath(
+                'request.options/headers/php-auth-subaccount-login',
+                $vendor->getLogin()
+            );
         }
 
         $command = $this->restClient->getCommand(
@@ -466,6 +487,20 @@ class HiPay implements ApiInterface
             array()
         );
         $result = $this->restClient->execute($command);
+
+        /** retro compatible if old account */
+        if ($result['code'] == '401') {
+            /** retry with email in php-auth-subaccount-login */
+            $this->restClient->getConfig()->setPath(
+                'request.options/headers/php-auth-subaccount-login',
+                $vendor->getEmail()
+            );
+            $command = $this->restClient->getCommand(
+                'GetUserAccount',
+                array()
+            );
+            $result = $this->restClient->execute($command);
+        }
 
         return $result['balances'][0]['balance'];
     }
@@ -545,7 +580,7 @@ class HiPay implements ApiInterface
     }
 
     /**
-     * Add the api login parameters to the parameters.
+     * Add the api REST login parameters to the parameters.
      *
      * @param array $parameters the call parameters
      *
@@ -560,6 +595,21 @@ class HiPay implements ApiInterface
                 )
             );
 
+        return $parameters;
+    }
+    /**
+     * Add the api SOAP login parameters to the parameters.
+     *
+     * @param array $parameters the call parameters
+     *
+     * @return array
+     */
+    protected function mergeLoginParametersSoap(array $parameters = array())
+    {
+        $parameters = $parameters + array(
+                'wsLogin' => $this->login,
+                'wsPassword' => $this->password,
+            );
         return $parameters;
     }
 

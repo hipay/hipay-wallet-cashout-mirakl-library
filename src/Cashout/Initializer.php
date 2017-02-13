@@ -24,8 +24,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * Generate and save the operation to be executed by the processor.
  *
- * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
- * @copyright 2015 Smile
+ * @author    HiPay <support.wallet@hipay.com>
+ * @copyright 2017 HiPay
  */
 class Initializer extends AbstractApiProcessor
 {
@@ -103,6 +103,15 @@ class Initializer extends AbstractApiProcessor
         DateTime $cycleDate,
         $transactionFilterRegex = null
     ) {
+        $this->logger->info('Control Mirakl Settings');
+        // control mirakl settings
+        $boolControl = $this->getControlMiraklSettings($this->documentTypes);
+        if ($boolControl === false) {
+            $this->logger->critical($this->criticalMessageMiraklSettings);
+        } else {
+            $this->logger->info('Control Mirakl Settings OK');
+        }
+
         $this->logger->info('Cashout Initializer');
 
         //Fetch 'PAYMENT' transaction
@@ -589,5 +598,13 @@ class Initializer extends AbstractApiProcessor
                 $transaction['amount_debited'];
         }
         return $paymentDebits;
+    }
+
+    /**
+     * Control if Mirakl Setting is ok with HiPay prerequisites
+     */
+    public function getControlMiraklSettings($docTypes)
+    {
+        $this->mirakl->controlMiraklSettings($docTypes);
     }
 }

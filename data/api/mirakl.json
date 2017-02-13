@@ -259,6 +259,20 @@
           ]
         }
       }
+    },
+    "DocumentTypesDto": {
+      "httpMethod": "GET",
+      "uri": "/api/documents",
+      "summary": "Get the list of all documents configuration DO01",
+      "parameters": {
+        "entities": {
+          "required": false,
+          "type": "string",
+          "description": "A comma separated list of values, representing the type of entities the document type should be related to. Ex: ORDER,SHOP",
+          "location": "query",
+          "sentAs": "entities"
+        }
+      }
     }
   }
 }

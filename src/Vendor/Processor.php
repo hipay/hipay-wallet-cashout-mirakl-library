@@ -34,8 +34,8 @@ use HiPay\Wallet\Mirakl\Api\HiPay\Wallet\AccountInfo;
  * Vendor processor handling the wallet creation
  * and the bank info registration and verification.
  *
- * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
- * @copyright 2015 Smile
+ * @author    HiPay <support.wallet@hipay.com>
+ * @copyright 2017 HiPay
  */
 class Processor extends AbstractApiProcessor
 {
@@ -46,27 +46,6 @@ class Processor extends AbstractApiProcessor
      * @var DocumentManagerInterface
      */
     protected $documentManager;
-
-    private $documentTypes = array(
-
-        // For all types of businesses
-        'ALL_PROOF_OF_BANK_ACCOUNT' => HiPay::DOCUMENT_ALL_PROOF_OF_BANK_ACCOUNT,
-
-        // For individual only
-        'INDIVIDUAL_IDENTITY' => HiPay::DOCUMENT_INDIVIDUAL_IDENTITY,
-        'INDIVIDUAL_PROOF_OF_ADDRESS' => HiPay::DOCUMENT_INDIVIDUAL_PROOF_OF_ADDRESS,
-
-        // For legal entity businesses only
-        'LEGAL_IDENTITY_OF_REPRESENTATIVE' => HiPay::DOCUMENT_LEGAL_IDENTITY_OF_REPRESENTATIVE,
-        'LEGAL_PROOF_OF_REGISTRATION_NUMBER' => HiPay::DOCUMENT_LEGAL_PROOF_OF_REGISTRATION_NUMBER,
-        'LEGAL_ARTICLES_DISTR_OF_POWERS' => HiPay::DOCUMENT_LEGAL_ARTICLES_DISTR_OF_POWERS,
-
-        // For one man businesses only
-        'SOLE_BUS_IDENTITY' => HiPay::DOCUMENT_SOLE_BUS_IDENTITY,
-        'SOLE_BUS_PROOF_OF_REG_NUMBER' => HiPay::DOCUMENT_SOLE_BUS_PROOF_OF_REG_NUMBER,
-        'SOLE_BUS_PROOF_OF_TAX_STATUS' => HiPay::DOCUMENT_SOLE_BUS_PROOF_OF_TAX_STATUS
-
-    );
 
     /**
      * Processor constructor.
@@ -106,6 +85,15 @@ class Processor extends AbstractApiProcessor
     public function process($tmpFilesPath, DateTime $lastUpdate = null)
     {
         try {
+            $this->logger->info('Control Mirakl Settings');
+            // control mirakl settings
+            $boolControl = $this->getControlMiraklSettings($this->documentTypes);
+            if ($boolControl === false) {
+                $this->logger->critical($this->criticalMessageMiraklSettings);
+            } else {
+                $this->logger->info('Control Mirakl Settings OK');
+            }
+
             $this->logger->info('Vendor Processing');
 
             //Vendor data fetching from Mirakl
@@ -436,7 +424,7 @@ class Processor extends AbstractApiProcessor
                         $validityDate = null;
 
                         if (in_array($this->documentTypes[$theFile['type']], array(
-                            HiPay::DOCUMENT_SOLE_BUS_IDENTITY,
+                            HiPay::DOCUMENT_SOLE_MAN_BUS_IDENTITY,
                             HiPay::DOCUMENT_INDIVIDUAL_IDENTITY,
                             HiPay::DOCUMENT_LEGAL_IDENTITY_OF_REPRESENTATIVE
                         ))) {
@@ -725,5 +713,13 @@ class Processor extends AbstractApiProcessor
             $pastDate = new DateTime('1970-01-01');
         }
         return $this->hipay->getMerchantGroupAccounts($merchantGroupId, $pastDate);
+    }
+
+    /**
+     * Control if Mirakl Setting is ok with HiPay prerequisites
+     */
+    public function getControlMiraklSettings($docTypes)
+    {
+        $this->mirakl->controlMiraklSettings($docTypes);
     }
 }
