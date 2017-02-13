@@ -426,22 +426,24 @@ class HiPay implements ApiInterface
             'GetUserAccount',
             array()
         );
-        $result = $this->restClient->execute($command);
 
-        /** retro compatible if old account */
-        if ($result['code'] == '401') {
-            /** retry with email in php-auth-subaccount-login */
-            $this->restClient->getConfig()->setPath(
-                'request.options/headers/php-auth-subaccount-login',
-                $userAccount->getEmail()
-            );
-            $command = $this->restClient->getCommand(
-                'GetUserAccount',
-                array()
-            );
+        try {
             $result = $this->restClient->execute($command);
-        }
+        } catch (ClientErrorResponseException $e) {
+            if ($e->getResponse()->getStatusCode() == '401') {
+                /** retry with email in php-auth-subaccount-login */
+                $this->restClient->getConfig()->setPath(
+                    'request.options/headers/php-auth-subaccount-login',
+                    strtolower($userAccount->getEmail())
+                );
 
+                $command = $this->restClient->getCommand(
+                    'GetUserAccount',
+                    array()
+                );
+                $result = $this->restClient->execute($command);
+            }
+        }
         return $result;
     }
 

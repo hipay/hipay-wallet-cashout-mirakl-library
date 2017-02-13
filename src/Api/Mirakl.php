@@ -286,13 +286,15 @@ class Mirakl implements ApiInterface
         if ($cptSoleMan < 0) {
             $cptSoleMan = 0;
         }
+        // calcul count cpt and countDocHiPay
         $cpt = $cpt-($cptLegal+$cptSoleMan);
         $countDocHiPay = $countDocHiPay-($cptLegal+$cptSoleMan);
         // if equal it's ok else mirakl settings not ok
         if ($countDocHiPay == $cpt) {
-            return true;
+            $bool = true;
         } else {
-            return false;
+            $bool = false;
         }
+        return $bool;
     }
 }

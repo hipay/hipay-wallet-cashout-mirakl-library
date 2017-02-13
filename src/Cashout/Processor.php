@@ -83,10 +83,12 @@ class Processor extends AbstractApiProcessor
     public function process()
     {
         $this->logger->info('Control Mirakl Settings');
-
         // control mirakl settings
-        if (!$this->getControlMiraklSettings($this->documentTypes)) {
+        $boolControl = $this->getControlMiraklSettings($this->documentTypes);
+        if ($boolControl === false) {
             $this->logger->critical($this->criticalMessageMiraklSettings);
+        } else {
+            $this->logger->info('Control Mirakl Settings OK');
         }
 
         $this->logger->info("Cashout Processor");
