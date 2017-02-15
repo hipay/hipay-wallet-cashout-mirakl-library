@@ -195,6 +195,8 @@ class UserAccount extends ModelAbstract
         );
         $this->companyName = $miraklData['shop_name'];
         $this->vatNumber = $miraklData['pro_details']['VAT_number'];
+        $phone = $miraklData['contact_informations']['phone'];
+        $fax =$miraklData['contact_informations']['fax'];
         $this->address = [
             "address" => $miraklData['contact_informations']['street1'].
                 ' '.$miraklData['contact_informations']['street2'],
@@ -203,9 +205,13 @@ class UserAccount extends ModelAbstract
             "country" => $this->formatCountryCode(
                 $miraklData['contact_informations']['country']
             ),
-            "phone_number" => $miraklData['contact_informations']['phone'],
-            "fax_number" => $miraklData['contact_informations']['fax'],
         ];
+        if(!empty($phone)) {
+            array_push($this->address, "phone_number", $phone);
+        }
+        if(!empty($fax)) {
+            array_push($this->address, "fax_number", $fax);
+        }
         $this->hipayInformation = 1;
         $this->commercialInformation = 1;
         $this->activationType = 0;
