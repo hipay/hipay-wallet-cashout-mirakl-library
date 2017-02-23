@@ -470,7 +470,7 @@ class HiPay implements ApiInterface
             $this->password
         );
 
-        if( !is_null($vendor->getHiPayId())) {
+        if (!is_null($vendor->getHiPayId())) {
             $this->restClient->getConfig()->setPath(
                 'request.options/headers/php-auth-subaccount-id',
                 $vendor->getHiPayId()
@@ -486,25 +486,26 @@ class HiPay implements ApiInterface
             'GetBalance',
             array()
         );
-        $result = $this->restClient->execute($command);
 
-        /** retro compatible if old account */
-        if ($result['code'] == '401') {
-            /** retry with email in php-auth-subaccount-login */
-            $this->restClient->getConfig()->setPath(
-                'request.options/headers/php-auth-subaccount-login',
-                $vendor->getEmail()
-            );
-            $command = $this->restClient->getCommand(
-                'GetUserAccount',
-                array()
-            );
+        try {
             $result = $this->restClient->execute($command);
+        } catch (ClientErrorResponseException $e) {
+            /** retro compatible if old account */
+            if ($e->getResponse()->getStatusCode() == '401') {
+                /** retry with email in php-auth-subaccount-login */
+                $this->restClient->getConfig()->setPath(
+                    'request.options/headers/php-auth-subaccount-login',
+                    $vendor->getEmail()
+                );
+                $command = $this->restClient->getCommand(
+                    'GetBalance',
+                    array()
+                );
+                $result = $this->restClient->execute($command);
+            }
         }
-
         return $result['balances'][0]['balance'];
     }
-
     /**
      * Make a transfer.
      *
