@@ -613,6 +613,7 @@ class HiPay implements ApiInterface
             );
         return $parameters;
     }
+  
     /**
      * Add sub account informations.
      *
