@@ -17,6 +17,7 @@ use HiPay\Wallet\Mirakl\Api\Soap\SmileClient;
 use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 use Guzzle\Service\Client;
 use Guzzle\Service\Description\ServiceDescription;
+use Guzzle\Http\Exception\ClientErrorResponseException;
 
 /**
  * Make the SOAP & REST call to the HiPay API.
@@ -569,7 +570,7 @@ class HiPay implements ApiInterface
      *
      * @return array
      */
-    public function getMerchantGroupAccounts($merchantGroupId, DateTime $pastDate)
+    public function getMerchantsGroupAccounts($merchantGroupId, DateTime $pastDate)
     {
         $parameters = array('merchantGroupId' => $merchantGroupId, 'pastDate' => $pastDate->format('Y-m-d'));
         $data = $this->callSoap('getMerchantsGroupAccounts', $parameters);

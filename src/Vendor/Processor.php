@@ -712,7 +712,7 @@ class Processor extends AbstractApiProcessor
         if (!$pastDate) {
             $pastDate = new DateTime('1970-01-01');
         }
-        return $this->hipay->getMerchantGroupAccounts($merchantGroupId, $pastDate);
+        return $this->hipay->getMerchantsGroupAccounts($merchantGroupId, $pastDate);
     }
 
     /**
