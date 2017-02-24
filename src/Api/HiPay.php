@@ -99,6 +99,27 @@ class HiPay implements ApiInterface
         $this->timezone = $timeZone;
         $this->locale = $locale;
 
+        $defaults = array(
+            'compression' => SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP,
+            'cache_wsdl' => WSDL_CACHE_NONE,
+            'soap_version' => SOAP_1_1,
+            'encoding' => 'UTF-8',
+            'trace' => true
+        );
+        $options = array_merge($defaults, $options);
+        $this->userAccountClient = new SmileClient(
+            $baseSoapUrl.'/soap/user-account-v2?wsdl',
+            $options
+        );
+        $this->transferClient = new SmileClient(
+            $baseSoapUrl.'/soap/transfer?wsdl',
+            $options
+        );
+        $this->withdrawalClient = new SmileClient(
+            $baseSoapUrl.'/soap/withdrawal?wsdl',
+            $options
+        );
+
         $this->restClient = new Client();
 
         $description = ServiceDescription::factory(__DIR__.'../../../data/api/hipay.json');
