@@ -443,7 +443,6 @@ class HiPay implements ApiInterface
      * Return various information about a wallet
      *
      * @param VendorInterface $vendor
-     * @param $retry = account_id, login or email
      *
      * @return array
      *

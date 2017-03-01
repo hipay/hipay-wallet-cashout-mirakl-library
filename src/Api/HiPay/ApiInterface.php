@@ -138,7 +138,7 @@ interface ApiInterface
     /**
      * Return the identified status of the account.
      *
-     * @param $vendor
+     * @param VendorInterface $vendor
      *
      * @return bool
      */
