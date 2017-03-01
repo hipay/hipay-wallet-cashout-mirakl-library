@@ -411,7 +411,30 @@ class HiPay implements ApiInterface
         VendorInterface $vendor
     )
     {
-        $result = $this->getAccountInfos($vendor);
+        $this->restClient->getConfig()->setPath(
+            'request.options/headers/php-auth-user',
+            $this->login
+        );
+
+        $this->restClient->getConfig()->setPath(
+            'request.options/headers/php-auth-pw',
+            $this->password
+        );
+
+        if( !empty($vendor->getHiPayId())) {
+            $this->restClient->getConfig()->setPath(
+                'request.options/headers/php-auth-subaccount-id',
+                $vendor->getHiPayId()
+            );
+        }
+
+        $command = $this->restClient->getCommand(
+            'GetUserAccount',
+            array()
+        );
+
+        $result = $this->restClient->execute($command);
+        //$result = $this->getAccountInfos($vendor);
 
         return $result['identified'] == Identified::YES ? true : false;
     }
@@ -420,6 +443,7 @@ class HiPay implements ApiInterface
      * Return various information about a wallet
      *
      * @param VendorInterface $vendor
+     * @param $retry = account_id, login or email
      *
      * @return array
      *
@@ -441,7 +465,7 @@ class HiPay implements ApiInterface
 
         if( !empty($userAccount->getLogin())) {
             $this->restClient->getConfig()->setPath(
-                'request.options/headers/php-auth-subaccount-login',
+                'request.options/headers/php-auth-subaccount-id',
                 $userAccount->getLogin()
             );
         }
