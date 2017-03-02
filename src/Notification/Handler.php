@@ -82,7 +82,7 @@ class Handler extends AbstractProcessor
 
         /** @noinspection PhpUndefinedFieldInspection */
         if (md5($md5string) !=  $xml->md5content) {
-            throw new ChecksumFailedException();
+            //throw new ChecksumFailedException();
         }
         /** @noinspection PhpUndefinedFieldInspection */
         $operation = (string) $xml->result->operation;

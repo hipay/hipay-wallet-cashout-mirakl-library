@@ -436,7 +436,7 @@ class HiPay implements ApiInterface
         $result = $this->restClient->execute($command);
         //$result = $this->getAccountInfos($vendor);
 
-        return $result['identified'] == Identified::YES ? true : false;
+        return $result['identified'] == 1 ? true : false;
     }
 
     /**
