@@ -15,8 +15,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  *
  * Abstract class for all processors
  *
- * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
- * @copyright 2015 Smile
+ * @author    HiPay <support.wallet@hipay.com>
+ * @copyright 2017 HiPay
  */
 abstract class AbstractProcessor
 {

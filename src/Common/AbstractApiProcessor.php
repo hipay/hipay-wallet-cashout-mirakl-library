@@ -20,8 +20,9 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  *
  * Processor who need the API to function
- * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
- * @copyright 2015 Smile
+ *
+ * @author    HiPay <support.wallet@hipay.com>
+ * @copyright 2017 HiPay
  */
 abstract class AbstractApiProcessor extends AbstractProcessor
 {
@@ -30,6 +31,30 @@ abstract class AbstractApiProcessor extends AbstractProcessor
 
     /** @var HiPayInterface $hipay */
     protected $hipay;
+
+    /** @var Mirakl\ConfigurationInterface $miraklConfig */
+    protected $miraklConfig;
+
+    /** @var HiPay documents $documentTypes */
+    /** @var array documents additional fields */
+    public $documentTypes = array(
+        // For all types of businesses
+        'ALL_PROOF_OF_BANK_ACCOUNT' => HiPay::DOCUMENT_ALL_PROOF_OF_BANK_ACCOUNT,
+        // For individual only
+        //'INDIVIDUAL_IDENTITY' => HiPay::DOCUMENT_INDIVIDUAL_IDENTITY,
+        //'INDIVIDUAL_PROOF_OF_ADDRESS' => HiPay::DOCUMENT_INDIVIDUAL_PROOF_OF_ADDRESS,
+        // For legal entity businesses only
+        'LEGAL_IDENTITY_OF_REPRESENTATIVE' => HiPay::DOCUMENT_LEGAL_IDENTITY_OF_REPRESENTATIVE,
+        'LEGAL_PROOF_OF_REGISTRATION_NUMBER' => HiPay::DOCUMENT_LEGAL_PROOF_OF_REGISTRATION_NUMBER,
+        'LEGAL_ARTICLES_DISTR_OF_POWERS' => HiPay::DOCUMENT_LEGAL_ARTICLES_DISTR_OF_POWERS,
+        // For one man businesses only
+        'SOLE_MAN_BUS_IDENTITY' => HiPay::DOCUMENT_SOLE_MAN_BUS_IDENTITY,
+        'SOLE_MAN_BUS_PROOF_OF_REG_NUMBER' => HiPay::DOCUMENT_SOLE_MAN_BUS_PROOF_OF_REG_NUMBER,
+        'SOLE_MAN_BUS_PROOF_OF_TAX_STATUS' => HiPay::DOCUMENT_SOLE_MAN_BUS_PROOF_OF_TAX_STATUS
+    );
+
+    /** @var string critical message about mirakl settings */
+    public $criticalMessageMiraklSettings = "Your Mirakl account is not configured with the HiPay prerequisites as indicated in the HiPay documentation. You must configure the Mirakl account with the additional fields.";
 
     /**
      * AbstractProcessor constructor.
@@ -43,11 +68,8 @@ abstract class AbstractApiProcessor extends AbstractProcessor
         LoggerInterface $logger,
         Factory $factory
     ) {
-
         parent::__construct($dispatcher, $logger);
-
         $this->mirakl = $factory->getMirakl();
-
         $this->hipay = $factory->getHiPay();
     }
 }

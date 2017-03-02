@@ -202,7 +202,7 @@ interface ApiInterface
      *
      * @return array
      */
-    public function getMerchantGroupAccounts($merchantGroupId, DateTime $pastDate);
+    public function getMerchantsGroupAccounts($merchantGroupId, DateTime $pastDate);
 
 
     public function uploadDocument($userSpaceId, $documentType, $fileName, \DateTime $validityDate = null);

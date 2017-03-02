@@ -11,8 +11,8 @@ use HiPay\Wallet\Mirakl\Api\Mirakl\ApiInterface;
 /**
  * Make the calls the Mirakl Rest API.
  *
- * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
- * @copyright 2015 Smile
+ * @author    HiPay <support.wallet@hipay.com>
+ * @copyright 2017 HiPay
  */
 class Mirakl implements ApiInterface
 {
@@ -218,5 +218,83 @@ class Mirakl implements ApiInterface
         $result = $this->restClient->execute($command);
 
         return $result['lines'];
+    }
+
+    /**
+     * Fetch from Mirakl additional_fields (uses DO01).
+     *
+     * @param entities $entities (SHOP)
+     *
+     * @return array the response
+     */
+    public function getDocumentTypesDto(
+        $entities = 'SHOP'
+    ) {
+        $this->restClient->getConfig()->setPath(
+            'request.options/headers/Authorization',
+            $this->operatorKey
+        );
+
+        $command = $this->restClient->getCommand(
+            'DocumentTypesDto',
+            array(
+                'entities' => $entities,
+            )
+        );
+        $result = $this->restClient->execute($command);
+
+        return $result['documents'];
+    }
+
+    /**
+     * Control if the mirakl settings is ok with the HiPay Prerequisites
+     *
+     * @return boolean
+     */
+    public function controlMiraklSettings($docTypes)
+    {
+        // init mirakl settings by API Mirakl
+        $documentDto = $this->getDocumentTypesDto();
+        $countDocHiPay = count($docTypes);
+        $cpt = 0;
+        $cptLegal = 3;
+        $cptSoleMan = 3;
+
+        // control exist between mirakl settings and HiPay
+        foreach ($documentDto as $document)
+        {
+            $pattern1 = '/^LEGAL_/';
+            $pattern2 = '/^SOLE_MAN_/';
+            // read if document mirakl is a Legal document
+            if (preg_match($pattern1, $document['code'])) {
+                $cptLegal--;
+            }
+            // read if document mirakl is a Sole man document
+            if (preg_match($pattern2, $document['code'])) {
+                $cptSoleMan--;
+            }
+            // if exist in HiPay Prerequisites
+            if (array_key_exists($document['code'], $docTypes)) {
+                $cpt++;
+            }
+        }
+
+        // Update count calculation
+        if ($cptLegal < 0) {
+            $cptLegal = 0;
+        }
+        if ($cptSoleMan < 0) {
+            $cptSoleMan = 0;
+        }
+        // calcul count cpt and countDocHiPay
+        $cpt = $cpt-($cptLegal+$cptSoleMan);
+        $countDocHiPay = $countDocHiPay-($cptLegal+$cptSoleMan);
+        // if equal it's ok else mirakl settings not ok
+        if ($countDocHiPay == $cpt) {
+            $bool = true;
+        } else {
+            $bool = false;
+        }
+        return $bool;
     }
 }
