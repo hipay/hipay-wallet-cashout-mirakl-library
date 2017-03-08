@@ -22,6 +22,7 @@ use HiPay\Wallet\Mirakl\Vendor\Model\VendorManagerInterface as VendorManager;
 use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use HiPay\Wallet\Mirakl\Notification\FormatNotification;
 
 /**
  * Process the operations created by the cashout/initializer
@@ -40,6 +41,11 @@ class Processor extends AbstractApiProcessor
 
     /** @var VendorInterface */
     protected $operator;
+
+    /**
+     * @var FormatNotification class
+     */
+    protected $formatNotification;
 
     /**
      * Processor constructor.
@@ -65,6 +71,7 @@ class Processor extends AbstractApiProcessor
 
         $this->operationManager = $operationManager;
         $this->vendorManager = $vendorManager;
+        $this->formatNotification = new FormatNotification();
 
         ModelValidator::validate($operator, 'Operator');
         $this->operator = $operator;
@@ -86,7 +93,10 @@ class Processor extends AbstractApiProcessor
         // control mirakl settings
         $boolControl = $this->getControlMiraklSettings($this->documentTypes);
         if ($boolControl === false) {
-            $this->logger->critical($this->criticalMessageMiraklSettings);
+            // log critical
+            $title = $this->criticalMessageMiraklSettings;
+            $message = $this->formatNotification->formatMessage($title);
+            $this->logger->critical($message);
         } else {
             $this->logger->info('Control Mirakl Settings OK');
         }

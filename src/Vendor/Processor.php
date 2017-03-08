@@ -29,6 +29,7 @@ use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use HiPay\Wallet\Mirakl\Api\HiPay\Wallet\AccountInfo;
+use HiPay\Wallet\Mirakl\Notification\FormatNotification;
 
 /**
  * Vendor processor handling the wallet creation
@@ -46,6 +47,12 @@ class Processor extends AbstractApiProcessor
      * @var DocumentManagerInterface
      */
     protected $documentManager;
+
+    /**
+     * @var FormatNotification class
+     */
+    protected $formatNotification;
+
 
     /**
      * Processor constructor.
@@ -71,6 +78,7 @@ class Processor extends AbstractApiProcessor
 
         $this->vendorManager = $vendorManager;
         $this->documentManager = $documentManager;
+        $this->formatNotification = new FormatNotification();
     }
 
     /**
@@ -89,7 +97,10 @@ class Processor extends AbstractApiProcessor
             // control mirakl settings
             $boolControl = $this->getControlMiraklSettings($this->documentTypes);
             if ($boolControl === false) {
-                $this->logger->critical($this->criticalMessageMiraklSettings);
+                // log critical
+                $title = $this->criticalMessageMiraklSettings;
+                $message = $this->formatNotification->formatMessage($title);
+                $this->logger->critical($message);
             } else {
                 $this->logger->info('Control Mirakl Settings OK');
             }
@@ -128,10 +139,11 @@ class Processor extends AbstractApiProcessor
         } catch (ClientErrorResponseException $e) {
 
             try {
-
-                $this->logger->critical(
-                    $e->getMessage() . ' - ' . $e->getResponse()->getBody(true)
-                );
+                // log critical
+                $title = 'Error Vendor:Process ';
+                $exceptionMsg = $e->getMessage();
+                $message = $this->formatNotification->formatMessage($title,false,$exceptionMsg);
+                $this->logger->critical($message);
             }
 
             catch(\Exception $ex) {
@@ -455,11 +467,17 @@ class Processor extends AbstractApiProcessor
                         catch (ClientErrorResponseException $e) {
 
                             try {
-                                $message = 'The document '.$theFile['type'].' for Mirakl shop '.$shopId.' could not be uploaded to HiPay Wallet for the following reason: ';
-
-                                $this->logger->critical(
-                                    $message . $e->getMessage() . ' - ' . ($e->getResponse() !== null ? $e->getResponse()->getBody(true) : '')
+                                // log critical
+                                $title = 'The document '.$theFile['type'].' for Mirakl shop '.$shopId.' could not be uploaded to HiPay Wallet for the following reason:';
+                                $infos = array(
+                                    'shopId' => $shopId,
+                                    'HipayId'=> $vendor->getHiPayId(),
+                                    'Email'  => $vendor->getEmail(),
+                                    'Type'   => 'Critical'
                                 );
+                                $exceptionMsg = $e->getMessage();
+                                $message = $this->formatNotification->formatMessage($title,$infos,$exceptionMsg);
+                                $this->logger->critical($message);
                             }
 
                             catch(\Exception $ex) {

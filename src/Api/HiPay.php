@@ -70,6 +70,10 @@ class HiPay implements ApiInterface
     CONST DOCUMENT_SOLE_MAN_BUS_PROOF_OF_REG_NUMBER = 8;
     CONST DOCUMENT_SOLE_MAN_BUS_PROOF_OF_TAX_STATUS = 9;
 
+    // For log separator for markdown
+    CONST SEPARMKD = '::';
+    CONST LINEMKD  = "\r";
+
     /**
      * Constructor.
      *

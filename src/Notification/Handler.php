@@ -21,6 +21,7 @@ use HiPay\Wallet\Mirakl\Vendor\Model\VendorManagerInterface;
 use Psr\Log\LoggerInterface;
 use SimpleXMLElement;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use HiPay\Wallet\Mirakl\Notification\FormatNotification;
 
 /**
  * Handle the notification server-server
@@ -39,6 +40,11 @@ class Handler extends AbstractProcessor
     protected $vendorManager;
 
     /**
+     * @var FormatNotification class
+     */
+    protected $formatNotification;
+
+    /**
      * Handler constructor.
      *
      * @param OperationManager $operationManager
@@ -55,6 +61,7 @@ class Handler extends AbstractProcessor
         parent::__construct($dispatcher, $logger);
         $this->operationManager = $operationManager;
         $this->vendorManager = $vendorManager;
+        $this->formatNotification = new FormatNotification();
     }
 
     /**
@@ -67,9 +74,6 @@ class Handler extends AbstractProcessor
      */
     public function handleHiPayNotification($xml)
     {
-        // bool for notification error
-        $bool_semdmail = true;
-
         if (!$xml) {
             return;
         }
@@ -129,8 +133,15 @@ class Handler extends AbstractProcessor
                 );
                 break;
             case Notification::DOCUMENT_VALIDATION:
-                $this->logger->error(
-                    "Error - Document validation",
+                $title = 'Error - Document validation';
+                $infos = array(
+                    'shopId' => '-',
+                    'HipayId'=> $hipayId,
+                    'Email'  => '-',
+                    'Type'   => 'Error'
+                );
+                $exceptionMsg = implode(
+                    "\r::* ",
                     array(
                         'Operation' => $operation,
                         'Status' => $xml->result->status,
@@ -138,16 +149,12 @@ class Handler extends AbstractProcessor
                         'Date' => $date->format('Y-m-d H:i:s'),
                         'Document_type' => $xml->result->document_type,
                         'Document_type_label' => $xml->result->document_type_label,
-                        'Account_id' => $hipayId,
                     ));
-                $bool_semdmail = false;
+                $message = $this->formatNotification->formatMessage($title,$infos,$exceptionMsg);
+                $this->logger->error($message);
                 break;
             default:
                 throw new IllegalNotificationOperationException($operation);
-        }
-
-        if ( !$bool_semdmail ) {
-            return $bool_semdmail;
         }
     }
 

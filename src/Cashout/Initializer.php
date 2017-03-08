@@ -20,6 +20,7 @@ use HiPay\Wallet\Mirakl\Vendor\Model\VendorManagerInterface as VendorManager;
 use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use HiPay\Wallet\Mirakl\Notification\FormatNotification;
 
 /**
  * Generate and save the operation to be executed by the processor.
@@ -45,6 +46,11 @@ class Initializer extends AbstractApiProcessor
 
     /** @var  VendorManager */
     protected $vendorManager;
+
+    /**
+     * @var FormatNotification class
+     */
+    protected $formatNotification;
 
     /**
      * Initializer constructor.
@@ -82,6 +88,8 @@ class Initializer extends AbstractApiProcessor
         $this->transactionValidator = $transactionValidator;
 
         $this->vendorManager = $vendorManager;
+
+        $this->formatNotification = new FormatNotification();
     }
 
     /**
@@ -107,7 +115,10 @@ class Initializer extends AbstractApiProcessor
         // control mirakl settings
         $boolControl = $this->getControlMiraklSettings($this->documentTypes);
         if ($boolControl === false) {
-            $this->logger->critical($this->criticalMessageMiraklSettings);
+            // log critical
+            $title = $this->criticalMessageMiraklSettings;
+            $message = $this->formatNotification->formatMessage($title);
+            $this->logger->critical($message);
         } else {
             $this->logger->info('Control Mirakl Settings OK');
         }
@@ -148,7 +159,10 @@ class Initializer extends AbstractApiProcessor
 
         if ($transactionError) {
             foreach ($transactionError as $voucher) {
-                $this->logger->error("The transaction for the payment voucher number $voucher are wrong");
+                // log error
+                $title = "The transaction for the payment voucher number $voucher are wrong";
+                $message = $this->formatNotification->formatMessage($title);
+                $this->logger->error($message);
             }
             return;
         }
@@ -530,7 +544,10 @@ class Initializer extends AbstractApiProcessor
             $this->operationManager->saveAll($operations);
             $this->logger->info('[OK] Operations saved');
         } else {
-            $this->logger->error('Some operation were wrong. Operations not saved');
+            // log error
+            $title = 'Some operation were wrong. Operations not saved';
+            $message = $this->formatNotification->formatMessage($title);
+            $this->logger->error($message);
         }
     }
 

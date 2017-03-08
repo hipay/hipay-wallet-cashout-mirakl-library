@@ -10,6 +10,7 @@ use HiPay\Wallet\Mirakl\Exception\Event\ThrowException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use HiPay\Wallet\Mirakl\Notification\FormatNotification;
 
 /**
  *
@@ -29,6 +30,11 @@ abstract class AbstractProcessor
     protected $logger;
 
     /**
+     * @var FormatNotification class
+     */
+    protected $formatNotification;
+
+    /**
      * AbstractProcessor constructor.
      *
      * @param EventDispatcherInterface $dispatcher
@@ -42,6 +48,8 @@ abstract class AbstractProcessor
         $this->dispatcher = $dispatcher;
 
         $this->logger = $logger;
+
+        $this->formatNotification = new FormatNotification();
     }
 
     /**
@@ -77,8 +85,11 @@ abstract class AbstractProcessor
      */
     public function handleException(Exception $exception, $level = 'warning', array $context = array())
     {
+        $title = 'Handle Exception: '. $level;
+        $messageException = $exception->getMessage();
+        $message = $this->formatNotification->formatMessage($title,false,$messageException);
         $this->logger->$level(
-            $exception->getMessage(), $context
+            $message, $context
         );
         $this->dispatcher->dispatch(
             $exception instanceof DispatchableException ? $exception->getEventName() : 'exception.thrown',
