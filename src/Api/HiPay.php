@@ -17,6 +17,7 @@ use HiPay\Wallet\Mirakl\Api\Soap\SmileClient;
 use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 use Guzzle\Service\Client;
 use Guzzle\Service\Description\ServiceDescription;
+use Guzzle\Http\Exception\ClientErrorResponseException;
 
 /**
  * Make the SOAP & REST call to the HiPay API.
@@ -101,6 +102,28 @@ class HiPay implements ApiInterface
         $this->entity = $entity;
         $this->timezone = $timeZone;
         $this->locale = $locale;
+
+        $defaults = array(
+            'compression' => SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP,
+            'cache_wsdl' => WSDL_CACHE_NONE,
+            'soap_version' => SOAP_1_1,
+            'encoding' => 'UTF-8',
+            'trace' => true
+        );
+
+        $options = array_merge($defaults, $options);
+        $this->userAccountClient = new SmileClient(
+            $baseSoapUrl.'/soap/user-account-v2?wsdl',
+            $options
+        );
+        $this->transferClient = new SmileClient(
+            $baseSoapUrl.'/soap/transfer?wsdl',
+            $options
+        );
+        $this->withdrawalClient = new SmileClient(
+            $baseSoapUrl.'/soap/withdrawal?wsdl',
+            $options
+        );
 
         $this->restClient = new Client();
 
@@ -379,7 +402,7 @@ class HiPay implements ApiInterface
     {
         $result = $this->getAccountInfos($userAccount);
 
-        return new AccountInfo($result['user_account_id'], $result['user_space_id'], $result['identified'] === Identified::YES);
+        return new AccountInfo($result['user_account_id'], $result['user_space_id'], $result['identified'] === 1);
     }
 
     /**
@@ -393,9 +416,31 @@ class HiPay implements ApiInterface
         VendorInterface $vendor
     )
     {
-        $result = $this->getAccountInfos($vendor);
+        $this->restClient->getConfig()->setPath(
+            'request.options/headers/php-auth-user',
+            $this->login
+        );
 
-        return $result['identified'] == Identified::YES ? true : false;
+        $this->restClient->getConfig()->setPath(
+            'request.options/headers/php-auth-pw',
+            $this->password
+        );
+
+        if( !empty($vendor->getHiPayId())) {
+            $this->restClient->getConfig()->setPath(
+                'request.options/headers/php-auth-subaccount-id',
+                $vendor->getHiPayId()
+            );
+        }
+
+        $command = $this->restClient->getCommand(
+            'GetUserAccount',
+            array()
+        );
+
+        $result = $this->restClient->execute($command);
+
+        return $result['identified'] == 1 ? true : false;
     }
 
     /**
@@ -464,6 +509,8 @@ class HiPay implements ApiInterface
      */
     public function getBalance(VendorInterface $vendor)
     {
+        echo 'account_id' . $vendor->getHiPayId()."\r\n";
+
         $this->restClient->getConfig()->setPath(
             'request.options/headers/php-auth-user',
             $this->login
@@ -474,7 +521,7 @@ class HiPay implements ApiInterface
             $this->password
         );
 
-        if( !is_null($vendor->getHiPayId())) {
+        if (!is_null($vendor->getHiPayId())) {
             $this->restClient->getConfig()->setPath(
                 'request.options/headers/php-auth-subaccount-id',
                 $vendor->getHiPayId()
@@ -490,22 +537,24 @@ class HiPay implements ApiInterface
             'GetBalance',
             array()
         );
-        $result = $this->restClient->execute($command);
 
-        /** retro compatible if old account */
-        if ($result['code'] == '401') {
-            /** retry with email in php-auth-subaccount-login */
-            $this->restClient->getConfig()->setPath(
-                'request.options/headers/php-auth-subaccount-login',
-                $vendor->getEmail()
-            );
-            $command = $this->restClient->getCommand(
-                'GetUserAccount',
-                array()
-            );
+        try {
             $result = $this->restClient->execute($command);
+        } catch (ClientErrorResponseException $e) {
+            /** retro compatible if old account */
+            if ($e->getResponse()->getStatusCode() == '401') {
+                /** retry with email in php-auth-subaccount-login */
+                $this->restClient->getConfig()->setPath(
+                    'request.options/headers/php-auth-subaccount-login',
+                    $vendor->getEmail()
+                );
+                $command = $this->restClient->getCommand(
+                    'GetBalance',
+                    array()
+                );
+                $result = $this->restClient->execute($command);
+            }
         }
-
         return $result['balances'][0]['balance'];
     }
 
@@ -666,27 +715,30 @@ class HiPay implements ApiInterface
     protected function callSoap($name, array $parameters)
     {
         $parameters = $this->mergeLoginParametersSoap($parameters);
-
-        //Make the call
-        $response = $this->getClient($name)->$name(
-            array('parameters' => $parameters)
-        );
-
-        //Parse the response
-        $response = (array) $response;
-        $response = (array) current($response);
-        if ($response['code'] > 0) {
-            throw new Exception(
-                "There was an error with the soap call $name".PHP_EOL.
-                $response['code'].' : '.$response['description'].PHP_EOL.
-                'Date : ' . date('Y-m-d H:i:s') . PHP_EOL .
-                'Parameters :'. PHP_EOL .
-                print_r($parameters, true),
-                $response['code']
+        try{
+            //Make the call
+            $response = $this->getClient($name)->$name(
+                array('parameters' => $parameters)
             );
-        } else {
-            unset($response['code']);
-            unset($response['description']);
+
+            //Parse the response
+            $response = (array) $response;
+            $response = (array) current($response);
+            if ($response['code'] > 0) {
+                throw new Exception(
+                    "There was an error with the soap call $name".PHP_EOL.
+                    $response['code'].' : '.$response['description'].PHP_EOL.
+                    'Date : ' . date('Y-m-d H:i:s') . PHP_EOL .
+                    'Parameters :'. PHP_EOL .
+                    print_r($parameters, true),
+                    $response['code']
+                );
+            } else {
+                unset($response['code']);
+                unset($response['description']);
+            }
+        }catch(Exception $e){
+            echo $e->getMessage();
         }
 
         return $response ?: true;
