@@ -27,15 +27,16 @@ class FormatNotification {
                     HiPay::LINEMKD . HiPay::SEPARMKD .'- Email Shop: ' . $infos['Email'] .
                     HiPay::LINEMKD . HiPay::SEPARMKD .'- Type Message: ' . $infos['Type'] .
                     HiPay::LINEMKD . HiPay::SEPARMKD .
-                    HiPay::LINEMKD . HiPay::SEPARMKD . '***';
+                    HiPay::LINEMKD . HiPay::SEPARMKD . '***' .
+                    HiPay::SEPARMKD;
         }
         if ($message) {
-            $markdown .= HiPay::LINEMKD.HiPay::SEPARMKD . '```'.
-                    HiPay::LINEMKD.HiPay::SEPARMKD.'Message:'.$message.
-                    HiPay::LINEMKD.HiPay::SEPARMKD.
-                    '```'.
+            $markdown .= HiPay::LINEMKD.HiPay::SEPARMKD . '```' .
+                    HiPay::LINEMKD . HiPay::SEPARMKD . 'Message:' . $message .
+                    HiPay::LINEMKD . HiPay::SEPARMKD . '```' .
                     HiPay::LINEMKD . HiPay::SEPARMKD .
-                    HiPay::LINEMKD.HiPay::SEPARMKD.'***';
+                    HiPay::LINEMKD . HiPay::SEPARMKD . '***' .
+                    HiPay::SEPARMKD;
         }
         return $markdown;
     }
