@@ -110,6 +110,7 @@ class HiPay implements ApiInterface
             'encoding' => 'UTF-8',
             'trace' => true
         );
+
         $options = array_merge($defaults, $options);
         $this->userAccountClient = new SmileClient(
             $baseSoapUrl.'/soap/user-account-v2?wsdl',
@@ -401,7 +402,7 @@ class HiPay implements ApiInterface
     {
         $result = $this->getAccountInfos($userAccount);
 
-        return new AccountInfo($result['user_account_id'], $result['user_space_id'], $result['identified'] === Identified::YES);
+        return new AccountInfo($result['user_account_id'], $result['user_space_id'], $result['identified'] === 1);
     }
 
     /**
@@ -438,7 +439,6 @@ class HiPay implements ApiInterface
         );
 
         $result = $this->restClient->execute($command);
-        //$result = $this->getAccountInfos($vendor);
 
         return $result['identified'] == 1 ? true : false;
     }
@@ -509,6 +509,8 @@ class HiPay implements ApiInterface
      */
     public function getBalance(VendorInterface $vendor)
     {
+        echo 'account_id' . $vendor->getHiPayId()."\r\n";
+
         $this->restClient->getConfig()->setPath(
             'request.options/headers/php-auth-user',
             $this->login
@@ -713,27 +715,30 @@ class HiPay implements ApiInterface
     protected function callSoap($name, array $parameters)
     {
         $parameters = $this->mergeLoginParametersSoap($parameters);
-
-        //Make the call
-        $response = $this->getClient($name)->$name(
-            array('parameters' => $parameters)
-        );
-
-        //Parse the response
-        $response = (array) $response;
-        $response = (array) current($response);
-        if ($response['code'] > 0) {
-            throw new Exception(
-                "There was an error with the soap call $name".PHP_EOL.
-                $response['code'].' : '.$response['description'].PHP_EOL.
-                'Date : ' . date('Y-m-d H:i:s') . PHP_EOL .
-                'Parameters :'. PHP_EOL .
-                print_r($parameters, true),
-                $response['code']
+        try{
+            //Make the call
+            $response = $this->getClient($name)->$name(
+                array('parameters' => $parameters)
             );
-        } else {
-            unset($response['code']);
-            unset($response['description']);
+
+            //Parse the response
+            $response = (array) $response;
+            $response = (array) current($response);
+            if ($response['code'] > 0) {
+                throw new Exception(
+                    "There was an error with the soap call $name".PHP_EOL.
+                    $response['code'].' : '.$response['description'].PHP_EOL.
+                    'Date : ' . date('Y-m-d H:i:s') . PHP_EOL .
+                    'Parameters :'. PHP_EOL .
+                    print_r($parameters, true),
+                    $response['code']
+                );
+            } else {
+                unset($response['code']);
+                unset($response['description']);
+            }
+        }catch(Exception $e){
+            echo $e->getMessage();
         }
 
         return $response ?: true;
