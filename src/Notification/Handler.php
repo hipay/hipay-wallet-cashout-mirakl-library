@@ -150,6 +150,14 @@ class Handler extends AbstractProcessor
                         'Document_type' => $xml->result->document_type,
                         'Document_type_label' => $xml->result->document_type_label,
                     ));
+                $exceptionMsg =
+                    HiPay::LINEMKD . HiPay::SEPARMKD . '- Operation: ' . $operation .
+                    HiPay::LINEMKD . HiPay::SEPARMKD . '- Status: ' . $xml->result->status .
+                    HiPay::LINEMKD . HiPay::SEPARMKD . '- Message: ' . $xml->result->message .
+                    HiPay::LINEMKD . HiPay::SEPARMKD . '- Date: ' . $date->format('Y-m-d H:i:s') .
+                    HiPay::LINEMKD . HiPay::SEPARMKD . '- Document_type: ' . $xml->result->document_type .
+                    HiPay::LINEMKD . HiPay::SEPARMKD . '- Document_type_label: ' . $xml->result->document_type_label .
+                    HiPay::LINEMKD . HiPay::SEPARMKD;
                 $message = $this->formatNotification->formatMessage($title,$infos,$exceptionMsg);
                 $this->logger->error($message);
                 break;
