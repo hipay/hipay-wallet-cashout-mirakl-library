@@ -21,7 +21,7 @@ use HiPay\Wallet\Mirakl\Vendor\Model\VendorManagerInterface;
 use Psr\Log\LoggerInterface;
 use SimpleXMLElement;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use HiPay\Wallet\Mirakl\Notification\FormatNotification;
+use HiPay\Wallet\Mirakl\Api\HiPay;
 
 /**
  * Handle the notification server-server
@@ -141,7 +141,7 @@ class Handler extends AbstractProcessor
                     'Type'   => 'Error'
                 );
                 $exceptionMsg = implode(
-                    "\r::* ",
+                    HiPay::LINEMKD . HiPay::SEPARMKD . '- ',
                     array(
                         'Operation' => $operation,
                         'Status' => $xml->result->status,
@@ -150,6 +150,14 @@ class Handler extends AbstractProcessor
                         'Document_type' => $xml->result->document_type,
                         'Document_type_label' => $xml->result->document_type_label,
                     ));
+                $exceptionMsg =
+                    HiPay::LINEMKD . HiPay::SEPARMKD . '- Operation: ' . $operation .
+                    HiPay::LINEMKD . HiPay::SEPARMKD . '- Status: ' . $xml->result->status .
+                    HiPay::LINEMKD . HiPay::SEPARMKD . '- Message: ' . $xml->result->message .
+                    HiPay::LINEMKD . HiPay::SEPARMKD . '- Date: ' . $date->format('Y-m-d H:i:s') .
+                    HiPay::LINEMKD . HiPay::SEPARMKD . '- Document_type: ' . $xml->result->document_type .
+                    HiPay::LINEMKD . HiPay::SEPARMKD . '- Document_type_label: ' . $xml->result->document_type_label .
+                    HiPay::LINEMKD . HiPay::SEPARMKD;
                 $message = $this->formatNotification->formatMessage($title,$infos,$exceptionMsg);
                 $this->logger->error($message);
                 break;
