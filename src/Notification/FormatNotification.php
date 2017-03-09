@@ -17,7 +17,7 @@ class FormatNotification {
         $message = false
     )
     {
-        $markdown = HiPay::SEPARMKD . '### ' . $title;
+        $markdown = HiPay::LINEMKD .HiPay::SEPARMKD . '### ' . $title;
         if ($infos) {
             $markdown .=
                     HiPay::LINEMKD . HiPay::SEPARMKD . '***
