@@ -141,7 +141,7 @@ class Handler extends AbstractProcessor
                     'Type'   => 'Error'
                 );
                 $exceptionMsg = implode(
-                    HiPay::LINEMKD . HiPay::SEPARMKD . '* ',
+                    HiPay::LINEMKD . HiPay::SEPARMKD . '- ',
                     array(
                         'Operation' => $operation,
                         'Status' => $xml->result->status,
