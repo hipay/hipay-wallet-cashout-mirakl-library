@@ -32,7 +32,8 @@ class FormatNotification {
         }
         if ($message) {
             $markdown .= HiPay::LINEMKD.HiPay::SEPARMKD . '```' .
-                    HiPay::LINEMKD . HiPay::SEPARMKD . 'Message:' . $message .
+                    HiPay::LINEMKD . HiPay::SEPARMKD . 'Message:' .
+                    HiPay::LINEMKD . HiPay::SEPARMKD . $message .
                     HiPay::LINEMKD . HiPay::SEPARMKD . '```' .
                     HiPay::LINEMKD . HiPay::SEPARMKD .
                     HiPay::LINEMKD . HiPay::SEPARMKD . '***' .

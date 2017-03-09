@@ -21,7 +21,7 @@ use HiPay\Wallet\Mirakl\Vendor\Model\VendorManagerInterface;
 use Psr\Log\LoggerInterface;
 use SimpleXMLElement;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use HiPay\Wallet\Mirakl\Notification\FormatNotification;
+use HiPay\Wallet\Mirakl\Api\HiPay;
 
 /**
  * Handle the notification server-server
@@ -141,7 +141,7 @@ class Handler extends AbstractProcessor
                     'Type'   => 'Error'
                 );
                 $exceptionMsg = implode(
-                    "\r_** ",
+                    HiPay::LINEMKD . HiPay::SEPARMKD . '* ',
                     array(
                         'Operation' => $operation,
                         'Status' => $xml->result->status,
