@@ -141,7 +141,7 @@ class Handler extends AbstractProcessor
                     'Type'   => 'Error'
                 );
                 $exceptionMsg = implode(
-                    "\r::* ",
+                    "\r_** ",
                     array(
                         'Operation' => $operation,
                         'Status' => $xml->result->status,
