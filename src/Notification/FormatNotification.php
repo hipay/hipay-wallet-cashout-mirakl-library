@@ -22,11 +22,11 @@ class FormatNotification {
             $markdown .=
                     HiPay::LINEMKD . HiPay::SEPARMKD . '***
                 ' . HiPay::LINEMKD . HiPay::SEPARMKD . '|Name                   |Value                      |
-                ' . HiPay::LINEMKD . HiPay::SEPARMKD . '|:--------------------- |:------------------------- |
-                ' . HiPay::LINEMKD . HiPay::SEPARMKD . '| Shop ID Mirakl        | ' . $infos['shopId'] . '  |
-                ' . HiPay::LINEMKD . HiPay::SEPARMKD . '| ID of the Wallet      | ' . $infos['HipayId'] . ' |
-                ' . HiPay::LINEMKD . HiPay::SEPARMKD . '| Email Shop            | ' . $infos['Email'] . '   |
-                ' . HiPay::LINEMKD . HiPay::SEPARMKD . '| Type Message          | ' . $infos['Type'] . '    |
+                ' . HiPay::LINEMKD . '|:--------------------- |:------------------------- |
+                ' . HiPay::LINEMKD . '| Shop ID Mirakl        | ' . $infos['shopId'] . '  |
+                ' . HiPay::LINEMKD . '| ID of the Wallet      | ' . $infos['HipayId'] . ' |
+                ' . HiPay::LINEMKD . '| Email Shop            | ' . $infos['Email'] . '   |
+                ' . HiPay::LINEMKD . '| Type Message          | ' . $infos['Type'] . '    |
                 ' . HiPay::LINEMKD . HiPay::SEPARMKD . '***';
         }
         if ($message) {
