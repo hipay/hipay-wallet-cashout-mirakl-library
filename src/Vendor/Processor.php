@@ -558,10 +558,32 @@ class Processor extends AbstractApiProcessor
                     }
                 }
             } catch (InvalidBankInfoException $e) {
-                $this->handleException($e, 'critical', array('shopId' => $vendor->getMiraklId()));
+                // log critical
+                $shopId = $vendor->getHiPayId();
+                $title = 'Invalid Bank Information for Mirakl shop '.$shopId.':';
+                $infos = array(
+                    'shopId' => $vendor->getMiraklId(),
+                    'HipayId'=> $shopId,
+                    'Email'  => $vendor->getEmail(),
+                    'Type'   => 'Critical'
+                );
+                $exceptionMsg = $e->getMessage();
+                $message = $this->formatNotification->formatMessage($title,$infos,$exceptionMsg);
+                $this->logger->critical($message);
             }
             catch (Exception $e) {
-                $this->handleException($e, 'warning', array('shopId' => $vendor->getMiraklId()));
+                // log critical
+                $shopId = $vendor->getHiPayId();
+                $title = 'Exception Warning Bank Information for Mirakl shop '.$shopId.':';
+                $infos = array(
+                    'shopId' => $vendor->getMiraklId(),
+                    'HipayId'=> $shopId,
+                    'Email'  => $vendor->getEmail(),
+                    'Type'   => 'Critical'
+                );
+                $exceptionMsg = $e->getMessage();
+                $message = $this->formatNotification->formatMessage($title,$infos,$exceptionMsg);
+                $this->logger->warning($message);
             }
         }
     }
