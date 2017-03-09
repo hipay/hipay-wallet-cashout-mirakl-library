@@ -579,7 +579,7 @@ class Processor extends AbstractApiProcessor
                     'shopId' => $vendor->getMiraklId(),
                     'HipayId'=> $shopId,
                     'Email'  => $vendor->getEmail(),
-                    'Type'   => 'Critical'
+                    'Type'   => 'Warning'
                 );
                 $exceptionMsg = $e->getMessage();
                 $message = $this->formatNotification->formatMessage($title,$infos,$exceptionMsg);
