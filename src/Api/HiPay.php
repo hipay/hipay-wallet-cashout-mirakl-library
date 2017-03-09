@@ -557,7 +557,6 @@ class HiPay implements ApiInterface
         }
         return $result['balances'][0]['balance'];
     }
-
     /**
      * Make a transfer.
      *
@@ -621,7 +620,7 @@ class HiPay implements ApiInterface
      *
      * @return array
      */
-    public function getMerchantGroupAccounts($merchantGroupId, DateTime $pastDate)
+    public function getMerchantsGroupAccounts($merchantGroupId, DateTime $pastDate)
     {
         $parameters = array('merchantGroupId' => $merchantGroupId, 'pastDate' => $pastDate->format('Y-m-d'));
         $data = $this->callSoap('getMerchantsGroupAccounts', $parameters);
@@ -665,6 +664,7 @@ class HiPay implements ApiInterface
             );
         return $parameters;
     }
+  
     /**
      * Add sub account informations.
      *
