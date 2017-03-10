@@ -205,5 +205,5 @@ interface ApiInterface
     public function getMerchantsGroupAccounts($merchantGroupId, DateTime $pastDate);
 
 
-    public function uploadDocument(VendorInterface $vendor, $documentType, $fileName, \DateTime $validityDate = null);
+    public function uploadDocument($userSpaceId,$accountId, $documentType, $fileName, \DateTime $validityDate = null);
 }

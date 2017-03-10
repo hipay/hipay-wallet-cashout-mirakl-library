@@ -452,7 +452,8 @@ class Processor extends AbstractApiProcessor
 
                         try {
                             $this->hipay->uploadDocument(
-                                $vendor,
+                                $vendor->getHiPayUserSpaceId(),
+                                $vendor->getHiPayId(),
                                 $this->documentTypes[$theFile['type']],
                                 $tmpFile,
                                 $validityDate);

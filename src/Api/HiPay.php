@@ -133,7 +133,8 @@ class HiPay implements ApiInterface
     }
 
     public function uploadDocument(
-        VendorInterface $vendor,
+        $userSpaceId,
+        $accountId,
         $documentType,
         $fileName,
         \DateTime $validityDate = null
@@ -149,10 +150,10 @@ class HiPay implements ApiInterface
             $this->password
         );
 
-        if( !is_null($vendor->getHiPayId())) {
+        if( !is_null($accountId)) {
             $this->restClient->getConfig()->setPath(
                 'request.options/headers/php-auth-subaccount-id',
-                $vendor->getHiPayId()
+                $accountId
             );
         }
 
