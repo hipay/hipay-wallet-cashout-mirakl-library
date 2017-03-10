@@ -132,7 +132,12 @@ class HiPay implements ApiInterface
         $this->restClient->setDescription($description);
     }
 
-    public function uploadDocument($userSpaceId, $documentType, $fileName, \DateTime $validityDate = null)
+    public function uploadDocument(
+        VendorInterface $vendor,
+        $documentType,
+        $fileName,
+        \DateTime $validityDate = null
+    )
     {
         $this->restClient->getConfig()->setPath(
             'request.options/headers/php-auth-user',
@@ -143,10 +148,18 @@ class HiPay implements ApiInterface
             'request.options/headers/php-auth-pw',
             $this->password
         );
+
+        if( !is_null($vendor->getHiPayId())) {
+            $this->restClient->getConfig()->setPath(
+                'request.options/headers/php-auth-subaccount-id',
+                $vendor->getHiPayId()
+            );
+        }
+
         $command = $this->restClient->getCommand(
             'UploadDocument',
             array(
-                'userSpaceId' => $userSpaceId,
+                'userSpaceId' => $vendor->getHiPayUserSpaceId(),
                 'validityDate' => $validityDate,
                 'type' => $documentType,
                 'file' => new PostFile('file', $fileName)
