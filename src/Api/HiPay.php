@@ -160,7 +160,7 @@ class HiPay implements ApiInterface
         $command = $this->restClient->getCommand(
             'UploadDocument',
             array(
-                'userSpaceId' => $vendor->getHiPayUserSpaceId(),
+                'userSpaceId' => $userSpaceId,
                 'validityDate' => $validityDate,
                 'type' => $documentType,
                 'file' => new PostFile('file', $fileName)
