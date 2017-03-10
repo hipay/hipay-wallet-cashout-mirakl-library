@@ -245,8 +245,8 @@ class ProcessorTest extends AbstractProcessorTest
         $docContent1 = 'data1';
         $docContent2 = 'data2';
         $docContent3 = 'data3';
-        $vendor1 = new Vendor('test@ex1.com', mt_rand(), mt_rand(), 771);
-        $vendor2 = new Vendor('test@ex2.com', mt_rand(), mt_rand(), 772);
+        $vendor1 = new Vendor('test@ex1.com', 120001, mt_rand(), 771);
+        $vendor2 = new Vendor('test@ex2.com', 120002, mt_rand(), 772);
 
         $document1 = new Document(2006);
         $document2 = new Document(3011);
@@ -280,9 +280,9 @@ class ProcessorTest extends AbstractProcessorTest
         $prophecy->reveal();
 
         // Sending documents to HiPay Wallet
-        $this->hipay->uploadDocument(771, HiPay::DOCUMENT_ALL_PROOF_OF_BANK_ACCOUNT, Argument::any(), Argument::any())->shouldBeCalledTimes(1);
-        $this->hipay->uploadDocument(772, HiPay::DOCUMENT_LEGAL_IDENTITY_OF_REPRESENTATIVE, Argument::any(), Argument::any())->willThrow(new ClientErrorResponseException())->shouldBeCalledTimes(1);
-        $this->hipay->uploadDocument(772, HiPay::DOCUMENT_LEGAL_PROOF_OF_REGISTRATION_NUMBER, Argument::any(), Argument::any())->shouldBeCalledTimes(1);
+        $this->hipay->uploadDocument(771, 120001, HiPay::DOCUMENT_ALL_PROOF_OF_BANK_ACCOUNT, Argument::any(), Argument::any())->shouldBeCalledTimes(1);
+        $this->hipay->uploadDocument(772, 120002, HiPay::DOCUMENT_LEGAL_IDENTITY_OF_REPRESENTATIVE, Argument::any(), Argument::any())->willThrow(new ClientErrorResponseException())->shouldBeCalledTimes(1);
+        $this->hipay->uploadDocument(772, 120002, HiPay::DOCUMENT_LEGAL_PROOF_OF_REGISTRATION_NUMBER, Argument::any(), Argument::any())->shouldBeCalledTimes(1);
 
         // Save document in DB
         $this->documentManager->create(2006, Argument::type("DateTime"), "ALL_PROOF_OF_BANK_ACCOUNT", $vendor1)->willReturn($document1)->shouldBeCalledTimes(1);
