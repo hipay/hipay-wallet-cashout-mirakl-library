@@ -416,7 +416,7 @@ class HiPay implements ApiInterface
     {
         $result = $this->getAccountInfos($userAccount);
 
-        return new AccountInfo($result['user_account_id'], $result['user_space_id'], $result['identified'] === 1);
+        return new AccountInfo($result['user_account_id'], $result['user_space_id'], $result['identified'] === 1, $result['callback_salt']);
     }
 
     /**
