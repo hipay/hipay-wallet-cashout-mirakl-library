@@ -1,3 +1,6 @@
+# Version 2.5.1
+- Fix array_push
+
 # Version 2.5.0
 
 - New If Phone is empty it is not sent
