@@ -1,3 +1,15 @@
+# Version 2.5.1
+- Fix array_push
+
+# Version 2.5.0
+
+- New If Phone is empty it is not sent
+- Fix Withdrawal: fatal error in isIdentified function
+- Fix Customize the error level for wich emails should be sent
+- Fix Error 401 in create account function
+- Fix Error in vendor wallet list command
+- Fix Error in transfert function
+
 # Version 2.4.2
 # Version 2.4.1
 
