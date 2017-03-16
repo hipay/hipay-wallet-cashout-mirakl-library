@@ -207,10 +207,10 @@ class UserAccount extends ModelAbstract
             ),
         ];
         if(!empty($phone)) {
-            array_push($this->address, array("phone_number"=>$phone));
+            $this->address["phone_number"] = $phone;
         }
         if(!empty($fax)) {
-            array_push($this->address, array("fax_number"=>$fax));
+            $this->address["fax_number"] = $fax;
         }
         $this->hipayInformation = 1;
         $this->commercialInformation = 1;
