@@ -1,3 +1,4 @@
+# Version 2.5.2
 # Version 2.5.1
 - Fix array_push
 
