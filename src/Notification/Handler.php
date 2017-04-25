@@ -22,6 +22,8 @@ use Psr\Log\LoggerInterface;
 use SimpleXMLElement;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use HiPay\Wallet\Mirakl\Api\HiPay;
+use HiPay\Wallet\Mirakl\Api\HiPay\ApiInterface;
+use HiPay\Wallet\Mirakl\Api\HiPay\Model\Rest\UserAccount;
 
 /**
  * Handle the notification server-server
@@ -44,6 +46,9 @@ class Handler extends AbstractProcessor
      */
     protected $formatNotification;
 
+    /** @var  HiPay */
+    protected $hipay;
+
     /**
      * Handler constructor.
      *
@@ -56,12 +61,14 @@ class Handler extends AbstractProcessor
         EventDispatcherInterface $dispatcher,
         LoggerInterface $logger,
         OperationManager $operationManager,
-        VendorManagerInterface $vendorManager
+        VendorManagerInterface $vendorManager,
+        ApiInterface $factory
     ) {
         parent::__construct($dispatcher, $logger);
         $this->operationManager = $operationManager;
         $this->vendorManager = $vendorManager;
         $this->formatNotification = new FormatNotification();
+        $this->hipay = $factory;
     }
 
     /**
@@ -79,23 +86,43 @@ class Handler extends AbstractProcessor
         }
 
         $xml = new SimpleXMLElement($xml);
+
+        //Check if callback_salt is updated else use the new callback_salt
+        /** @noinspection PhpUndefinedFieldInspection */
+        $hipayId = (int) $xml->result->account_id;
+
+        //Find the vendor by his account id
+        $vendor = $this->vendorManager->findByHiPayId($hipayId);
+
+        //Call API user-account
+        $userAccount = $this->hipay->getAccountHiPay($hipayId);
+
+        $callback_salt = $vendor->getCallbackSalt();
+
+        //Check if callback_salt is changed
+        if ($callback_salt != $userAccount['callback_salt']) {
+            //Save the new callback_salt
+            $vendor->setCallbackSalt($userAccount['callback_salt']);
+            $this->vendorManager->update($vendor);
+            $callback_salt = $vendor->getCallbackSalt();
+        }
+
         //Check content
         /** @noinspection PhpUndefinedFieldInspection */
         $md5string = strtr($xml->result->asXML(), array("\n" => '', "\t" => ''));
         $md5string = trim(preg_replace("#\>( )+?\<#", "><", $md5string));
 
         /** @noinspection PhpUndefinedFieldInspection */
-        if (md5($md5string) !=  $xml->md5content) {
-            //throw new ChecksumFailedException();
+        if (md5($md5string . $callback_salt) !=  $xml->md5content) {
+            throw new ChecksumFailedException();
         }
+
         /** @noinspection PhpUndefinedFieldInspection */
         $operation = (string) $xml->result->operation;
         /** @noinspection PhpUndefinedFieldInspection */
         $status = ($xml->result->status == NotificationStatus::OK);
         /** @noinspection PhpUndefinedFieldInspection */
         $date = new DateTime((string)$xml->result->date.' '.(string)$xml->result->time);
-        /** @noinspection PhpUndefinedFieldInspection */
-        $hipayId = (int) $xml->result->account_id;
 
         switch ($operation) {
             case Notification::BANK_INFO_VALIDATION:

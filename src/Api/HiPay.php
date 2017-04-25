@@ -112,10 +112,10 @@ class HiPay implements ApiInterface
         );
 
         $options = array_merge($defaults, $options);
-        $this->userAccountClient = new SmileClient(
+        /*$this->userAccountClient = new SmileClient(
             $baseSoapUrl.'/soap/user-account-v2?wsdl',
             $options
-        );
+        );*/
         $this->transferClient = new SmileClient(
             $baseSoapUrl.'/soap/transfer?wsdl',
             $options
@@ -509,6 +509,46 @@ class HiPay implements ApiInterface
                 $result = $this->restClient->execute($command);
             }
         }
+        return $result;
+    }
+
+    /**
+     * Return various information about a wallet
+     *
+     * @param VendorInterface $vendor
+     *
+     * @return array
+     *
+     * @throws Exception
+     */
+    public function getAccountHiPay(
+        $account_id
+    )
+    {
+        $this->restClient->getConfig()->setPath(
+            'request.options/headers/php-auth-user',
+            $this->login
+        );
+
+        $this->restClient->getConfig()->setPath(
+            'request.options/headers/php-auth-pw',
+            $this->password
+        );
+
+        if( !empty($input['account_id'])) {
+            $this->restClient->getConfig()->setPath(
+                'request.options/headers/php-auth-subaccount-login',
+                $account_id
+            );
+        }
+
+        $command = $this->restClient->getCommand(
+            'GetUserAccount',
+            array()
+        );
+
+        $result = $this->restClient->execute($command);
+
         return $result;
     }
 
