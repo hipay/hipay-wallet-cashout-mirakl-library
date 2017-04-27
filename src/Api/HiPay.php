@@ -112,10 +112,10 @@ class HiPay implements ApiInterface
         );
 
         $options = array_merge($defaults, $options);
-        /*$this->userAccountClient = new SmileClient(
+        $this->userAccountClient = new SmileClient(
             $baseSoapUrl.'/soap/user-account-v2?wsdl',
             $options
-        );*/
+        );
         $this->transferClient = new SmileClient(
             $baseSoapUrl.'/soap/transfer?wsdl',
             $options
@@ -718,7 +718,7 @@ class HiPay implements ApiInterface
             );
         return $parameters;
     }
-  
+
     /**
      * Add sub account informations.
      *
