@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <notification>
-    <md5content>02de8a4a8b1630503f7f7efee04986de</md5content>
+    <md5content>b5cd5a014964f9d41262e1bdba884e8b</md5content>
     <result>
         <operation>withdraw_validation</operation>
         <status>nok</status>

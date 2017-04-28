@@ -104,7 +104,7 @@ class ProcessorTest extends AbstractProcessorTest
     {
         $this->hipay->isAvailable(Argument::containingString('@'), Argument::is(false))->willReturn(true);
 
-        $walletInfo = new HiPay\Wallet\AccountInfo(mt_rand(), mt_rand(), true);
+        $walletInfo = new HiPay\Wallet\AccountInfo(mt_rand(), mt_rand(), true, mt_rand());
 
         $this->hipay->createFullUseraccountV2(
             Argument::type("\\HiPay\\Wallet\\Mirakl\\Api\\HiPay\\Model\\Rest\\UserAccount")
@@ -118,6 +118,8 @@ class ProcessorTest extends AbstractProcessorTest
             $walletInfo->getUserAccountld(),
             $walletInfo->getUserSpaceld(),
             $walletInfo->getIdentified(),
+            Argument::any(),
+            Argument::any(),
             Argument::type('array')
         )
 

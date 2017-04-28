@@ -154,6 +154,15 @@ interface ApiInterface
     public function getAccountInfos(UserAccount $userAccount);
 
     /**
+     * Return the identified status of the account.
+     *
+     * @param $account_id
+     *
+     * @return array
+     */
+    public function getAccountHiPay($account_id);
+
+    /**
      * Return the account information.
      *
      * @param VendorInterface $vendor

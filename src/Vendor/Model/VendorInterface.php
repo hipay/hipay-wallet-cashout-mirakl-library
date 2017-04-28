@@ -5,11 +5,11 @@ namespace HiPay\Wallet\Mirakl\Vendor\Model;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Represent an entity that is able to receive money from HiPay
- * Uses Symfony Validation assertion to ensure basic data integrity.
+ * Vendor processor handling the wallet creation
+ * and the bank info registration and verification.
  *
- * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
- * @copyright 2015 Smile
+ * @author    HiPay <support.wallet@hipay.com>
+ * @copyright 2017 HiPay
  */
 interface VendorInterface
 {
@@ -93,4 +93,16 @@ interface VendorInterface
      * @return void
      */
     public function setVatNumber($string);
+
+    /**
+     * @return string
+     */
+    public function getCallbackSalt();
+
+    /**
+     * @param callbackSalt $string
+     *
+     * @return void
+     */
+    public function setCallbackSalt($string);
 }

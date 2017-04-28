@@ -73,6 +73,7 @@ class HiPay implements ApiInterface
 
     // For log separator for markdown
     CONST SEPARMKD = '_*';
+    CONST LINEMKD  = "\r";
 
     /**
      * Constructor.
@@ -415,7 +416,7 @@ class HiPay implements ApiInterface
     {
         $result = $this->getAccountInfos($userAccount);
 
-        return new AccountInfo($result['user_account_id'], $result['user_space_id'], $result['identified'] === 1);
+        return new AccountInfo($result['user_account_id'], $result['user_space_id'], $result['identified'] === 1, $result['callback_salt']);
     }
 
     /**
@@ -508,6 +509,46 @@ class HiPay implements ApiInterface
                 $result = $this->restClient->execute($command);
             }
         }
+        return $result;
+    }
+
+    /**
+     * Return various information about a wallet
+     *
+     * @param VendorInterface $vendor
+     *
+     * @return array
+     *
+     * @throws Exception
+     */
+    public function getAccountHiPay(
+        $account_id
+    )
+    {
+        $this->restClient->getConfig()->setPath(
+            'request.options/headers/php-auth-user',
+            $this->login
+        );
+
+        $this->restClient->getConfig()->setPath(
+            'request.options/headers/php-auth-pw',
+            $this->password
+        );
+
+        if( !empty($input['account_id'])) {
+            $this->restClient->getConfig()->setPath(
+                'request.options/headers/php-auth-subaccount-login',
+                $account_id
+            );
+        }
+
+        $command = $this->restClient->getCommand(
+            'GetUserAccount',
+            array()
+        );
+
+        $result = $this->restClient->execute($command);
+
         return $result;
     }
 
@@ -677,7 +718,7 @@ class HiPay implements ApiInterface
             );
         return $parameters;
     }
-  
+
     /**
      * Add sub account informations.
      *

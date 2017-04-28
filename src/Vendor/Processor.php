@@ -221,6 +221,8 @@ class Processor extends AbstractApiProcessor
                         $walletInfo->getUserSpaceld(),
                         $walletInfo->getIdentified(),
                         $vendorData['shop_id'],
+                        $vendorData['pro_details']['VAT_number'],
+                        $walletInfo->getCallbackSalt(),
                         $vendorData
                     );
                 }
@@ -339,7 +341,7 @@ class Processor extends AbstractApiProcessor
      * @param array $miraklData
      * @return VendorInterface
      */
-    protected function createVendor($email, $walletId, $walletSpaceId, $identified, $miraklId, $miraklData)
+    protected function createVendor($email, $walletId, $walletSpaceId, $identified, $miraklId, $vatNumber, $callbackSalt, $miraklData)
     {
         $this->logger->debug("The wallet number is $walletId");
         $vendor = $this->vendorManager->create(
@@ -348,6 +350,8 @@ class Processor extends AbstractApiProcessor
             $walletId,
             $walletSpaceId,
             $identified,
+            $vatNumber,
+            $callbackSalt,
             $miraklData
         );
 
@@ -356,7 +360,8 @@ class Processor extends AbstractApiProcessor
         $vendor->setMiraklId($miraklId);
         $vendor->setHiPayUserSpaceId($walletSpaceId);
         $vendor->setHiPayIdentified($identified);
-        $vendor->setVatNumber($miraklData['pro_details']['VAT_number']);
+        $vendor->setVatNumber($vatNumber);
+        $vendor->setCallbackSalt($callbackSalt);
 
         $this->logger->info('[OK] Wallet recorded');
 
