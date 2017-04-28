@@ -73,7 +73,6 @@ class HiPay implements ApiInterface
 
     // For log separator for markdown
     CONST SEPARMKD = '_*';
-    CONST LINEMKD  = "\r";
 
     /**
      * Constructor.
