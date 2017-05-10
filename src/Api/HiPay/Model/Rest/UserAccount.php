@@ -195,23 +195,33 @@ class UserAccount extends ModelAbstract
         );
         $this->companyName = $miraklData['shop_name'];
         $this->vatNumber = $miraklData['pro_details']['VAT_number'];
+
+        $address = $miraklData['contact_informations']['street1'] .' '. $miraklData['contact_informations']['street2'];
+        $zipcode = $miraklData['contact_informations']['zip_code'];
+        $city = $miraklData['contact_informations']['city'];
+        $country = $this->formatCountryCode($miraklData['contact_informations']['country']);
         $phone = $miraklData['contact_informations']['phone'];
-        $fax =$miraklData['contact_informations']['fax'];
-        $this->address = [
-            "address" => $miraklData['contact_informations']['street1'].
-                ' '.$miraklData['contact_informations']['street2'],
-            "zipcode" => $miraklData['contact_informations']['zip_code'],
-            "city" => $miraklData['contact_informations']['city'],
-            "country" => $this->formatCountryCode(
-                $miraklData['contact_informations']['country']
-            ),
-        ];
+        $fax = $miraklData['contact_informations']['fax'];
+
+        if(!empty($address)) {
+            $this->address["address"] = $address;
+        }
+        if(!empty($zipcode)) {
+            $this->address["zipcode"] = $zipcode;
+        }
+        if(!empty($city)) {
+            $this->address["city"] = $city;
+        }
+        if(!empty($country)) {
+            $this->address["country"] = $country;
+        }
         if(!empty($phone)) {
             $this->address["phone_number"] = $phone;
         }
         if(!empty($fax)) {
             $this->address["fax_number"] = $fax;
         }
+
         $this->hipayInformation = 1;
         $this->commercialInformation = 1;
         $this->activationType = 0;
