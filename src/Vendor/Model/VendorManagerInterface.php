@@ -3,11 +3,11 @@
 namespace HiPay\Wallet\Mirakl\Vendor\Model;
 
 /**
- * Contains utility methods to create, save and find vendors
- * To be implemented by the integrator of the library.
+ * Vendor processor handling the wallet creation
+ * and the bank info registration and verification.
  *
- * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
- * @copyright 2015 Smile
+ * @author    HiPay <support.wallet@hipay.com>
+ * @copyright 2017 HiPay
  */
 interface VendorManagerInterface
 {
@@ -21,6 +21,7 @@ interface VendorManagerInterface
      * @param $hipayUserSpaceId
      * @param $identified
      * @param $vatNumber
+     * @param $callbackSalt
      * @param array $miraklData
      *
      * @return VendorInterface
@@ -31,6 +32,8 @@ interface VendorManagerInterface
         $hipayId,
         $hipayUserSpaceId,
         $identified,
+        $vatNumber,
+        $callbackSalt,
         array $miraklData
     );
 

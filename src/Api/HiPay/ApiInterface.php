@@ -154,6 +154,15 @@ interface ApiInterface
     public function getAccountInfos(UserAccount $userAccount);
 
     /**
+     * Return the identified status of the account.
+     *
+     * @param $account_id
+     *
+     * @return array
+     */
+    public function getAccountHiPay($account_id);
+
+    /**
      * Return the account information.
      *
      * @param VendorInterface $vendor
@@ -205,5 +214,5 @@ interface ApiInterface
     public function getMerchantsGroupAccounts($merchantGroupId, DateTime $pastDate);
 
 
-    public function uploadDocument($userSpaceId, $documentType, $fileName, \DateTime $validityDate = null);
+    public function uploadDocument($userSpaceId,$accountId, $documentType, $fileName, \DateTime $validityDate = null);
 }

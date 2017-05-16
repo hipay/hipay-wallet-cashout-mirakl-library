@@ -72,7 +72,7 @@ class HiPay implements ApiInterface
     CONST DOCUMENT_SOLE_MAN_BUS_PROOF_OF_TAX_STATUS = 9;
 
     // For log separator for markdown
-    CONST SEPARMKD = '::';
+    CONST SEPARMKD = '_*';
     CONST LINEMKD  = "\r";
 
     /**
@@ -110,6 +110,7 @@ class HiPay implements ApiInterface
             'encoding' => 'UTF-8',
             'trace' => true
         );
+
         $options = array_merge($defaults, $options);
         $this->userAccountClient = new SmileClient(
             $baseSoapUrl.'/soap/user-account-v2?wsdl',
@@ -131,7 +132,13 @@ class HiPay implements ApiInterface
         $this->restClient->setDescription($description);
     }
 
-    public function uploadDocument($userSpaceId, $documentType, $fileName, \DateTime $validityDate = null)
+    public function uploadDocument(
+        $userSpaceId,
+        $accountId,
+        $documentType,
+        $fileName,
+        \DateTime $validityDate = null
+    )
     {
         $this->restClient->getConfig()->setPath(
             'request.options/headers/php-auth-user',
@@ -142,6 +149,14 @@ class HiPay implements ApiInterface
             'request.options/headers/php-auth-pw',
             $this->password
         );
+
+        if( !is_null($accountId)) {
+            $this->restClient->getConfig()->setPath(
+                'request.options/headers/php-auth-subaccount-id',
+                $accountId
+            );
+        }
+
         $command = $this->restClient->getCommand(
             'UploadDocument',
             array(
@@ -401,7 +416,7 @@ class HiPay implements ApiInterface
     {
         $result = $this->getAccountInfos($userAccount);
 
-        return new AccountInfo($result['user_account_id'], $result['user_space_id'], $result['identified'] === Identified::YES);
+        return new AccountInfo($result['user_account_id'], $result['user_space_id'], $result['identified'] === 1, $result['callback_salt']);
     }
 
     /**
@@ -438,7 +453,6 @@ class HiPay implements ApiInterface
         );
 
         $result = $this->restClient->execute($command);
-        //$result = $this->getAccountInfos($vendor);
 
         return $result['identified'] == 1 ? true : false;
     }
@@ -499,6 +513,46 @@ class HiPay implements ApiInterface
     }
 
     /**
+     * Return various information about a wallet
+     *
+     * @param VendorInterface $vendor
+     *
+     * @return array
+     *
+     * @throws Exception
+     */
+    public function getAccountHiPay(
+        $account_id
+    )
+    {
+        $this->restClient->getConfig()->setPath(
+            'request.options/headers/php-auth-user',
+            $this->login
+        );
+
+        $this->restClient->getConfig()->setPath(
+            'request.options/headers/php-auth-pw',
+            $this->password
+        );
+
+        if( !empty($input['account_id'])) {
+            $this->restClient->getConfig()->setPath(
+                'request.options/headers/php-auth-subaccount-login',
+                $account_id
+            );
+        }
+
+        $command = $this->restClient->getCommand(
+            'GetUserAccount',
+            array()
+        );
+
+        $result = $this->restClient->execute($command);
+
+        return $result;
+    }
+
+    /**
      * Return the wallet current balance
      *
      * @param VendorInterface $vendor
@@ -509,6 +563,8 @@ class HiPay implements ApiInterface
      */
     public function getBalance(VendorInterface $vendor)
     {
+        echo 'account_id' . $vendor->getHiPayId()."\r\n";
+
         $this->restClient->getConfig()->setPath(
             'request.options/headers/php-auth-user',
             $this->login
@@ -662,7 +718,7 @@ class HiPay implements ApiInterface
             );
         return $parameters;
     }
-  
+
     /**
      * Add sub account informations.
      *
@@ -713,27 +769,30 @@ class HiPay implements ApiInterface
     protected function callSoap($name, array $parameters)
     {
         $parameters = $this->mergeLoginParametersSoap($parameters);
-
-        //Make the call
-        $response = $this->getClient($name)->$name(
-            array('parameters' => $parameters)
-        );
-
-        //Parse the response
-        $response = (array) $response;
-        $response = (array) current($response);
-        if ($response['code'] > 0) {
-            throw new Exception(
-                "There was an error with the soap call $name".PHP_EOL.
-                $response['code'].' : '.$response['description'].PHP_EOL.
-                'Date : ' . date('Y-m-d H:i:s') . PHP_EOL .
-                'Parameters :'. PHP_EOL .
-                print_r($parameters, true),
-                $response['code']
+        try{
+            //Make the call
+            $response = $this->getClient($name)->$name(
+                array('parameters' => $parameters)
             );
-        } else {
-            unset($response['code']);
-            unset($response['description']);
+
+            //Parse the response
+            $response = (array) $response;
+            $response = (array) current($response);
+            if ($response['code'] > 0) {
+                throw new Exception(
+                    "There was an error with the soap call $name".PHP_EOL.
+                    $response['code'].' : '.$response['description'].PHP_EOL.
+                    'Date : ' . date('Y-m-d H:i:s') . PHP_EOL .
+                    'Parameters :'. PHP_EOL .
+                    print_r($parameters, true),
+                    $response['code']
+                );
+            } else {
+                unset($response['code']);
+                unset($response['description']);
+            }
+        }catch(Exception $e){
+            echo $e->getMessage();
         }
 
         return $response ?: true;

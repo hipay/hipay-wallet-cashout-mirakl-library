@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <notification>
-    <md5content>a4314ce63fc0be37959d2ee358393bf2</md5content>
+    <md5content>48f2b2e15337a267a5d19a7f342b1aec</md5content>
     <result>
         <operation>bank_info_validation</operation>
         <status>ok</status>
         <date>2015-07-29</date>
         <time>15:57:27 UTC+0000</time>
-        <account_id>123481</account_id>
+        <account_id>123456</account_id>
+        <callback_salt>HiPay2017</callback_salt>
     </result>
 </notification>

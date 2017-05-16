@@ -13,6 +13,7 @@ class AccountInfo
     private $userAccountld;
     private $userSpaceld;
     private $identified;
+    private $callbackSalt;
 
     /**
      * AccountInfo constructor.
@@ -21,12 +22,14 @@ class AccountInfo
      * @param $userSpaceld User space ID
      * @param $identified Whether the account is identified or not
      * @param $vatNumber User VAT Number
+     * @param $callbackSalt User Security key
      */
-    public function __construct($userAccountld, $userSpaceld, $identified)
+    public function __construct($userAccountld, $userSpaceld, $identified, $callbackSalt)
     {
         $this->userAccountld = $userAccountld;
         $this->userSpaceld = $userSpaceld;
         $this->identified = $identified;
+        $this->callbackSalt = $callbackSalt;
     }
 
     /**
@@ -75,6 +78,22 @@ class AccountInfo
     public function setIdentified($identified)
     {
         $this->identified = $identified;
+    }
+
+    /**
+     * @return varchar User security key
+     */
+    public function getCallbackSalt()
+    {
+        return $this->callbackSalt;
+    }
+
+    /**
+     * @param mixed $callbackSalt User security key
+     */
+    public function setCallbackSalt($callbackSalt)
+    {
+        $this->callbackSalt = $callbackSalt;
     }
 
 }
