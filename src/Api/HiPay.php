@@ -255,7 +255,7 @@ class HiPay implements ApiInterface
 
         $result = $this->restClient->execute($command);
 
-        return new AccountInfo($result['account_id'], $result['user_space_id'], $result['status'] === Identified::YES);
+        return new AccountInfo($result['account_id'], $result['user_space_id'], $result['status'] === Identified::YES, $result['callback_salt']);
     }
 
     /**
