@@ -1,3 +1,6 @@
+# Version 2.5.4
+- Fix callback_salt in HiPay.php
+
 # Version 2.5.3
 - Fix address informations
 
