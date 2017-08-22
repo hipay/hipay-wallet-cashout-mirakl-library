@@ -28,12 +28,11 @@ interface LogGeneralManagerInterface
      * @return VendorInterface
      */
     public function create(
-        $email,
         $miraklId,
-        $hipayId,
-        $hipayUserSpaceId,
-        $identified,
-        array $miraklData
+        $type,
+        $action,
+        $message,
+        $date
     );
 
     /**
