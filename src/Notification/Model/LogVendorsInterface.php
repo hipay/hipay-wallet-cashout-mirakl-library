@@ -31,22 +31,6 @@ interface LogVendorsInterface
     public function setMiraklId($id);
 
     /**
-     * @return string
-     *
-     * @Assert\NotBlank()
-     * @Assert\Type(type="string")
-     * @Assert\Email()
-     */
-    public function getEmail();
-
-    /**
-     * @param string $email
-     *
-     * @return void
-     */
-    public function setEmail($email);
-
-    /**
      * @return int
      */
     public function getHiPayId();
@@ -61,36 +45,49 @@ interface LogVendorsInterface
     /**
      * @return int
      */
-    public function getHiPayUserSpaceId();
+    public function getStatus();
 
     /**
      * @param int $id
      *
      * @return void
      */
-    public function setHiPayUserSpaceId($id);
-
-    /**
-     * @return int
-     */
-    public function getHiPayIdentified();
-
-    /**
-     * @param int $id
-     *
-     * @return void
-     */
-    public function setHiPayIdentified($id);
+    public function setStatus($id);
 
     /**
      * @return string
      */
-    public function getVatNumber();
+    public function getMessage();
 
     /**
-     * @param vatNumber $string
+     * @param string $string
      *
      * @return void
      */
-    public function setVatNumber($string);
+    public function setMessage($string);
+
+    /**
+     * @return string
+     */
+    public function getNbDoc();
+
+    /**
+     * @param getNbDoc $string
+     *
+     * @return void
+     */
+    public function setNbDoc($string);
+
+    /**
+     * @return string
+     */
+    public function getDate();
+
+    /**
+     * @param Date $string
+     *
+     * @return void
+     */
+    public function setDate($string);
+
 }
