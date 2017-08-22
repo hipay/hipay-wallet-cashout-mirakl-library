@@ -72,22 +72,22 @@ interface LogVendorsInterface
     public function getNbDoc();
 
     /**
-     * @param getNbDoc $string
+     * @param string $string
      *
      * @return void
      */
     public function setNbDoc($string);
 
     /**
-     * @return string
+     * @return DateTime
      */
     public function getDate();
 
     /**
-     * @param Date $string
+     * @param DateTime $datetime
      *
-     * @return void
+     * @return DateTime
      */
-    public function setDate($string);
+    public function setDate($datetime);
 
 }
