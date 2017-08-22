@@ -79,15 +79,15 @@ interface LogVendorsInterface
     public function setNbDoc($string);
 
     /**
-     * @return DateTime
+     * @return string
      */
     public function getDate();
 
     /**
-     * @param DateTime $datetime
+     * @param string $datetime
      *
-     * @return DateTime
+     * @return string
      */
-    public function setDate(DateTime $datetime);
+    public function setDate($datetime);
 
 }
