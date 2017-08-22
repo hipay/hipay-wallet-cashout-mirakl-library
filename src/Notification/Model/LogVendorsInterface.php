@@ -88,6 +88,6 @@ interface LogVendorsInterface
      *
      * @return DateTime
      */
-    public function setDate($datetime);
+    public function setDate(DateTime $datetime);
 
 }
