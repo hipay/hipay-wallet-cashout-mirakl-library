@@ -1,6 +1,7 @@
 <?php
 
 namespace HiPay\Wallet\Mirakl\Notification\Model;
+use HiPay\Wallet\Mirakl\Integration\Entity\LogOperations;
 
 /**
  * Contains utility methods to create, save and find vendors
@@ -26,12 +27,13 @@ interface LogOperationsManagerInterface
      * @return VendorInterface
      */
     public function create(
-        $email,
         $miraklId,
         $hipayId,
-        $hipayUserSpaceId,
-        $identified,
-        array $miraklData
+        $amount,
+        $statusTransferts,
+        $statusWithDrawal,
+        $message,
+        $balance
     );
 
     /**
@@ -42,8 +44,7 @@ interface LogOperationsManagerInterface
      * @param array           $miraklData
      */
     public function update(
-        VendorInterface $vendor,
-        array $miraklData
+        LogOperationsInterface $logOperations
     );
 
     /**
@@ -53,7 +54,7 @@ interface LogOperationsManagerInterface
      *
      * @return mixed
      */
-    public function saveAll(array $vendors);
+    public function saveAll(array $logOperations);
 
     /**
      * Save a vendor.
@@ -62,7 +63,7 @@ interface LogOperationsManagerInterface
      *
      * @return mixed
      */
-    public function save($vendor);
+    public function save($logOperations);
 
     /**
      * Find a vendor by is mirakl shop id.
@@ -98,5 +99,5 @@ interface LogOperationsManagerInterface
      *
      * @return bool
      */
-    public function isValid(VendorInterface $vendor);
+    public function isValid(LogOperationsInterface $logGeneral);
 }

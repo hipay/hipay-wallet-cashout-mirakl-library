@@ -43,8 +43,7 @@ interface LogGeneralManagerInterface
      * @param array           $miraklData
      */
     public function update(
-        VendorInterface $vendor,
-        array $miraklData
+        LogGeneralInterface $logGeneral
     );
 
     /**
@@ -54,7 +53,7 @@ interface LogGeneralManagerInterface
      *
      * @return mixed
      */
-    public function saveAll(array $vendors);
+    public function saveAll(array $logGeneral);
 
     /**
      * Save a vendor.
@@ -63,7 +62,7 @@ interface LogGeneralManagerInterface
      *
      * @return mixed
      */
-    public function save($vendor);
+    public function save($logGeneral);
 
     /**
      * Find a vendor by is mirakl shop id.
@@ -99,5 +98,5 @@ interface LogGeneralManagerInterface
      *
      * @return bool
      */
-    public function isValid(VendorInterface $vendor);
+    public function isValid(LogGeneralInterface $logGeneral);
 }

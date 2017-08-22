@@ -26,12 +26,12 @@ interface LogVendorsManagerInterface
      * @return VendorInterface
      */
     public function create(
-        $email,
         $miraklId,
         $hipayId,
-        $hipayUserSpaceId,
-        $identified,
-        array $miraklData
+        $status,
+        $message,
+        $nbDoc,
+        $date
     );
 
     /**
@@ -42,8 +42,8 @@ interface LogVendorsManagerInterface
      * @param array           $miraklData
      */
     public function update(
-        VendorInterface $vendor,
-        array $miraklData
+        LogVendorsInterface $logVendors,
+        array $logData
     );
 
     /**
@@ -53,7 +53,7 @@ interface LogVendorsManagerInterface
      *
      * @return mixed
      */
-    public function saveAll(array $vendors);
+    public function saveAll(array $logVendors);
 
     /**
      * Save a vendor.
@@ -62,7 +62,7 @@ interface LogVendorsManagerInterface
      *
      * @return mixed
      */
-    public function save($vendor);
+    public function save($logVendors);
 
     /**
      * Find a vendor by is mirakl shop id.
@@ -98,5 +98,5 @@ interface LogVendorsManagerInterface
      *
      * @return bool
      */
-    public function isValid(VendorInterface $vendor);
+    public function isValid(LogVendorsInterface $logVendors);
 }
