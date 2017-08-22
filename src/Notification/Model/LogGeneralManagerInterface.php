@@ -72,24 +72,7 @@ interface LogGeneralManagerInterface
      * @return VendorInterface|null if not found
      */
     public function findByMiraklId($miraklShopId);
-
-    /**
-     * Find a vendor by its email.
-     *
-     * @param string $email
-     *
-     * @return VendorInterface|null if not found
-     */
-    public function findByEmail($email);
-
-    /**
-     * Find a vendor by its hipay wallet id.
-     *
-     * @param $hipayId
-     *
-     * @return VendorInterface|null if not found
-     */
-    public function findByHiPayId($hipayId);
+    
 
     /**
      * Verify that a vendor is valid before save.
