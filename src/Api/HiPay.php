@@ -170,6 +170,30 @@ class HiPay implements ApiInterface
         return $this->restClient->execute($command);
     }
 
+    public function getDocuments(VendorInterface $vendor){
+
+        $this->restClient->getConfig()->setPath(
+            'request.options/headers/php-auth-user',
+            $this->login
+        );
+
+        $this->restClient->getConfig()->setPath(
+            'request.options/headers/php-auth-pw',
+            $this->password
+        );
+
+        $command = $this->restClient->getCommand(
+            'GetDocuments',
+            array(
+                'userId' => $vendor->getHipayId()
+            )
+        );
+
+        $result = $this->restClient->execute($command);
+
+        return $result;
+    }
+
     /**
      * Check if given email can be used to create an HiPay wallet
      * Enforce the entity to the one given on object construction if false.

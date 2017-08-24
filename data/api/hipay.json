@@ -44,6 +44,20 @@
         }
       }
     },
+    "GetDocuments": {
+        "httpMethod": "GET",
+        "uri": "/api/identification",
+        "summary": "Get the list of all identification documents for a user space",
+        "parameters": {
+            "userId": {
+                "type": "integer",
+                "description": "Id of the HiPay Wallet account",
+                "location": "postField",
+                "sentAs": "php-auth-subaccount-id",
+                "required": true
+            }
+        }
+    },
     "GetBalance": {
       "httpMethod": "GET",
       "uri": "/api/user-account/balance",
