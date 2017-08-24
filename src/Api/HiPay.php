@@ -182,12 +182,14 @@ class HiPay implements ApiInterface
             $this->password
         );
 
-        $command = $this->restClient->getCommand(
-            'GetDocuments',
-            array(
-                'userId' => $vendor->getHipayId()
-            )
-        );
+        if( !empty($vendor->getHiPayId())) {
+            $this->restClient->getConfig()->setPath(
+                'request.options/headers/php-auth-subaccount-id',
+                $vendor->getHiPayId()
+            );
+        }
+
+        $command = $this->restClient->getCommand('GetDocuments',array());
 
         $result = $this->restClient->execute($command);
 
