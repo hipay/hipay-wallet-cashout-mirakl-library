@@ -52,7 +52,7 @@
             "userId": {
                 "type": "integer",
                 "description": "Id of the HiPay Wallet account",
-                "location": "postField",
+                "location": "uri",
                 "sentAs": "php-auth-subaccount-id",
                 "required": true
             }
