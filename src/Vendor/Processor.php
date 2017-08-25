@@ -225,12 +225,18 @@ class Processor extends AbstractApiProcessor
                         $walletInfo->getCallbackSalt(),
                         $vendorData
                     );
-                }
+                }elseif ($vendor) {
+                   //Fetch the wallet id from HiPay
+                   $walletInfo = $this->getWalletUserInfo($vendorData);
+                   $vendor->setVatNumber($vendorData['pro_details']['VAT_number']);
+                   $vendor->setCallbackSalt($walletInfo->getCallbackSalt());
+                   $vendor->setHiPayIdentified($walletInfo->getIdentified());
 
-                elseif ($vendor->getEmail() !== $email) {
+                   if ($vendor->getEmail() !== $email) {
                     $this->logger->warning('The e-mail has changed in Mirakl ('.$email.') but cannot be updated in HiPay Wallet ('.$vendor->getEmail().').', array('shopId' => $miraklId));
                 }
-
+               }
+               
                 $previousValues = $this->getImmutableValues($vendor);
                 //Put more data into the vendor
                 $this->vendorManager->update($vendor, $vendorData);
