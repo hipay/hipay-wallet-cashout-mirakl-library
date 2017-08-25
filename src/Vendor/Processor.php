@@ -53,7 +53,6 @@ class Processor extends AbstractApiProcessor
      */
     protected $formatNotification;
 
-
     /**
      * Processor constructor.
      *
@@ -64,20 +63,16 @@ class Processor extends AbstractApiProcessor
      * @param DocumentManagerInterface $documentManager
      */
     public function __construct(
-        EventDispatcherInterface $dispatcherInterface,
-        LoggerInterface $logger,
-        ApiFactory $factory,
-        VendorManagerInterface $vendorManager,
-        DocumentManagerInterface $documentManager
-    ) {
+    EventDispatcherInterface $dispatcherInterface, LoggerInterface $logger, ApiFactory $factory,
+    VendorManagerInterface $vendorManager, DocumentManagerInterface $documentManager
+    )
+    {
         parent::__construct(
-            $dispatcherInterface,
-            $logger,
-            $factory
+            $dispatcherInterface, $logger, $factory
         );
 
-        $this->vendorManager = $vendorManager;
-        $this->documentManager = $documentManager;
+        $this->vendorManager      = $vendorManager;
+        $this->documentManager    = $documentManager;
         $this->formatNotification = new FormatNotification();
     }
 
@@ -98,7 +93,7 @@ class Processor extends AbstractApiProcessor
             $boolControl = $this->getControlMiraklSettings($this->documentTypes);
             if ($boolControl === false) {
                 // log critical
-                $title = $this->criticalMessageMiraklSettings;
+                $title   = $this->criticalMessageMiraklSettings;
                 $message = $this->formatNotification->formatMessage($title);
                 $this->logger->critical($message);
             } else {
@@ -117,7 +112,7 @@ class Processor extends AbstractApiProcessor
             //Wallet creation
             $this->logger->info('Wallet creation');
             $vendorCollection = $this->registerWallets($miraklData);
-            $this->logger->info('[OK] Wallets : ' . count($vendorCollection));
+            $this->logger->info('[OK] Wallets : '.count($vendorCollection));
 
             //Vendor saving
             $this->logger->info("Saving vendor");
@@ -127,31 +122,25 @@ class Processor extends AbstractApiProcessor
             //File transfer
             $this->logger->info('Transfer files');
             $this->transferFiles(
-                array_keys($vendorCollection),
-                $tmpFilesPath
+                array_keys($vendorCollection), $tmpFilesPath
             );
 
             // Bank data updating
             $this->logger->info('Update bank data');
             $this->handleBankInfo($vendorCollection, $miraklData);
             $this->logger->info('[OK] Bank info updated');
-
         } catch (ClientErrorResponseException $e) {
 
             try {
                 // log critical
-                $title = 'Error Vendor:Process ';
+                $title        = 'Error Vendor:Process ';
                 $exceptionMsg = $e->getMessage();
-                $message = $this->formatNotification->formatMessage($title,false,$exceptionMsg);
+                $message      = $this->formatNotification->formatMessage($title, false, $exceptionMsg);
                 $this->logger->critical($message);
-            }
-
-            catch(\Exception $ex) {
+            } catch (\Exception $ex) {
                 $this->handleException($e, "critical");
             }
-        }
-
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
 
             $trace = array_map(function ($item) {
                 return array(
@@ -192,13 +181,12 @@ class Processor extends AbstractApiProcessor
 
         foreach ($miraklData as $vendorData) {
             $this->logger->debug(
-                'Shop id : {shopId}',
-                array('shopId' => $vendorData['shop_id'])
+                'Shop id : {shopId}', array('shopId' => $vendorData['shop_id'])
             );
 
             try {
                 //Vendor recording
-                $email = $vendorData['contact_informations']['email'];
+                $email    = $vendorData['contact_informations']['email'];
                 $miraklId = $vendorData['shop_id'];
 
                 $vendor = $this->vendorManager->findByMiraklId($miraklId);
@@ -208,27 +196,28 @@ class Processor extends AbstractApiProcessor
                         $walletInfo = $this->createWallet($vendorData);
                         $this->logger->info(
                             '[OK] Created wallet for : '.
-                            $vendorData['shop_id'],
-                            array('shopId' => $vendorData['shop_id'])
+                            $vendorData['shop_id'], array('shopId' => $vendorData['shop_id'])
                         );
                     } else {
                         //Fetch the wallet id from HiPay
                         $walletInfo = $this->getWalletUserInfo($vendorData);
                     }
                     $vendor = $this->createVendor(
-                        $email,
-                        $walletInfo->getUserAccountld(),
-                        $walletInfo->getUserSpaceld(),
-                        $walletInfo->getIdentified(),
-                        $vendorData['shop_id'],
-                        $vendorData['pro_details']['VAT_number'],
-                        $walletInfo->getCallbackSalt(),
-                        $vendorData
+                        $email, $walletInfo->getUserAccountld(), $walletInfo->getUserSpaceld(),
+                        $walletInfo->getIdentified(), $vendorData['shop_id'], $vendorData['pro_details']['VAT_number'],
+                        $walletInfo->getCallbackSalt(), $vendorData
                     );
-                }
+                } elseif ($vendor) {
+                    //Fetch the wallet id from HiPay
+                    $walletInfo = $this->getWalletUserInfo($vendorData);
+                    $vendor->setVatNumber($vendorData['pro_details']['VAT_number']);
+                    $vendor->setCallbackSalt($walletInfo->getCallbackSalt());
+                    $vendor->setHiPayIdentified($walletInfo->getIdentified());
 
-                elseif ($vendor->getEmail() !== $email) {
-                    $this->logger->warning('The e-mail has changed in Mirakl ('.$email.') but cannot be updated in HiPay Wallet ('.$vendor->getEmail().').', array('shopId' => $miraklId));
+                    if ($vendor->getEmail() !== $email) {
+                        $this->logger->warning('The e-mail has changed in Mirakl ('.$email.') but cannot be updated in HiPay Wallet ('.$vendor->getEmail().').',
+                                               array('shopId' => $miraklId));
+                    }
                 }
 
                 $previousValues = $this->getImmutableValues($vendor);
@@ -265,7 +254,7 @@ class Processor extends AbstractApiProcessor
      */
     public function hasWallet($email)
     {
-        $event = new CheckAvailability($email);
+        $event  = new CheckAvailability($email);
         $this->dispatcher->dispatch('before.availability.check', $event);
         $result = $this->hipay->isAvailable($email, $event->getEntity());
         $this->dispatcher->dispatch('after.availability.check', $event);
@@ -291,8 +280,7 @@ class Processor extends AbstractApiProcessor
         );
 
         $this->dispatcher->dispatch(
-            'before.wallet.create',
-            $event
+            'before.wallet.create', $event
         );
 
         $walletInfo = $this->hipay->createFullUseraccountV2(
@@ -300,8 +288,7 @@ class Processor extends AbstractApiProcessor
         );
 
         $this->dispatcher->dispatch(
-            'after.wallet.create',
-            $event
+            'after.wallet.create', $event
         );
 
         return $walletInfo;
@@ -317,7 +304,7 @@ class Processor extends AbstractApiProcessor
      *
      * @return AccountInfo the get account info
      */
-    protected function getWalletUserInfo (array $shopData)
+    protected function getWalletUserInfo(array $shopData)
     {
         $userAccount = new UserAccount($shopData);
 
@@ -341,18 +328,12 @@ class Processor extends AbstractApiProcessor
      * @param array $miraklData
      * @return VendorInterface
      */
-    protected function createVendor($email, $walletId, $walletSpaceId, $identified, $miraklId, $vatNumber, $callbackSalt, $miraklData)
+    protected function createVendor($email, $walletId, $walletSpaceId, $identified, $miraklId, $vatNumber,
+                                    $callbackSalt, $miraklData)
     {
         $this->logger->debug("The wallet number is $walletId");
         $vendor = $this->vendorManager->create(
-            $email,
-            $miraklId,
-            $walletId,
-            $walletSpaceId,
-            $identified,
-            $vatNumber,
-            $callbackSalt,
-            $miraklData
+            $email, $miraklId, $walletId, $walletSpaceId, $identified, $vatNumber, $callbackSalt, $miraklData
         );
 
         $vendor->setEmail($email);
@@ -376,8 +357,8 @@ class Processor extends AbstractApiProcessor
      */
     protected function getImmutableValues(VendorInterface $vendor)
     {
-        $previousValues['email'] = $vendor->getEmail();
-        $previousValues['hipayId'] = $vendor->getHiPayId();
+        $previousValues['email']    = $vendor->getEmail();
+        $previousValues['hipayId']  = $vendor->getHiPayId();
         $previousValues['miraklId'] = $vendor->getMiraklId();
 
         return $previousValues;
@@ -391,12 +372,11 @@ class Processor extends AbstractApiProcessor
      * @throws Exception
      */
     public function transferFiles(
-        array $shopIds,
-        $tmpFilePath
-    ) {
+    array $shopIds, $tmpFilePath
+    )
+    {
 
-        if (count($shopIds) > 0)
-        {
+        if (count($shopIds) > 0) {
             // Fetches all Mirakl file names
             $allMiraklFiles = array();
 
@@ -407,93 +387,89 @@ class Processor extends AbstractApiProcessor
             $docTypes = $this->documentTypes;
 
             // We only keep the files with types we know
-            $files = array_filter($allMiraklFiles, function($aFile) use ($docTypes) {
+            $files = array_filter($allMiraklFiles,
+                                  function($aFile) use ($docTypes) {
                 return in_array($aFile['type'], array_keys($docTypes));
             });
 
-            foreach ($shopIds as $shopId)
-            {
-                $this->logger->info('Will check files for Mirakl shop '. $shopId);
+            foreach ($shopIds as $shopId) {
+                $this->logger->info('Will check files for Mirakl shop '.$shopId);
 
                 // Fetches documents already sent to HiPay Wallet
-                $vendor = $this->vendorManager->findByMiraklId($shopId);
+                $vendor    = $this->vendorManager->findByMiraklId($shopId);
                 $documents = $this->documentManager->findByVendor($vendor);
 
                 // Keep Mirakl files for this shop only
-                $theFiles = array_filter($files, function($file) use ($shopId) {
+                $theFiles = array_filter($files,
+                                         function($file) use ($shopId) {
                     return $file['shop_id'] == $shopId;
                 });
 
-                $this->logger->info('Found '.count($theFiles).' files on Mirakl for shop '. $shopId);
+                $this->logger->info('Found '.count($theFiles).' files on Mirakl for shop '.$shopId);
 
                 // Check all files for current shop
-                foreach($theFiles as $theFile)
-                {
-                    $filesAlreadyUploaded = array_values(array_filter($documents, function (DocumentInterface $document) use ($theFile) {
-                        return $document->getDocumentType() == $theFile['type'] && $document->getMiraklDocumentId() == $theFile['id'];
-                    }));
+                foreach ($theFiles as $theFile) {
+                    $filesAlreadyUploaded = array_values(array_filter($documents,
+                                                                      function (DocumentInterface $document) use ($theFile) {
+                            return $document->getDocumentType() == $theFile['type'] && $document->getMiraklDocumentId() == $theFile['id'];
+                        }));
 
                     // File not uploaded (or outdated)
                     if (count($filesAlreadyUploaded) === 0) {
 
-                        $this->logger->info('Document '.$theFile['id'].' (type: '.$theFile['type'].') for Mirakl for shop '. $shopId.' is not uploaded or not up to date. Will upload');
+                        $this->logger->info('Document '.$theFile['id'].' (type: '.$theFile['type'].') for Mirakl for shop '.$shopId.' is not uploaded or not up to date. Will upload');
 
                         $validityDate = null;
 
-                        if (in_array($this->documentTypes[$theFile['type']], array(
-                            HiPay::DOCUMENT_SOLE_MAN_BUS_IDENTITY,
-                            HiPay::DOCUMENT_INDIVIDUAL_IDENTITY,
-                            HiPay::DOCUMENT_LEGAL_IDENTITY_OF_REPRESENTATIVE
-                        ))) {
+                        if (in_array($this->documentTypes[$theFile['type']],
+                                     array(
+                                HiPay::DOCUMENT_SOLE_MAN_BUS_IDENTITY,
+                                HiPay::DOCUMENT_INDIVIDUAL_IDENTITY,
+                                HiPay::DOCUMENT_LEGAL_IDENTITY_OF_REPRESENTATIVE
+                            ))) {
                             $validityDate = new DateTime('+1 year');
                         }
 
-                        $tmpFile = $tmpFilePath . '/mirakl_kyc_downloaded_file.tmp';
+                        $tmpFile = $tmpFilePath.'/mirakl_kyc_downloaded_file.tmp';
 
                         file_put_contents(
-                            $tmpFile,
-                            $this->mirakl->downloadDocuments(array($theFile['id']))
+                            $tmpFile, $this->mirakl->downloadDocuments(array($theFile['id']))
                         );
 
                         try {
                             $this->hipay->uploadDocument(
-                                $vendor->getHiPayUserSpaceId(),
-                                $vendor->getHiPayId(),
-                                $this->documentTypes[$theFile['type']],
-                                $tmpFile,
-                                $validityDate);
+                                $vendor->getHiPayUserSpaceId(), $vendor->getHiPayId(),
+                                $this->documentTypes[$theFile['type']], $tmpFile, $validityDate);
 
-                            $newDocument = $this->documentManager->create($theFile['id'], new \DateTime($theFile['date_uploaded']), $theFile['type'], $vendor);
+                            $newDocument = $this->documentManager->create($theFile['id'],
+                                                                          new \DateTime($theFile['date_uploaded']),
+                                                                                        $theFile['type'], $vendor);
                             $this->documentManager->save($newDocument);
 
-                            $this->logger->info('Upload done. Document saved with ID: ' . $newDocument->getId());
+                            $this->logger->info('Upload done. Document saved with ID: '.$newDocument->getId());
                         }
 
-                            // If this upload fails, we log the error but we continue for other files
+                        // If this upload fails, we log the error but we continue for other files
                         catch (ClientErrorResponseException $e) {
 
                             try {
                                 // log critical
-                                $title = 'The document '.$theFile['type'].' for Mirakl shop '.$shopId.' could not be uploaded to HiPay Wallet for the following reason:';
-                                $infos = array(
+                                $title        = 'The document '.$theFile['type'].' for Mirakl shop '.$shopId.' could not be uploaded to HiPay Wallet for the following reason:';
+                                $infos        = array(
                                     'shopId' => $shopId,
-                                    'HipayId'=> $vendor->getHiPayId(),
-                                    'Email'  => $vendor->getEmail(),
-                                    'Type'   => 'Critical'
+                                    'HipayId' => $vendor->getHiPayId(),
+                                    'Email' => $vendor->getEmail(),
+                                    'Type' => 'Critical'
                                 );
                                 $exceptionMsg = $e->getMessage();
-                                $message = $this->formatNotification->formatMessage($title,$infos,$exceptionMsg);
+                                $message      = $this->formatNotification->formatMessage($title, $infos, $exceptionMsg);
                                 $this->logger->critical($message);
-                            }
-
-                            catch(\Exception $ex) {
+                            } catch (\Exception $ex) {
                                 throw $ex;
                             }
                         }
-                    }
-
-                    else {
-                        $this->logger->info('Document '.$theFile['id'].' (type: '.$theFile['type'].') for Mirakl for shop '. $shopId.' is already uploaded with ID ' . $filesAlreadyUploaded[0]->getId());
+                    } else {
+                        $this->logger->info('Document '.$theFile['id'].' (type: '.$theFile['type'].') for Mirakl for shop '.$shopId.' is already uploaded with ID '.$filesAlreadyUploaded[0]->getId());
                     }
                 }
             }
@@ -516,8 +492,7 @@ class Processor extends AbstractApiProcessor
         /** @var VendorInterface $vendor */
         foreach ($vendorCollection as $vendor) {
             $this->logger->debug(
-                'Shop id : '.$vendor->getMiraklId(),
-                array('shopId' => $vendor->getMiraklId())
+                'Shop id : '.$vendor->getMiraklId(), array('shopId' => $vendor->getMiraklId())
             );
 
             try {
@@ -537,22 +512,19 @@ class Processor extends AbstractApiProcessor
                         case BankInfoStatus::BLANK:
                             if ($this->sendBankAccount($vendor, $miraklBankInfo)) {
                                 $this->logger->info(
-                                    '[OK] Created bank account for : ' .
-                                    $vendor->getMiraklId(),
-                                    array('shopId' => $vendor->getMiraklId())
+                                    '[OK] Created bank account for : '.
+                                    $vendor->getMiraklId(), array('shopId' => $vendor->getMiraklId())
                                 );
                             } else {
                                 throw new BankAccountCreationFailedException(
-                                    $vendor,
-                                    $miraklBankInfo
+                                $vendor, $miraklBankInfo
                                 );
                             }
                             break;
                         case BankInfoStatus::VALIDATED:
                             if (!$this->isBankInfosSynchronised($vendor, $miraklBankInfo)) {
                                 throw new InvalidBankInfoException(
-                                    $vendor,
-                                    $miraklBankInfo
+                                $vendor, $miraklBankInfo
                                 );
                             } else {
                                 $this->logger->info(
@@ -565,30 +537,29 @@ class Processor extends AbstractApiProcessor
                 }
             } catch (InvalidBankInfoException $e) {
                 // log critical
-                $shopId = $vendor->getHiPayId();
-                $title = 'Invalid Bank Information for Mirakl shop '.$shopId.':';
-                $infos = array(
+                $shopId       = $vendor->getHiPayId();
+                $title        = 'Invalid Bank Information for Mirakl shop '.$shopId.':';
+                $infos        = array(
                     'shopId' => $vendor->getMiraklId(),
-                    'HipayId'=> $shopId,
-                    'Email'  => $vendor->getEmail(),
-                    'Type'   => 'Critical'
+                    'HipayId' => $shopId,
+                    'Email' => $vendor->getEmail(),
+                    'Type' => 'Critical'
                 );
                 $exceptionMsg = $e->getMessage();
-                $message = $this->formatNotification->formatMessage($title,$infos,$exceptionMsg);
+                $message      = $this->formatNotification->formatMessage($title, $infos, $exceptionMsg);
                 $this->logger->critical($message);
-            }
-            catch (Exception $e) {
+            } catch (Exception $e) {
                 // log critical
-                $shopId = $vendor->getHiPayId();
-                $title = 'Exception Warning Bank Information for Mirakl shop '.$shopId.':';
-                $infos = array(
+                $shopId       = $vendor->getHiPayId();
+                $title        = 'Exception Warning Bank Information for Mirakl shop '.$shopId.':';
+                $infos        = array(
                     'shopId' => $vendor->getMiraklId(),
-                    'HipayId'=> $shopId,
-                    'Email'  => $vendor->getEmail(),
-                    'Type'   => 'Warning'
+                    'HipayId' => $shopId,
+                    'Email' => $vendor->getEmail(),
+                    'Type' => 'Warning'
                 );
                 $exceptionMsg = $e->getMessage();
-                $message = $this->formatNotification->formatMessage($title,$infos,$exceptionMsg);
+                $message      = $this->formatNotification->formatMessage($title, $infos, $exceptionMsg);
                 $this->logger->warning($message);
             }
         }
@@ -617,8 +588,9 @@ class Processor extends AbstractApiProcessor
      * @return string
      */
     public function getBankInfoStatus(
-        VendorInterface $vendor
-    ) {
+    VendorInterface $vendor
+    )
+    {
         $result = $this->hipay->bankInfosStatus($vendor);
         return $result;
     }
@@ -637,8 +609,7 @@ class Processor extends AbstractApiProcessor
         $event = new AddBankAccount($bankInfo);
 
         $this->dispatcher->dispatch(
-            'before.bankAccount.add',
-            $event
+            'before.bankAccount.add', $event
         );
 
         return $this->hipay->bankInfosRegister($vendor, $event->getBankInfo());
@@ -653,12 +624,12 @@ class Processor extends AbstractApiProcessor
      * @return bool
      */
     protected function isBankInfosSynchronised(
-        VendorInterface $vendor,
-        BankInfo $miraklBankInfo
-    ) {
+    VendorInterface $vendor, BankInfo $miraklBankInfo
+    )
+    {
         $hipayBankInfo = $this->getBankInfo($vendor);
-        $event = new CheckBankInfos($miraklBankInfo, $hipayBankInfo);
-        $ibanCheck = ($hipayBankInfo->getIban() == $miraklBankInfo->getIban());
+        $event         = new CheckBankInfos($miraklBankInfo, $hipayBankInfo);
+        $ibanCheck     = ($hipayBankInfo->getIban() == $miraklBankInfo->getIban());
         $this->dispatcher->dispatch('check.bankInfos.synchronicity', $event);
         return $ibanCheck && $event->isSynchrony();
     }
@@ -695,7 +666,7 @@ class Processor extends AbstractApiProcessor
         }
 
         if (is_array($miraklBankInfo)) {
-            $bankInfo = new BankInfo();
+            $bankInfo       = new BankInfo();
             $miraklBankInfo = $bankInfo->setMiraklData($miraklBankInfo);
         }
 
@@ -721,7 +692,7 @@ class Processor extends AbstractApiProcessor
         }
 
         if (is_array($miraklBankInfo)) {
-            $bankInfo = new BankInfo();
+            $bankInfo       = new BankInfo();
             $miraklBankInfo = $bankInfo->setMiraklData($miraklBankInfo);
         }
 
@@ -739,9 +710,10 @@ class Processor extends AbstractApiProcessor
         $miraklData = current(
             $this->mirakl->getVendors(null, false, array($miraklId))
         );
-        $hipayInfo = $this->hipay->getWalletInfo($miraklData['contact_informations']['email']);
+        $hipayInfo  = $this->hipay->getWalletInfo($miraklData['contact_informations']['email']);
         $hipayInfo->setVatNumber($miraklData['pro_details']['VAT_number']);
-        $vendor = $this->createVendor($email, $hipayInfo->getUserAccountld(), $hipayInfo->getUserSpaceld(), $hipayInfo->getIdentified(), $miraklId, $miraklData);
+        $vendor     = $this->createVendor($email, $hipayInfo->getUserAccountld(), $hipayInfo->getUserSpaceld(),
+                                          $hipayInfo->getIdentified(), $miraklId, $miraklData);
         $this->vendorManager->save($vendor);
     }
 
