@@ -201,8 +201,8 @@ class Processor extends AbstractApiProcessor
             $transfer = new Transfer(
                 round($operation->getAmount(), self::SCALE),
                 $vendor,
-                $this->operationManager->generatePublicLabel($operation),
-                $this->operationManager->generatePrivateLabel($operation)
+                $this->operationManager->generatePrivateLabel($operation),
+                $this->operationManager->generatePublicLabel($operation)
             );
 
 
