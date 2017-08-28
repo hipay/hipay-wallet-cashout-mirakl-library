@@ -58,6 +58,8 @@ class Processor extends AbstractApiProcessor
      */
     protected $formatNotification;
 
+    protected $vendorsLogs;
+
     /**
      * Processor constructor.
      *
@@ -81,6 +83,7 @@ class Processor extends AbstractApiProcessor
         $this->documentManager    = $documentManager;
         $this->logVendorManager   = $logVendorManager;
         $this->formatNotification = new FormatNotification();
+        $this->vendorsLogs = array();
     }
 
     /**
@@ -136,6 +139,9 @@ class Processor extends AbstractApiProcessor
             $this->logger->info('Update bank data');
             $this->handleBankInfo($vendorCollection, $miraklData);
             $this->logger->info('[OK] Bank info updated');
+
+            $this->logVendorManager->saveAll($this->vendorsLogs);
+            
         } catch (ClientErrorResponseException $e) {
 
             try {
@@ -271,7 +277,7 @@ class Processor extends AbstractApiProcessor
 
     private function logVendor($miraklId, $hipayId, $login, $statusWalletAccount, $status, $message, $nbDoc = 0)
     {
-        $this->logVendorManager->create($miraklId, $hipayId, $login, $statusWalletAccount, $status, $message, $nbDoc);
+        $this->vendorsLogs[] = $this->logVendorManager->create($miraklId, $hipayId, $login, $statusWalletAccount, $status, $message, $nbDoc);
     }
 
     /**
