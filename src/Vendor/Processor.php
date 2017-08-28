@@ -30,6 +30,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use HiPay\Wallet\Mirakl\Api\HiPay\Wallet\AccountInfo;
 use HiPay\Wallet\Mirakl\Notification\FormatNotification;
+use HiPay\Wallet\Mirakl\Notification\Model\LogVendorsInterface;
 
 /**
  * Vendor processor handling the wallet creation
@@ -42,6 +43,9 @@ class Processor extends AbstractApiProcessor
 {
     /** @var VendorManagerInterface */
     protected $vendorManager;
+
+    /** @var VendorManagerInterface */
+    protected $logVendorManager;
 
     /**
      * @var DocumentManagerInterface
@@ -64,7 +68,8 @@ class Processor extends AbstractApiProcessor
      */
     public function __construct(
     EventDispatcherInterface $dispatcherInterface, LoggerInterface $logger, ApiFactory $factory,
-    VendorManagerInterface $vendorManager, DocumentManagerInterface $documentManager
+    VendorManagerInterface $vendorManager, DocumentManagerInterface $documentManager,
+    LogVendorsInterface $logVendorManager
     )
     {
         parent::__construct(
@@ -73,6 +78,7 @@ class Processor extends AbstractApiProcessor
 
         $this->vendorManager      = $vendorManager;
         $this->documentManager    = $documentManager;
+        $this->logVendorManager   = $logVendorManager;
         $this->formatNotification = new FormatNotification();
     }
 
@@ -207,12 +213,32 @@ class Processor extends AbstractApiProcessor
                         $walletInfo->getIdentified(), $vendorData['shop_id'], $vendorData['pro_details']['VAT_number'],
                         $walletInfo->getCallbackSalt(), $vendorData
                     );
+                    $this->logVendor(
+                        $vendorData['shop_id'],
+                        $walletInfo->getUserAccountld(),
+                        null,
+                        ($walletInfo->getIdentified()) ? LogVendorsInterface::WALLET_IDENTIFIED :  LogVendorsInterface::WALLET_NOT_IDENTIFIED,
+                        LogVendorsInterface::SUCCESS,
+                        $walletInfo->getRequestMessage(),
+                        0
+                    );
                 } elseif ($vendor) {
                     //Fetch the wallet id from HiPay
                     $walletInfo = $this->getWalletUserInfo($vendorData);
                     $vendor->setVatNumber($vendorData['pro_details']['VAT_number']);
                     $vendor->setCallbackSalt($walletInfo->getCallbackSalt());
                     $vendor->setHiPayIdentified($walletInfo->getIdentified());
+
+
+                    $this->logVendor(
+                        $vendorData['shop_id'],
+                        $walletInfo->getUserAccountld(),
+                        null,
+                        ($walletInfo->getIdentified()) ? LogVendorsInterface::WALLET_IDENTIFIED :  LogVendorsInterface::WALLET_NOT_IDENTIFIED,
+                        LogVendorsInterface::SUCCESS,
+                        $walletInfo->getRequestMessage(),
+                        0
+                    );
 
                     if ($vendor->getEmail() !== $email) {
                         $this->logger->warning('The e-mail has changed in Mirakl ('.$email.') but cannot be updated in HiPay Wallet ('.$vendor->getEmail().').',
@@ -240,6 +266,11 @@ class Processor extends AbstractApiProcessor
         }
 
         return $vendorCollection;
+    }
+
+    private function logVendor($miraklId, $hipayId, $login, $statusWalletAccount, $status, $message, $nbDoc = 0)
+    {
+        $this->logVendorManager->create($miraklId, $hipayId, $login, $statusWalletAccount, $status, $message, $nbDoc);
     }
 
     /**

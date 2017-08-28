@@ -14,6 +14,7 @@ class AccountInfo
     private $userSpaceld;
     private $identified;
     private $callbackSalt;
+    private $requestMessage;
 
     /**
      * AccountInfo constructor.
@@ -24,12 +25,13 @@ class AccountInfo
      * @param $vatNumber User VAT Number
      * @param $callbackSalt User Security key
      */
-    public function __construct($userAccountld, $userSpaceld, $identified, $callbackSalt)
+    public function __construct($userAccountld, $userSpaceld, $identified, $callbackSalt, $requestMessage)
     {
         $this->userAccountld = $userAccountld;
         $this->userSpaceld = $userSpaceld;
         $this->identified = $identified;
         $this->callbackSalt = $callbackSalt;
+        $this->requestMessage = $requestMessage;
     }
 
     /**
@@ -94,6 +96,22 @@ class AccountInfo
     public function setCallbackSalt($callbackSalt)
     {
         $this->callbackSalt = $callbackSalt;
+    }
+
+    /**
+     * @return varchar
+     */
+    public function getRequestMessage()
+    {
+        return $this->requestMessage;
+    }
+
+    /**
+     * @param mixed $requestMessage
+     */
+    public function setRequestMessage($requestMessage)
+    {
+        $this->requestMessage = $requestMessage;
     }
 
 }
