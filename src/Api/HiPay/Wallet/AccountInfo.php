@@ -25,7 +25,7 @@ class AccountInfo
      * @param $vatNumber User VAT Number
      * @param $callbackSalt User Security key
      */
-    public function __construct($userAccountld, $userSpaceld, $identified, $callbackSalt, $requestMessage)
+    public function __construct($userAccountld, $userSpaceld, $identified, $callbackSalt, $requestMessage = "")
     {
         $this->userAccountld = $userAccountld;
         $this->userSpaceld = $userSpaceld;

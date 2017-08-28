@@ -58,7 +58,8 @@ class ProcessorTest extends AbstractProcessorTest
             $this->logger->reveal(),
             $this->apiFactory->reveal(),
             $this->vendorManager->reveal(),
-            $this->documentManager->reveal()
+            $this->documentManager->reveal(),
+            $this->logVendorManager->reveal()
         );
     }
 

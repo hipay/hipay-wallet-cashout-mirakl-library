@@ -11,27 +11,15 @@ namespace HiPay\Wallet\Mirakl\Notification\Model;
  */
 interface LogVendorsManagerInterface
 {
-    /**
-     * Create a vendor
-     * Do not save it.
-     *
-     * @param $email
-     * @param $miraklId
-     * @param $hipayId
-     * @param $hipayUserSpaceId
-     * @param $identified
-     * @param $vatNumber
-     * @param array $miraklData
-     *
-     * @return VendorInterface
-     */
+
     public function create(
         $miraklId,
         $hipayId,
+        $login,
+        $statusWalletAccount,
         $status,
         $message,
-        $nbDoc,
-        $date
+        $nbDoc
     );
 
     /**

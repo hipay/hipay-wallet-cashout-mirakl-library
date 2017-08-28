@@ -30,6 +30,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use HiPay\Wallet\Mirakl\Api\HiPay\Wallet\AccountInfo;
 use HiPay\Wallet\Mirakl\Notification\FormatNotification;
+use HiPay\Wallet\Mirakl\Notification\Model\LogVendorsManagerInterface;
 use HiPay\Wallet\Mirakl\Notification\Model\LogVendorsInterface;
 
 /**
@@ -69,7 +70,7 @@ class Processor extends AbstractApiProcessor
     public function __construct(
     EventDispatcherInterface $dispatcherInterface, LoggerInterface $logger, ApiFactory $factory,
     VendorManagerInterface $vendorManager, DocumentManagerInterface $documentManager,
-    LogVendorsInterface $logVendorManager
+    LogVendorsManagerInterface $logVendorManager
     )
     {
         parent::__construct(
