@@ -268,9 +268,11 @@ class Handler extends AbstractProcessor
         if ($status) {
             $eventName = 'identification.notification.success';
             $statusRequest = LogVendorsInterface::SUCCESS;
+            $statusWalletAccount = LogVendorsInterface::WALLET_IDENTIFIED;
         } else {
             $eventName = 'identification.notification.failed';
             $statusRequest = LogVendorsInterface::SUCCESS;
+            $statusWalletAccount = LogVendorsInterface::WALLET_NOT_IDENTIFIED;
         }
 
         $vendor = $this->vendorManager->findByHiPayId($hipayId);
