@@ -24,6 +24,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use HiPay\Wallet\Mirakl\Api\Factory as ApiFactory;
 use HiPay\Wallet\Mirakl\Api\HiPay;
 use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
+use HiPay\Wallet\Mirakl\Notification\Model\LogVendorsInterface;
+use HiPay\Wallet\Mirakl\Notification\Model\LogVendorsManagerInterface;
 
 /**
  * Handle the notification server-server
@@ -40,6 +42,8 @@ class Handler extends AbstractProcessor
 
     /** @var  VendorManagerInterface */
     protected $vendorManager;
+
+    protected $logVendorManager;
 
     /**
      * @var FormatNotification class
@@ -62,6 +66,7 @@ class Handler extends AbstractProcessor
         LoggerInterface $logger,
         OperationManager $operationManager,
         VendorManagerInterface $vendorManager,
+        LogVendorManagerInterface $logVendorManager,
         ApiFactory $factory
     ) {
         parent::__construct($dispatcher, $logger);
@@ -69,6 +74,7 @@ class Handler extends AbstractProcessor
         $this->vendorManager = $vendorManager;
         $this->formatNotification = new FormatNotification();
         $this->hipay = $factory->getHiPay();
+        $this->logVendorManager = $logVendorManager;
     }
 
     /**
@@ -90,7 +96,7 @@ class Handler extends AbstractProcessor
         //Check if callback_salt is updated else use the new callback_salt
         /** @noinspection PhpUndefinedFieldInspection */
         $hipayId = (int) $xml->result->account_id;
-
+        
         //Find the vendor by his account id
         $vendor = $this->vendorManager->findByHiPayId($hipayId);
 
@@ -261,8 +267,10 @@ class Handler extends AbstractProcessor
     {
         if ($status) {
             $eventName = 'identification.notification.success';
+            $statusRequest = LogVendorsInterface::SUCCESS;
         } else {
             $eventName = 'identification.notification.failed';
+            $statusRequest = LogVendorsInterface::SUCCESS;
         }
 
         $vendor = $this->vendorManager->findByHiPayId($hipayId);
@@ -270,6 +278,9 @@ class Handler extends AbstractProcessor
         if ($vendor !== null) {
             $vendor->setHiPayIdentified($status);
             $this->vendorManager->save($vendor);
+
+            $logVendor = $this->logVendorManager->create($miraklId, $hipayId, null, $status, $statusRequest, $eventName, 0);
+            $this->logVendorManager->save($logVendor);
         }
 
         $event = new Identification($hipayId, $date);

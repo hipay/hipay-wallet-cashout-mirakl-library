@@ -230,6 +230,7 @@ class Processor extends AbstractApiProcessor
                         0
                     );
                 } elseif ($vendor) {
+                    $vendorData['shop_id'] = $vendorData['shop_id']+1;
                     //Fetch the wallet id from HiPay
                     $walletInfo = $this->getWalletUserInfo($vendorData);
                     $vendor->setVatNumber($vendorData['pro_details']['VAT_number']);
