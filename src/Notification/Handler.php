@@ -249,8 +249,21 @@ class Handler extends AbstractProcessor
     {
         if ($status) {
             $eventName = 'bankInfos.validation.notification.success';
+            $statusRequest = LogVendorsInterface::SUCCESS;
         } else {
             $eventName = 'bankInfos.validation.notification.failed';
+            $statusRequest = LogVendorsInterface::WARNING;
+        }
+
+        $vendor = $this->vendorManager->findByHiPayId($hipayId);
+
+        if ($vendor !== null) {
+            $statusWalletAccount = LogVendorsInterface::WALLET_IDENTIFIED;
+            if(!$vendor->getHipayIdentified()){
+                $statusWalletAccount = LogVendorsInterface::WALLET_NOT_IDENTIFIED;
+            }
+            $logVendor = $this->logVendorManager->create($vendor->getMiraklId(), $hipayId, null, $statusWalletAccount, $statusRequest, $eventName, 0);
+            $this->logVendorManager->save($logVendor);
         }
 
         $event = new BankInfo($hipayId, $date);
