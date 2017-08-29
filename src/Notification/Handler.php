@@ -66,7 +66,7 @@ class Handler extends AbstractProcessor
         LoggerInterface $logger,
         OperationManager $operationManager,
         VendorManagerInterface $vendorManager,
-        LogVendorManagerInterface $logVendorManager,
+        LogVendorsManagerInterface $logVendorManager,
         ApiFactory $factory
     ) {
         parent::__construct($dispatcher, $logger);
