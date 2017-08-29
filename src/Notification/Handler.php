@@ -271,7 +271,7 @@ class Handler extends AbstractProcessor
             $statusWalletAccount = LogVendorsInterface::WALLET_IDENTIFIED;
         } else {
             $eventName = 'identification.notification.failed';
-            $statusRequest = LogVendorsInterface::SUCCESS;
+            $statusRequest = LogVendorsInterface::WARNING;
             $statusWalletAccount = LogVendorsInterface::WALLET_NOT_IDENTIFIED;
         }
 
