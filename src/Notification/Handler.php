@@ -281,7 +281,7 @@ class Handler extends AbstractProcessor
             $vendor->setHiPayIdentified($status);
             $this->vendorManager->save($vendor);
 
-            $logVendor = $this->logVendorManager->create($vendor->getMiraklId(), $hipayId, null, $status, $statusRequest, $eventName, 0);
+            $logVendor = $this->logVendorManager->create($vendor->getMiraklId(), $hipayId, null, $statusWalletAccount, $statusRequest, $eventName, 0);
             $this->logVendorManager->save($logVendor);
         }
 
