@@ -223,7 +223,7 @@ class Processor extends AbstractApiProcessor
                     $this->logVendor(
                         $vendorData['shop_id'],
                         $walletInfo->getUserAccountld(),
-                        null,
+                        $this->generateLogin($vendorData),
                         ($walletInfo->getIdentified()) ? LogVendorsInterface::WALLET_IDENTIFIED :  LogVendorsInterface::WALLET_NOT_IDENTIFIED,
                         LogVendorsInterface::SUCCESS,
                         $walletInfo->getRequestMessage(),
@@ -236,17 +236,6 @@ class Processor extends AbstractApiProcessor
                     $vendor->setVatNumber($vendorData['pro_details']['VAT_number']);
                     $vendor->setCallbackSalt($walletInfo->getCallbackSalt());
                     $vendor->setHiPayIdentified($walletInfo->getIdentified());
-
-
-                    $this->logVendor(
-                        $vendorData['shop_id'],
-                        $walletInfo->getUserAccountld(),
-                        null,
-                        ($walletInfo->getIdentified()) ? LogVendorsInterface::WALLET_IDENTIFIED :  LogVendorsInterface::WALLET_NOT_IDENTIFIED,
-                        LogVendorsInterface::SUCCESS,
-                        $walletInfo->getRequestMessage(),
-                        0
-                    );
 
                     if ($vendor->getEmail() !== $email) {
                         $this->logger->warning('The e-mail has changed in Mirakl ('.$email.') but cannot be updated in HiPay Wallet ('.$vendor->getEmail().').',
@@ -269,6 +258,15 @@ class Processor extends AbstractApiProcessor
                 $vendorCollection[$vendor->getMiraklId()] = $vendor;
                 $this->logger->info('[OK] The vendor is treated');
             } catch (DispatchableException $e) {
+                $this->logVendor(
+                        $vendorData['shop_id'],
+                        null,
+                        $this->generateLogin($vendorData),
+                        LogVendorsInterface::WALLET_NOT_CREATED,
+                        LogVendorsInterface::CRITICAL,
+                        $exception->getMessage(),
+                        0
+                    );
                 $this->handleException($e, 'warning', array('shopId' => $vendorData['shop_id']));
             }
         }
@@ -279,6 +277,10 @@ class Processor extends AbstractApiProcessor
     private function logVendor($miraklId, $hipayId, $login, $statusWalletAccount, $status, $message, $nbDoc = 0)
     {
         $this->vendorsLogs[] = $this->logVendorManager->create($miraklId, $hipayId, $login, $statusWalletAccount, $status, $message, $nbDoc);
+    }
+
+    private function generateLogin($miraklData){
+        return 'mirakl_' . preg_replace("/[^A-Za-z0-9]/", '',$miraklData['shop_name']) . '_' . $miraklData['shop_id'];
     }
 
     /**
