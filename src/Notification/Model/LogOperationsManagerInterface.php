@@ -26,15 +26,7 @@ interface LogOperationsManagerInterface
      *
      * @return VendorInterface
      */
-    public function create(
-        $miraklId,
-        $hipayId,
-        $amount,
-        $statusTransferts,
-        $statusWithDrawal,
-        $message,
-        $balance
-    );
+    public function create($miraklId, $hipayId, $paymentVoucher, $amount, $balance);
 
     /**
      * Insert more data into the vendor.

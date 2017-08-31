@@ -47,6 +47,9 @@ abstract class AbstractProcessorTest extends PHPUnit_Framework_TestCase
     /** @var LogVendorsManagerInterface|ObjectProphecy  */
     protected $logVendorManager;
 
+    /** @var LogOperationssManagerInterface|ObjectProphecy  */
+    protected $logOperationsManager;
+
     /** @var OperationManagerInterface|ObjectProphecy  */
     protected $operationManager;
 
@@ -89,6 +92,9 @@ abstract class AbstractProcessorTest extends PHPUnit_Framework_TestCase
         /** @var LogVendorsManagerInterface|ObjectProphecy $logVendorManager */
         $this->logVendorManager = $this->prophesize("HiPay\\Wallet\\Mirakl\\Notification\\Model\\LogVendorsManagerInterface");
 
+        /** @var LogOperationsManagerInterface|ObjectProphecy $logOperationsManager */
+        $this->logOperationsManager = $this->prophesize("HiPay\\Wallet\\Mirakl\\Notification\\Model\\LogOperationsManagerInterface");
+
         /** @var OperationManagerInterface|ObjectProphecy $operationManager */
         $this->operationManager =
             $this->prophesize("\\HiPay\\Wallet\\Mirakl\\Cashout\\Model\\Operation\\ManagerInterface");
@@ -113,5 +119,6 @@ abstract class AbstractProcessorTest extends PHPUnit_Framework_TestCase
         $this->mirakl->checkProphecyMethodsPredictions();
         $this->documentManager->checkProphecyMethodsPredictions();
         $this->logVendorManager->checkProphecyMethodsPredictions();
+        $this->logOperationsManager->checkProphecyMethodsPredictions();
     }
 }

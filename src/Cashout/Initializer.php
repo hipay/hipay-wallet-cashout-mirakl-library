@@ -17,7 +17,7 @@ use HiPay\Wallet\Mirakl\Exception\TransactionException;
 use HiPay\Wallet\Mirakl\Exception\ValidationFailedException;
 use HiPay\Wallet\Mirakl\Service\Validation\ModelValidator;
 use HiPay\Wallet\Mirakl\Vendor\Model\VendorManagerInterface as VendorManager;
-use HiPay\Wallet\Mirakl\Vendor\Model\LogOperationsManagerInterface as LogOperationsManager;
+use HiPay\Wallet\Mirakl\Notification\Model\LogOperationsManagerInterface as LogOperationsManager;
 use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -463,6 +463,7 @@ class Initializer extends AbstractApiProcessor
             $vendor = $this->operator;
             $hipayId = $this->operator->getHiPayId();
         }
+
         $operation->setHiPayId($hipayId);
 
         //Sets mandatory values
@@ -557,7 +558,7 @@ class Initializer extends AbstractApiProcessor
 
             $this->logger->info('Save operations');
             $this->operationManager->saveAll($operations);
-            $this->logOperationsManager->saveAll($this->operationsLogs[]);
+            $this->logOperationsManager->saveAll($this->operationsLogs);
             $this->logger->info('[OK] Operations saved');
         } else {
             // log error
