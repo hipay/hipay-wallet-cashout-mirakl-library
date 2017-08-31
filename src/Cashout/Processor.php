@@ -337,9 +337,11 @@ class Processor extends AbstractApiProcessor
             case Status::WITHDRAW_FAILED :
             case Status::WITHDRAW_REQUESTED :
                 $logOperation->setStatusWithDrawal($status);
+                break;
             case Status::TRANSFER_FAILED :
             case Status::TRANSFER_SUCCESS :
                 $logOperation->setStatusTransferts($status);
+                break;
         }
 
         $logOperation->setMessage($message);
