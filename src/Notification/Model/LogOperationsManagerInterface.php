@@ -74,4 +74,17 @@ interface LogOperationsManagerInterface
      * @return bool
      */
     public function isValid(LogOperationsInterface $logGeneral);
+
+    /**
+     * Finds an operation.
+     *
+     * @param int $miraklId|null if operator
+     * @param int $paymentVoucherNumber optional date to filter upon
+     *
+     * @return OperationInterface|null
+     */
+    public function findByMiraklIdAndPaymentVoucherNumber(
+        $miraklId,
+        $paymentVoucherNumber
+    );
 }

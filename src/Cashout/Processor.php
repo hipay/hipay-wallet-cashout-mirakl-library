@@ -23,6 +23,7 @@ use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use HiPay\Wallet\Mirakl\Notification\FormatNotification;
+use HiPay\Wallet\Mirakl\Notification\Model\LogOperationsManagerInterface as LogOperationsManager;
 
 /**
  * Process the operations created by the cashout/initializer
@@ -47,6 +48,9 @@ class Processor extends AbstractApiProcessor
      */
     protected $formatNotification;
 
+    /** @var  LogOperationsManager */
+    protected $logOperationsManager;
+
     /**
      * Processor constructor.
      *
@@ -65,7 +69,8 @@ class Processor extends AbstractApiProcessor
         Factory $factory,
         OperationManager $operationManager,
         VendorManager $vendorManager,
-        VendorInterface $operator
+        VendorInterface $operator,
+        LogOperationsManager $logOperationsManager
     ) {
         parent::__construct($dispatcher, $logger, $factory);
 
@@ -75,6 +80,8 @@ class Processor extends AbstractApiProcessor
 
         ModelValidator::validate($operator, 'Operator');
         $this->operator = $operator;
+        
+        $this->logOperationsManager = $logOperationsManager;
     }
 
     /**
@@ -214,11 +221,26 @@ class Processor extends AbstractApiProcessor
             $operation->setUpdatedAt(new DateTime());
             $this->operationManager->save($operation);
 
+            $this->logOperation(
+                $operation->getMiraklId(),
+                $operation->getPaymentVoucher(),
+                Status::TRANSFER_SUCCESS,
+                ""
+                );
+
             return $transferId;
         } catch (Exception $e) {
             $operation->setStatus(new Status(Status::TRANSFER_FAILED));
             $operation->setUpdatedAt(new DateTime());
             $this->operationManager->save($operation);
+
+            $this->logOperation(
+                $operation->getMiraklId(),
+                $operation->getPaymentVoucher(),
+                Status::TRANSFER_FAILED,
+                $e->getMessage()
+                );
+
             throw $e;
         }
     }
@@ -284,13 +306,45 @@ class Processor extends AbstractApiProcessor
             $operation->setWithdrawnAmount($amount);
             $this->operationManager->save($operation);
 
+            $this->logOperation(
+                $operation->getMiraklId(),
+                $operation->getPaymentVoucher(),
+                Status::WITHDRAW_REQUESTED,
+                ""
+                );
+
             return $withdrawId;
         } catch (Exception $e) {
             $operation->setStatus(new Status(Status::WITHDRAW_FAILED));
             $operation->setUpdatedAt(new DateTime());
             $this->operationManager->save($operation);
+
+            $this->logOperation(
+                $operation->getMiraklId(),
+                $operation->getPaymentVoucher(),
+                Status::WITHDRAW_FAILED,
+                $e->getMessage()
+                );
+
             throw $e;
         }
+    }
+
+    private function logOperation($miraklId, $paymentVoucherNumber, $status, $message){
+        $logOperation = $this->logOperationsManager->findByMiraklIdAndPaymentVoucherNumber($miraklId, $paymentVoucherNumber);
+
+        switch($status){
+            case Status::WITHDRAW_FAILED :
+            case Status::WITHDRAW_REQUESTED :
+                $logOperation->setStatusWithDrawal($status);
+            case Status::TRANSFER_FAILED :
+            case Status::TRANSFER_SUCCESS :
+                $logOperation->setStatusTransferts($status);
+        }
+
+        $logOperation->setMessage($message);
+
+        $this->logOperationsManager->save($logOperation);
     }
 
     /**
