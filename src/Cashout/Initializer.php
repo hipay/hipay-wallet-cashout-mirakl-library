@@ -17,6 +17,7 @@ use HiPay\Wallet\Mirakl\Exception\TransactionException;
 use HiPay\Wallet\Mirakl\Exception\ValidationFailedException;
 use HiPay\Wallet\Mirakl\Service\Validation\ModelValidator;
 use HiPay\Wallet\Mirakl\Vendor\Model\VendorManagerInterface as VendorManager;
+use HiPay\Wallet\Mirakl\Vendor\Model\LogOperationsManagerInterface as LogOperationsManager;
 use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -47,10 +48,15 @@ class Initializer extends AbstractApiProcessor
     /** @var  VendorManager */
     protected $vendorManager;
 
+    /** @var  LogOperationsManager */
+    protected $logOperationsManager;
+
     /**
      * @var FormatNotification class
      */
     protected $formatNotification;
+
+    protected $operationsLogs;
 
     /**
      * Initializer constructor.
@@ -73,6 +79,7 @@ class Initializer extends AbstractApiProcessor
         VendorInterface $technicalAccount,
         ValidatorInterface $transactionValidator,
         OperationManager $operationHandler,
+        LogOperationsManager $logOperationsManager,
         VendorManager $vendorManager
     ) {
         parent::__construct($dispatcher, $logger, $factory);
@@ -90,6 +97,10 @@ class Initializer extends AbstractApiProcessor
         $this->vendorManager = $vendorManager;
 
         $this->formatNotification = new FormatNotification();
+
+        $this->logOperationsManager = $logOperationsManager;
+
+        $this->operationsLogs = array();
     }
 
     /**
@@ -460,6 +471,9 @@ class Initializer extends AbstractApiProcessor
         $operation->setAmount($amount);
         $operation->setCycleDate($cycleDate);
         $operation->setPaymentVoucher($paymentVoucher);
+
+        $this->operationsLogs[] = $this->logOperationsManager->create($miraklId, $hipayId, $paymentVoucher, $amount, $this->hipay->getBalance($hipayId));
+
         return $operation;
     }
 
@@ -542,6 +556,7 @@ class Initializer extends AbstractApiProcessor
 
             $this->logger->info('Save operations');
             $this->operationManager->saveAll($operations);
+            $this->logOperationsManager->saveAll($this->operationsLogs[]);
             $this->logger->info('[OK] Operations saved');
         } else {
             // log error

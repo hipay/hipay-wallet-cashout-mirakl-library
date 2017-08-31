@@ -262,9 +262,9 @@ class Handler extends AbstractProcessor
         if ($vendor !== null) {
             $vendor->setHiPayIdentified($status);
             $this->vendorManager->save($vendor);
-            $this->logVendorManager->findByMiraklId($vendor->getMiraklId());
-            if ($logVendor !== null) {
+            $logVendor = $this->logVendorManager->findByMiraklId($vendor->getMiraklId());
 
+            if ($logVendor !== null) {
                 $logVendor->setStatusWalletAccount($statusWalletAccount);
                 $logVendor->setStatus($statusRequest);
                 $logVendor->setMessage($eventName);
