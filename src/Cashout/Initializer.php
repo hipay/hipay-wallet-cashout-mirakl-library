@@ -460,6 +460,7 @@ class Initializer extends AbstractApiProcessor
                 $hipayId = $vendor->getHiPayId();
             }
         } else {
+            $vendor = $this->operator;
             $hipayId = $this->operator->getHiPayId();
         }
         $operation->setHiPayId($hipayId);
@@ -472,7 +473,7 @@ class Initializer extends AbstractApiProcessor
         $operation->setCycleDate($cycleDate);
         $operation->setPaymentVoucher($paymentVoucher);
 
-        $this->operationsLogs[] = $this->logOperationsManager->create($miraklId, $hipayId, $paymentVoucher, $amount, $this->hipay->getBalance($hipayId));
+        $this->operationsLogs[] = $this->logOperationsManager->create($miraklId, $hipayId, $paymentVoucher, $amount, $this->hipay->getBalance($vendor));
 
         return $operation;
     }
