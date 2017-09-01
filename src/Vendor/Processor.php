@@ -151,14 +151,15 @@ class Processor extends AbstractApiProcessor
                 $message      = $this->formatNotification->formatMessage($title, false, $exceptionMsg);
                 $this->logger->critical($message);
             } catch (\Exception $ex) {
-                $this->handleException($e, "critical");
+                $this->handleException($e, "critical", array('miraklId' => null, "action" => "Wallet creation"));
             }
         } catch (\Exception $e) {
 
             $trace = array_map(function ($item) {
                 return array(
                     'file' => $item['file'],
-                    'line' => $item['line']
+                    'line' => $item['line'],
+                    'action' => 'Wallet creation'
                 );
             }, $e->getTrace());
 
@@ -267,7 +268,7 @@ class Processor extends AbstractApiProcessor
                         $exception->getMessage(),
                         0
                     );
-                $this->handleException($e, 'warning', array('shopId' => $vendorData['shop_id']));
+                $this->handleException($e, 'warning',  array('miraklId' => $vendorData['shop_id'], "action" => "Wallet creation"));
             }
         }
 

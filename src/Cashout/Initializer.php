@@ -122,19 +122,19 @@ class Initializer extends AbstractApiProcessor
         DateTime $cycleDate,
         $transactionFilterRegex = null
     ) {
-        $this->logger->info('Control Mirakl Settings');
+        $this->logger->info('Control Mirakl Settings', array('miraklId' => null, "action" => "Operations creation"));
         // control mirakl settings
         $boolControl = $this->getControlMiraklSettings($this->documentTypes);
         if ($boolControl === false) {
             // log critical
             $title = $this->criticalMessageMiraklSettings;
             $message = $this->formatNotification->formatMessage($title);
-            $this->logger->critical($message);
+            $this->logger->critical($message, array('miraklId' => null, "action" => "Operations creation"));
         } else {
-            $this->logger->info('Control Mirakl Settings OK');
+            $this->logger->info('Control Mirakl Settings OK', array('miraklId' => null, "action" => "Operations creation"));
         }
 
-        $this->logger->info('Cashout Initializer');
+        $this->logger->info('Cashout Initializer', array('miraklId' => null, "action" => "Operations creation"));
 
         //Fetch 'PAYMENT' transaction
         $this->logger->info(
@@ -142,6 +142,7 @@ class Initializer extends AbstractApiProcessor
             $startDate->format('Y-m-d H:i').
             ' to '.
             $endDate->format('Y-m-d H:i')
+            , array('miraklId' => null, "action" => "Operations creation")
         );
 
         $paymentTransactions = $this->getPaymentTransactions(
@@ -154,10 +155,10 @@ class Initializer extends AbstractApiProcessor
         $transactionError = null;
         $operations = array();
 
-        $this->logger->info('[OK] Fetched '. count($paymentTransactions) . ' payment transactions');
+        $this->logger->info('[OK] Fetched '. count($paymentTransactions) . ' payment transactions', array('miraklId' => null, "action" => "Operations creation"));
 
         //Compute amounts (vendor and operator) by payment vouchers
-        $this->logger->info('Compute amounts and create vendor operation');
+        $this->logger->info('Compute amounts and create vendor operation', array('miraklId' => null, "action" => "Operations creation"));
 
         foreach ($paymentDebits as $paymentVoucher => $debitedAmounts) {
             $voucherOperations = $this->handlePaymentVoucher($paymentVoucher, $debitedAmounts, $cycleDate, $transactionFilterRegex);
@@ -173,22 +174,22 @@ class Initializer extends AbstractApiProcessor
                 // log error
                 $title = "The transaction for the payment voucher number $voucher are wrong";
                 $message = $this->formatNotification->formatMessage($title);
-                $this->logger->error($message);
+                $this->logger->error($message, array('miraklId' => null, "action" => "Operations creation"));
             }
             return;
         }
 
         $totalAmount = $this->sumOperationAmounts($operations);
-        $this->logger->debug("Total amount " . $totalAmount);
+        $this->logger->debug("Total amount " . $totalAmount, array('miraklId' => null, "action" => "Operations creation"));
 
         $this->logger->info(
-            "Check if technical account has sufficient funds"
+            "Check if technical account has sufficient funds", array('miraklId' => null, "action" => "Operations creation")
         );
         if (!$this->hasSufficientFunds($totalAmount)) {
             $this->handleException(new NotEnoughFunds());
             return;
         }
-        $this->logger->info('[OK] Technical account has sufficient funds');
+        $this->logger->info('[OK] Technical account has sufficient funds', array('miraklId' => null, "action" => "Operations creation"));
 
         $this->saveOperations($operations);
     }
@@ -256,11 +257,12 @@ class Initializer extends AbstractApiProcessor
         $transactionError = false;
         $this->logger->debug(
             "Payment Voucher : $paymentVoucher",
-            array('paymentVoucherNumber' => $paymentVoucher)
+            array('miraklId' => null, "action" => "Operations creation", 'paymentVoucherNumber' => $paymentVoucher)
         );
 
         $this->logger->debug(
-            "Transaction filter regex: " . var_export($transactionFilterRegex, true)
+            "Transaction filter regex: " . var_export($transactionFilterRegex, true),
+            array('miraklId' => null, "action" => "Operations creation")
         );
 
         $orderTransactions = array();
@@ -269,7 +271,7 @@ class Initializer extends AbstractApiProcessor
             try {
                 $this->logger->debug(
                     "ShopId : $shopId",
-                    array('shopId' => $shopId)
+                    array('miraklId' => $shopId, "action" => "Operations creation")
                 );
 
                 //Fetch the corresponding order transactions
@@ -288,7 +290,7 @@ class Initializer extends AbstractApiProcessor
                         $debitedAmount
                     );
 
-                    $this->logger->debug("Vendor amount " . $vendorAmount);
+                    $this->logger->debug("Vendor amount " . $vendorAmount, array('miraklId' => $shopId, "action" => "Operations creation"));
 
                     if ($vendorAmount > 0) {
                         //Create the vendor operation
@@ -308,7 +310,7 @@ class Initializer extends AbstractApiProcessor
                 {
                     $this->logger->debug(
                         "Skipped shop because no transaction for this shop matched the transaction filter regex.",
-                        array('shopId' => $shopId)
+                        array('miraklId' => $shopId, "action" => "Operations creation")
                     );
                 }
 
@@ -326,7 +328,7 @@ class Initializer extends AbstractApiProcessor
             }
         };
 
-        $this->logger->debug("Operator amount " . $operatorAmount);
+        $this->logger->debug("Operator amount " . $operatorAmount, array('miraklId' => null, "action" => "Operations creation"));
 
         if ($operatorAmount > 0) {
             // Create operator operation
@@ -446,7 +448,7 @@ class Initializer extends AbstractApiProcessor
         $miraklId = null
     ) {
         if ($amount <= 0) {
-            $this->logger->notice("Operation wasn't created du to null amount");
+            $this->logger->notice("Operation wasn't created du to null amount", array('miraklId' => $miraklId, "action" => "Operations creation"));
             return null;
         }
         //Call implementation function
@@ -554,17 +556,17 @@ class Initializer extends AbstractApiProcessor
     public function saveOperations(array $operations)
     {
         if ($this->areOperationsValid($operations)) {
-            $this->logger->info('[OK] Operations validated');
+            $this->logger->info('[OK] Operations validated', array('miraklId' => null, "action" => "Operations creation"));
 
-            $this->logger->info('Save operations');
+            $this->logger->info('Save operations', array('miraklId' => null, "action" => "Operations creation"));
             $this->operationManager->saveAll($operations);
             $this->logOperationsManager->saveAll($this->operationsLogs);
-            $this->logger->info('[OK] Operations saved');
+            $this->logger->info('[OK] Operations saved', array('miraklId' => null, "action" => "Operations creation"));
         } else {
             // log error
             $title = 'Some operation were wrong. Operations not saved';
             $message = $this->formatNotification->formatMessage($title);
-            $this->logger->error($message);
+            $this->logger->error($message, array('miraklId' => null, "action" => "Operations creation"));
         }
     }
 
@@ -578,7 +580,7 @@ class Initializer extends AbstractApiProcessor
     public function areOperationsValid(array $operations)
     {
         //Valid the operation and check if operation wasn't created before
-        $this->logger->info('Validate the operations');
+        $this->logger->info('Validate the operations', array('miraklId' => null, "action" => "Operations creation"));
 
         $operationError = false;
         /** @var OperationInterface $operation */
