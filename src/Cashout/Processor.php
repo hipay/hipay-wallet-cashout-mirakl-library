@@ -333,6 +333,13 @@ class Processor extends AbstractApiProcessor
     private function logOperation($miraklId, $paymentVoucherNumber, $status, $message){
         $logOperation = $this->logOperationsManager->findByMiraklIdAndPaymentVoucherNumber($miraklId, $paymentVoucherNumber);
 
+        if($logOperation == null){
+            $this->logger->warning(
+                "Could not fnd existing log for this operations : paymentVoucherNumber = ".$paymentVoucherNumber,
+                array("action" => "Process notification", "miraklId" => $miraklId)
+                );
+        }
+
         switch($status){
             case Status::WITHDRAW_FAILED :
             case Status::WITHDRAW_REQUESTED :

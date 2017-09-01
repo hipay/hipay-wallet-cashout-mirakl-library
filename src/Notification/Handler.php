@@ -26,6 +26,7 @@ use HiPay\Wallet\Mirakl\Api\HiPay;
 use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 use HiPay\Wallet\Mirakl\Notification\Model\LogVendorsInterface;
 use HiPay\Wallet\Mirakl\Notification\Model\LogVendorsManagerInterface;
+use HiPay\Wallet\Mirakl\Notification\Model\LogOperationsManagerInterface;
 
 /**
  * Handle the notification server-server
@@ -42,7 +43,10 @@ class Handler extends AbstractProcessor
 
     /** @var  VendorManagerInterface */
     protected $vendorManager;
+
     protected $logVendorManager;
+
+    protected $logOperationsManager;
 
     /**
      * @var FormatNotification class
@@ -62,7 +66,8 @@ class Handler extends AbstractProcessor
      */
     public function __construct(
     EventDispatcherInterface $dispatcher, LoggerInterface $logger, OperationManager $operationManager,
-    VendorManagerInterface $vendorManager, LogVendorsManagerInterface $logVendorManager, ApiFactory $factory
+    VendorManagerInterface $vendorManager, LogVendorsManagerInterface $logVendorManager, ApiFactory $factory,
+        LogOperationsManagerInterface $logOperationsManager
     )
     {
         parent::__construct($dispatcher, $logger);
@@ -71,6 +76,7 @@ class Handler extends AbstractProcessor
         $this->formatNotification = new FormatNotification();
         $this->hipay              = $factory->getHiPay();
         $this->logVendorManager   = $logVendorManager;
+        $this->logOperationsManager = $logOperationsManager;
     }
 
     /**
@@ -210,16 +216,48 @@ class Handler extends AbstractProcessor
             $operation->setStatus(new Status(Status::WITHDRAW_SUCCESS));
             $this->logger->info("Withdraw {$operation->getWithdrawId()} successful");
             $eventName = 'withdraw.notification.success';
+
+            $status = Status::WITHDRAW_SUCCESS;
         } else {
             $operation->setStatus(new Status(Status::WITHDRAW_CANCELED));
             $this->logger->info("Withdraw {$operation->getWithdrawId()} canceled");
             $eventName = 'withdraw.notification.canceled';
+
+            $status = Status::WITHDRAW_CANCELED;
         }
 
         $this->operationManager->save($operation);
 
+        $this->logOperation($operation->getMiraklId(), $operation->getPaymentVoucher(), $status, $eventName);
+
         $event = new Withdraw($hipayId, $date, $operation);
         $this->dispatcher->dispatch($eventName, $event);
+    }
+
+    private function logOperation($miraklId, $paymentVoucherNumber, $status, $message){
+        $logOperation = $this->logOperationsManager->findByMiraklIdAndPaymentVoucherNumber($miraklId, $paymentVoucherNumber);
+
+        if($logOperation == null){
+            $this->logger->warning(
+                "Could not fnd existing log for this operations : paymentVoucherNumber = ".$paymentVoucherNumber,
+                array("action" => "Process notification", "miraklId" => $miraklId)
+                );
+        }
+
+        switch($status){
+            case Status::WITHDRAW_FAILED :
+            case Status::WITHDRAW_REQUESTED :
+                $logOperation->setStatusWithDrawal($status);
+                break;
+            case Status::TRANSFER_FAILED :
+            case Status::TRANSFER_SUCCESS :
+                $logOperation->setStatusTransferts($status);
+                break;
+        }
+
+        $logOperation->setMessage($message);
+
+        $this->logOperationsManager->save($logOperation);
     }
 
     /**
