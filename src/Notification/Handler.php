@@ -182,7 +182,7 @@ class Handler extends AbstractProcessor
                     HiPay::LINEMKD.HiPay::SEPARMKD.'- Document_type_label: '.$xml->result->document_type_label.
                     HiPay::LINEMKD.HiPay::SEPARMKD;
                 $message      = $this->formatNotification->formatMessage($title, $infos, $exceptionMsg);
-                $this->logger->error($message);
+                $this->logger->error($message, array('miraklId' => null, "action" => "Notification"));
                 break;
             default:
                 throw new IllegalNotificationOperationException($operation);
@@ -214,13 +214,13 @@ class Handler extends AbstractProcessor
 
         if ($status) {
             $operation->setStatus(new Status(Status::WITHDRAW_SUCCESS));
-            $this->logger->info("Withdraw {$operation->getWithdrawId()} successful");
+            $this->logger->info("Withdraw {$operation->getWithdrawId()} successful", array('miraklId' => $operation->getMiraklId(), "action" => "Withdraw"));
             $eventName = 'withdraw.notification.success';
 
             $status = Status::WITHDRAW_SUCCESS;
         } else {
             $operation->setStatus(new Status(Status::WITHDRAW_CANCELED));
-            $this->logger->info("Withdraw {$operation->getWithdrawId()} canceled");
+            $this->logger->info("Withdraw {$operation->getWithdrawId()} canceled", array('miraklId' => $operation->getMiraklId(), "action" => "Withdraw"));
             $eventName = 'withdraw.notification.canceled';
 
             $status = Status::WITHDRAW_CANCELED;

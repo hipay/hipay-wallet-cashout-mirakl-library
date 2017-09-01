@@ -96,19 +96,19 @@ class Processor extends AbstractApiProcessor
      */
     public function process()
     {
-        $this->logger->info('Control Mirakl Settings');
+        $this->logger->info('Control Mirakl Settings', array('miraklId' => null, "action" => "Operations process"));
         // control mirakl settings
         $boolControl = $this->getControlMiraklSettings($this->documentTypes);
         if ($boolControl === false) {
             // log critical
             $title = $this->criticalMessageMiraklSettings;
             $message = $this->formatNotification->formatMessage($title);
-            $this->logger->critical($message);
+            $this->logger->critical($message, array('miraklId' => null, "action" => "Operations process"));
         } else {
-            $this->logger->info('Control Mirakl Settings OK');
+            $this->logger->info('Control Mirakl Settings OK', array('miraklId' => null, "action" => "Operations process"));
         }
 
-        $this->logger->info("Cashout Processor");
+        $this->logger->info("Cashout Processor", array('miraklId' => null, "action" => "Operations process"));
 
         //Transfer
         $this->transferOperations();
@@ -122,11 +122,11 @@ class Processor extends AbstractApiProcessor
      */
     protected function transferOperations()
     {
-        $this->logger->info("Transfer operations");
+        $this->logger->info("Transfer operations", array('miraklId' => null, "action" => "Transfer"));
 
         $toTransfer = $this->getTransferableOperations();
 
-        $this->logger->info("Operation to transfer : " . count($toTransfer));
+        $this->logger->info("Operation to transfer : " . count($toTransfer), array('miraklId' => null, "action" => "Transfer"));
 
         /** @var OperationInterface $operation */
         foreach ($toTransfer as $operation) {
@@ -140,9 +140,9 @@ class Processor extends AbstractApiProcessor
                 $eventObject->setTransferId($transferId);
                 $this->dispatcher->dispatch('after.transfer', $eventObject);
 
-                $this->logger->info("[OK] Transfer operation ". $operation->getTransferId() ." executed");
+                $this->logger->info("[OK] Transfer operation ". $operation->getTransferId() ." executed", array('miraklId' => $operation->getMiraklId(), "action" => "Transfer"));
             } catch (Exception $e) {
-                $this->logger->info("[OK] Transfer operation failed");
+                $this->logger->info("[OK] Transfer operation failed", array('miraklId' => $operation->getMiraklId(), "action" => "Transfer"));
                 $this->handleException($e, 'critical');
             }
         }
@@ -153,11 +153,11 @@ class Processor extends AbstractApiProcessor
      */
     protected function withdrawOperations()
     {
-        $this->logger->info("Withdraw operations");
+        $this->logger->info("Withdraw operations", array('miraklId' => null, "action" => "Withdraw"));
 
         $toWithdraw = $this->getWithdrawableOperations();
 
-        $this->logger->info("Operation to withdraw : " . count($toWithdraw));
+        $this->logger->info("Operation to withdraw : " . count($toWithdraw), array('miraklId' => null, "action" => "Withdraw"));
 
         /** @var OperationInterface $operation */
         foreach ($toWithdraw as $operation) {
@@ -176,10 +176,10 @@ class Processor extends AbstractApiProcessor
                 $this->dispatcher->dispatch('after.withdraw', $eventObject);
 
                 //Set operation new data
-                $this->logger->info("[OK] Withdraw operation " . $operation->getWithdrawId(). " executed");
+                $this->logger->info("[OK] Withdraw operation " . $operation->getWithdrawId(). " executed", array('miraklId' => $operation->getMiraklId(), "action" => "Withdraw"));
             } catch (Exception $e) {
-                $this->logger->info("[OK] Withdraw operation failed");
-                $this->handleException($e, 'critical');
+                $this->logger->info("[OK] Withdraw operation failed", array('miraklId' => $operation->getMiraklId(), "action" => "Withdraw"));
+                $this->handleException($e, 'critical', array('miraklId' => $operation->getMiraklId(), "action" => "Withdraw"));
             }
         }
     }
@@ -336,7 +336,7 @@ class Processor extends AbstractApiProcessor
         if($logOperation == null){
             $this->logger->warning(
                 "Could not fnd existing log for this operations : paymentVoucherNumber = ".$paymentVoucherNumber,
-                array("action" => "Process notification", "miraklId" => $miraklId)
+                array("action" => "Operation process", "miraklId" => $miraklId)
                 );
         }
 
