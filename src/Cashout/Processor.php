@@ -34,6 +34,7 @@ use HiPay\Wallet\Mirakl\Notification\Model\LogOperationsManagerInterface as LogO
 class Processor extends AbstractApiProcessor
 {
     const SCALE = 2;
+
     /** @var  OperationManager */
     protected $operationManager;
 
@@ -64,23 +65,19 @@ class Processor extends AbstractApiProcessor
      * @throws \HiPay\Wallet\Mirakl\Exception\ValidationFailedException
      */
     public function __construct(
-        EventDispatcherInterface $dispatcher,
-        LoggerInterface $logger,
-        Factory $factory,
-        OperationManager $operationManager,
-        VendorManager $vendorManager,
-        VendorInterface $operator,
-        LogOperationsManager $logOperationsManager
-    ) {
+    EventDispatcherInterface $dispatcher, LoggerInterface $logger, Factory $factory, OperationManager $operationManager,
+    VendorManager $vendorManager, VendorInterface $operator, LogOperationsManager $logOperationsManager
+    )
+    {
         parent::__construct($dispatcher, $logger, $factory);
 
-        $this->operationManager = $operationManager;
-        $this->vendorManager = $vendorManager;
+        $this->operationManager   = $operationManager;
+        $this->vendorManager      = $vendorManager;
         $this->formatNotification = new FormatNotification();
 
         ModelValidator::validate($operator, 'Operator');
         $this->operator = $operator;
-        
+
         $this->logOperationsManager = $logOperationsManager;
     }
 
@@ -101,11 +98,12 @@ class Processor extends AbstractApiProcessor
         $boolControl = $this->getControlMiraklSettings($this->documentTypes);
         if ($boolControl === false) {
             // log critical
-            $title = $this->criticalMessageMiraklSettings;
+            $title   = $this->criticalMessageMiraklSettings;
             $message = $this->formatNotification->formatMessage($title);
             $this->logger->critical($message, array('miraklId' => null, "action" => "Operations process"));
         } else {
-            $this->logger->info('Control Mirakl Settings OK', array('miraklId' => null, "action" => "Operations process"));
+            $this->logger->info('Control Mirakl Settings OK',
+                                array('miraklId' => null, "action" => "Operations process"));
         }
 
         $this->logger->info("Cashout Processor", array('miraklId' => null, "action" => "Operations process"));
@@ -126,7 +124,8 @@ class Processor extends AbstractApiProcessor
 
         $toTransfer = $this->getTransferableOperations();
 
-        $this->logger->info("Operation to transfer : " . count($toTransfer), array('miraklId' => null, "action" => "Transfer"));
+        $this->logger->info("Operation to transfer : ".count($toTransfer),
+                                                             array('miraklId' => null, "action" => "Transfer"));
 
         /** @var OperationInterface $operation */
         foreach ($toTransfer as $operation) {
@@ -140,13 +139,16 @@ class Processor extends AbstractApiProcessor
                 $eventObject->setTransferId($transferId);
                 $this->dispatcher->dispatch('after.transfer', $eventObject);
 
-                $this->logger->info("[OK] Transfer operation ". $operation->getTransferId() ." executed", array('miraklId' => $operation->getMiraklId(), "action" => "Transfer"));
+                $this->logger->info("[OK] Transfer operation ".$operation->getTransferId()." executed",
+                                    array('miraklId' => $operation->getMiraklId(), "action" => "Transfer"));
             } catch (Exception $e) {
-                $this->logger->info("[OK] Transfer operation failed", array('miraklId' => $operation->getMiraklId(), "action" => "Transfer"));
+                $this->logger->info("[OK] Transfer operation failed",
+                                    array('miraklId' => $operation->getMiraklId(), "action" => "Transfer"));
                 $this->handleException($e, 'critical');
             }
         }
     }
+
     /**
      * Execute the operation needing withdrawal.
      *
@@ -157,13 +159,14 @@ class Processor extends AbstractApiProcessor
 
         $toWithdraw = $this->getWithdrawableOperations();
 
-        $this->logger->info("Operation to withdraw : " . count($toWithdraw), array('miraklId' => null, "action" => "Withdraw"));
+        $this->logger->info("Operation to withdraw : ".count($toWithdraw),
+                                                             array('miraklId' => null, "action" => "Withdraw"));
 
         /** @var OperationInterface $operation */
         foreach ($toWithdraw as $operation) {
             try {
                 //Create the operation event object
-                $eventObject =  new OperationEvent($operation);
+                $eventObject = new OperationEvent($operation);
 
                 //Dispatch the before.withdraw event
                 $this->dispatcher->dispatch('before.withdraw', $eventObject);
@@ -176,10 +179,13 @@ class Processor extends AbstractApiProcessor
                 $this->dispatcher->dispatch('after.withdraw', $eventObject);
 
                 //Set operation new data
-                $this->logger->info("[OK] Withdraw operation " . $operation->getWithdrawId(). " executed", array('miraklId' => $operation->getMiraklId(), "action" => "Withdraw"));
+                $this->logger->info("[OK] Withdraw operation ".$operation->getWithdrawId()." executed",
+                                    array('miraklId' => $operation->getMiraklId(), "action" => "Withdraw"));
             } catch (Exception $e) {
-                $this->logger->info("[OK] Withdraw operation failed", array('miraklId' => $operation->getMiraklId(), "action" => "Withdraw"));
-                $this->handleException($e, 'critical', array('miraklId' => $operation->getMiraklId(), "action" => "Withdraw"));
+                $this->logger->info("[OK] Withdraw operation failed",
+                                    array('miraklId' => $operation->getMiraklId(), "action" => "Withdraw"));
+                $this->handleException($e, 'critical',
+                                       array('miraklId' => $operation->getMiraklId(), "action" => "Withdraw"));
             }
         }
     }
@@ -206,10 +212,9 @@ class Processor extends AbstractApiProcessor
             $operation->setHiPayId($vendor->getHiPayId());
 
             $transfer = new Transfer(
-                round($operation->getAmount(), self::SCALE),
-                $vendor,
-                $this->operationManager->generatePrivateLabel($operation),
-                $this->operationManager->generatePublicLabel($operation)
+                round($operation->getAmount(), self::SCALE), $vendor,
+                      $this->operationManager->generatePrivateLabel($operation),
+                                                                    $this->operationManager->generatePublicLabel($operation)
             );
 
 
@@ -222,11 +227,8 @@ class Processor extends AbstractApiProcessor
             $this->operationManager->save($operation);
 
             $this->logOperation(
-                $operation->getMiraklId(),
-                $operation->getPaymentVoucher(),
-                Status::TRANSFER_SUCCESS,
-                ""
-                );
+                $operation->getMiraklId(), $operation->getPaymentVoucher(), Status::TRANSFER_SUCCESS, ""
+            );
 
             return $transferId;
         } catch (Exception $e) {
@@ -235,11 +237,8 @@ class Processor extends AbstractApiProcessor
             $this->operationManager->save($operation);
 
             $this->logOperation(
-                $operation->getMiraklId(),
-                $operation->getPaymentVoucher(),
-                Status::TRANSFER_FAILED,
-                $e->getMessage()
-                );
+                $operation->getMiraklId(), $operation->getPaymentVoucher(), Status::TRANSFER_FAILED, $e->getMessage()
+            );
 
             throw $e;
         }
@@ -269,13 +268,12 @@ class Processor extends AbstractApiProcessor
 
             if ($bankInfoStatus != BankInfoStatus::VALIDATED) {
                 throw new UnconfirmedBankAccountException(
-                    new BankInfoStatus($bankInfoStatus),
-                    $operation->getMiraklId()
+                new BankInfoStatus($bankInfoStatus), $operation->getMiraklId()
                 );
             }
 
             //Check account balance
-            $amount = round(($operation->getAmount()), self::SCALE);
+            $amount  = round(($operation->getAmount()), self::SCALE);
             $balance = round($this->hipay->getBalance($vendor), self::SCALE);
             if ($balance < $amount) {
                 //Operator operation
@@ -284,9 +282,7 @@ class Processor extends AbstractApiProcessor
                     //Vendor operation
                 } else {
                     throw new WrongWalletBalance(
-                        $vendor->getMiraklId(),
-                        $amount,
-                        $balance
+                    $vendor->getMiraklId(), $amount, $balance
                     );
                 }
             }
@@ -295,9 +291,7 @@ class Processor extends AbstractApiProcessor
 
             //Withdraw
             $withdrawId = $this->hipay->withdraw(
-                $vendor,
-                $amount,
-                $this->operationManager->generateWithdrawLabel($operation)
+                $vendor, $amount, $this->operationManager->generateWithdrawLabel($operation)
             );
 
             $operation->setWithdrawId($withdrawId);
@@ -307,11 +301,8 @@ class Processor extends AbstractApiProcessor
             $this->operationManager->save($operation);
 
             $this->logOperation(
-                $operation->getMiraklId(),
-                $operation->getPaymentVoucher(),
-                Status::WITHDRAW_REQUESTED,
-                ""
-                );
+                $operation->getMiraklId(), $operation->getPaymentVoucher(), Status::WITHDRAW_REQUESTED, ""
+            );
 
             return $withdrawId;
         } catch (Exception $e) {
@@ -320,40 +311,19 @@ class Processor extends AbstractApiProcessor
             $this->operationManager->save($operation);
 
             $this->logOperation(
-                $operation->getMiraklId(),
-                $operation->getPaymentVoucher(),
-                Status::WITHDRAW_FAILED,
-                $e->getMessage()
-                );
+                $operation->getMiraklId(), $operation->getPaymentVoucher(), Status::WITHDRAW_FAILED, $e->getMessage()
+            );
 
             throw $e;
         }
     }
 
-    private function logOperation($miraklId, $paymentVoucherNumber, $status, $message){
-        $logOperation = $this->logOperationsManager->findByMiraklIdAndPaymentVoucherNumber($miraklId, $paymentVoucherNumber);
-
-        if($logOperation == null){
-            $this->logger->warning(
-                "Could not fnd existing log for this operations : paymentVoucherNumber = ".$paymentVoucherNumber,
-                array("action" => "Operation process", "miraklId" => $miraklId)
-                );
-        }
-
-        switch($status){
-            case Status::WITHDRAW_FAILED :
-            case Status::WITHDRAW_REQUESTED :
-                $logOperation->setStatusWithDrawal($status);
-                break;
-            case Status::TRANSFER_FAILED :
-            case Status::TRANSFER_SUCCESS :
-                $logOperation->setStatusTransferts($status);
-                break;
-        }
-
-        $logOperation->setMessage($message);
-
-        $this->logOperationsManager->save($logOperation);
+    /**
+     * Control if Mirakl Setting is ok with HiPay prerequisites
+     */
+    public function getControlMiraklSettings($docTypes)
+    {
+        $this->mirakl->controlMiraklSettings($docTypes);
     }
 
     /**
@@ -387,8 +357,7 @@ class Processor extends AbstractApiProcessor
             $toWithdraw,
             $this->operationManager
                 ->findByStatusAndBeforeUpdatedAt(
-                    new Status(Status::WITHDRAW_FAILED),
-                    $previousDay
+                    new Status(Status::WITHDRAW_FAILED), $previousDay
                 )
         );
         return $toWithdraw;
@@ -402,25 +371,51 @@ class Processor extends AbstractApiProcessor
     {
         $previousDay = new DateTime('-1 day');
         //Transfer
-        $toTransfer = $this->operationManager->findByStatus(
+        $toTransfer  = $this->operationManager->findByStatus(
             new Status(Status::CREATED)
         );
-        $toTransfer = array_merge(
+        $toTransfer  = array_merge(
             $toTransfer,
             $this->operationManager
                 ->findByStatusAndBeforeUpdatedAt(
-                    new Status(Status::TRANSFER_FAILED),
-                    $previousDay
+                    new Status(Status::TRANSFER_FAILED), $previousDay
                 )
         );
         return $toTransfer;
     }
 
     /**
-     * Control if Mirakl Setting is ok with HiPay prerequisites
+     * Log Operations
+     * @param type $miraklId
+     * @param type $paymentVoucherNumber
+     * @param type $status
+     * @param type $message
      */
-    public function getControlMiraklSettings($docTypes)
+    private function logOperation($miraklId, $paymentVoucherNumber, $status, $message)
     {
-        $this->mirakl->controlMiraklSettings($docTypes);
+        $logOperation = $this->logOperationsManager->findByMiraklIdAndPaymentVoucherNumber($miraklId,
+                                                                                           $paymentVoucherNumber);
+
+        if ($logOperation == null) {
+            $this->logger->warning(
+                "Could not fnd existing log for this operations : paymentVoucherNumber = ".$paymentVoucherNumber,
+                array("action" => "Operation process", "miraklId" => $miraklId)
+            );
+        }
+
+        switch ($status) {
+            case Status::WITHDRAW_FAILED :
+            case Status::WITHDRAW_REQUESTED :
+                $logOperation->setStatusWithDrawal($status);
+                break;
+            case Status::TRANSFER_FAILED :
+            case Status::TRANSFER_SUCCESS :
+                $logOperation->setStatusTransferts($status);
+                break;
+        }
+
+        $logOperation->setMessage($message);
+
+        $this->logOperationsManager->save($logOperation);
     }
 }
