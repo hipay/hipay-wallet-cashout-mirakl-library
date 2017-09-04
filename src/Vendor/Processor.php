@@ -195,7 +195,7 @@ class Processor extends AbstractApiProcessor
 
         foreach ($miraklData as $vendorData) {
             $this->logger->debug(
-                'Shop id : {shopId}', array('miraklId' => $vendorData['shop_id'], "action" => "Wallet creation")
+                'Shop id : {shopId}', array('shopId' =>  $vendorData['shop_id'], 'miraklId' => $vendorData['shop_id'], "action" => "Wallet creation")
             );
 
             try {
@@ -231,7 +231,6 @@ class Processor extends AbstractApiProcessor
                         0
                     );
                 } elseif ($vendor) {
-                    $vendorData['shop_id'] = $vendorData['shop_id']+1;
                     //Fetch the wallet id from HiPay
                     $walletInfo = $this->getWalletUserInfo($vendorData);
                     $vendor->setVatNumber($vendorData['pro_details']['VAT_number']);
