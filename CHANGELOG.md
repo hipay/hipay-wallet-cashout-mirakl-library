@@ -1,3 +1,10 @@
+# Version 2.6.0
+- Fix "Wallet not found" bug
+- Fix wrong private and public label during Wallet API call
+- Add vendor logging
+- Add Operation logging
+- Set up new parameters to general logging
+
 # Version 2.5.4
 - Fix callback_salt in HiPay.php
 
