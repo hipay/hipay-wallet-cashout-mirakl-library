@@ -13,6 +13,15 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 interface LogVendorsInterface
 {
+    const SUCCESS = 1;
+    const INFO = 2;
+    const WARNING = 3;
+    const CRITICAL = 4;
+    const WALLET_CREATED = 1;
+    const WALLET_NOT_CREATED = 2;
+    const WALLET_IDENTIFIED = 3;
+    const WALLET_NOT_IDENTIFIED = 4;
+
     /**
      * @return int|null if operator
      *

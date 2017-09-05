@@ -26,15 +26,7 @@ interface LogOperationsManagerInterface
      *
      * @return VendorInterface
      */
-    public function create(
-        $miraklId,
-        $hipayId,
-        $amount,
-        $statusTransferts,
-        $statusWithDrawal,
-        $message,
-        $balance
-    );
+    public function create($miraklId, $hipayId, $paymentVoucher, $amount, $balance);
 
     /**
      * Insert more data into the vendor.
@@ -82,4 +74,17 @@ interface LogOperationsManagerInterface
      * @return bool
      */
     public function isValid(LogOperationsInterface $logGeneral);
+
+    /**
+     * Finds an operation.
+     *
+     * @param int $miraklId|null if operator
+     * @param int $paymentVoucherNumber optional date to filter upon
+     *
+     * @return OperationInterface|null
+     */
+    public function findByMiraklIdAndPaymentVoucherNumber(
+        $miraklId,
+        $paymentVoucherNumber
+    );
 }

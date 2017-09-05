@@ -8,6 +8,7 @@ use HiPay\Wallet\Mirakl\Cashout\Model\Operation\OperationInterface;
 use HiPay\Wallet\Mirakl\Test\Common\AbstractProcessorTest;
 use HiPay\Wallet\Mirakl\Test\Stub\Api\Mirakl;
 use HiPay\Wallet\Mirakl\Test\Stub\Entity\Operation;
+use HiPay\Wallet\Mirakl\Test\Stub\Entity\Vendor;
 use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 use HiPay\Wallet\Mirakl\Vendor\Model\VendorManagerInterface;
 use Prophecy\Argument;
@@ -39,6 +40,8 @@ class InitializerTest extends AbstractProcessorTest
         $this->operationArgument =
             Argument::type("\\HiPay\\Wallet\\Mirakl\\Cashout\\Model\\Operation\\OperationInterface");
 
+        $this->vendorArgument = Argument::type("\\HiPay\\Wallet\\Mirakl\\Vendor\\Model\\VendorInterface");
+
         /** @var VendorInterface vendorArgument */
         $this->technicalAccountArgument = Argument::is($this->technical);
 
@@ -50,6 +53,7 @@ class InitializerTest extends AbstractProcessorTest
             $this->technical,
             $this->transactionValidator->reveal(),
             $this->operationManager->reveal(),
+            $this->logOperationsManager->reveal(),
             $this->vendorManager->reveal()
         );
     }
@@ -90,7 +94,13 @@ class InitializerTest extends AbstractProcessorTest
         })->shouldBeCalled();
 
         $expectedOperation = new Operation(200, new DateTime(), "000001", 2001);
-        $expectedOperation->setHipayId(null);
+        $expectedOperation->setHipayId(109);
+
+        $vendor = new Vendor("test@test.com", 109);
+
+        $this->vendorManager->findByMiraklId(Argument::type('int'))->willReturn($vendor)->shouldBeCalled();
+
+        $this->hipay->getBalance(Argument::cetera())->willReturn(2001)->shouldBeCalled();
 
         $resultOperation = $this->cashoutInitializer->createOperation((float) 200, new DateTime(), "000001", 2001);
 
@@ -114,6 +124,8 @@ class InitializerTest extends AbstractProcessorTest
 
         $expectedOperation = new Operation(200, new DateTime(), "000001", false);
         $expectedOperation->setHipayId($this->operator->getHipayId());
+
+        $this->hipay->getBalance(Argument::cetera())->willReturn(2001)->shouldBeCalled();
 
         $resultOperation = $this->cashoutInitializer->createOperation((float) 200, new DateTime(), "000001", false);
 
@@ -190,6 +202,8 @@ class InitializerTest extends AbstractProcessorTest
         });
 
         $this->operationManager->saveAll($callback)->shouldBeCalled();
+
+        $this->logOperationsManager->saveAll(Argument::type("array"))->shouldBeCalled();
 
         $this->operationManager->findByMiraklIdAndPaymentVoucherNumber(Argument::is(false), Argument::type("string"))
             ->willReturn(null)
@@ -469,6 +483,10 @@ class InitializerTest extends AbstractProcessorTest
     protected function setOrderTestAssertion($file, $withOperatorOperation = true, $transactionRegex = null, $debitedAmounts = array(2001 => 5000))
     {
         $this->setOrderTestProphecy($file, $withOperatorOperation);
+
+        $vendor = new Vendor("test@test.com", 109);
+
+        $this->vendorManager->findByMiraklId(Argument::type('int'))->willReturn($vendor)->shouldBeCalled();
 
         $operations = $this->cashoutInitializer->handlePaymentVoucher(
             "000001",

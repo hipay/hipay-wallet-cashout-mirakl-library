@@ -9,6 +9,7 @@ use HiPay\Wallet\Mirakl\Cashout\Model\Operation\Status;
 use HiPay\Wallet\Mirakl\Cashout\Processor;
 use HiPay\Wallet\Mirakl\Test\Common\AbstractProcessorTest;
 use HiPay\Wallet\Mirakl\Test\Stub\Entity\Operation;
+use HiPay\Wallet\Mirakl\Test\Stub\Entity\LogOperations;
 use HiPay\Wallet\Mirakl\Test\Stub\Entity\Vendor;
 use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 use Prophecy\Argument;
@@ -47,7 +48,8 @@ class ProcessorTest extends AbstractProcessorTest
             $this->apiFactory->reveal(),
             $this->operationManager->reveal(),
             $this->vendorManager->reveal(),
-            $this->operator
+            $this->operator,
+            $this->logOperationsManager->reveal()
         );
 
         /** @var OperationInterface $operationArgument */
@@ -60,6 +62,7 @@ class ProcessorTest extends AbstractProcessorTest
         $this->operationManager->generateWithdrawLabel($operationArgument)->willReturn($this->getRandomString());
 
         $this->operationManager->save($operationArgument)->willReturn()->shouldBeCalled();
+        
     }
 
     /**
@@ -82,7 +85,11 @@ class ProcessorTest extends AbstractProcessorTest
                     ->shouldBeCalled();
 
         $operation = new Operation(2000, new DateTime(), "000001", rand());
-        
+
+        $this->logOperationsManager->save(Argument::any())->willReturn()->shouldBeCalled();
+
+        $this->logOperationsManager->findByMiraklIdAndPaymentVoucherNumber(Argument::any(), Argument::any())->willReturn(new LogOperations(200, 2001))->shouldBeCalled();
+
         $result = $this->cashoutProcessor->transfer($operation);
 
         $this->assertInternalType("integer", $result);
@@ -103,6 +110,10 @@ class ProcessorTest extends AbstractProcessorTest
 
         $this->hipay->isAvailable(Argument::containingString("@"), Argument::any())->willReturn(false)->shouldBeCalled();
         $this->hipay->transfer($this->transferArgument, Argument::cetera())->willReturn($transferId)->shouldBeCalled();
+
+        $this->logOperationsManager->save(Argument::any())->willReturn()->shouldBeCalled();
+
+        $this->logOperationsManager->findByMiraklIdAndPaymentVoucherNumber(Argument::any(), Argument::any())->willReturn(new LogOperations(200, 2001))->shouldBeCalled();
 
         $result = $this->cashoutProcessor->transfer($operation);
 
@@ -128,6 +139,10 @@ class ProcessorTest extends AbstractProcessorTest
         $this->vendorManager->findByMiraklId(Argument::type("integer"))
                             ->willReturn(new Vendor("test@test.com", rand(), rand()))
                             ->shouldBeCalled();
+
+        $this->logOperationsManager->save(Argument::any())->willReturn()->shouldBeCalled();
+
+        $this->logOperationsManager->findByMiraklIdAndPaymentVoucherNumber(Argument::any(), Argument::any())->willReturn(new LogOperations(200, 2001))->shouldBeCalled();
 
         $this->setExpectedException("\\HiPay\\Wallet\\Mirakl\\Exception\\WalletNotFoundException");
 
@@ -165,6 +180,10 @@ class ProcessorTest extends AbstractProcessorTest
                     ->willReturn($withdrawId)
                     ->shouldBeCalled();
 
+        $this->logOperationsManager->save(Argument::any())->willReturn()->shouldBeCalled();
+
+        $this->logOperationsManager->findByMiraklIdAndPaymentVoucherNumber(Argument::any(), Argument::any())->willReturn(new LogOperations(200, 2001))->shouldBeCalled();
+
         $result = $this->cashoutProcessor->withdraw($operation);
 
         $this->assertEquals($withdrawId, $result);
@@ -197,6 +216,10 @@ class ProcessorTest extends AbstractProcessorTest
             ->willReturn($balance)->shouldBeCalled();
         $this->hipay->withdraw($operatorArgument, Argument::is($balance), Argument::type("string"))
             ->willReturn($withdrawId)->shouldBeCalled();
+
+        $this->logOperationsManager->save(Argument::any())->willReturn()->shouldBeCalled();
+
+        $this->logOperationsManager->findByMiraklIdAndPaymentVoucherNumber(Argument::any(), Argument::any())->willReturn(new LogOperations(200, 2001))->shouldBeCalled();
 
         $result = $this->cashoutProcessor->withdraw($operation);
 
@@ -243,6 +266,10 @@ class ProcessorTest extends AbstractProcessorTest
             ->willReturn($withdrawId)
             ->shouldBeCalled();
 
+        $this->logOperationsManager->save(Argument::any())->willReturn()->shouldBeCalled();
+
+        $this->logOperationsManager->findByMiraklIdAndPaymentVoucherNumber(Argument::any(), Argument::any())->willReturn(new LogOperations(200, 2001))->shouldBeCalled();
+
         $result = $this->cashoutProcessor->withdraw($operation);
 
         $this->assertEquals($withdrawId, $result);
@@ -281,6 +308,10 @@ class ProcessorTest extends AbstractProcessorTest
             ->shouldBeCalled();
         $this->hipay->withdraw(Argument::cetera())->shouldNotBeCalled();
 
+        $this->logOperationsManager->save(Argument::any())->willReturn()->shouldBeCalled();
+
+        $this->logOperationsManager->findByMiraklIdAndPaymentVoucherNumber(Argument::any(), Argument::any())->willReturn(new LogOperations(200, 2001))->shouldBeCalled();
+
         $this->setExpectedException("\\HiPay\\Wallet\\Mirakl\\Exception\\WrongWalletBalance");
 
         $this->cashoutProcessor->withdraw($operation);
@@ -312,6 +343,10 @@ class ProcessorTest extends AbstractProcessorTest
             ->willReturn($amount + 1);
         $this->hipay->withdraw(Argument::cetera())
                     ->shouldNotBeCalled();
+
+        $this->logOperationsManager->save(Argument::any())->willReturn()->shouldBeCalled();
+        
+        $this->logOperationsManager->findByMiraklIdAndPaymentVoucherNumber(Argument::any(), Argument::any())->willReturn(new LogOperations(200, 2001))->shouldBeCalled();
 
         $this->setExpectedException("\\HiPay\\Wallet\\Mirakl\\Exception\\WalletNotFoundException");
 
@@ -345,6 +380,10 @@ class ProcessorTest extends AbstractProcessorTest
         $this->hipay->withdraw(Argument::cetera())
             ->shouldNotBeCalled();
 
+        $this->logOperationsManager->save(Argument::any())->willReturn()->shouldBeCalled();
+
+        $this->logOperationsManager->findByMiraklIdAndPaymentVoucherNumber(Argument::any(), Argument::any())->willReturn(new LogOperations(200, 2001))->shouldBeCalled();
+
         $this->setExpectedException("\\HiPay\\Wallet\\Mirakl\\Exception\\UnidentifiedWalletException");
 
         $this->cashoutProcessor->withdraw($operation);
@@ -376,6 +415,10 @@ class ProcessorTest extends AbstractProcessorTest
             ->willReturn($amount + 1);
         $this->hipay->withdraw(Argument::cetera())
             ->shouldNotBeCalled();
+
+        $this->logOperationsManager->save(Argument::any())->willReturn()->shouldBeCalled();
+
+        $this->logOperationsManager->findByMiraklIdAndPaymentVoucherNumber(Argument::any(), Argument::any())->willReturn(new LogOperations(200, 2001))->shouldBeCalled();
 
         $this->setExpectedException("\\HiPay\\Wallet\\Mirakl\\Exception\\UnconfirmedBankAccountException");
 

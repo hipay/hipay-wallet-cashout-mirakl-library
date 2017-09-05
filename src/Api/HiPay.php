@@ -170,6 +170,32 @@ class HiPay implements ApiInterface
         return $this->restClient->execute($command);
     }
 
+    public function getDocuments(VendorInterface $vendor){
+
+        $this->restClient->getConfig()->setPath(
+            'request.options/headers/php-auth-user',
+            $this->login
+        );
+
+        $this->restClient->getConfig()->setPath(
+            'request.options/headers/php-auth-pw',
+            $this->password
+        );
+
+        if( !empty($vendor->getHiPayId())) {
+            $this->restClient->getConfig()->setPath(
+                'request.options/headers/php-auth-subaccount-id',
+                $vendor->getHiPayId()
+            );
+        }
+
+        $command = $this->restClient->getCommand('GetDocuments',array());
+
+        $result = $this->restClient->execute($command);
+
+        return $result['documents'];
+    }
+
     /**
      * Check if given email can be used to create an HiPay wallet
      * Enforce the entity to the one given on object construction if false.
@@ -416,7 +442,7 @@ class HiPay implements ApiInterface
     {
         $result = $this->getAccountInfos($userAccount);
 
-        return new AccountInfo($result['user_account_id'], $result['user_space_id'], $result['identified'] === 1, $result['callback_salt']);
+        return new AccountInfo($result['user_account_id'], $result['user_space_id'], $result['identified'] === 1, $result['callback_salt'], $result['message']);
     }
 
     /**

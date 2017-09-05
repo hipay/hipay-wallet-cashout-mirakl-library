@@ -82,4 +82,5 @@ interface LogGeneralManagerInterface
      * @return bool
      */
     public function isValid(LogGeneralInterface $logGeneral);
+
 }
