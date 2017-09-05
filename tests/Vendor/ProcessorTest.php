@@ -58,7 +58,8 @@ class ProcessorTest extends AbstractProcessorTest
             $this->logger->reveal(),
             $this->apiFactory->reveal(),
             $this->vendorManager->reveal(),
-            $this->documentManager->reveal()
+            $this->documentManager->reveal(),
+            $this->logVendorManager->reveal()
         );
     }
 
@@ -136,7 +137,6 @@ class ProcessorTest extends AbstractProcessorTest
             $this->vendorArgument,
             Argument::type('array')
         )->willReturn()->shouldBeCalled();
-
         $vendors = $this->vendorProcessor->registerWallets(Mirakl::getVendor());
 
         $this->assertInternalType('array', $vendors);
@@ -163,6 +163,12 @@ class ProcessorTest extends AbstractProcessorTest
         $this->vendorManager->isValid(
             $this->vendorArgument
         )->willReturn(true)->shouldBeCalled();
+
+        $walletInfo = new HiPay\Wallet\AccountInfo(mt_rand(), mt_rand(), true, mt_rand());
+
+        $this->hipay->getWalletInfo(
+            Argument::type("\\HiPay\\Wallet\\Mirakl\\Api\\HiPay\\Model\\Rest\\UserAccount")
+        )->willReturn($walletInfo)->shouldBeCalled();
 
         $vendors = $this->vendorProcessor->registerWallets(Mirakl::getVendor());
 

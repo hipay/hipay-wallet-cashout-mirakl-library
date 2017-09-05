@@ -24,6 +24,9 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use HiPay\Wallet\Mirakl\Api\Factory as ApiFactory;
 use HiPay\Wallet\Mirakl\Api\HiPay;
 use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
+use HiPay\Wallet\Mirakl\Notification\Model\LogVendorsInterface;
+use HiPay\Wallet\Mirakl\Notification\Model\LogVendorsManagerInterface;
+use HiPay\Wallet\Mirakl\Notification\Model\LogOperationsManagerInterface;
 
 /**
  * Handle the notification server-server
@@ -40,6 +43,10 @@ class Handler extends AbstractProcessor
 
     /** @var  VendorManagerInterface */
     protected $vendorManager;
+
+    protected $logVendorManager;
+
+    protected $logOperationsManager;
 
     /**
      * @var FormatNotification class
@@ -58,17 +65,18 @@ class Handler extends AbstractProcessor
      * @param VendorManagerInterface $vendorManager
      */
     public function __construct(
-        EventDispatcherInterface $dispatcher,
-        LoggerInterface $logger,
-        OperationManager $operationManager,
-        VendorManagerInterface $vendorManager,
-        ApiFactory $factory
-    ) {
+    EventDispatcherInterface $dispatcher, LoggerInterface $logger, OperationManager $operationManager,
+    VendorManagerInterface $vendorManager, LogVendorsManagerInterface $logVendorManager, ApiFactory $factory,
+        LogOperationsManagerInterface $logOperationsManager
+    )
+    {
         parent::__construct($dispatcher, $logger);
-        $this->operationManager = $operationManager;
-        $this->vendorManager = $vendorManager;
+        $this->operationManager   = $operationManager;
+        $this->vendorManager      = $vendorManager;
         $this->formatNotification = new FormatNotification();
-        $this->hipay = $factory->getHiPay();
+        $this->hipay              = $factory->getHiPay();
+        $this->logVendorManager   = $logVendorManager;
+        $this->logOperationsManager = $logOperationsManager;
     }
 
     /**
@@ -113,80 +121,68 @@ class Handler extends AbstractProcessor
         $md5string = trim(preg_replace("#\>( )+?\<#", "><", $md5string));
 
         /** @noinspection PhpUndefinedFieldInspection */
-        if (md5($md5string . $callback_salt) !=  $xml->md5content) {
+        if (md5($md5string.$callback_salt) != $xml->md5content) {
             throw new ChecksumFailedException();
         }
 
         /** @noinspection PhpUndefinedFieldInspection */
         $operation = (string) $xml->result->operation;
         /** @noinspection PhpUndefinedFieldInspection */
-        $status = ($xml->result->status == NotificationStatus::OK);
+        $status    = ($xml->result->status == NotificationStatus::OK);
         /** @noinspection PhpUndefinedFieldInspection */
-        $date = new DateTime((string)$xml->result->date.' '.(string)$xml->result->time);
+        $date      = new DateTime((string) $xml->result->date.' '.(string) $xml->result->time);
 
         switch ($operation) {
             case Notification::BANK_INFO_VALIDATION:
                 $this->bankInfoValidation(
-                    $hipayId,
-                    $date,
-                    $status
+                    $hipayId, $date, $status
                 );
                 break;
             case Notification::IDENTIFICATION:
                 $this->identification(
-                    $hipayId,
-                    $date,
-                    $status
+                    $hipayId, $date, $status
                 );
                 break;
             case Notification::WITHDRAW_VALIDATION:
                 /** @noinspection PhpUndefinedFieldInspection */
                 $this->withdrawalValidation(
-                    $hipayId,
-                    $date,
-                    (string) $xml->result->transid,
-                    $status
+                    $hipayId, $date, (string) $xml->result->transid, $status
                 );
                 break;
             case Notification::OTHER:
                 /** @noinspection PhpUndefinedFieldInspection */
                 $this->other(
-                    (float) $xml->result->amount,
-                    (string) $xml->result->currency,
-                    (string) $xml->result->label,
-                    $hipayId,
-                    $date,
-                    $status
+                    (float) $xml->result->amount, (string) $xml->result->currency, (string) $xml->result->label,
+                    $hipayId, $date, $status
                 );
                 break;
             case Notification::DOCUMENT_VALIDATION:
-                $title = 'Error - Document validation';
-                $infos = array(
+                $title        = 'Error - Document validation';
+                $infos        = array(
                     'shopId' => '-',
-                    'HipayId'=> $hipayId,
-                    'Email'  => '-',
-                    'Type'   => 'Error'
+                    'HipayId' => $hipayId,
+                    'Email' => '-',
+                    'Type' => 'Error'
                 );
                 $exceptionMsg = implode(
-                    HiPay::LINEMKD . HiPay::SEPARMKD . '- ',
+                    HiPay::LINEMKD.HiPay::SEPARMKD.'- ',
                     array(
-                        'Operation' => $operation,
-                        'Status' => $xml->result->status,
-                        'Message' => $xml->result->message,
-                        'Date' => $date->format('Y-m-d H:i:s'),
-                        'Document_type' => $xml->result->document_type,
-                        'Document_type_label' => $xml->result->document_type_label,
-                    ));
-                $exceptionMsg =
-                    HiPay::LINEMKD . HiPay::SEPARMKD . '- Operation: ' . $operation .
-                    HiPay::LINEMKD . HiPay::SEPARMKD . '- Status: ' . $xml->result->status .
-                    HiPay::LINEMKD . HiPay::SEPARMKD . '- Message: ' . $xml->result->message .
-                    HiPay::LINEMKD . HiPay::SEPARMKD . '- Date: ' . $date->format('Y-m-d H:i:s') .
-                    HiPay::LINEMKD . HiPay::SEPARMKD . '- Document_type: ' . $xml->result->document_type .
-                    HiPay::LINEMKD . HiPay::SEPARMKD . '- Document_type_label: ' . $xml->result->document_type_label .
-                    HiPay::LINEMKD . HiPay::SEPARMKD;
-                $message = $this->formatNotification->formatMessage($title,$infos,$exceptionMsg);
-                $this->logger->error($message);
+                    'Operation' => $operation,
+                    'Status' => $xml->result->status,
+                    'Message' => $xml->result->message,
+                    'Date' => $date->format('Y-m-d H:i:s'),
+                    'Document_type' => $xml->result->document_type,
+                    'Document_type_label' => $xml->result->document_type_label,
+                ));
+                $exceptionMsg = HiPay::LINEMKD.HiPay::SEPARMKD.'- Operation: '.$operation.
+                    HiPay::LINEMKD.HiPay::SEPARMKD.'- Status: '.$xml->result->status.
+                    HiPay::LINEMKD.HiPay::SEPARMKD.'- Message: '.$xml->result->message.
+                    HiPay::LINEMKD.HiPay::SEPARMKD.'- Date: '.$date->format('Y-m-d H:i:s').
+                    HiPay::LINEMKD.HiPay::SEPARMKD.'- Document_type: '.$xml->result->document_type.
+                    HiPay::LINEMKD.HiPay::SEPARMKD.'- Document_type_label: '.$xml->result->document_type_label.
+                    HiPay::LINEMKD.HiPay::SEPARMKD;
+                $message      = $this->formatNotification->formatMessage($title, $infos, $exceptionMsg);
+                $this->logger->error($message, array('miraklId' => null, "action" => "Notification"));
                 break;
             default:
                 throw new IllegalNotificationOperationException($operation);
@@ -202,11 +198,9 @@ class Handler extends AbstractProcessor
      * @throws Exception
      */
     protected function withdrawalValidation(
-        $hipayId,
-        DateTime $date,
-        $withdrawalId,
-        $status
-    ) {
+    $hipayId, DateTime $date, $withdrawalId, $status
+    )
+    {
         $operation = $this->operationManager
             ->findByWithdrawalId($withdrawalId);
 
@@ -220,18 +214,50 @@ class Handler extends AbstractProcessor
 
         if ($status) {
             $operation->setStatus(new Status(Status::WITHDRAW_SUCCESS));
-            $this->logger->info("Withdraw {$operation->getWithdrawId()} successful");
+            $this->logger->info("Withdraw {$operation->getWithdrawId()} successful", array('miraklId' => $operation->getMiraklId(), "action" => "Withdraw"));
             $eventName = 'withdraw.notification.success';
+
+            $status = Status::WITHDRAW_SUCCESS;
         } else {
             $operation->setStatus(new Status(Status::WITHDRAW_CANCELED));
-            $this->logger->info("Withdraw {$operation->getWithdrawId()} canceled");
+            $this->logger->info("Withdraw {$operation->getWithdrawId()} canceled", array('miraklId' => $operation->getMiraklId(), "action" => "Withdraw"));
             $eventName = 'withdraw.notification.canceled';
+
+            $status = Status::WITHDRAW_CANCELED;
         }
 
         $this->operationManager->save($operation);
 
+        $this->logOperation($operation->getMiraklId(), $operation->getPaymentVoucher(), $status, $eventName);
+
         $event = new Withdraw($hipayId, $date, $operation);
         $this->dispatcher->dispatch($eventName, $event);
+    }
+
+    private function logOperation($miraklId, $paymentVoucherNumber, $status, $message){
+        $logOperation = $this->logOperationsManager->findByMiraklIdAndPaymentVoucherNumber($miraklId, $paymentVoucherNumber);
+
+        if($logOperation == null){
+            $this->logger->warning(
+                "Could not fnd existing log for this operations : paymentVoucherNumber = ".$paymentVoucherNumber,
+                array("action" => "Process notification", "miraklId" => $miraklId)
+                );
+        }
+
+        switch($status){
+            case Status::WITHDRAW_FAILED :
+            case Status::WITHDRAW_REQUESTED :
+                $logOperation->setStatusWithDrawal($status);
+                break;
+            case Status::TRANSFER_FAILED :
+            case Status::TRANSFER_SUCCESS :
+                $logOperation->setStatusTransferts($status);
+                break;
+        }
+
+        $logOperation->setMessage($message);
+
+        $this->logOperationsManager->save($logOperation);
     }
 
     /**
@@ -260,9 +286,13 @@ class Handler extends AbstractProcessor
     protected function identification($hipayId, $date, $status)
     {
         if ($status) {
-            $eventName = 'identification.notification.success';
+            $eventName           = 'identification.notification.success';
+            $statusRequest       = LogVendorsInterface::SUCCESS;
+            $statusWalletAccount = LogVendorsInterface::WALLET_IDENTIFIED;
         } else {
-            $eventName = 'identification.notification.failed';
+            $eventName           = 'identification.notification.failed';
+            $statusRequest       = LogVendorsInterface::WARNING;
+            $statusWalletAccount = LogVendorsInterface::WALLET_NOT_IDENTIFIED;
         }
 
         $vendor = $this->vendorManager->findByHiPayId($hipayId);
@@ -270,6 +300,18 @@ class Handler extends AbstractProcessor
         if ($vendor !== null) {
             $vendor->setHiPayIdentified($status);
             $this->vendorManager->save($vendor);
+            $logVendor = $this->logVendorManager->findByMiraklId($vendor->getMiraklId());
+
+            if ($logVendor !== null) {
+                $logVendor->setStatusWalletAccount($statusWalletAccount);
+                $logVendor->setStatus($statusRequest);
+                $logVendor->setMessage($eventName);
+                $this->logVendorManager->save($logVendor);
+            } else {
+                $logVendor = $this->logVendorManager->create($vendor->getMiraklId(), $hipayId, null,
+                                                             $statusWalletAccount, $statusRequest, $eventName, 0);
+                $this->logVendorManager->save($logVendor);
+            }
         }
 
         $event = new Identification($hipayId, $date);
@@ -286,13 +328,9 @@ class Handler extends AbstractProcessor
      * @param bool            $status
      */
     protected function other(
-        $amount,
-        $currency,
-        $label,
-        $hipayId,
-        $date,
-        $status
-    ) {
+    $amount, $currency, $label, $hipayId, $date, $status
+    )
+    {
         if ($status) {
             $eventName = 'other.notification.success';
         } else {
@@ -300,11 +338,7 @@ class Handler extends AbstractProcessor
         }
 
         $event = new Other(
-            $hipayId,
-            $date,
-            $amount,
-            $currency,
-            $label
+            $hipayId, $date, $amount, $currency, $label
         );
 
         $this->dispatcher->dispatch($eventName, $event);

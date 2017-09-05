@@ -44,6 +44,11 @@
         }
       }
     },
+    "GetDocuments": {
+        "httpMethod": "GET",
+        "uri": "/api/identification",
+        "summary": "Get the list of all identification documents for a user space"
+    },
     "GetBalance": {
       "httpMethod": "GET",
       "uri": "/api/user-account/balance",

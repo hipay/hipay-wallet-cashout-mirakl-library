@@ -112,10 +112,10 @@ class HiPay implements ApiInterface
         );
 
         $options = array_merge($defaults, $options);
-        $this->userAccountClient = new SmileClient(
+        /*$this->userAccountClient = new SmileClient(
             $baseSoapUrl.'/soap/user-account-v2?wsdl',
             $options
-        );
+        );*/
         $this->transferClient = new SmileClient(
             $baseSoapUrl.'/soap/transfer?wsdl',
             $options
@@ -168,6 +168,32 @@ class HiPay implements ApiInterface
         );
 
         return $this->restClient->execute($command);
+    }
+
+    public function getDocuments(VendorInterface $vendor){
+
+        $this->restClient->getConfig()->setPath(
+            'request.options/headers/php-auth-user',
+            $this->login
+        );
+
+        $this->restClient->getConfig()->setPath(
+            'request.options/headers/php-auth-pw',
+            $this->password
+        );
+
+        if( !empty($vendor->getHiPayId())) {
+            $this->restClient->getConfig()->setPath(
+                'request.options/headers/php-auth-subaccount-id',
+                $vendor->getHiPayId()
+            );
+        }
+
+        $command = $this->restClient->getCommand('GetDocuments',array());
+
+        $result = $this->restClient->execute($command);
+
+        return $result['documents'];
     }
 
     /**
@@ -416,7 +442,7 @@ class HiPay implements ApiInterface
     {
         $result = $this->getAccountInfos($userAccount);
 
-        return new AccountInfo($result['user_account_id'], $result['user_space_id'], $result['identified'] === 1, $result['callback_salt']);
+        return new AccountInfo($result['user_account_id'], $result['user_space_id'], $result['identified'] === 1, $result['callback_salt'], $result['message']);
     }
 
     /**
@@ -537,7 +563,7 @@ class HiPay implements ApiInterface
 
         if( !empty($input['account_id'])) {
             $this->restClient->getConfig()->setPath(
-                'request.options/headers/php-auth-subaccount-login',
+                'request.options/headers/php-auth-subaccount-id',
                 $account_id
             );
         }
@@ -753,7 +779,7 @@ class HiPay implements ApiInterface
             case 'create':
                 return $this->withdrawalClient;
             default:
-                return $this->userAccountClient;
+                return true;//$this->userAccountClient;
         }
     }
 
