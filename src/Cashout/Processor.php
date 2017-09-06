@@ -401,21 +401,22 @@ class Processor extends AbstractApiProcessor
                 "Could not fnd existing log for this operations : paymentVoucherNumber = ".$paymentVoucherNumber,
                 array("action" => "Operation process", "miraklId" => $miraklId)
             );
+        } else {
+
+            switch ($status) {
+                case Status::WITHDRAW_FAILED :
+                case Status::WITHDRAW_REQUESTED :
+                    $logOperation->setStatusWithDrawal($status);
+                    break;
+                case Status::TRANSFER_FAILED :
+                case Status::TRANSFER_SUCCESS :
+                    $logOperation->setStatusTransferts($status);
+                    break;
+            }
+
+            $logOperation->setMessage($message);
+
+            $this->logOperationsManager->save($logOperation);
         }
-
-        switch ($status) {
-            case Status::WITHDRAW_FAILED :
-            case Status::WITHDRAW_REQUESTED :
-                $logOperation->setStatusWithDrawal($status);
-                break;
-            case Status::TRANSFER_FAILED :
-            case Status::TRANSFER_SUCCESS :
-                $logOperation->setStatusTransferts($status);
-                break;
-        }
-
-        $logOperation->setMessage($message);
-
-        $this->logOperationsManager->save($logOperation);
     }
 }
