@@ -547,7 +547,7 @@ class Processor extends AbstractApiProcessor
                     $miraklBankInfo = new BankInfo();
 
 
-                    $this->logger->debug($bankInfoStatus,
+                    $this->logger->debug(BankInfoStatus::getLabel($bankInfoStatus),
                                          array('miraklId' => $vendor->getMiraklId(), "action" => "Wallet creation"));
                     switch (trim($bankInfoStatus)) {
                         case BankInfoStatus::BLANK:
