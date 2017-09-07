@@ -13,7 +13,7 @@ use HiPay\Wallet\Mirakl\Common\AbstractEnumeration;
 class BankInfo extends AbstractEnumeration
 {
     // HiPay Wallet bankInfosStatus response 'status' values (in en_GB)
-    const BLANK = 'No bank information';
+    const BLANK = 'No bank account details.';
     const VALIDATED = 'Validated';
     const TO_VALIDATE = 'To validate';
     const VALIDATION_PROGRESS = 'Validation in progress';

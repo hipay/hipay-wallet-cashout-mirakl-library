@@ -197,6 +197,13 @@
           "location": "postField",
           "sentAs": "transit_num",
           "required": false
+        },
+        "file": {
+          "type": "any",
+          "description": "The document to be uploaded",
+          "location": "postFile",
+          "sentAs": "file",
+          "required": true
         }
       }
     },
