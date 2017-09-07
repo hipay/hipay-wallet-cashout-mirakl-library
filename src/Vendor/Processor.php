@@ -545,15 +545,16 @@ class Processor extends AbstractApiProcessor
                     $bankInfoStatus = $this->getBankInfoStatus($vendor);
 
                     $miraklBankInfo = new BankInfo();
-                    $miraklBankInfo->setMiraklData(
-                        $miraklDataCollection[$vendor->getMiraklId()],
-                        $this->getBankDocument($vendor->getMiraklId(), $tmpFilePath)
-                    );
+
 
                     $this->logger->debug($bankInfoStatus,
                                          array('miraklId' => $vendor->getMiraklId(), "action" => "Wallet creation"));
                     switch (trim($bankInfoStatus)) {
                         case BankInfoStatus::BLANK:
+                            $miraklBankInfo->setMiraklData(
+                                $miraklDataCollection[$vendor->getMiraklId()],
+                                $this->getBankDocument($vendor->getMiraklId(), $tmpFilePath)
+                            );
                             if ($this->sendBankAccount($vendor, $miraklBankInfo)) {
                                 $this->logger->info(
                                     '[OK] Created bank account for : '.
@@ -567,6 +568,9 @@ class Processor extends AbstractApiProcessor
                             }
                             break;
                         case BankInfoStatus::VALIDATED:
+                            $miraklBankInfo->setMiraklData(
+                                $miraklDataCollection[$vendor->getMiraklId()]
+                            );
                             if (!$this->isBankInfosSynchronised($vendor, $miraklBankInfo)) {
                                 throw new InvalidBankInfoException(
                                 $vendor, $miraklBankInfo
@@ -825,14 +829,14 @@ class Processor extends AbstractApiProcessor
     {
         $allMiraklFiles = $this->mirakl->getFiles(array($shopId));
         // We only keep the file type we want
-        $files = array_filter($allMiraklFiles,
+        $files          = array_filter($allMiraklFiles,
                                        function($aFile) {
             return in_array($aFile['type'], array(Mirakl::DOCUMENT_ALL_PROOF_OF_BANK_ACCOUNT));
         });
 
         if (!empty($files)) {
             $tmpFile = $tmpFilePath.'/mirakl_kyc_downloaded_file.tmp';
-            $file = end($files);
+            $file    = end($files);
             file_put_contents(
                 $tmpFile, $this->mirakl->downloadDocuments(array($file['id']))
             );
