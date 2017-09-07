@@ -243,7 +243,7 @@ class ProcessorTest extends AbstractProcessorTest
         $miraklData = array($vendor->getMiraklId() => $miraklData);
 
         $this->hipay->bankInfosStatus($this->vendorArgument)
-            ->willReturn(BankInfoStatus::TO_VALIDATE)
+            ->willReturn(-1)
             ->shouldBeCalled();
 
         $this->vendorProcessor->handleBankInfo(array($vendor), $miraklData, $tmpDir);

@@ -268,7 +268,7 @@ class Processor extends AbstractApiProcessor
 
             if ($bankInfoStatus != BankInfoStatus::VALIDATED) {
                 throw new UnconfirmedBankAccountException(
-                new BankInfoStatus($bankInfoStatus), $operation->getMiraklId()
+                new BankInfoStatus(BankInfoStatus::getLabel($bankInfoStatus)), $operation->getMiraklId()
                 );
             }
 

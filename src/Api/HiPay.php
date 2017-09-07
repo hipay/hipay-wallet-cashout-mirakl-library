@@ -376,7 +376,7 @@ class HiPay implements ApiInterface
         );
         $result = $this->restClient->execute($command);
 
-        return $result['status'];
+        return $result['status_code'];
     }
 
     /**
