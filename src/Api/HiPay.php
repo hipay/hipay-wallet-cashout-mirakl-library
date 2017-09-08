@@ -127,9 +127,9 @@ class HiPay implements ApiInterface
 
         $this->restClient = new Client();
 
-        $description = ServiceDescription::factory(__DIR__.'../../../data/api/hipay.json');
-        $description->setBaseUrl($baseRestUrl);
-        $this->restClient->setDescription($description);
+        $this->description = ServiceDescription::factory(__DIR__.'../../../data/api/hipay.json');
+        $this->description->setBaseUrl($baseRestUrl);
+        $this->restClient->setDescription($this->description);
     }
 
     public function uploadDocument(
@@ -140,6 +140,8 @@ class HiPay implements ApiInterface
         \DateTime $validityDate = null
     )
     {
+        $this->resetRestClient();
+
         $this->restClient->getConfig()->setPath(
             'request.options/headers/php-auth-user',
             $this->login
@@ -171,6 +173,8 @@ class HiPay implements ApiInterface
     }
 
     public function getDocuments(VendorInterface $vendor){
+
+        $this->resetRestClient();
 
         $this->restClient->getConfig()->setPath(
             'request.options/headers/php-auth-user',
@@ -209,6 +213,8 @@ class HiPay implements ApiInterface
      */
     public function isAvailable($email, $entity = false)
     {
+        $this->resetRestClient();
+
         $this->restClient->getConfig()->setPath(
             'request.options/headers/php-auth-user',
             $this->login
@@ -250,6 +256,7 @@ class HiPay implements ApiInterface
     public function createFullUseraccountV2(
         UserAccount $userAccount
     ) {
+        $this->resetRestClient();
 
         if (!$userAccount->getLocale()) {
             $userAccount->setLocale($this->locale);
@@ -295,6 +302,8 @@ class HiPay implements ApiInterface
      */
     public function bankInfosCheck(VendorInterface $vendor)
     {
+        $this->resetRestClient();
+
         $bankInfo = new BankInfo();
 
         $this->restClient->getConfig()->setPath(
@@ -339,6 +348,9 @@ class HiPay implements ApiInterface
     public function bankInfosStatus(
         VendorInterface $vendor
     ) {
+
+        $this->resetRestClient();
+
         $this->restClient->getConfig()->setPath(
             'request.options/headers/php-auth-user',
             $this->login
@@ -364,7 +376,7 @@ class HiPay implements ApiInterface
         );
         $result = $this->restClient->execute($command);
 
-        return $result['status'];
+        return $result['status_code'];
     }
 
     /**
@@ -381,6 +393,9 @@ class HiPay implements ApiInterface
         VendorInterface $vendor,
         BankInfo $bankInfo
     ) {
+
+        $this->resetRestClient();
+
         $this->restClient->getConfig()->setPath(
             'request.options/headers/php-auth-user',
             $this->login
@@ -456,6 +471,9 @@ class HiPay implements ApiInterface
         VendorInterface $vendor
     )
     {
+
+        $this->resetRestClient();
+
         $this->restClient->getConfig()->setPath(
             'request.options/headers/php-auth-user',
             $this->login
@@ -496,6 +514,8 @@ class HiPay implements ApiInterface
         UserAccount $userAccount
     )
     {
+        $this->resetRestClient();
+
         $this->restClient->getConfig()->setPath(
             'request.options/headers/php-auth-user',
             $this->login
@@ -551,6 +571,8 @@ class HiPay implements ApiInterface
         $account_id
     )
     {
+        $this->resetRestClient();
+
         $this->restClient->getConfig()->setPath(
             'request.options/headers/php-auth-user',
             $this->login
@@ -590,6 +612,8 @@ class HiPay implements ApiInterface
     public function getBalance(VendorInterface $vendor)
     {
         echo 'account_id' . $vendor->getHiPayId()."\r\n";
+
+        $this->resetRestClient();
 
         $this->restClient->getConfig()->setPath(
             'request.options/headers/php-auth-user',
@@ -822,5 +846,12 @@ class HiPay implements ApiInterface
         }
 
         return $response ?: true;
+    }
+
+    /**
+     * Reset Http client config
+     */
+    private function resetRestClient(){
+        $this->restClient->getConfig()->clear();
     }
 }

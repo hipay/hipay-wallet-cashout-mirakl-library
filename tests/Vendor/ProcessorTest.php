@@ -184,6 +184,8 @@ class ProcessorTest extends AbstractProcessorTest
      */
     public function testBankInfoBlank()
     {
+        $tmpDir = '/tmp/dir';
+        $docContent1 = 'data1';
         $vendors = Mirakl::getVendor();
         $miraklData = reset($vendors);
         $vendor = $this->getVendorInstance($miraklData);
@@ -191,6 +193,8 @@ class ProcessorTest extends AbstractProcessorTest
 
         /** @var VendorInterface $vendorArgument */
         $vendorArgument = Argument::is($vendor);
+
+        $this->mirakl->getFiles(array($vendor->getMiraklId()))->willReturn(Mirakl::getShopDocuments(array($vendor->getMiraklId())))->shouldBeCalled();
 
         $this->hipay->bankInfosStatus(
                 $vendorArgument
@@ -201,7 +205,7 @@ class ProcessorTest extends AbstractProcessorTest
             ->willReturn(true)
             ->shouldBeCalled();
 
-        $this->vendorProcessor->handleBankInfo(array($vendor), $miraklData);
+        $this->vendorProcessor->handleBankInfo(array($vendor), $miraklData, $tmpDir);
     }
 
     /**
@@ -209,6 +213,7 @@ class ProcessorTest extends AbstractProcessorTest
      */
     public function testBankInfoValidate()
     {
+        $tmpDir = '/tmp/dir';
         $vendors = Mirakl::getVendor();
         $miraklData = reset($vendors);
         $vendor = $this->getVendorInstance($miraklData);
@@ -223,7 +228,7 @@ class ProcessorTest extends AbstractProcessorTest
             return $bankInfo->setMiraklData($miraklData[$vendor->getMiraklId()]);
         })->shouldBeCalled();
 
-        $this->vendorProcessor->handleBankInfo(array($vendor), $miraklData);
+        $this->vendorProcessor->handleBankInfo(array($vendor), $miraklData, $tmpDir);
     }
 
     /**
@@ -231,16 +236,17 @@ class ProcessorTest extends AbstractProcessorTest
      */
     public function testBankInfoOther()
     {
+        $tmpDir = '/tmp/dir';
         $vendors = Mirakl::getVendor();
         $miraklData = reset($vendors);
         $vendor = $this->getVendorInstance($miraklData);
         $miraklData = array($vendor->getMiraklId() => $miraklData);
 
         $this->hipay->bankInfosStatus($this->vendorArgument)
-            ->willReturn(BankInfoStatus::TO_VALIDATE)
+            ->willReturn(-1)
             ->shouldBeCalled();
 
-        $this->vendorProcessor->handleBankInfo(array($vendor), $miraklData);
+        $this->vendorProcessor->handleBankInfo(array($vendor), $miraklData, $tmpDir);
     }
 
     /**

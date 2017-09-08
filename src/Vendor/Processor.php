@@ -139,7 +139,7 @@ class Processor extends AbstractApiProcessor
 
             // Bank data updating
             $this->logger->info('Update bank data', array('miraklId' => null, "action" => "Wallet creation"));
-            $this->handleBankInfo($vendorCollection, $miraklData);
+            $this->handleBankInfo($vendorCollection, $miraklData, $tmpFilesPath);
             $this->logger->info('[OK] Bank info updated', array('miraklId' => null, "action" => "Wallet creation"));
 
             $this->logVendorManager->saveAll($this->vendorsLogs);
@@ -524,7 +524,7 @@ class Processor extends AbstractApiProcessor
      * @param array[]             $miraklDataCollection mirakl data
      * Expect one mirakl data for each vendor present in the vendorCollection
      */
-    public function handleBankInfo($vendorCollection, $miraklDataCollection)
+    public function handleBankInfo($vendorCollection, $miraklDataCollection, $tmpFilePath)
     {
         //Index mirakl Data
         $miraklDataCollection = $this->indexMiraklData($miraklDataCollection);
@@ -545,14 +545,16 @@ class Processor extends AbstractApiProcessor
                     $bankInfoStatus = $this->getBankInfoStatus($vendor);
 
                     $miraklBankInfo = new BankInfo();
-                    $miraklBankInfo->setMiraklData(
-                        $miraklDataCollection[$vendor->getMiraklId()]
-                    );
 
-                    $this->logger->debug($bankInfoStatus,
+
+                    $this->logger->debug(BankInfoStatus::getLabel($bankInfoStatus),
                                          array('miraklId' => $vendor->getMiraklId(), "action" => "Wallet creation"));
                     switch (trim($bankInfoStatus)) {
                         case BankInfoStatus::BLANK:
+                            $miraklBankInfo->setMiraklData(
+                                $miraklDataCollection[$vendor->getMiraklId()],
+                                $this->getBankDocument($vendor->getMiraklId(), $tmpFilePath)
+                            );
                             if ($this->sendBankAccount($vendor, $miraklBankInfo)) {
                                 $this->logger->info(
                                     '[OK] Created bank account for : '.
@@ -566,6 +568,9 @@ class Processor extends AbstractApiProcessor
                             }
                             break;
                         case BankInfoStatus::VALIDATED:
+                            $miraklBankInfo->setMiraklData(
+                                $miraklDataCollection[$vendor->getMiraklId()]
+                            );
                             if (!$this->isBankInfosSynchronised($vendor, $miraklBankInfo)) {
                                 throw new InvalidBankInfoException(
                                 $vendor, $miraklBankInfo
@@ -812,5 +817,33 @@ class Processor extends AbstractApiProcessor
     private function generateLogin($miraklData)
     {
         return 'mirakl_'.preg_replace("/[^A-Za-z0-9]/", '', $miraklData['shop_name']).'_'.$miraklData['shop_id'];
+    }
+
+    /**
+     * Retrieve ALL_PROOF_OF_BANK_ACCOUNT document for $shopId
+     * @param type $shopId
+     * @param type $tmpFilePath
+     * @return string
+     */
+    private function getBankDocument($shopId, $tmpFilePath)
+    {
+        $allMiraklFiles = $this->mirakl->getFiles(array($shopId));
+        // We only keep the file type we want
+        $files          = array_filter($allMiraklFiles,
+                                       function($aFile) {
+            return in_array($aFile['type'], array(Mirakl::DOCUMENT_ALL_PROOF_OF_BANK_ACCOUNT));
+        });
+
+        if (!empty($files)) {
+            $tmpFile = $tmpFilePath.'/mirakl_kyc_downloaded_file.tmp';
+            $file    = end($files);
+            file_put_contents(
+                $tmpFile, $this->mirakl->downloadDocuments(array($file['id']))
+            );
+
+            return $tmpFile;
+        }
+
+        return null;
     }
 }
