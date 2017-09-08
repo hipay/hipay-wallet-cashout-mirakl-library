@@ -144,6 +144,11 @@
         },
         {
           "code": "swift-code"
+        },
+        {
+          "code": "hipay-process",
+          "type": "BOOLEAN",
+          "value": "true"
         }
       ],
       "shop_id": 2001,
@@ -294,6 +299,11 @@
         },
         {
           "code": "swift-code"
+        },
+        {
+          "code": "hipay-process",
+          "type": "BOOLEAN",
+          "value": "true"
         }
       ],
       "shop_id": 2002,
@@ -444,6 +454,11 @@
         },
         {
           "code": "swift-code"
+        },
+        {
+          "code": "hipay-process",
+          "type": "BOOLEAN",
+          "value": "false"
         }
       ],
       "shop_id": 2003,

@@ -251,9 +251,10 @@ class Initializer extends AbstractApiProcessor
      * @param $transactionFilterRegex
      * @return bool|array
      */
-    public function handlePaymentVoucher($paymentVoucher, $debitedAmountsByShop, $cycleDate, $transactionFilterRegex = null)
+    public function handlePaymentVoucher($paymentVoucher, $debitedAmountsByShop, $cycleDate,
+                                         $transactionFilterRegex = null)
     {
-        $operatorAmount = 0;
+        $operatorAmount   = 0;
         $transactionError = false;
         $this->logger->debug(
             "Payment Voucher : $paymentVoucher",
@@ -261,82 +262,70 @@ class Initializer extends AbstractApiProcessor
         );
 
         $this->logger->debug(
-            "Transaction filter regex: " . var_export($transactionFilterRegex, true),
-            array('miraklId' => null, "action" => "Operations creation")
+            "Transaction filter regex: ".var_export($transactionFilterRegex, true),
+                                                    array('miraklId' => null, "action" => "Operations creation")
         );
 
         $orderTransactions = array();
-        $operations = array();
+        $operations        = array();
         foreach ($debitedAmountsByShop as $shopId => $debitedAmount) {
             try {
                 $this->logger->debug(
-                    "ShopId : $shopId",
-                    array('miraklId' => $shopId, "action" => "Operations creation")
+                    "ShopId : $shopId", array('miraklId' => $shopId, "action" => "Operations creation")
                 );
 
                 //Fetch the corresponding order transactions
                 $orderTransactions = $this->getOrderTransactions(
-                    $shopId,
-                    $paymentVoucher
+                    $shopId, $paymentVoucher
                 );
 
                 $shouldIncludeShop = $this->transactionsMatchFilterRegex($orderTransactions, $transactionFilterRegex);
 
-                if ($shouldIncludeShop)
-                {
+                if ($shouldIncludeShop) {
                     //Compute the vendor amount for this payment voucher
                     $vendorAmount = $this->computeVendorAmount(
-                        $orderTransactions,
-                        $debitedAmount
+                        $orderTransactions, $debitedAmount
                     );
 
-                    $this->logger->debug("Vendor amount " . $vendorAmount, array('miraklId' => $shopId, "action" => "Operations creation"));
+                    $this->logger->debug("Vendor amount ".$vendorAmount,
+                                         array('miraklId' => $shopId, "action" => "Operations creation"));
 
                     if ($vendorAmount > 0) {
                         //Create the vendor operation
-                        $operations[] = $this->createOperation(
-                            $vendorAmount,
-                            $cycleDate,
-                            $paymentVoucher,
-                            $shopId
-                        );
+                        $operation = $this->createOperation($vendorAmount, $cycleDate, $paymentVoucher, $shopId);
+                        if ( $operation !== null) {
+                            $operations[] = $operation;
+                        }
                     }
 
                     //Compute the operator amount for this payment voucher
                     $operatorAmount += round($this->computeOperatorAmountByVendor($orderTransactions), static::SCALE);
-                }
-
-                else
-                {
+                } else {
                     $this->logger->debug(
                         "Skipped shop because no transaction for this shop matched the transaction filter regex.",
                         array('miraklId' => $shopId, "action" => "Operations creation")
                     );
                 }
-
             } catch (Exception $e) {
                 $transactionError = true;
                 /** @var Exception $transactionError */
                 $this->handleException(
                     new TransactionException(
-                        $orderTransactions,
-                        $e->getMessage(),
-                        $e->getCode(),
-                        $e
+                    $orderTransactions, $e->getMessage(), $e->getCode(), $e
                     )
                 );
             }
         };
 
-        $this->logger->debug("Operator amount " . $operatorAmount, array('miraklId' => null, "action" => "Operations creation"));
+        $this->logger->debug("Operator amount ".$operatorAmount,
+                             array('miraklId' => null, "action" => "Operations creation"));
 
         if ($operatorAmount > 0) {
             // Create operator operation
-            $operations[] = $this->createOperation(
-                $operatorAmount,
-                $cycleDate,
-                $paymentVoucher
-            );
+            $operation = $this->createOperation($operatorAmount, $cycleDate, $paymentVoucher);
+            if ( $operation !== null) {
+                $operations[] = $operation;
+            }
         }
 
         return $transactionError ? false : $operations;
@@ -451,8 +440,6 @@ class Initializer extends AbstractApiProcessor
             $this->logger->notice("Operation wasn't created du to null amount", array('miraklId' => $miraklId, "action" => "Operations creation"));
             return null;
         }
-        //Call implementation function
-        $operation = $this->operationManager->create($amount, $cycleDate, $paymentVoucher, $miraklId);
 
         //Set hipay id
         $hipayId = null;
@@ -465,6 +452,14 @@ class Initializer extends AbstractApiProcessor
             $vendor = $this->operator;
             $hipayId = $this->operator->getHiPayId();
         }
+
+        if ($miraklId && $vendor == null ) {
+            $this->logger->notice("Operation wasn't created because vendor doesn't exit in database (verify HiPay process value in Mirakl BO)", array('miraklId' => $miraklId, "action" => "Operations creation"));
+            return null;
+        }
+
+        //Call implementation function
+        $operation = $this->operationManager->create($amount, $cycleDate, $paymentVoucher, $miraklId);
 
         $operation->setHiPayId($hipayId);
 

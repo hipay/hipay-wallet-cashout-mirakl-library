@@ -76,7 +76,7 @@ class ProcessorTest extends AbstractProcessorTest
 
         $this->assertInternalType('array', $vendors);
 
-        $this->assertEquals(6, count($vendors));
+        $this->assertEquals(2, count($vendors));
 
     }
 
@@ -95,7 +95,7 @@ class ProcessorTest extends AbstractProcessorTest
 
         $this->assertInternalType('array', $vendors);
 
-        $this->assertEquals(3, count($vendors));
+        $this->assertEquals(1, count($vendors));
     }
 
     /**
