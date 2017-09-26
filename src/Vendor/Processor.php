@@ -179,8 +179,22 @@ class Processor extends AbstractApiProcessor
     {
         $this->dispatcher->dispatch('before.vendor.get');
         $return = $this->mirakl->getVendors($lastUpdate);
+
+        $return = array_filter($return, array($this, 'filterVendors'));
+
         $this->dispatcher->dispatch('after.vendor.get');
         return $return;
+    }
+
+    private function filterVendors($element){
+
+        $additionnalField = array('code' => 'hipay-process', 'type' => 'BOOLEAN', 'value' => 'true');
+
+        if(isset($element['shop_additional_fields']) && in_array($additionnalField, $element['shop_additional_fields'])){
+            return true;
+        }else{
+            $this->logger->info('Shop '.$element['shop_id'].' will not be processed beacause additionnal field hipay-process set to false', array('miraklId' => $element['shop_id'], "action" => "Wallet creation"));
+        }
     }
 
     /**
