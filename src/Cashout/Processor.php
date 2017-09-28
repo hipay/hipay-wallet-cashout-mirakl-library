@@ -219,7 +219,7 @@ class Processor extends AbstractApiProcessor
 
 
             //Transfer
-            $transferId = $this->hipay->transfer($transfer);
+            $transferId = $this->hipay->transfer($transfer, $vendor);
 
             $operation->setStatus(new Status(Status::TRANSFER_SUCCESS));
             $operation->setTransferId($transferId);

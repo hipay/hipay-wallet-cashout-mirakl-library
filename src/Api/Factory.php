@@ -63,7 +63,8 @@ class Factory
             $this->hiPayConfiguration->getEntity(),
             $this->hiPayConfiguration->getLocale(),
             $this->hiPayConfiguration->getTimezone(),
-            $this->hiPayConfiguration->getOptions()
+            $this->hiPayConfiguration->getOptions(),
+            $this->hiPayConfiguration->getRestTransferAndWithdraw()
         );
     }
 }
