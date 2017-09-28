@@ -22,6 +22,9 @@ use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use HiPay\Wallet\Mirakl\Notification\FormatNotification;
+use HiPay\Wallet\Mirakl\Cashout\Event\OperationEvent;
+use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\Transfer;
+use HiPay\Wallet\Mirakl\Exception\WalletNotFoundException;
 
 /**
  * Generate and save the operation to be executed by the processor.
@@ -55,7 +58,6 @@ class Initializer extends AbstractApiProcessor
      * @var FormatNotification class
      */
     protected $formatNotification;
-
     protected $operationsLogs;
 
     /**
@@ -72,16 +74,11 @@ class Initializer extends AbstractApiProcessor
      * @throws ValidationFailedException
      */
     public function __construct(
-        EventDispatcherInterface $dispatcher,
-        LoggerInterface $logger,
-        Factory $factory,
-        VendorInterface $operatorAccount,
-        VendorInterface $technicalAccount,
-        ValidatorInterface $transactionValidator,
-        OperationManager $operationHandler,
-        LogOperationsManager $logOperationsManager,
-        VendorManager $vendorManager
-    ) {
+    EventDispatcherInterface $dispatcher, LoggerInterface $logger, Factory $factory, VendorInterface $operatorAccount,
+    VendorInterface $technicalAccount, ValidatorInterface $transactionValidator, OperationManager $operationHandler,
+    LogOperationsManager $logOperationsManager, VendorManager $vendorManager
+    )
+    {
         parent::__construct($dispatcher, $logger, $factory);
 
         ModelValidator::validate($operatorAccount, 'Operator');
@@ -117,21 +114,20 @@ class Initializer extends AbstractApiProcessor
      * @codeCoverageIgnore
      */
     public function process(
-        DateTime $startDate,
-        DateTime $endDate,
-        DateTime $cycleDate,
-        $transactionFilterRegex = null
-    ) {
+    DateTime $startDate, DateTime $endDate, DateTime $cycleDate, $transactionFilterRegex = null
+    )
+    {
         $this->logger->info('Control Mirakl Settings', array('miraklId' => null, "action" => "Operations creation"));
         // control mirakl settings
         $boolControl = $this->getControlMiraklSettings($this->documentTypes);
         if ($boolControl === false) {
             // log critical
-            $title = $this->criticalMessageMiraklSettings;
+            $title   = $this->criticalMessageMiraklSettings;
             $message = $this->formatNotification->formatMessage($title);
             $this->logger->critical($message, array('miraklId' => null, "action" => "Operations creation"));
         } else {
-            $this->logger->info('Control Mirakl Settings OK', array('miraklId' => null, "action" => "Operations creation"));
+            $this->logger->info('Control Mirakl Settings OK',
+                                array('miraklId' => null, "action" => "Operations creation"));
         }
 
         $this->logger->info('Cashout Initializer', array('miraklId' => null, "action" => "Operations creation"));
@@ -146,22 +142,24 @@ class Initializer extends AbstractApiProcessor
         );
 
         $paymentTransactions = $this->getPaymentTransactions(
-            $startDate,
-            $endDate
+            $startDate, $endDate
         );
 
         $paymentDebits = $this->extractPaymentAmounts($paymentTransactions);
 
         $transactionError = null;
-        $operations = array();
+        $operations       = array();
 
-        $this->logger->info('[OK] Fetched '. count($paymentTransactions) . ' payment transactions', array('miraklId' => null, "action" => "Operations creation"));
+        $this->logger->info('[OK] Fetched '.count($paymentTransactions).' payment transactions',
+                                                  array('miraklId' => null, "action" => "Operations creation"));
 
         //Compute amounts (vendor and operator) by payment vouchers
-        $this->logger->info('Compute amounts and create vendor operation', array('miraklId' => null, "action" => "Operations creation"));
+        $this->logger->info('Compute amounts and create vendor operation',
+                            array('miraklId' => null, "action" => "Operations creation"));
 
         foreach ($paymentDebits as $paymentVoucher => $debitedAmounts) {
-            $voucherOperations = $this->handlePaymentVoucher($paymentVoucher, $debitedAmounts, $cycleDate, $transactionFilterRegex);
+            $voucherOperations = $this->handlePaymentVoucher($paymentVoucher, $debitedAmounts, $cycleDate,
+                                                             $transactionFilterRegex);
             if (is_array($voucherOperations)) {
                 $operations = array_merge($voucherOperations, $operations);
             } else {
@@ -172,7 +170,7 @@ class Initializer extends AbstractApiProcessor
         if ($transactionError) {
             foreach ($transactionError as $voucher) {
                 // log error
-                $title = "The transaction for the payment voucher number $voucher are wrong";
+                $title   = "The transaction for the payment voucher number $voucher are wrong";
                 $message = $this->formatNotification->formatMessage($title);
                 $this->logger->error($message, array('miraklId' => null, "action" => "Operations creation"));
             }
@@ -180,16 +178,18 @@ class Initializer extends AbstractApiProcessor
         }
 
         $totalAmount = $this->sumOperationAmounts($operations);
-        $this->logger->debug("Total amount " . $totalAmount, array('miraklId' => null, "action" => "Operations creation"));
+        $this->logger->debug("Total amount ".$totalAmount, array('miraklId' => null, "action" => "Operations creation"));
 
         $this->logger->info(
-            "Check if technical account has sufficient funds", array('miraklId' => null, "action" => "Operations creation")
+            "Check if technical account has sufficient funds",
+            array('miraklId' => null, "action" => "Operations creation")
         );
         if (!$this->hasSufficientFunds($totalAmount)) {
             $this->handleException(new NotEnoughFunds());
             return;
         }
-        $this->logger->info('[OK] Technical account has sufficient funds', array('miraklId' => null, "action" => "Operations creation"));
+        $this->logger->info('[OK] Technical account has sufficient funds',
+                            array('miraklId' => null, "action" => "Operations creation"));
 
         $this->saveOperations($operations);
     }
@@ -203,19 +203,11 @@ class Initializer extends AbstractApiProcessor
      * @return array
      */
     public function getPaymentTransactions(
-        DateTime $startDate,
-        DateTime $endDate
-    ) {
+    DateTime $startDate, DateTime $endDate
+    )
+    {
         $transactions = $this->mirakl->getTransactions(
-            null,
-            $startDate,
-            $endDate,
-            null,
-            null,
-            null,
-            null,
-            null,
-            array('PAYMENT')
+            null, $startDate, $endDate, null, null, null, null, null, array('PAYMENT')
         );
 
         return $transactions;
@@ -233,10 +225,9 @@ class Initializer extends AbstractApiProcessor
         // No regex configured, they all match
         if ($transactionFilterRegex == null) {
             return true;
-        }
-
-        else {
-            return array_reduce($transactions, function ($bool, $transaction) use ($transactionFilterRegex) {
+        } else {
+            return array_reduce($transactions,
+                                function ($bool, $transaction) use ($transactionFilterRegex) {
                 return $bool || preg_match($transactionFilterRegex, $transaction['transaction_number']);
             }, false);
         }
@@ -293,7 +284,7 @@ class Initializer extends AbstractApiProcessor
                     if ($vendorAmount > 0) {
                         //Create the vendor operation
                         $operation = $this->createOperation($vendorAmount, $cycleDate, $paymentVoucher, $shopId);
-                        if ( $operation !== null) {
+                        if ($operation !== null) {
                             $operations[] = $operation;
                         }
                     }
@@ -323,7 +314,7 @@ class Initializer extends AbstractApiProcessor
         if ($operatorAmount > 0) {
             // Create operator operation
             $operation = $this->createOperation($operatorAmount, $cycleDate, $paymentVoucher);
-            if ( $operation !== null) {
+            if ($operation !== null) {
                 $operations[] = $operation;
             }
         }
@@ -342,15 +333,7 @@ class Initializer extends AbstractApiProcessor
     public function getOrderTransactions($shopId, $paymentVoucher)
     {
         $transactions = $this->mirakl->getTransactions(
-            $shopId,
-            null,
-            null,
-            null,
-            null,
-            null,
-            $paymentVoucher,
-            null,
-            $this->getOrderTransactionTypes()
+            $shopId, null, null, null, null, null, $paymentVoucher, null, $this->getOrderTransactionTypes()
         );
 
         return $transactions;
@@ -392,28 +375,27 @@ class Initializer extends AbstractApiProcessor
      * @throws Exception
      */
     protected function computeVendorAmount(
-        $transactions,
-        $payedAmount
-    ) {
+    $transactions, $payedAmount
+    )
+    {
         $amount = 0;
         $errors = false;
         foreach ($transactions as $transaction) {
-            $amount +=  round($transaction['amount_credited'], static::SCALE)
-                - round($transaction['amount_debited'], static::SCALE);
-            $errors |= !$this->transactionValidator->isValid($transaction);
+            $amount += round($transaction['amount_credited'], static::SCALE) - round($transaction['amount_debited'],
+                                                                                     static::SCALE);
+            $errors |=!$this->transactionValidator->isValid($transaction);
         }
         if (round($amount, static::SCALE) != round($payedAmount, static::SCALE)) {
             throw new TransactionException(
-                array($transactions),
-                'There is a difference between the transactions'.
-                PHP_EOL."$amount for the transactions".
-                PHP_EOL."{$payedAmount} for the earlier payment transaction"
+            array($transactions),
+            'There is a difference between the transactions'.
+            PHP_EOL."$amount for the transactions".
+            PHP_EOL."{$payedAmount} for the earlier payment transaction"
             );
         }
         if ($errors) {
             throw new TransactionException(
-                array($transactions),
-                'There are errors in the transactions'
+            array($transactions), 'There are errors in the transactions'
             );
         }
         return $amount;
@@ -431,13 +413,12 @@ class Initializer extends AbstractApiProcessor
      * @return OperationInterface|null
      */
     public function createOperation(
-        $amount,
-        DateTime $cycleDate,
-        $paymentVoucher,
-        $miraklId = null
-    ) {
+    $amount, DateTime $cycleDate, $paymentVoucher, $miraklId = null
+    )
+    {
         if ($amount <= 0) {
-            $this->logger->notice("Operation wasn't created du to null amount", array('miraklId' => $miraklId, "action" => "Operations creation"));
+            $this->logger->notice("Operation wasn't created du to null amount",
+                                  array('miraklId' => $miraklId, "action" => "Operations creation"));
             return null;
         }
 
@@ -449,12 +430,13 @@ class Initializer extends AbstractApiProcessor
                 $hipayId = $vendor->getHiPayId();
             }
         } else {
-            $vendor = $this->operator;
+            $vendor  = $this->operator;
             $hipayId = $this->operator->getHiPayId();
         }
 
-        if ($miraklId && $vendor == null ) {
-            $this->logger->notice("Operation wasn't created because vendor doesn't exit in database (verify HiPay process value in Mirakl BO)", array('miraklId' => $miraklId, "action" => "Operations creation"));
+        if ($miraklId && $vendor == null) {
+            $this->logger->notice("Operation wasn't created because vendor doesn't exit in database (verify HiPay process value in Mirakl BO)",
+                                  array('miraklId' => $miraklId, "action" => "Operations creation"));
             return null;
         }
 
@@ -471,7 +453,8 @@ class Initializer extends AbstractApiProcessor
         $operation->setCycleDate($cycleDate);
         $operation->setPaymentVoucher($paymentVoucher);
 
-        $this->operationsLogs[] = $this->logOperationsManager->create($miraklId, $hipayId, $paymentVoucher, $amount, $this->hipay->getBalance($vendor));
+        $this->operationsLogs[] = $this->logOperationsManager->create($miraklId, $hipayId, $paymentVoucher, $amount,
+                                                                      $this->hipay->getBalance($vendor));
 
         return $operation;
     }
@@ -488,11 +471,10 @@ class Initializer extends AbstractApiProcessor
         $amount = 0;
         foreach ($transactions as $transaction) {
             if (in_array(
-                $transaction['transaction_type'],
-                $this->getOperatorTransactionTypes()
-            )) {
-                $amount += round($transaction['amount_credited'], static::SCALE)
-                    - round($transaction['amount_debited'], static::SCALE);
+                    $transaction['transaction_type'], $this->getOperatorTransactionTypes()
+                )) {
+                $amount += round($transaction['amount_credited'], static::SCALE) - round($transaction['amount_debited'],
+                                                                                         static::SCALE);
             }
         }
 
@@ -525,7 +507,8 @@ class Initializer extends AbstractApiProcessor
     protected function sumOperationAmounts(array $operations)
     {
         $scale = static::SCALE;
-        return array_reduce($operations, function ($carry, OperationInterface $item) use ($scale) {
+        return array_reduce($operations,
+                            function ($carry, OperationInterface $item) use ($scale) {
             $carry = round($carry, $scale) + round($item->getAmount(), $scale);
             return $carry;
         }, 0);
@@ -551,7 +534,8 @@ class Initializer extends AbstractApiProcessor
     public function saveOperations(array $operations)
     {
         if ($this->areOperationsValid($operations)) {
-            $this->logger->info('[OK] Operations validated', array('miraklId' => null, "action" => "Operations creation"));
+            $this->logger->info('[OK] Operations validated',
+                                array('miraklId' => null, "action" => "Operations creation"));
 
             $this->logger->info('Save operations', array('miraklId' => null, "action" => "Operations creation"));
             $this->operationManager->saveAll($operations);
@@ -559,10 +543,13 @@ class Initializer extends AbstractApiProcessor
             $this->logger->info('[OK] Operations saved', array('miraklId' => null, "action" => "Operations creation"));
         } else {
             // log error
-            $title = 'Some operation were wrong. Operations not saved';
+            $title   = 'Some operation were wrong. Operations not saved';
             $message = $this->formatNotification->formatMessage($title);
             $this->logger->error($message, array('miraklId' => null, "action" => "Operations creation"));
         }
+
+        $this->logger->info("Transfer Process", array('miraklId' => null, "action" => "Transfer process"));
+        $this->transferOperations();
     }
 
     /**
@@ -597,10 +584,9 @@ class Initializer extends AbstractApiProcessor
     {
         try {
             if ($this->operationManager
-                ->findByMiraklIdAndPaymentVoucherNumber(
-                    $operation->getMiraklId(),
-                    $operation->getPaymentVoucher()
-                )
+                    ->findByMiraklIdAndPaymentVoucherNumber(
+                        $operation->getMiraklId(), $operation->getPaymentVoucher()
+                    )
             ) {
                 throw new AlreadyCreatedOperationException($operation);
             }
@@ -625,10 +611,133 @@ class Initializer extends AbstractApiProcessor
     {
         $paymentDebits = array();
         foreach ($paymentTransactions as $transaction) {
-            $paymentDebits[$transaction['payment_voucher_number']][$transaction['shop_id']] =
-                $transaction['amount_debited'];
+            $paymentDebits[$transaction['payment_voucher_number']][$transaction['shop_id']] = $transaction['amount_debited'];
         }
         return $paymentDebits;
+    }
+
+    /**
+     * Execute the operation needing transfer.
+     */
+    protected function transferOperations()
+    {
+        $this->logger->info("Transfer operations", array('miraklId' => null, "action" => "Transfer"));
+
+        $toTransfer = $this->getTransferableOperations();
+
+        $this->logger->info("Operation to transfer : ".count($toTransfer),
+                                                             array('miraklId' => null, "action" => "Transfer"));
+
+        /** @var OperationInterface $operation */
+        foreach ($toTransfer as $operation) {
+            try {
+                $eventObject = new OperationEvent($operation);
+
+                $this->dispatcher->dispatch('before.transfer', $eventObject);
+
+                $transferId = $this->transfer($operation);
+
+                $eventObject->setTransferId($transferId);
+                $this->dispatcher->dispatch('after.transfer', $eventObject);
+
+                $this->logger->info("[OK] Transfer operation ".$operation->getTransferId()." executed",
+                                    array('miraklId' => $operation->getMiraklId(), "action" => "Transfer"));
+            } catch (Exception $e) {
+                $this->logger->info("[OK] Transfer operation failed",
+                                    array('miraklId' => $operation->getMiraklId(), "action" => "Transfer"));
+                $this->handleException($e, 'critical');
+            }
+        }
+    }
+
+    /**
+     * Transfer money between the technical
+     * wallet and the operator|seller wallet.
+     *
+     * @param OperationInterface $operation
+     *
+     * @return int
+     *
+     * @throws Exception
+     */
+    public function transfer(OperationInterface $operation)
+    {
+        try {
+            $vendor = $this->getVendor($operation);
+
+            if (!$vendor || $this->hipay->isAvailable($vendor->getEmail())) {
+                throw new WalletNotFoundException($vendor);
+            }
+
+            $operation->setHiPayId($vendor->getHiPayId());
+
+            $transfer = new Transfer(
+                round($operation->getAmount(), self::SCALE), $vendor,
+                      $this->operationManager->generatePrivateLabel($operation),
+                                                                    $this->operationManager->generatePublicLabel($operation)
+            );
+
+
+            //Transfer
+            $transferId = $this->hipay->transfer($transfer, $vendor);
+
+            $operation->setStatus(new Status(Status::TRANSFER_SUCCESS));
+            $operation->setTransferId($transferId);
+            $operation->setUpdatedAt(new DateTime());
+            $this->operationManager->save($operation);
+
+            $this->logOperation(
+                $operation->getMiraklId(), $operation->getPaymentVoucher(), Status::TRANSFER_SUCCESS, ""
+            );
+
+            return $transferId;
+        } catch (Exception $e) {
+            $operation->setStatus(new Status(Status::TRANSFER_FAILED));
+            $operation->setUpdatedAt(new DateTime());
+            $this->operationManager->save($operation);
+
+            $this->logOperation(
+                $operation->getMiraklId(), $operation->getPaymentVoucher(), Status::TRANSFER_FAILED, $e->getMessage()
+            );
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Fetch the operation to transfer from the storage
+     * @return OperationInterface[]
+     */
+    protected function getTransferableOperations()
+    {
+        $previousDay = new DateTime('-1 day');
+        //Transfer
+        $toTransfer  = $this->operationManager->findByStatus(
+            new Status(Status::CREATED)
+        );
+        $toTransfer  = array_merge(
+            $toTransfer,
+            $this->operationManager
+                ->findByStatusAndBeforeUpdatedAt(
+                    new Status(Status::TRANSFER_FAILED), $previousDay
+                )
+        );
+        return $toTransfer;
+    }
+
+    /**
+     * Return the right vendor for an operation
+     *
+     * @param OperationInterface $operation
+     *
+     * @return VendorInterface|null
+     */
+    protected function getVendor(OperationInterface $operation)
+    {
+        if ($operation->getMiraklId()) {
+            return $this->vendorManager->findByMiraklId($operation->getMiraklId());
+        }
+        return $this->operator;
     }
 
     /**
@@ -637,5 +746,32 @@ class Initializer extends AbstractApiProcessor
     public function getControlMiraklSettings($docTypes)
     {
         $this->mirakl->controlMiraklSettings($docTypes);
+    }
+
+    /**
+     * Log Operations
+     * @param type $miraklId
+     * @param type $paymentVoucherNumber
+     * @param type $status
+     * @param type $message
+     */
+    private function logOperation($miraklId, $paymentVoucherNumber, $status, $message)
+    {
+        $logOperation = $this->logOperationsManager->findByMiraklIdAndPaymentVoucherNumber($miraklId,
+                                                                                           $paymentVoucherNumber);
+
+        if ($logOperation == null) {
+            $this->logger->warning(
+                "Could not fnd existing log for this operations : paymentVoucherNumber = ".$paymentVoucherNumber,
+                array("action" => "Operation process", "miraklId" => $miraklId)
+            );
+        } else {
+
+            $logOperation->setStatusTransferts($status);
+
+            $logOperation->setMessage($message);
+
+            $this->logOperationsManager->save($logOperation);
+        }
     }
 }

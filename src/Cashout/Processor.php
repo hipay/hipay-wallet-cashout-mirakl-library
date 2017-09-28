@@ -109,44 +109,9 @@ class Processor extends AbstractApiProcessor
         $this->logger->info("Cashout Processor", array('miraklId' => null, "action" => "Operations process"));
 
         //Transfer
-        $this->transferOperations();
-
+        //  $this->transferOperations();
         //Withdraw
         $this->withdrawOperations();
-    }
-
-    /**
-     * Execute the operation needing transfer.
-     */
-    protected function transferOperations()
-    {
-        $this->logger->info("Transfer operations", array('miraklId' => null, "action" => "Transfer"));
-
-        $toTransfer = $this->getTransferableOperations();
-
-        $this->logger->info("Operation to transfer : ".count($toTransfer),
-                                                             array('miraklId' => null, "action" => "Transfer"));
-
-        /** @var OperationInterface $operation */
-        foreach ($toTransfer as $operation) {
-            try {
-                $eventObject = new OperationEvent($operation);
-
-                $this->dispatcher->dispatch('before.transfer', $eventObject);
-
-                $transferId = $this->transfer($operation);
-
-                $eventObject->setTransferId($transferId);
-                $this->dispatcher->dispatch('after.transfer', $eventObject);
-
-                $this->logger->info("[OK] Transfer operation ".$operation->getTransferId()." executed",
-                                    array('miraklId' => $operation->getMiraklId(), "action" => "Transfer"));
-            } catch (Exception $e) {
-                $this->logger->info("[OK] Transfer operation failed",
-                                    array('miraklId' => $operation->getMiraklId(), "action" => "Transfer"));
-                $this->handleException($e, 'critical');
-            }
-        }
     }
 
     /**
@@ -187,60 +152,6 @@ class Processor extends AbstractApiProcessor
                 $this->handleException($e, 'critical',
                                        array('miraklId' => $operation->getMiraklId(), "action" => "Withdraw"));
             }
-        }
-    }
-
-    /**
-     * Transfer money between the technical
-     * wallet and the operator|seller wallet.
-     *
-     * @param OperationInterface $operation
-     *
-     * @return int
-     *
-     * @throws Exception
-     */
-    public function transfer(OperationInterface $operation)
-    {
-        try {
-            $vendor = $this->getVendor($operation);
-
-            if (!$vendor || $this->hipay->isAvailable($vendor->getEmail())) {
-                throw new WalletNotFoundException($vendor);
-            }
-
-            $operation->setHiPayId($vendor->getHiPayId());
-
-            $transfer = new Transfer(
-                round($operation->getAmount(), self::SCALE), $vendor,
-                      $this->operationManager->generatePrivateLabel($operation),
-                                                                    $this->operationManager->generatePublicLabel($operation)
-            );
-
-
-            //Transfer
-            $transferId = $this->hipay->transfer($transfer);
-
-            $operation->setStatus(new Status(Status::TRANSFER_SUCCESS));
-            $operation->setTransferId($transferId);
-            $operation->setUpdatedAt(new DateTime());
-            $this->operationManager->save($operation);
-
-            $this->logOperation(
-                $operation->getMiraklId(), $operation->getPaymentVoucher(), Status::TRANSFER_SUCCESS, ""
-            );
-
-            return $transferId;
-        } catch (Exception $e) {
-            $operation->setStatus(new Status(Status::TRANSFER_FAILED));
-            $operation->setUpdatedAt(new DateTime());
-            $this->operationManager->save($operation);
-
-            $this->logOperation(
-                $operation->getMiraklId(), $operation->getPaymentVoucher(), Status::TRANSFER_FAILED, $e->getMessage()
-            );
-
-            throw $e;
         }
     }
 
@@ -364,27 +275,6 @@ class Processor extends AbstractApiProcessor
     }
 
     /**
-     * Fetch the operation to transfer from the storage
-     * @return OperationInterface[]
-     */
-    protected function getTransferableOperations()
-    {
-        $previousDay = new DateTime('-1 day');
-        //Transfer
-        $toTransfer  = $this->operationManager->findByStatus(
-            new Status(Status::CREATED)
-        );
-        $toTransfer  = array_merge(
-            $toTransfer,
-            $this->operationManager
-                ->findByStatusAndBeforeUpdatedAt(
-                    new Status(Status::TRANSFER_FAILED), $previousDay
-                )
-        );
-        return $toTransfer;
-    }
-
-    /**
      * Log Operations
      * @param type $miraklId
      * @param type $paymentVoucherNumber
@@ -402,17 +292,7 @@ class Processor extends AbstractApiProcessor
                 array("action" => "Operation process", "miraklId" => $miraklId)
             );
         } else {
-
-            switch ($status) {
-                case Status::WITHDRAW_FAILED :
-                case Status::WITHDRAW_REQUESTED :
-                    $logOperation->setStatusWithDrawal($status);
-                    break;
-                case Status::TRANSFER_FAILED :
-                case Status::TRANSFER_SUCCESS :
-                    $logOperation->setStatusTransferts($status);
-                    break;
-            }
+            $logOperation->setStatusWithDrawal($status);
 
             $logOperation->setMessage($message);
 
