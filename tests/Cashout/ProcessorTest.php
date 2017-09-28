@@ -30,8 +30,7 @@ class ProcessorTest extends AbstractProcessorTest
     /** @var  VendorInterface */
     protected $vendorArgument;
 
-    /** @var Transfer  */
-    protected $transferArgument;
+    
     
     public function setUp()
     {
@@ -40,8 +39,6 @@ class ProcessorTest extends AbstractProcessorTest
         /** @var VendorInterface vendorArgument */
         $this->vendorArgument = Argument::type("\\HiPay\\Wallet\\Mirakl\\Vendor\\Model\\VendorInterface");
 
-        $this->transferArgument = Argument::type("\\HiPay\\Wallet\\Mirakl\\Api\\HiPay\\Model\\Soap\\Transfer");
-        
         $this->cashoutProcessor = new Processor(
             $this->eventDispatcher->reveal(),
             $this->logger->reveal(),
@@ -63,92 +60,6 @@ class ProcessorTest extends AbstractProcessorTest
 
         $this->operationManager->save($operationArgument)->willReturn()->shouldBeCalled();
         
-    }
-
-    /**
-     * @cover ::transfer
-     * @group transfer
-     */
-    public function testVendorTransferSuccessful()
-    {
-        $transferId = rand();
-        $this->vendorManager->findByMiraklId(Argument::type("integer"))
-                            ->willReturn(new Vendor("test@test.com", rand(), rand()))
-                            ->shouldBeCalled();
-
-        $this->hipay->isAvailable(Argument::containingString("@"), Argument::any())
-                    ->willReturn(false)
-                    ->shouldBeCalled();
-
-        $this->hipay->transfer($this->transferArgument, Argument::cetera())
-                    ->willReturn($transferId)
-                    ->shouldBeCalled();
-
-        $operation = new Operation(2000, new DateTime(), "000001", rand());
-
-        $this->logOperationsManager->save(Argument::any())->willReturn()->shouldBeCalled();
-
-        $this->logOperationsManager->findByMiraklIdAndPaymentVoucherNumber(Argument::any(), Argument::any())->willReturn(new LogOperations(200, 2001))->shouldBeCalled();
-
-        $result = $this->cashoutProcessor->transfer($operation);
-
-        $this->assertInternalType("integer", $result);
-
-        $this->assertEquals($transferId, $result);
-
-        $this->assertEquals(Status::TRANSFER_SUCCESS, $operation->getStatus());
-    }
-
-    /**
-     * @cover ::transfer
-     * @group transfer
-     */
-    public function testOperatorTransferSuccessful()
-    {
-        $transferId = rand();
-        $operation = new Operation(2000, new DateTime(), "000001", false);
-
-        $this->hipay->isAvailable(Argument::containingString("@"), Argument::any())->willReturn(false)->shouldBeCalled();
-        $this->hipay->transfer($this->transferArgument, Argument::cetera())->willReturn($transferId)->shouldBeCalled();
-
-        $this->logOperationsManager->save(Argument::any())->willReturn()->shouldBeCalled();
-
-        $this->logOperationsManager->findByMiraklIdAndPaymentVoucherNumber(Argument::any(), Argument::any())->willReturn(new LogOperations(200, 2001))->shouldBeCalled();
-
-        $result = $this->cashoutProcessor->transfer($operation);
-
-        $this->assertInternalType("integer", $result);
-
-        $this->assertEquals($transferId, $result);
-        
-        $this->assertEquals(Status::TRANSFER_SUCCESS, $operation->getStatus());
-    }
-
-    /**
-     * @cover ::transfer
-     * @group transfer
-     */
-    public function testTransferWalletNotFound()
-    {
-        $operation = new Operation(2000, new DateTime(), "000001", rand());
-
-        $this->hipay->isAvailable(Argument::containingString("@"), Argument::any())->willReturn(true)->shouldBeCalled();
-
-        $this->hipay->transfer(Argument::any())->shouldNotBeCalled();
-
-        $this->vendorManager->findByMiraklId(Argument::type("integer"))
-                            ->willReturn(new Vendor("test@test.com", rand(), rand()))
-                            ->shouldBeCalled();
-
-        $this->logOperationsManager->save(Argument::any())->willReturn()->shouldBeCalled();
-
-        $this->logOperationsManager->findByMiraklIdAndPaymentVoucherNumber(Argument::any(), Argument::any())->willReturn(new LogOperations(200, 2001))->shouldBeCalled();
-
-        $this->setExpectedException("\\HiPay\\Wallet\\Mirakl\\Exception\\WalletNotFoundException");
-
-        $this->cashoutProcessor->transfer($operation);
-
-        $this->assertEquals(Status::TRANSFER_FAILED, $operation->getStatus());
     }
 
     /**
