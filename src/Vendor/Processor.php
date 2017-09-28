@@ -808,6 +808,16 @@ class Processor extends AbstractApiProcessor
     }
 
     /**
+     * get login from Mirakl Id
+     * @param type $shopId
+     * @return type
+     */
+    public function getLogin($shopId){
+        $shop = $this->mirakl->getVendors(null, null, array($shopId));
+        return $this->generateLogin($shop[0]);
+    }
+
+    /**
      * log vendor creation
      * @param type $miraklId
      * @param type $hipayId
