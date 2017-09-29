@@ -165,7 +165,7 @@ class Handler extends AbstractProcessor
                     'Type' => 'Error'
                 );
                 $exceptionMsg = implode(
-                    HiPay::LINEMKD.HiPay::SEPARMKD.'- ',
+                    HiPay::LINEMKD,
                     array(
                     'Operation' => $operation,
                     'Status' => $xml->result->status,
@@ -174,13 +174,13 @@ class Handler extends AbstractProcessor
                     'Document_type' => $xml->result->document_type,
                     'Document_type_label' => $xml->result->document_type_label,
                 ));
-                $exceptionMsg = HiPay::LINEMKD.HiPay::SEPARMKD.'- Operation: '.$operation.
-                    HiPay::LINEMKD.HiPay::SEPARMKD.'- Status: '.$xml->result->status.
-                    HiPay::LINEMKD.HiPay::SEPARMKD.'- Message: '.$xml->result->message.
-                    HiPay::LINEMKD.HiPay::SEPARMKD.'- Date: '.$date->format('Y-m-d H:i:s').
-                    HiPay::LINEMKD.HiPay::SEPARMKD.'- Document_type: '.$xml->result->document_type.
-                    HiPay::LINEMKD.HiPay::SEPARMKD.'- Document_type_label: '.$xml->result->document_type_label.
-                    HiPay::LINEMKD.HiPay::SEPARMKD;
+                $exceptionMsg = HiPay::LINEMKD.'- Operation: '.$operation.
+                    HiPay::LINEMKD.'- Status: '.$xml->result->status.
+                    HiPay::LINEMKD.'- Message: '.$xml->result->message.
+                    HiPay::LINEMKD.'- Date: '.$date->format('Y-m-d H:i:s').
+                    HiPay::LINEMKD.'- Document_type: '.$xml->result->document_type.
+                    HiPay::LINEMKD.'- Document_type_label: '.$xml->result->document_type_label.
+                    HiPay::LINEMKD;
                 $message      = $this->formatNotification->formatMessage($title, $infos, $exceptionMsg);
                 $this->logger->error($message, array('miraklId' => null, "action" => "Notification"));
                 break;
