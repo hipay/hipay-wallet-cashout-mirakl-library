@@ -21,11 +21,13 @@ class Mirakl implements ApiInterface
 
     // For legal entity businesses only
     CONST DOCUMENT_LEGAL_IDENTITY_OF_REPRESENTATIVE = 'LEGAL_IDENTITY_OF_REPRESENTATIVE';
+    CONST DOCUMENT_LEGAL_IDENTITY_OF_REP_REAR = 'LEGAL_IDENTITY_OF_REP_REAR';
     CONST DOCUMENT_LEGAL_PROOF_OF_REGISTRATION_NUMBER = 'LEGAL_PROOF_OF_REGISTRATION_NUMBER';
     CONST DOCUMENT_LEGAL_ARTICLES_DISTR_OF_POWERS = 'LEGAL_ARTICLES_DISTR_OF_POWERS';
 
     // For one man businesses only
     CONST DOCUMENT_SOLE_MAN_BUS_IDENTITY = 'SOLE_MAN_BUS_IDENTITY';
+    CONST DOCUMENT_SOLE_MAN_BUS_IDENTITY_REAR = 'SOLE_MAN_BUS_IDENTITY_REAR';
     CONST DOCUMENT_SOLE_MAN_BUS_PROOF_OF_REG_NUMBER = 'SOLE_MAN_BUS_PROOF_OF_REG_NUMBER';
     CONST DOCUMENT_SOLE_MAN_BUS_PROOF_OF_TAX_STATUS = 'SOLE_MAN_BUS_PROOF_OF_TAX_STATUS';
 
@@ -41,9 +43,9 @@ class Mirakl implements ApiInterface
     /**
      * Mirakl Api Client constructor (Extends Guzzle service client).
      *
-     * @param string                               $baseUrl
-     * @param string                               $frontKey
-     * @param string                               $operatorKey
+     * @param string $baseUrl
+     * @param string $frontKey
+     * @param string $operatorKey
      * @param array|\Guzzle\Common\Collection|null $config
      */
     public function __construct(
@@ -53,7 +55,7 @@ class Mirakl implements ApiInterface
         $config = array()
     ) {
         $this->restClient = new Client($config);
-        $description = ServiceDescription::factory(__DIR__.'../../../data/api/mirakl.json');
+        $description = ServiceDescription::factory(__DIR__ . '../../../data/api/mirakl.json');
         $description->setBaseUrl($baseUrl);
         $this->frontKey = $frontKey;
         $this->operatorKey = $operatorKey;
@@ -64,8 +66,8 @@ class Mirakl implements ApiInterface
      * Fetch from Mirakl all vendors (uses S20).
      *
      * @param DateTime $updatedSince date of the last Update
-     * @param bool     $paginate
-     * @param array    $shopIds
+     * @param bool $paginate
+     * @param array $shopIds
      *
      * @return array the response
      */
@@ -274,8 +276,7 @@ class Mirakl implements ApiInterface
         $cptSoleMan = 3;
 
         // control exist between mirakl settings and HiPay
-        foreach ($documentDto as $document)
-        {
+        foreach ($documentDto as $document) {
             $pattern1 = '/^LEGAL_/';
             $pattern2 = '/^SOLE_MAN_/';
             // read if document mirakl is a Legal document
@@ -300,8 +301,8 @@ class Mirakl implements ApiInterface
             $cptSoleMan = 0;
         }
         // calcul count cpt and countDocHiPay
-        $cpt = $cpt-($cptLegal+$cptSoleMan);
-        $countDocHiPay = $countDocHiPay-($cptLegal+$cptSoleMan);
+        $cpt = $cpt - ($cptLegal + $cptSoleMan);
+        $countDocHiPay = $countDocHiPay - ($cptLegal + $cptSoleMan);
         // if equal it's ok else mirakl settings not ok
         if ($countDocHiPay == $cpt) {
             $bool = true;
