@@ -259,6 +259,7 @@ class ProcessorTest extends AbstractProcessorTest
         $docContent1 = 'data1';
         $docContent2 = 'data2';
         $docContent3 = 'data3';
+        $docContent4 = 'data4';
         $vendor1 = new Vendor('test@ex1.com', 120001, mt_rand(), 771);
         $vendor2 = new Vendor('test@ex2.com', 120002, mt_rand(), 772);
 
@@ -284,18 +285,19 @@ class ProcessorTest extends AbstractProcessorTest
         // Download missing documents
         $this->mirakl->downloadDocuments(array(2006), Argument::any())->willReturn($docContent1)->shouldBeCalledTimes(1);
         $this->mirakl->downloadDocuments(array(3008), Argument::any())->willReturn($docContent2)->shouldBeCalledTimes(1);
+        $this->mirakl->downloadDocuments(array(30082), Argument::any())->willReturn($docContent2)->shouldBeCalledTimes(1);
         $this->mirakl->downloadDocuments(array(3011), Argument::any())->willReturn($docContent3)->shouldBeCalledTimes(1);
 
         // Save files on disk
         $prophet = new PHPProphet();
 
         $prophecy = $prophet->prophesize('HiPay\Wallet\Mirakl\Vendor');
-        $prophecy->file_put_contents(Argument::containingString('/tmp/dir/'), Argument::containingString('data'))->willReturn(true)->shouldBeCalledTimes(3);
+        $prophecy->file_put_contents(Argument::containingString('/tmp/dir/'), Argument::containingString('data'))->willReturn(true)->shouldBeCalledTimes(4);
         $prophecy->reveal();
 
         // Sending documents to HiPay Wallet
         $this->hipay->uploadDocument(771, 120001, HiPay::DOCUMENT_ALL_PROOF_OF_BANK_ACCOUNT, Argument::any(), Argument::any())->shouldBeCalledTimes(1);
-        $this->hipay->uploadDocument(772, 120002, HiPay::DOCUMENT_LEGAL_IDENTITY_OF_REPRESENTATIVE, Argument::any(), Argument::any())->willThrow(new ClientErrorResponseException())->shouldBeCalledTimes(1);
+        $this->hipay->uploadDocument(772, 120002, HiPay::DOCUMENT_LEGAL_IDENTITY_OF_REPRESENTATIVE, Argument::any(), Argument::any())->willThrow(new ClientErrorResponseException())->shouldBeCalledTimes(2);
         $this->hipay->uploadDocument(772, 120002, HiPay::DOCUMENT_LEGAL_PROOF_OF_REGISTRATION_NUMBER, Argument::any(), Argument::any())->shouldBeCalledTimes(1);
 
         // Save document in DB

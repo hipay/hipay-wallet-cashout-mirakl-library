@@ -529,7 +529,7 @@ class Processor extends AbstractApiProcessor
                         )
                     );
 
-                    $missingFile = $this->missingFile($theFile, $theFiles);
+                    $missingFile = $this->missingFile($theFile, $theFiles, $shopId);
 
 
                     // File not uploaded (or outdated)
@@ -999,7 +999,7 @@ class Processor extends AbstractApiProcessor
      * @param type $theFiles
      * @return boolean
      */
-    private function missingFile($file, $theFiles)
+    private function missingFile($file, $theFiles, $shopId)
     {
         $missingFile = array("check" => false, "message" => "");
 

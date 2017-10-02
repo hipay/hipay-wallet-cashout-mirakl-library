@@ -17,6 +17,13 @@
     {
       "date_uploaded": "2016-03-25T17:41:52Z",
       "file_name": "TEST FILE MIRAKL.png",
+      "id": 20082,
+      "shop_id": 119200,
+      "type": "LEGAL_IDENTITY_OF_REPRESENTATIVE_REAR"
+    },
+    {
+      "date_uploaded": "2016-03-25T17:41:52Z",
+      "file_name": "TEST FILE MIRAKL.png",
       "id": 200812,
       "shop_id": 119200,
       "type": "TYPE_UNKNOWN_TO_HIPAY_THAT_WILL_BE_FILTERED"
@@ -41,6 +48,13 @@
       "id": 3008,
       "shop_id": 1321,
       "type": "LEGAL_IDENTITY_OF_REPRESENTATIVE"
+    },
+    {
+      "date_uploaded": "2016-03-25T17:41:52Z",
+      "file_name": "TEST FILE MIRAKL.png",
+      "id": 30082,
+      "shop_id": 1321,
+      "type": "LEGAL_IDENTITY_OF_REP_REAR"
     },
     {
       "date_uploaded": "2016-03-25T17:42:04Z",
