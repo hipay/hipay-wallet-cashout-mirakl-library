@@ -529,11 +529,12 @@ class Processor extends AbstractApiProcessor
                         )
                     );
 
+                    $fileExtensionOk = $this->checkExtensionFile($theFile['file_name']);
+
                     $missingFile = $this->missingFile($theFile, $theFiles, $shopId);
 
-
                     // File not uploaded (or outdated)
-                    if (count($filesAlreadyUploaded) === 0 && !$missingFile["check"]) {
+                    if (count($filesAlreadyUploaded) === 0 && !$missingFile["check"] && $fileExtensionOk) {
                         $this->logger->info(
                             'Document ' .
                             $theFile['id'] .
@@ -558,7 +559,7 @@ class Processor extends AbstractApiProcessor
                             $validityDate = new DateTime('+1 year');
                         }
 
-                        $tmpFile = $tmpFilePath . '/mirakl_kyc_downloaded_file.tmp';
+                        $tmpFile = $tmpFilePath . '/'.preg_replace("/[^A-Za-z0-9\.]/", '', $theFile['file_name']);
 
                         file_put_contents(
                             $tmpFile,
@@ -612,7 +613,18 @@ class Processor extends AbstractApiProcessor
                             }
                         }
                     } else {
-                        if (!$missingFile["check"]) {
+                    if(!$fileExtensionOk){
+                        $this->logger->warning(
+                                'Document ' .
+                                $theFile['id'] .
+                                ' (type: ' .
+                                $theFile['type'] .
+                                ') for Mirakl for shop ' .
+                                $shopId .
+                                ' will not be uploaded because extension is wrong, should be jpg, jpeg, png, gif or pdf',
+                                array('miraklId' => $shopId, "action" => "Wallet creation")
+                            );
+                    }else if (!$missingFile["check"]) {
                             $this->logger->info(
                                 'Document ' .
                                 $theFile['id'] .
@@ -983,8 +995,8 @@ class Processor extends AbstractApiProcessor
         );
 
         if (!empty($files)) {
-            $tmpFile = $tmpFilePath . '/mirakl_kyc_downloaded_file.tmp';
             $file = end($files);
+            $tmpFile = $tmpFilePath . '/'.preg_replace("/[^A-Za-z0-9\.]/", '', $file['file_name']);
             file_put_contents($tmpFile, $this->mirakl->downloadDocuments(array($file['id'])));
 
             return $tmpFile;
@@ -1001,13 +1013,38 @@ class Processor extends AbstractApiProcessor
      */
     private function missingFile($file, $theFiles, $shopId)
     {
+
+        switch($file['type']){
+            case Mirakl::DOCUMENT_LEGAL_IDENTITY_OF_REPRESENTATIVE:
+                return $this->checkMissingFile($file, Mirakl::DOCUMENT_LEGAL_IDENTITY_OF_REP_REAR, $theFiles, $shopId);
+            case Mirakl::DOCUMENT_LEGAL_IDENTITY_OF_REP_REAR:
+                return $this->checkMissingFile($file, Mirakl::DOCUMENT_LEGAL_IDENTITY_OF_REPRESENTATIVE, $theFiles, $shopId);
+            case Mirakl::DOCUMENT_SOLE_MAN_BUS_IDENTITY:
+                return $this->checkMissingFile($file, Mirakl::DOCUMENT_SOLE_MAN_BUS_IDENTITY_REAR, $theFiles, $shopId);
+            case Mirakl::DOCUMENT_SOLE_MAN_BUS_IDENTITY_REAR:
+                return $this->checkMissingFile($file, Mirakl::DOCUMENT_SOLE_MAN_BUS_IDENTITY, $theFiles, $shopId);
+            default:
+                return array("check" => false, "message" => "");
+        }
+    }
+
+    /**
+     * check if one of two parts documents is missing, if not check if second part file extension is ok
+     * @param type $file
+     * @param type $type
+     * @param type $theFiles
+     * @param type $shopId
+     * @return string
+     */
+    private function checkMissingFile($file, $type, $theFiles, $shopId){
+
         $missingFile = array("check" => false, "message" => "");
 
-        if ($file['type'] == Mirakl::DOCUMENT_LEGAL_IDENTITY_OF_REPRESENTATIVE && !array_search(
-                Mirakl::DOCUMENT_LEGAL_IDENTITY_OF_REP_REAR,
-                array_column($theFiles, 'type')
-            )
-        ) {
+        $key = array_search($type, array_column($theFiles, 'type'));
+
+        $fileOk = (!$key)?false: $this->checkExtensionFile($theFiles[$key]['file_name']);
+
+        if(!$fileOk){
             $missingFile["check"] = true;
             $missingFile["message"] = 'Document ' .
                 $file['id'] .
@@ -1016,55 +1053,19 @@ class Processor extends AbstractApiProcessor
                 ') for Mirakl for shop ' .
                 $shopId .
                 ' will not be uploaded because file of type ' .
-                Mirakl::DOCUMENT_LEGAL_IDENTITY_OF_REP_REAR .
-                ' not uploaded in Mirakl';
-        } elseif ($file['type'] == Mirakl::DOCUMENT_LEGAL_IDENTITY_OF_REP_REAR && !array_search(
-                Mirakl::DOCUMENT_LEGAL_IDENTITY_OF_REPRESENTATIVE,
-                array_column($theFiles, 'type')
-            )
-        ) {
-            $missingFile["check"] = true;
-            $missingFile["message"] = 'Document ' .
-                $file['id'] .
-                ' (type: ' .
-                $file['type'] .
-                ') for Mirakl for shop ' .
-                $shopId .
-                ' will not be uploaded because file of type ' .
-                Mirakl::DOCUMENT_LEGAL_IDENTITY_OF_REPRESENTATIVE .
-                ' not uploaded in Mirakl';
-        } elseif ($file['type'] == Mirakl::DOCUMENT_SOLE_MAN_BUS_IDENTITY && !array_search(
-                Mirakl::DOCUMENT_SOLE_MAN_BUS_IDENTITY_REAR,
-                array_column($theFiles, 'type')
-            )
-        ) {
-            $missingFile["check"] = true;
-            $missingFile["message"] = 'Document ' .
-                $file['id'] .
-                ' (type: ' .
-                $file['type'] .
-                ') for Mirakl for shop ' .
-                $shopId .
-                ' will not be uploaded because file of type ' .
-                Mirakl::DOCUMENT_SOLE_MAN_BUS_IDENTITY_REAR .
-                ' not uploaded in Mirakl';
-        } elseif ($file['type'] == Mirakl::DOCUMENT_SOLE_MAN_BUS_IDENTITY_REAR && !array_search(
-                Mirakl::DOCUMENT_SOLE_MAN_BUS_IDENTITY,
-                array_column($theFiles, 'type')
-            )
-        ) {
-            $missingFile["check"] = true;
-            $missingFile["message"] = 'Document ' .
-                $file['id'] .
-                ' (type: ' .
-                $file['type'] .
-                ') for Mirakl for shop ' .
-                $shopId .
-                ' will not be uploaded because file of type ' .
-                Mirakl::DOCUMENT_SOLE_MAN_BUS_IDENTITY .
-                ' not uploaded in Mirakl';
+                $type .
+                ' not uploaded in Mirakl or uploaded with wrong extension';
         }
 
         return $missingFile;
+    }
+
+    /**
+     * check if extension file is img or pdf
+     * @param type $fileName
+     * @return type
+     */
+    private function checkExtensionFile($fileName){
+        return preg_match('/^.*\.(jpg|jpeg|png|gif|pdf)$/i', $fileName);
     }
 }
