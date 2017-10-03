@@ -313,6 +313,49 @@ class ProcessorTest extends AbstractProcessorTest
     }
 
     /**
+     *
+     * @covers ::transferFiles
+     */
+    public function testMissingTransferFiles(){
+        $shops = array(666, 888);
+        $tmpDir = '/tmp/dir';
+        $vendor = new Vendor('test@ex1.com', 120001, mt_rand(), 771);
+
+        // Getting documents list
+        $this->mirakl->getFiles($shops)->willReturn(Mirakl::getShopDocuments($shops))->shouldBeCalled();
+
+        $this->vendorManager->findByMiraklId(666)->willReturn($vendor)->shouldBeCalledTimes(1);
+        $this->vendorManager->findByMiraklId(888)->willReturn($vendor)->shouldBeCalledTimes(1);
+
+        $this->documentManager->findByVendor($vendor)->willReturn(array())->shouldBeCalledTimes(2);
+
+        $this->mirakl->downloadDocuments(Argument::any(), Argument::any())->shouldNotBeCalled();
+        $this->hipay->uploadDocument(Argument::any(), Argument::any(), Argument::any(), Argument::any(), Argument::any())->shouldNotBeCalled();
+        $this->vendorProcessor->transferFiles($shops, $tmpDir);
+    }
+
+    /**
+     *
+     * @covers ::transferFiles
+     */
+    public function testWrongExtensionTransferFiles(){
+        $shops = array(777);
+        $tmpDir = '/tmp/dir';
+        $vendor = new Vendor('test@ex1.com', 120001, mt_rand(), 771);
+
+        // Getting documents list
+        $this->mirakl->getFiles($shops)->willReturn(Mirakl::getShopDocuments($shops))->shouldBeCalled();
+
+        $this->vendorManager->findByMiraklId(777)->willReturn($vendor)->shouldBeCalledTimes(1);
+
+        $this->documentManager->findByVendor($vendor)->willReturn(array())->shouldBeCalledTimes(1);
+
+        $this->mirakl->downloadDocuments(Argument::any(), Argument::any())->shouldNotBeCalled();
+        $this->hipay->uploadDocument(Argument::any(), Argument::any(), Argument::any(), Argument::any(), Argument::any())->shouldNotBeCalled();
+        $this->vendorProcessor->transferFiles($shops, $tmpDir);
+    }
+
+    /**
      * Return the correct vendor instance from mirakl data
      *
      * @param $miraklData
