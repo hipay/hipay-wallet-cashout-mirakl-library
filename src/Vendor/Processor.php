@@ -1040,8 +1040,8 @@ class Processor extends AbstractApiProcessor
 
         $missingFile = array("check" => false, "message" => "");
 
-        $key = array_search($type, array_column($theFiles, 'type'));
-
+        $key = $this->searchForType($type, $theFiles);
+        
         $fileOk = (!$key)?false: $this->checkExtensionFile($theFiles[$key]['file_name']);
 
         if(!$fileOk){
@@ -1067,5 +1067,20 @@ class Processor extends AbstractApiProcessor
      */
     private function checkExtensionFile($fileName){
         return preg_match('/^.*\.(jpg|jpeg|png|gif|pdf)$/i', $fileName);
+    }
+
+    /**
+     *
+     * @param type $type
+     * @param type $array
+     * @return boolean
+     */
+    private function searchForType($type, $array) {
+        foreach ($array as $key => $val) {
+            if ($val['type'] === $type) {
+                return $key;
+            }
+        }
+        return false;
     }
 }
