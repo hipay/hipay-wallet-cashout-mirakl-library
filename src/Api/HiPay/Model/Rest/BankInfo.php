@@ -80,12 +80,15 @@ class BankInfo extends ModelAbstract
     /** @var string */
     protected $transit_num;
 
+    /** @var string */
+    protected $file;
+
     /**
      * @param array $miraklData
      *
      * @return self $this
      */
-    public function setMiraklData(array $miraklData)
+    public function setMiraklData(array $miraklData, $file = null)
     {
         $paymentData = array_key_exists('payment_info', $miraklData) ?
             $miraklData['payment_info'] : $miraklData['billing_info'];
@@ -110,6 +113,8 @@ class BankInfo extends ModelAbstract
             preg_replace("/[^A-Za-z0-9 ]/", '', $paymentData['iban']) : '';
         // Take the first to characters to fill the country
         $this->bankCountry = substr($this->iban, 0, 2);
+
+        $this->file = $file;
 
         return $this;
     }
