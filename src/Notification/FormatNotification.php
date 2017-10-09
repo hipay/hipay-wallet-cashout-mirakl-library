@@ -17,28 +17,16 @@ class FormatNotification {
         $message = false
     )
     {
-        $markdown = HiPay::LINEMKD .HiPay::SEPARMKD . '### ' . $title;
+        $formattedMessage = $title.HiPay::LINEMKD;
         if ($infos) {
-            $markdown .=
-                    HiPay::LINEMKD . HiPay::SEPARMKD . '***' .
-                    HiPay::LINEMKD . HiPay::SEPARMKD .
-                    HiPay::LINEMKD . HiPay::SEPARMKD .'- Shop ID Mirakl: ' . $infos['shopId'] .
-                    HiPay::LINEMKD . HiPay::SEPARMKD .'- ID of the Wallet: ' . $infos['HipayId'] .
-                    HiPay::LINEMKD . HiPay::SEPARMKD .'- Email Shop: ' . $infos['Email'] .
-                    HiPay::LINEMKD . HiPay::SEPARMKD .'- Type Message: ' . $infos['Type'] .
-                    HiPay::LINEMKD . HiPay::SEPARMKD .
-                    HiPay::LINEMKD . HiPay::SEPARMKD . '***' .
-                    HiPay::SEPARMKD;
+            $formattedMessage .=
+                    '- ID of the Wallet: ' . $infos['HipayId'] .HiPay::LINEMKD.
+                    '- Email Shop: ' . $infos['Email'].HiPay::LINEMKD;
         }
         if ($message) {
-            $markdown .=
-                    HiPay::LINEMKD . HiPay::SEPARMKD . 'Message:' .
-                    HiPay::LINEMKD . HiPay::SEPARMKD . $message .
-                    HiPay::LINEMKD . HiPay::SEPARMKD .
-                    HiPay::LINEMKD . HiPay::SEPARMKD . '***' .
-                    HiPay::SEPARMKD;
+            $formattedMessage .= $message.HiPay::LINEMKD ;
         }
-        return $markdown;
+        return $formattedMessage;
     }
 }
 

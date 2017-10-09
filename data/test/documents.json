@@ -17,6 +17,13 @@
     {
       "date_uploaded": "2016-03-25T17:41:52Z",
       "file_name": "TEST FILE MIRAKL.png",
+      "id": 20082,
+      "shop_id": 119200,
+      "type": "LEGAL_IDENTITY_OF_REPRESENTATIVE_REAR"
+    },
+    {
+      "date_uploaded": "2016-03-25T17:41:52Z",
+      "file_name": "TEST FILE MIRAKL.png",
       "id": 200812,
       "shop_id": 119200,
       "type": "TYPE_UNKNOWN_TO_HIPAY_THAT_WILL_BE_FILTERED"
@@ -43,11 +50,60 @@
       "type": "LEGAL_IDENTITY_OF_REPRESENTATIVE"
     },
     {
+      "date_uploaded": "2016-03-25T17:41:52Z",
+      "file_name": "TEST FILE MIRAKL.png",
+      "id": 30082,
+      "shop_id": 1321,
+      "type": "LEGAL_IDENTITY_OF_REP_REAR"
+    },
+    {
       "date_uploaded": "2016-03-25T17:42:04Z",
       "file_name": "TEST FILE MIRAKL.png",
       "id": 3011,
       "shop_id": 1321,
       "type": "LEGAL_PROOF_OF_REGISTRATION_NUMBER"
+    },
+    {
+      "date_uploaded": "2016-03-25T17:42:04Z",
+      "file_name": "TEST FILE MIRAKL.png",
+      "id": 3066,
+      "shop_id": 666,
+      "type": "LEGAL_IDENTITY_OF_REP_REAR"
+    },
+    {
+      "date_uploaded": "2016-03-25T17:42:04Z",
+      "file_name": "TEST FILE MIRAKL.png",
+      "id": 3066,
+      "shop_id": 888,
+      "type": "LEGAL_IDENTITY_OF_REPRESENTATIVE"
+    },
+    {
+      "date_uploaded": "2016-03-25T17:42:04Z",
+      "file_name": "TEST FILE MIRAKL.png",
+      "id": 3066,
+      "shop_id": 666,
+      "type": "SOLE_MAN_BUS_IDENTITY"
+    },
+    {
+      "date_uploaded": "2016-03-25T17:42:04Z",
+      "file_name": "TEST FILE MIRAKL.png",
+      "id": 3066,
+      "shop_id": 888,
+      "type": "SOLE_MAN_BUS_IDENTITY_REAR"
+    },
+    {
+      "date_uploaded": "2016-03-25T17:42:04Z",
+      "file_name": "TEST FILE MIRAKL.csv",
+      "id": 3066,
+      "shop_id": 777,
+      "type": "SOLE_MAN_BUS_IDENTITY"
+    },
+    {
+      "date_uploaded": "2016-03-25T17:42:04Z",
+      "file_name": "TEST FILE MIRAKL.png",
+      "id": 3066,
+      "shop_id": 777,
+      "type": "SOLE_MAN_BUS_IDENTITY_REAR"
     }
   ],
   "total_count": 4
