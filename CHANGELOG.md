@@ -1,3 +1,11 @@
+# Version 2.7.0
+- Add support for new KYC rules in HiPay Wallet API
+- Fix bug in bank information api call
+- Removing markdown formatting for logs
+- Moving transfer api call in generate instead of processing
+- Switch to Rest Api for transfer & withdraw
+- handle new parameter hipay-process from Mirakl api
+
 # Version 2.6.0
 - Fix "Wallet not found" bug
 - Fix wrong private and public label during Wallet API call
