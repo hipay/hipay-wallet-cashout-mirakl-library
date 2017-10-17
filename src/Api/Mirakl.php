@@ -175,6 +175,41 @@ class Mirakl implements ApiInterface
     }
 
     /**
+     * List invoices (use IV01)
+     * @param DateTime $startDate
+     * @param DateTime $endDate
+     * @param type $shopId
+     * @param type $type
+     * @param type $currency
+     * @return type
+     */
+    public function getInvoices(
+        DateTime $startDate = null,
+        DateTime $endDate = null,
+        $shopId = null,
+        $type = 'ALL',
+        $currency = null
+    ){
+        $this->restClient->getConfig()->setPath(
+            'request.options/headers/Authorization',
+            $this->frontKey
+        );
+        $command = $this->restClient->getCommand(
+            'GetInvoices',
+            array(
+                'shopId' => $shopId,
+                'startDate' => $startDate,
+                'endDate' => $endDate,
+                'type' => $type,
+                'currency' => $currency
+            )
+        );
+        $result = $this->restClient->execute($command);
+
+        return $result['invoices'];
+    }
+
+    /**
      * List the transaction (use TL01).
      *
      * @param $shopId
