@@ -660,9 +660,9 @@ class HiPay implements ApiInterface
     public function transfer(Transfer $transfer, VendorInterface $vendor = null)
     {
         if ($this->rest) {
-            $this->transferRest($transfer, $vendor);
+            return $this->transferRest($transfer, $vendor);
         } else {
-            $this->transferSoap($transfer);
+            return $this->transferSoap($transfer);
         }
     }
 
@@ -675,9 +675,9 @@ class HiPay implements ApiInterface
     public function withdraw(VendorInterface $vendor, $amount, $label)
     {
         if ($this->rest) {
-            $this->withdrawRest($vendor, $amount, $label);
+            return $this->withdrawRest($vendor, $amount, $label);
         } else {
-            $this->withdrawSoap($vendor, $amount, $label);
+            return $this->withdrawSoap($vendor, $amount, $label);
         }
     }
 
