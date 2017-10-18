@@ -733,41 +733,13 @@ class HiPay implements ApiInterface
             'request.options/headers/php-auth-pw',
             $this->password
         );
-
-        if (!is_null($vendor->getHiPayId())) {
-            $this->restClient->getConfig()->setPath(
-                'request.options/headers/php-auth-subaccount-id',
-                $vendor->getHiPayId()
-            );
-        } else if (!is_null($vendor->getLogin())) {
-            $this->restClient->getConfig()->setPath(
-                'request.options/headers/php-auth-subaccount-login',
-                $vendor->getLogin()
-            );
-        }
-
+        
         $command = $this->restClient->getCommand(
             'transfer',
             $parameters
         );
 
-        try {
-            $result = $this->restClient->execute($command);
-        } catch (ClientErrorResponseException $e) {
-            /** retro compatible if old account */
-            if ($e->getResponse()->getStatusCode() == '401') {
-                /** retry with email in php-auth-subaccount-login */
-                $this->restClient->getConfig()->setPath(
-                    'request.options/headers/php-auth-subaccount-login',
-                    $vendor->getEmail()
-                );
-                $command = $this->restClient->getCommand(
-                    'transfer',
-                    $parameters
-                );
-                $result = $this->restClient->execute($command);
-            }
-        }
+        $result = $this->restClient->execute($command);
 
         return $result['transactionId'];
     }
