@@ -640,7 +640,7 @@ class HiPay implements ApiInterface
                 /** retry with email in php-auth-subaccount-login */
                 $this->restClient->getConfig()->setPath(
                     'request.options/headers/php-auth-subaccount-login',
-                    $vendor->getEmail()
+                    strtolower($vendor->getEmail())
                 );
                 $command = $this->restClient->getCommand(
                     'GetBalance',
@@ -715,8 +715,6 @@ class HiPay implements ApiInterface
     private function transferRest(Transfer $transfer, VendorInterface $vendor = null)
     {
 
-        echo 'Transfer REST API';
-
         $this->resetRestClient();
 
         if (!$transfer->getEntity()) {
@@ -733,7 +731,7 @@ class HiPay implements ApiInterface
             'request.options/headers/php-auth-pw',
             $this->password
         );
-        
+
         $command = $this->restClient->getCommand(
             'transfer',
             $parameters
@@ -741,7 +739,7 @@ class HiPay implements ApiInterface
 
         $result = $this->restClient->execute($command);
 
-        return $result['transactionId'];
+        return $result['transaction_id'];
     }
 
     /**
@@ -753,8 +751,6 @@ class HiPay implements ApiInterface
      */
     private function withdrawRest(VendorInterface $vendor, $amount, $label)
     {
-
-        echo 'Withdraw REST API';
 
         $this->resetRestClient();
 
@@ -775,11 +771,8 @@ class HiPay implements ApiInterface
                 'request.options/headers/php-auth-subaccount-id',
                 $vendor->getHiPayId()
             );
-        } else if (!is_null($vendor->getLogin())) {
-            $this->restClient->getConfig()->setPath(
-                'request.options/headers/php-auth-subaccount-login',
-                $vendor->getLogin()
-            );
+        }else{
+            throw new Exception("Withdraw require a HiPay ID");
         }
 
         $command = $this->restClient->getCommand(
@@ -787,25 +780,9 @@ class HiPay implements ApiInterface
             $parameters
         );
 
-        try {
-            $result = $this->restClient->execute($command);
-        } catch (ClientErrorResponseException $e) {
-            /** retro compatible if old account */
-            if ($e->getResponse()->getStatusCode() == '401') {
-                /** retry with email in php-auth-subaccount-login */
-                $this->restClient->getConfig()->setPath(
-                    'request.options/headers/php-auth-subaccount-login',
-                    $vendor->getEmail()
-                );
-                $command = $this->restClient->getCommand(
-                    'withdraw',
-                    $parameters
-                );
-                $result = $this->restClient->execute($command);
-            }
-        }
+        $result = $this->restClient->execute($command);
 
-        return $result['transactionId'];
+        return $result['transaction_public_id'];
     }
 
     /**

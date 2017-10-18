@@ -549,7 +549,7 @@
                     "description": "Label of the transfer known by you and the recipient user",
                     "location": "postField",
                     "required": true,
-                    "sentAs": "public_label"
+                    "sentAs": "label"
                 }
             }
         }
