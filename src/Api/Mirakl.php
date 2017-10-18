@@ -210,67 +210,6 @@ class Mirakl implements ApiInterface
     }
 
     /**
-     * List the transaction (use TL01).
-     *
-     * @param $shopId
-     * @param $startDate
-     * @param $endDate
-     * @param $startTransactionDate
-     * @param $endTransactionDate
-     * @param $updatedSince
-     * @param $paymentVoucher
-     * @param $paymentStates
-     * @param $transactionTypes
-     * @param $paginate
-     * @param $accountingDocumentNumber
-     * @param $orderIds
-     * @param $orderLineIds
-     *
-     * @return \Guzzle\Http\EntityBodyInterface|string
-     */
-    public function getTransactions(
-        $shopId = null,
-        DateTime $startDate = null,
-        DateTime $endDate = null,
-        DateTime $startTransactionDate = null,
-        DateTime $endTransactionDate = null,
-        DateTime $updatedSince = null,
-        $paymentVoucher = null,
-        $paymentStates = null,
-        array $transactionTypes = array(),
-        $paginate = false,
-        $accountingDocumentNumber = null,
-        array $orderIds = array(),
-        array $orderLineIds = array()
-    ) {
-        $this->restClient->getConfig()->setPath(
-            'request.options/headers/Authorization',
-            $this->frontKey
-        );
-        $command = $this->restClient->getCommand(
-            'GetTransactions',
-            array(
-                'shopId' => $shopId,
-                'startDate' => $startDate,
-                'endDate' => $endDate,
-                'startTransactionDate' => $startTransactionDate,
-                'endTransactionDate' => $endTransactionDate,
-                'updatedSince' => $updatedSince,
-                'paymentVoucher' => $paymentVoucher,
-                'paymentStates' => $paymentStates,
-                'transactionTypes' => $transactionTypes,
-                'paginate' => $paginate,
-                'accountingDocumentNumber' => $accountingDocumentNumber,
-                'orderIds' => $orderIds,
-                'orderLineIds' => $orderLineIds,
-            )
-        );
-        $result = $this->restClient->execute($command);
-
-        return $result['lines'];
-    }
-
-    /**
      * Fetch from Mirakl additional_fields (uses DO01).
      *
      * @param entities $entities (SHOP)
