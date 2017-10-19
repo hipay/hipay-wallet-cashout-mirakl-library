@@ -6,7 +6,6 @@ use DateTime;
 use Exception;
 use HiPay\Wallet\Mirakl\Api\Factory;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Status\BankInfo as BankInfoStatus;
-use HiPay\Wallet\Mirakl\Cashout\Event\OperationEvent;
 use HiPay\Wallet\Mirakl\Cashout\Model\Operation\ManagerInterface as OperationManager;
 use HiPay\Wallet\Mirakl\Cashout\Model\Operation\OperationInterface;
 use HiPay\Wallet\Mirakl\Cashout\Model\Operation\Status;
@@ -33,22 +32,16 @@ class Withdraw extends AbstractApiProcessor
 {
     const SCALE = 2;
 
-    /** @var  OperationManager */
     protected $operationManager;
 
-    /** @var  VendorManager */
     protected $vendorManager;
 
-    /** @var VendorInterface */
     protected $operator;
 
-    /**
-     * @var FormatNotification class
-     */
     protected $formatNotification;
 
-    /** @var  LogOperationsManager */
     protected $logOperationsManager;
+
 
     /**
      * Processor constructor.
@@ -63,8 +56,13 @@ class Withdraw extends AbstractApiProcessor
      * @throws \HiPay\Wallet\Mirakl\Exception\ValidationFailedException
      */
     public function __construct(
-    EventDispatcherInterface $dispatcher, LoggerInterface $logger, Factory $factory, OperationManager $operationManager,
-    VendorManager $vendorManager, VendorInterface $operator, LogOperationsManager $logOperationsManager
+        EventDispatcherInterface $dispatcher,
+        LoggerInterface $logger,
+        Factory $factory,
+        OperationManager $operationManager,
+        VendorManager $vendorManager,
+        VendorInterface $operator,
+        LogOperationsManager $logOperationsManager
     )
     {
         parent::__construct($dispatcher, $logger, $factory);
@@ -102,36 +100,36 @@ class Withdraw extends AbstractApiProcessor
      */
     protected function withdrawOperations()
     {
-       
+
         $toWithdraw = $this->getWithdrawableOperations();
 
-        $this->logger->info("Operation to withdraw : ".count($toWithdraw),
-                                                             array('miraklId' => null, "action" => "Withdraw"));
+        $this->logger->info(
+            "Operation to withdraw : ".count($toWithdraw),
+            array('miraklId' => null, "action" => "Withdraw")
+            );
 
         /** @var OperationInterface $operation */
         foreach ($toWithdraw as $operation) {
             try {
-                //Create the operation event object
-                $eventObject = new OperationEvent($operation);
-
-                //Dispatch the before.withdraw event
-                $this->dispatcher->dispatch('before.withdraw', $eventObject);
 
                 //Execute the withdrawal
                 $withdrawId = $this->withdraw($operation);
 
-                //Dispatch the after.withdraw
-                $eventObject->setWithdrawId($withdrawId);
-                $this->dispatcher->dispatch('after.withdraw', $eventObject);
-
                 //Set operation new data
-                $this->logger->info("[OK] Withdraw operation ".$operation->getWithdrawId()." executed",
-                                    array('miraklId' => $operation->getMiraklId(), "action" => "Withdraw"));
+                $this->logger->info(
+                    "[OK] Withdraw operation ".$operation->getWithdrawId()." executed",
+                    array('miraklId' => $operation->getMiraklId(), "action" => "Withdraw")
+                    );
             } catch (Exception $e) {
-                $this->logger->info("[OK] Withdraw operation failed",
-                                    array('miraklId' => $operation->getMiraklId(), "action" => "Withdraw"));
-                $this->handleException($e, 'critical',
-                                       array('miraklId' => $operation->getMiraklId(), "action" => "Withdraw"));
+                $this->logger->info(
+                    "[OK] Withdraw operation failed",
+                    array('miraklId' => $operation->getMiraklId(), "action" => "Withdraw")
+                    );
+                $this->handleException(
+                    $e,
+                    'critical',
+                    array('miraklId' => $operation->getMiraklId(), "action" => "Withdraw")
+                    );
             }
         }
     }
@@ -167,14 +165,15 @@ class Withdraw extends AbstractApiProcessor
             //Check account balance
             $amount  = round(($operation->getAmount()), self::SCALE);
             $balance = round($this->hipay->getBalance($vendor), self::SCALE);
+
             if ($balance < $amount) {
                 //Operator operation
-                if (!$operation->getMiraklId()) {
+                if ($operation->getMiraklId() === null) {
                     $amount = $balance;
                     //Vendor operation
                 } else {
                     throw new WrongWalletBalance(
-                    $vendor->getMiraklId(), $amount, $balance
+                    $vendor->getMiraklId(), 'withdraw', $amount, $balance
                     );
                 }
             }
@@ -197,6 +196,17 @@ class Withdraw extends AbstractApiProcessor
             );
 
             return $withdrawId;
+
+        } catch (WrongWalletBalance $e) {
+            $operation->setStatus(new Status(Status::WITHDRAW_NEGATIVE));
+            $operation->setUpdatedAt(new DateTime());
+            $this->operationManager->save($operation);
+
+            $this->logOperation(
+                $operation->getMiraklId(), $operation->getPaymentVoucher(), Status::WITHDRAW_NEGATIVE, $e->getMessage()
+            );
+
+            throw $e;
         } catch (Exception $e) {
             $operation->setStatus(new Status(Status::WITHDRAW_FAILED));
             $operation->setUpdatedAt(new DateTime());
@@ -232,18 +242,21 @@ class Withdraw extends AbstractApiProcessor
      */
     protected function getWithdrawableOperations()
     {
-        $previousDay = new DateTime('-1 day');
 
-        $toWithdraw = $this->operationManager->findByStatus(
+        $toWithdrawSuccess = $this->operationManager->findByStatus(
             new Status(Status::TRANSFER_SUCCESS)
         );
-        $toWithdraw = array_merge(
-            $toWithdraw,
-            $this->operationManager
-                ->findByStatusAndBeforeUpdatedAt(
-                    new Status(Status::WITHDRAW_FAILED), $previousDay
-                )
+
+        $toWithdrawFailed = $this->operationManager->findByStatus(
+            new Status(Status::WITHDRAW_FAILED)
         );
+
+        $toWithdrawNegative = $this->operationManager->findByStatus(
+            new Status(Status::WITHDRAW_NEGATIVE)
+        );
+
+        $toWithdraw = array_merge($toWithdrawNegative, $toWithdrawFailed, $toWithdrawSuccess);
+
         return $toWithdraw;
     }
 

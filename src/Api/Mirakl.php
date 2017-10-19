@@ -187,7 +187,7 @@ class Mirakl implements ApiInterface
         DateTime $startDate = null,
         DateTime $endDate = null,
         $shopId = null,
-        $type = 'ALL',
+        $type = 'AUTO_INVOICE',
         $currency = null
     ){
         $this->restClient->getConfig()->setPath(

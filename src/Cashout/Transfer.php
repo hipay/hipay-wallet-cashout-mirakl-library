@@ -17,6 +17,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\Transfer as TransferModel;
 use HiPay\Wallet\Mirakl\Exception\WalletNotFoundException;
 use Psr\Log\LoggerInterface;
+use HiPay\Wallet\Mirakl\Exception\WrongWalletBalance;
 
 /**
  * Generate and save the operation to be executed by the processor.
@@ -102,22 +103,11 @@ class Transfer extends AbstractApiProcessor
         foreach ($operations as $operation) {
             try {
 
-                if($this->hasSufficientFunds($operation->getAmount())){
-                    $this->transfer($operation);
-                    $this->logger->info(
-                        "[OK] Transfer operation ".$operation->getTransferId()." executed",
-                        array('miraklId' => $operation->getMiraklId(), "action" => "Transfer")
-                        );
-                }else{
-                    $this->logger->warning(
-                        "[KO] Insufficient Funds for operation ".$operation->getTransferId(),
-                        array('miraklId' => $operation->getMiraklId(), "action" => "Transfer")
-                        );
-
-                    $operation->setStatus(new Status(Status::TRANSFER_NEGATIVE));
-                    $operation->setUpdatedAt(new DateTime());
-                    $this->operationManager->save($operation);
-                }
+                $this->transfer($operation);
+                $this->logger->info(
+                    "[OK] Transfer operation ".$operation->getTransferId()." executed",
+                    array('miraklId' => $operation->getMiraklId(), "action" => "Transfer")
+                    );
 
             } catch (Exception $e) {
                 $this->logger->warning(
@@ -146,6 +136,8 @@ class Transfer extends AbstractApiProcessor
                 throw new WalletNotFoundException($vendor);
             }
 
+            $this->hasSufficientFunds($operation->getAmount());
+
             $operation->setHiPayId($vendor->getHiPayId());
 
             $transfer = new TransferModel(
@@ -171,6 +163,16 @@ class Transfer extends AbstractApiProcessor
             );
 
             return $transferId;
+        } catch (WrongWalletBalance $e) {
+            $operation->setStatus(new Status(Status::TRANSFER_NEGATIVE));
+            $operation->setUpdatedAt(new DateTime());
+            $this->operationManager->save($operation);
+
+            $this->logOperation(
+                $operation->getMiraklId(), $operation->getPaymentVoucher(), Status::TRANSFER_NEGATIVE, $e->getMessage()
+            );
+
+            throw $e;
         } catch (Exception $e) {
             $operation->setStatus(new Status(Status::TRANSFER_FAILED));
             $operation->setUpdatedAt(new DateTime());
@@ -193,14 +195,13 @@ class Transfer extends AbstractApiProcessor
      */
     protected function getTransferableOperations()
     {
-        $previousDay       = new DateTime('-1 day');
         //Transfer
         $toTransferCreated = $this->operationManager->findByStatus(
             new Status(Status::CREATED)
         );
 
-        $toTransferFailed = $this->operationManager->findByStatusAndBeforeUpdatedAt(
-            new Status(Status::TRANSFER_FAILED), $previousDay
+        $toTransferFailed = $this->operationManager->findByStatus(
+            new Status(Status::TRANSFER_FAILED)
         );
 
         $toTransferNegative = $this->operationManager->findByStatus(
@@ -262,6 +263,10 @@ class Transfer extends AbstractApiProcessor
      */
     public function hasSufficientFunds($amount)
     {
-        return round($this->hipay->getBalance($this->technicalAccount), static::SCALE) >= round($amount, static::SCALE);
+        $balance = round($this->hipay->getBalance($this->technicalAccount), static::SCALE);
+
+        if( $balance < round($amount, static::SCALE)){
+            throw new WrongWalletBalance('technical', 'transfer' ,$amount, $balance);
+        }
     }
 }
