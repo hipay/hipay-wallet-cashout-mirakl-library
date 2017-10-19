@@ -297,16 +297,4 @@ class Initializer extends AbstractApiProcessor
     {
         $this->mirakl->controlMiraklSettings($docTypes);
     }
-
-    /**
-     * Check if technical account has sufficient funds.
-     *
-     * @param $amount
-     *
-     * @returns boolean
-     */
-    public function hasSufficientFunds($amount)
-    {
-        return round($this->hipay->getBalance($this->technicalAccount), static::SCALE) >= round($amount, static::SCALE);
-    }
 }

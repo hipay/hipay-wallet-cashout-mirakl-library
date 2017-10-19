@@ -21,10 +21,12 @@ class Status extends AbstractEnumeration
     //Transfer status
     const TRANSFER_SUCCESS = 3;
     const TRANSFER_FAILED = -9;
+    const TRANSFER_NEGATIVE = -10;
 
     //Withdraw statuses
     const WITHDRAW_REQUESTED = 5;
     const WITHDRAW_SUCCESS = 6;
     const WITHDRAW_FAILED = -7;
     const WITHDRAW_CANCELED = -8;
+    const WITHDRAW_NEGATIVE = -11;
 }
