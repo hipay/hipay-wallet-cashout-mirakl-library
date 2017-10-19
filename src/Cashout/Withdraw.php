@@ -5,8 +5,6 @@ namespace HiPay\Wallet\Mirakl\Cashout;
 use DateTime;
 use Exception;
 use HiPay\Wallet\Mirakl\Api\Factory;
-use HiPay\Wallet\Mirakl\Api\HiPay;
-use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\Transfer;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Status\BankInfo as BankInfoStatus;
 use HiPay\Wallet\Mirakl\Cashout\Event\OperationEvent;
 use HiPay\Wallet\Mirakl\Cashout\Model\Operation\ManagerInterface as OperationManager;
@@ -31,7 +29,7 @@ use HiPay\Wallet\Mirakl\Notification\Model\LogOperationsManagerInterface as LogO
  * @author    HiPay <support.wallet@hipay.com>
  * @copyright 2017 HiPay
  */
-class Processor extends AbstractApiProcessor
+class Withdraw extends AbstractApiProcessor
 {
     const SCALE = 2;
 
@@ -93,24 +91,8 @@ class Processor extends AbstractApiProcessor
      */
     public function process()
     {
-        $this->logger->info('Control Mirakl Settings', array('miraklId' => null, "action" => "Operations process"));
-        // control mirakl settings
-        $boolControl = $this->getControlMiraklSettings($this->documentTypes);
-        if ($boolControl === false) {
-            // log critical
-            $title   = $this->criticalMessageMiraklSettings;
-            $message = $this->formatNotification->formatMessage($title);
-            $this->logger->critical($message, array('miraklId' => null, "action" => "Operations process"));
-        } else {
-            $this->logger->info('Control Mirakl Settings OK',
-                                array('miraklId' => null, "action" => "Operations process"));
-        }
+        $this->logger->info("Withdraw operations", array('miraklId' => null, "action" => "Withdraw"));
 
-        $this->logger->info("Cashout Processor", array('miraklId' => null, "action" => "Operations process"));
-
-        //Transfer
-        //  $this->transferOperations();
-        //Withdraw
         $this->withdrawOperations();
     }
 
@@ -120,8 +102,7 @@ class Processor extends AbstractApiProcessor
      */
     protected function withdrawOperations()
     {
-        $this->logger->info("Withdraw operations", array('miraklId' => null, "action" => "Withdraw"));
-
+       
         $toWithdraw = $this->getWithdrawableOperations();
 
         $this->logger->info("Operation to withdraw : ".count($toWithdraw),
@@ -227,14 +208,6 @@ class Processor extends AbstractApiProcessor
 
             throw $e;
         }
-    }
-
-    /**
-     * Control if Mirakl Setting is ok with HiPay prerequisites
-     */
-    public function getControlMiraklSettings($docTypes)
-    {
-        $this->mirakl->controlMiraklSettings($docTypes);
     }
 
     /**

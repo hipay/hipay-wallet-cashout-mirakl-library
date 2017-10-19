@@ -2,6 +2,10 @@
 
 namespace HiPay\Wallet\Mirakl\Cashout;
 
+use DateTime;
+use Exception;
+use HiPay\Wallet\Mirakl\Cashout\Model\Operation\Status;
+use HiPay\Wallet\Mirakl\Api\Factory;
 use HiPay\Wallet\Mirakl\Common\AbstractApiProcessor;
 use HiPay\Wallet\Mirakl\Cashout\Model\Operation\ManagerInterface as OperationManager;
 use HiPay\Wallet\Mirakl\Cashout\Model\Operation\OperationInterface;
@@ -10,6 +14,9 @@ use HiPay\Wallet\Mirakl\Vendor\Model\VendorManagerInterface as VendorManager;
 use HiPay\Wallet\Mirakl\Notification\Model\LogOperationsManagerInterface as LogOperationsManager;
 use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\Transfer as TransferModel;
+use HiPay\Wallet\Mirakl\Exception\WalletNotFoundException;
+use Psr\Log\LoggerInterface;
 
 /**
  * Generate and save the operation to be executed by the processor.
@@ -21,22 +28,32 @@ class Transfer extends AbstractApiProcessor
 {
     const SCALE = 2;
 
-    /** @var VendorInterface */
     protected $technicalAccount;
 
-    /** @var OperationManager */
     protected $operationManager;
 
-    /** @var  VendorManager */
     protected $vendorManager;
 
-    /** @var  LogOperationsManager */
     protected $logOperationsManager;
 
+    protected $operator;
+
+    /**
+     *
+     * @param EventDispatcherInterface $dispatcher
+     * @param LoggerInterface $logger
+     * @param Factory $factory
+     * @param VendorInterface $operatorAccount
+     * @param VendorInterface $technicalAccount
+     * @param OperationManager $operationHandler
+     * @param LogOperationsManager $logOperationsManager
+     * @param VendorManager $vendorManager
+     */
     public function __construct(
         EventDispatcherInterface $dispatcher,
         LoggerInterface $logger,
         Factory $factory,
+        VendorInterface $operatorAccount,
         VendorInterface $technicalAccount,
         OperationManager $operationHandler,
         LogOperationsManager $logOperationsManager,
@@ -44,10 +61,14 @@ class Transfer extends AbstractApiProcessor
     {
 
         parent::__construct($dispatcher, $logger, $factory);
-        
+
         ModelValidator::validate($technicalAccount, 'Operator');
-        
+
         $this->technicalAccount = $technicalAccount;
+
+        ModelValidator::validate($operatorAccount, 'Operator');
+
+        $this->operator = $operatorAccount;
 
         $this->operationManager = $operationHandler;
 
@@ -56,6 +77,9 @@ class Transfer extends AbstractApiProcessor
         $this->logOperationsManager = $logOperationsManager;
     }
 
+    /**
+     *
+     */
     public function process()
     {
 
@@ -69,6 +93,10 @@ class Transfer extends AbstractApiProcessor
                                                              array('miraklId' => null, "action" => "Transfer"));
     }
 
+    /**
+     * Execute the operation needing transfer.
+     * @param array $operations
+     */
     public function transferOperations(array $operations)
     {
         foreach ($operations as $operation) {
@@ -92,8 +120,8 @@ class Transfer extends AbstractApiProcessor
                 }
 
             } catch (Exception $e) {
-                $this->logger->info(
-                    "[OK] Transfer operation failed",
+                $this->logger->warning(
+                    "[KO] Transfer operation failed",
                     array('miraklId' => $operation->getMiraklId(), "action" => "Transfer")
                     );
                 $this->handleException($e, 'critical');
@@ -101,6 +129,15 @@ class Transfer extends AbstractApiProcessor
         }
     }
 
+    /**
+     * Transfer money between the technical
+     * wallet and the operator|seller wallet.
+     *
+     * @param OperationInterface $operation
+     * @return type
+     * @throws Exception
+     * @throws WalletNotFoundException
+     */
     public function transfer(OperationInterface $operation){
         try {
             $vendor = $this->getVendor($operation);
@@ -111,7 +148,7 @@ class Transfer extends AbstractApiProcessor
 
             $operation->setHiPayId($vendor->getHiPayId());
 
-            $transfer = new Transfer(
+            $transfer = new TransferModel(
                 round($operation->getAmount(), self::SCALE),
                 $vendor,
                 $this->operationManager->generatePrivateLabel($operation),
