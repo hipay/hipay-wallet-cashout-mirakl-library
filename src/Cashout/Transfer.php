@@ -2,6 +2,14 @@
 
 namespace HiPay\Wallet\Mirakl\Cashout;
 
+use HiPay\Wallet\Mirakl\Common\AbstractApiProcessor;
+use HiPay\Wallet\Mirakl\Cashout\Model\Operation\ManagerInterface as OperationManager;
+use HiPay\Wallet\Mirakl\Cashout\Model\Operation\OperationInterface;
+use HiPay\Wallet\Mirakl\Service\Validation\ModelValidator;
+use HiPay\Wallet\Mirakl\Vendor\Model\VendorManagerInterface as VendorManager;
+use HiPay\Wallet\Mirakl\Notification\Model\LogOperationsManagerInterface as LogOperationsManager;
+use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
+
 /**
  * Generate and save the operation to be executed by the processor.
  *
