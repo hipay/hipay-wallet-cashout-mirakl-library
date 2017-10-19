@@ -33,7 +33,6 @@ class WrongWalletBalance extends DispatchableException
     ) {
         $this->miraklId = $miraklId;
         parent::__construct(
-            $message ?:
             "This vendor ({$miraklId}) balance is insufficient. Operation type $operation / Operation amount $amount / Balance $balance",
             $code,
             $previous

@@ -168,7 +168,7 @@ class Withdraw extends AbstractApiProcessor
 
             if ($balance < $amount) {
                 //Operator operation
-                if ($operation->getMiraklId() === null) {
+                if ($operation->getMiraklId() === null || !$operation->getMiraklId() ) {
                     $amount = $balance;
                     //Vendor operation
                 } else {
