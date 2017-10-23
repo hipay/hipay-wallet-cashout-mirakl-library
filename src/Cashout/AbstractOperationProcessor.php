@@ -108,12 +108,16 @@ abstract class AbstractOperationProcessor extends AbstractApiProcessor
      *
      * @returns boolean
      */
-    public function hasSufficientFunds($amount, $vendor)
+    public function hasSufficientFunds($amount, $vendor, $transfer = false)
     {
         $balance = round($this->hipay->getBalance($vendor), static::SCALE);
 
         if( $balance < round($amount, static::SCALE)){
-            throw new WrongWalletBalance('technical', 'transfer' ,$amount, $balance);
+            if($transfer){
+                throw new WrongWalletBalance('technical', 'transfer' ,$amount, $balance);
+            }
+
+            throw new WrongWalletBalance($vendor->getHipayId(), 'withdraw' ,$amount, $balance);
         }
     }
 }

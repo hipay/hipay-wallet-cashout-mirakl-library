@@ -118,7 +118,7 @@ class Transfer extends AbstractOperationProcessor
                 throw new WalletNotFoundException($vendor);
             }
 
-            $this->hasSufficientFunds($operation->getAmount(), $this->technicalAccount);
+            $this->hasSufficientFunds($operation->getAmount(), $this->technicalAccount, true);
 
             $operation->setHiPayId($vendor->getHiPayId());
 
