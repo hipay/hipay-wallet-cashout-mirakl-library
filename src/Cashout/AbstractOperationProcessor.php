@@ -80,7 +80,7 @@ abstract class AbstractOperationProcessor extends AbstractApiProcessor
                                                                                            $paymentVoucherNumber);
         if ($logOperation == null) {
             $this->logger->warning(
-                "Could not find existing log for this operations : paymentVoucherNumber = ".$paymentVoucherNumber,
+                "Could not fnd existing log for this operations : paymentVoucherNumber = ".$paymentVoucherNumber,
                 array("action" => "Operation process", "miraklId" => $miraklId)
             );
         } else {
@@ -112,7 +112,7 @@ abstract class AbstractOperationProcessor extends AbstractApiProcessor
     {
         $balance = round($this->hipay->getBalance($vendor), static::SCALE);
 
-        if( $balance > round($amount, static::SCALE)){
+        if( $balance < round($amount, static::SCALE)){
             throw new WrongWalletBalance('technical', 'transfer' ,$amount, $balance);
         }
     }
