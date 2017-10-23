@@ -2,11 +2,10 @@
 
 namespace HiPay\Wallet\Mirakl\Test\Cashout;
 
-use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\Transfer;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Status\BankInfo;
 use HiPay\Wallet\Mirakl\Cashout\Model\Operation\OperationInterface;
 use HiPay\Wallet\Mirakl\Cashout\Model\Operation\Status;
-use HiPay\Wallet\Mirakl\Cashout\Processor;
+use HiPay\Wallet\Mirakl\Cashout\Withdraw;
 use HiPay\Wallet\Mirakl\Test\Common\AbstractProcessorTest;
 use HiPay\Wallet\Mirakl\Test\Stub\Entity\Operation;
 use HiPay\Wallet\Mirakl\Test\Stub\Entity\LogOperations;
@@ -15,17 +14,10 @@ use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 use Prophecy\Argument;
 use Symfony\Component\Validator\Constraints\DateTime;
 
-/**
- *
- * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
- * @copyright 2015 Smile
- *
- * @coversDefaultClass \HiPay\Wallet\Mirakl\Cashout\Initializer
- */
-class ProcessorTest extends AbstractProcessorTest
+class WithdrawTest extends AbstractProcessorTest
 {
     /** @var  Processor */
-    protected $cashoutProcessor;
+    protected $withdrawProcessor;
 
     /** @var  VendorInterface */
     protected $vendorArgument;
@@ -39,7 +31,7 @@ class ProcessorTest extends AbstractProcessorTest
         /** @var VendorInterface vendorArgument */
         $this->vendorArgument = Argument::type("\\HiPay\\Wallet\\Mirakl\\Vendor\\Model\\VendorInterface");
 
-        $this->cashoutProcessor = new Processor(
+        $this->withdrawProcessor = new Withdraw(
             $this->eventDispatcher->reveal(),
             $this->logger->reveal(),
             $this->apiFactory->reveal(),
@@ -95,7 +87,7 @@ class ProcessorTest extends AbstractProcessorTest
 
         $this->logOperationsManager->findByMiraklIdAndPaymentVoucherNumber(Argument::any(), Argument::any())->willReturn(new LogOperations(200, 2001))->shouldBeCalled();
 
-        $result = $this->cashoutProcessor->withdraw($operation);
+        $result = $this->withdrawProcessor->withdraw($operation);
 
         $this->assertEquals($withdrawId, $result);
 
@@ -132,7 +124,7 @@ class ProcessorTest extends AbstractProcessorTest
 
         $this->logOperationsManager->findByMiraklIdAndPaymentVoucherNumber(Argument::any(), Argument::any())->willReturn(new LogOperations(200, 2001))->shouldBeCalled();
 
-        $result = $this->cashoutProcessor->withdraw($operation);
+        $result = $this->withdrawProcessor->withdraw($operation);
 
         $this->assertEquals($withdrawId, $result);
 
@@ -181,7 +173,7 @@ class ProcessorTest extends AbstractProcessorTest
 
         $this->logOperationsManager->findByMiraklIdAndPaymentVoucherNumber(Argument::any(), Argument::any())->willReturn(new LogOperations(200, 2001))->shouldBeCalled();
 
-        $result = $this->cashoutProcessor->withdraw($operation);
+        $result = $this->withdrawProcessor->withdraw($operation);
 
         $this->assertEquals($withdrawId, $result);
 
@@ -225,7 +217,7 @@ class ProcessorTest extends AbstractProcessorTest
 
         $this->setExpectedException("\\HiPay\\Wallet\\Mirakl\\Exception\\WrongWalletBalance");
 
-        $this->cashoutProcessor->withdraw($operation);
+        $this->withdrawProcessor->withdraw($operation);
     }
 
     /**
@@ -261,7 +253,7 @@ class ProcessorTest extends AbstractProcessorTest
 
         $this->setExpectedException("\\HiPay\\Wallet\\Mirakl\\Exception\\WalletNotFoundException");
 
-        $this->cashoutProcessor->withdraw($operation);
+        $this->withdrawProcessor->withdraw($operation);
     }
 
     /**
@@ -297,7 +289,7 @@ class ProcessorTest extends AbstractProcessorTest
 
         $this->setExpectedException("\\HiPay\\Wallet\\Mirakl\\Exception\\UnidentifiedWalletException");
 
-        $this->cashoutProcessor->withdraw($operation);
+        $this->withdrawProcessor->withdraw($operation);
     }
 
     /**
@@ -333,7 +325,7 @@ class ProcessorTest extends AbstractProcessorTest
 
         $this->setExpectedException("\\HiPay\\Wallet\\Mirakl\\Exception\\UnconfirmedBankAccountException");
 
-        $this->cashoutProcessor->withdraw($operation);
+        $this->withdrawProcessor->withdraw($operation);
     }
 
     /**

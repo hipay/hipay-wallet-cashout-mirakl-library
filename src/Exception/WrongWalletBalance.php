@@ -14,6 +14,7 @@ class WrongWalletBalance extends DispatchableException
 {
     /** @var int  */
     protected $miraklId;
+    protected $balance;
 
     /**
      * NoFundsAvailable constructor.
@@ -25,14 +26,16 @@ class WrongWalletBalance extends DispatchableException
      */
     public function __construct(
         $miraklId,
-        $message = '',
+        $operation,
+        $amount,
+        $balance,
         $code = 0,
         Exception $previous = null
     ) {
         $this->miraklId = $miraklId;
+        $this->balance = $balance;
         parent::__construct(
-            $message ?:
-            "This vendor ({$miraklId}) balance is wrong",
+            "This vendor ({$miraklId}) balance is insufficient. Operation type $operation / Operation amount $amount / Balance $balance",
             $code,
             $previous
         );
@@ -52,5 +55,13 @@ class WrongWalletBalance extends DispatchableException
     public function getMiraklId()
     {
         return $this->miraklId;
+    }
+
+    /**
+     * @return int
+     */
+    public function getBalance()
+    {
+        return $this->balance;
     }
 }

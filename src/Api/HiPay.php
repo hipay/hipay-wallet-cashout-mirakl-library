@@ -601,8 +601,6 @@ class HiPay implements ApiInterface
      */
     public function getBalance(VendorInterface $vendor)
     {
-        echo 'account_id' . $vendor->getHiPayId() . "\r\n";
-
         $this->resetRestClient();
 
         $this->restClient->getConfig()->setPath(
