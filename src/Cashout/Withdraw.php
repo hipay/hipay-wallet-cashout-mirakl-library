@@ -9,12 +9,11 @@ use HiPay\Wallet\Mirakl\Api\HiPay\Model\Status\BankInfo as BankInfoStatus;
 use HiPay\Wallet\Mirakl\Cashout\Model\Operation\ManagerInterface as OperationManager;
 use HiPay\Wallet\Mirakl\Cashout\Model\Operation\OperationInterface;
 use HiPay\Wallet\Mirakl\Cashout\Model\Operation\Status;
-use HiPay\Wallet\Mirakl\Common\AbstractApiProcessor;
+use HiPay\Wallet\Mirakl\Cashout\AbstractOperationProcessor;
 use HiPay\Wallet\Mirakl\Exception\UnconfirmedBankAccountException;
 use HiPay\Wallet\Mirakl\Exception\UnidentifiedWalletException;
 use HiPay\Wallet\Mirakl\Exception\WalletNotFoundException;
 use HiPay\Wallet\Mirakl\Exception\WrongWalletBalance;
-use HiPay\Wallet\Mirakl\Service\Validation\ModelValidator;
 use HiPay\Wallet\Mirakl\Vendor\Model\VendorManagerInterface as VendorManager;
 use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 use Psr\Log\LoggerInterface;
@@ -28,20 +27,9 @@ use HiPay\Wallet\Mirakl\Notification\Model\LogOperationsManagerInterface as LogO
  * @author    HiPay <support.wallet@hipay.com>
  * @copyright 2017 HiPay
  */
-class Withdraw extends AbstractApiProcessor
+class Withdraw extends AbstractOperationProcessor
 {
-    const SCALE = 2;
-
-    protected $operationManager;
-
-    protected $vendorManager;
-
-    protected $operator;
-
     protected $formatNotification;
-
-    protected $logOperationsManager;
-
 
     /**
      * Processor constructor.
@@ -65,14 +53,9 @@ class Withdraw extends AbstractApiProcessor
         LogOperationsManager $logOperationsManager
     )
     {
-        parent::__construct($dispatcher, $logger, $factory);
+        parent::__construct($dispatcher, $logger, $factory, $operationManager, $vendorManager, $logOperationsManager, $operator);
 
-        $this->operationManager   = $operationManager;
-        $this->vendorManager      = $vendorManager;
         $this->formatNotification = new FormatNotification();
-
-        ModelValidator::validate($operator, 'Operator');
-        $this->operator = $operator;
 
         $this->logOperationsManager = $logOperationsManager;
     }
@@ -162,19 +145,15 @@ class Withdraw extends AbstractApiProcessor
                 );
             }
 
-            //Check account balance
-            $amount  = round(($operation->getAmount()), self::SCALE);
-            $balance = round($this->hipay->getBalance($vendor), self::SCALE);
-
-            if ($balance < $amount) {
-                //Operator operation
+            try{
+                $this->hasSufficientFunds($operation->getAmount(), $vendor);
+                $amount =round(($operation->getAmount()), self::SCALE);
+            } catch (WrongWalletBalance $ex) {
                 if ($operation->getMiraklId() === null || !$operation->getMiraklId() ) {
-                    $amount = $balance;
+                    $amount = $ex->getBalance();
                     //Vendor operation
                 } else {
-                    throw new WrongWalletBalance(
-                    $vendor->getMiraklId(), 'withdraw', $amount, $balance
-                    );
+                    throw $ex;
                 }
             }
 
@@ -221,21 +200,6 @@ class Withdraw extends AbstractApiProcessor
     }
 
     /**
-     * Return the right vendor for an operation
-     *
-     * @param OperationInterface $operation
-     *
-     * @return VendorInterface|null
-     */
-    protected function getVendor(OperationInterface $operation)
-    {
-        if ($operation->getMiraklId()) {
-            return $this->vendorManager->findByMiraklId($operation->getMiraklId());
-        }
-        return $this->operator;
-    }
-
-    /**
      * Fetch the operation to withdraw from the storage
      *
      * @return OperationInterface[]
@@ -260,29 +224,4 @@ class Withdraw extends AbstractApiProcessor
         return $toWithdraw;
     }
 
-    /**
-     * Log Operations
-     * @param type $miraklId
-     * @param type $paymentVoucherNumber
-     * @param type $status
-     * @param type $message
-     */
-    private function logOperation($miraklId, $paymentVoucherNumber, $status, $message)
-    {
-        $logOperation = $this->logOperationsManager->findByMiraklIdAndPaymentVoucherNumber($miraklId,
-                                                                                           $paymentVoucherNumber);
-
-        if ($logOperation == null) {
-            $this->logger->warning(
-                "Could not fnd existing log for this operations : paymentVoucherNumber = ".$paymentVoucherNumber,
-                array("action" => "Operation process", "miraklId" => $miraklId)
-            );
-        } else {
-            $logOperation->setStatusWithDrawal($status);
-
-            $logOperation->setMessage($message);
-
-            $this->logOperationsManager->save($logOperation);
-        }
-    }
 }

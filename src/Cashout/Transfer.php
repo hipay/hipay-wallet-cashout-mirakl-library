@@ -6,7 +6,7 @@ use DateTime;
 use Exception;
 use HiPay\Wallet\Mirakl\Cashout\Model\Operation\Status;
 use HiPay\Wallet\Mirakl\Api\Factory;
-use HiPay\Wallet\Mirakl\Common\AbstractApiProcessor;
+use HiPay\Wallet\Mirakl\Cashout\AbstractOperationProcessor;
 use HiPay\Wallet\Mirakl\Cashout\Model\Operation\ManagerInterface as OperationManager;
 use HiPay\Wallet\Mirakl\Cashout\Model\Operation\OperationInterface;
 use HiPay\Wallet\Mirakl\Service\Validation\ModelValidator;
@@ -25,19 +25,10 @@ use HiPay\Wallet\Mirakl\Exception\WrongWalletBalance;
  * @author    HiPay <support.wallet@hipay.com>
  * @copyright 2017 HiPay
  */
-class Transfer extends AbstractApiProcessor
+class Transfer extends AbstractOperationProcessor
 {
-    const SCALE = 2;
 
     protected $technicalAccount;
-
-    protected $operationManager;
-
-    protected $vendorManager;
-
-    protected $logOperationsManager;
-
-    protected $operator;
 
     /**
      *
@@ -61,21 +52,12 @@ class Transfer extends AbstractApiProcessor
         VendorManager $vendorManager)
     {
 
-        parent::__construct($dispatcher, $logger, $factory);
+        parent::__construct($dispatcher, $logger, $factory, $operationHandler, $vendorManager, $logOperationsManager, $operatorAccount);
 
         ModelValidator::validate($technicalAccount, 'Operator');
 
         $this->technicalAccount = $technicalAccount;
 
-        ModelValidator::validate($operatorAccount, 'Operator');
-
-        $this->operator = $operatorAccount;
-
-        $this->operationManager = $operationHandler;
-
-        $this->vendorManager = $vendorManager;
-
-        $this->logOperationsManager = $logOperationsManager;
     }
 
     /**
@@ -136,7 +118,7 @@ class Transfer extends AbstractApiProcessor
                 throw new WalletNotFoundException($vendor);
             }
 
-            $this->hasSufficientFunds($operation->getAmount());
+            $this->hasSufficientFunds($operation->getAmount(), $this->technicalAccount);
 
             $operation->setHiPayId($vendor->getHiPayId());
 
@@ -213,60 +195,4 @@ class Transfer extends AbstractApiProcessor
         return $toTransfer;
     }
 
-    /**
-     * Return the right vendor for an operation
-     *
-     * @param OperationInterface $operation
-     *
-     * @return VendorInterface|null
-     */
-    protected function getVendor(OperationInterface $operation)
-    {
-        if ($operation->getMiraklId()) {
-            return $this->vendorManager->findByMiraklId($operation->getMiraklId());
-        }
-        return $this->operator;
-    }
-
-    /**
-     * Log Operations
-     * @param type $miraklId
-     * @param type $paymentVoucherNumber
-     * @param type $status
-     * @param type $message
-     */
-    private function logOperation($miraklId, $paymentVoucherNumber, $status, $message)
-    {
-        $logOperation = $this->logOperationsManager->findByMiraklIdAndPaymentVoucherNumber($miraklId, $paymentVoucherNumber);
-
-        if ($logOperation == null) {
-            $this->logger->warning(
-                "Could not find existing log for this operations : paymentVoucherNumber = ".$paymentVoucherNumber,
-                array("action" => "Operation process", "miraklId" => $miraklId)
-            );
-        } else {
-
-            $logOperation->setStatusTransferts($status);
-
-            $logOperation->setMessage($message);
-
-            $this->logOperationsManager->save($logOperation);
-        }
-    }
-
-    /**
-     * Check if technical account has sufficient funds.
-     *
-     * @param $amount
-     *
-     * @returns boolean
-     */
-    public function hasSufficientFunds($amount)
-    {
-        $balance = round($this->hipay->getBalance($this->technicalAccount), static::SCALE);
-
-        if( $balance < round($amount, static::SCALE)){
-            throw new WrongWalletBalance('technical', 'transfer' ,$amount, $balance);
-        }
-    }
 }

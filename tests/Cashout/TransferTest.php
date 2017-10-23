@@ -58,8 +58,6 @@ class TransferTest extends AbstractProcessorTest
         $this->operationManager->generateWithdrawLabel($this->operationArgument)->willReturn($this->getRandomString());
 
         $this->transferArgument = Argument::type("\\HiPay\\Wallet\\Mirakl\\Api\\HiPay\\Model\\Soap\\Transfer");
-
-        //$this->operationManager->save($operationArgument)->willReturn()->shouldBeCalled();
         
     }
 
@@ -69,7 +67,7 @@ class TransferTest extends AbstractProcessorTest
     public function testHasSufficientFunds()
     {
         $this->hipay->getBalance($this->technicalAccountArgument)->willReturn(2001)->shouldBeCalled();
-        $this->assertNull($this->transferProcessor->hasSufficientFunds(2000));
+        $this->assertNull($this->transferProcessor->hasSufficientFunds(2000, $this->technical));
     }
 
     /**
@@ -81,7 +79,7 @@ class TransferTest extends AbstractProcessorTest
 
         $this->setExpectedException("HiPay\Wallet\Mirakl\Exception\WrongWalletBalance");
 
-        $this->transferProcessor->hasSufficientFunds(3000);
+        $this->transferProcessor->hasSufficientFunds(3000, $this->technical);
     }
 
 
