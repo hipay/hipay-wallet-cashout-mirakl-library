@@ -116,7 +116,7 @@ class HiPay implements ApiInterface
         $this->transferClient = new SmileClient(
             $baseSoapUrl . '/soap/transfer?wsdl', $options
         );
-        
+
         $this->withdrawalClient = new SmileClient(
             $baseSoapUrl . '/soap/withdrawal?wsdl', $options
         );
@@ -156,17 +156,19 @@ class HiPay implements ApiInterface
             );
         }
 
-        $command = $this->restClient->getCommand(
-            'UploadDocument',
-            array(
+        $parameters = array(
                 'userSpaceId' => $userSpaceId,
                 'validityDate' => $validityDate,
                 'type' => $documentType,
                 'file' => new PostFile('file', $fileName)
-            )
+            );
+
+        $command = $this->restClient->getCommand(
+            'UploadDocument', $parameters
+
         );
 
-        return $this->restClient->execute($command);
+        return $this->executeRest($command, $parameters);
     }
 
     public function getDocuments(VendorInterface $vendor)
@@ -193,7 +195,7 @@ class HiPay implements ApiInterface
 
         $command = $this->restClient->getCommand('GetDocuments', array());
 
-        $result = $this->restClient->execute($command);
+        $result = $this->executeRest($command);
 
         return $result['documents'];
     }
@@ -232,7 +234,7 @@ class HiPay implements ApiInterface
             $parameters
         );
 
-        $result = $this->restClient->execute($command);
+        $result = $this->executeRest($command, $parameters);
 
         return $result['is_available'];
     }
@@ -283,7 +285,7 @@ class HiPay implements ApiInterface
             $parameters['userAccount']
         );
 
-        $result = $this->restClient->execute($command);
+        $result = $this->executeRest($command, $parameters);
 
         return new AccountInfo(
             $result['account_id'], $result['user_space_id'], $result['status'] === Identified::YES,
@@ -329,7 +331,7 @@ class HiPay implements ApiInterface
             'getBankInfo',
             $parameters
         );
-        $result = $this->restClient->execute($command);
+        $result = $this->executeRest($command, $parameters);
 
         return $bankInfo->setHiPayData($result);
     }
@@ -373,7 +375,7 @@ class HiPay implements ApiInterface
             'getBankInfo',
             $parameters
         );
-        $result = $this->restClient->execute($command);
+        $result = $this->executeRest($command, $parameters);
 
         return $result['status_code'];
     }
@@ -418,7 +420,7 @@ class HiPay implements ApiInterface
             'RegisterBankInfo',
             $parameters
         );
-        $result = $this->restClient->execute($command);
+        $result = $this->executeRest($command, $parameters);
 
         return $result;
     }
@@ -492,7 +494,7 @@ class HiPay implements ApiInterface
             array()
         );
 
-        $result = $this->restClient->execute($command);
+        $result = $this->executeRest($command);
 
         return $result['identified'] == 1 ? true : false;
     }
@@ -533,7 +535,7 @@ class HiPay implements ApiInterface
         );
 
         try {
-            $result = $this->restClient->execute($command);
+            $result = $this->executeRest($command);
         } catch (ClientErrorResponseException $e) {
             if ($e->getResponse()->getStatusCode() == '401') {
                 /** retry with email in php-auth-subaccount-login */
@@ -546,7 +548,7 @@ class HiPay implements ApiInterface
                     'GetUserAccount',
                     array()
                 );
-                $result = $this->restClient->execute($command);
+                $result = $this->executeRest($command);
             }
         }
         return $result;
@@ -588,7 +590,7 @@ class HiPay implements ApiInterface
             array()
         );
 
-        $result = $this->restClient->execute($command);
+        $result = $this->executeRest($command);
 
         return $result;
     }
@@ -634,7 +636,7 @@ class HiPay implements ApiInterface
         );
 
         try {
-            $result = $this->restClient->execute($command);
+            $result = $this->executeRest($command);
         } catch (ClientErrorResponseException $e) {
             /** retro compatible if old account */
             if ($e->getResponse()->getStatusCode() == '401') {
@@ -647,7 +649,7 @@ class HiPay implements ApiInterface
                     'GetBalance',
                     array()
                 );
-                $result = $this->restClient->execute($command);
+                $result = $this->executeRest($command);
             }
         }
         return $result['balances'][0]['balance'];
@@ -738,7 +740,7 @@ class HiPay implements ApiInterface
             $parameters
         );
 
-        $result = $this->restClient->execute($command);
+        $result = $this->executeRest($command, $parameters);
 
         return $result['transaction_id'];
     }
@@ -781,7 +783,7 @@ class HiPay implements ApiInterface
             $parameters
         );
 
-        $result = $this->restClient->execute($command);
+        $result = $this->executeRest($command, $parameters);
 
         return $result['transaction_public_id'];
     }
@@ -953,6 +955,37 @@ class HiPay implements ApiInterface
         $this->restClient->getConfig()->clear();
     }
 
+    /**
+     * Exec Guzzle command
+     * Wallet API doesn't send HTTP error code in case of parameters errors, send 200 instead
+     * Error is in request body
+     *
+     * @param type $command
+     * @param array $parameters
+     * @return type
+     * @throws Exception
+     */
+    private function executeRest($command, $parameters = array()){
+
+        $result = $this->restClient->execute($command);
+
+        if(isset($result['code']) && $result['code'] === 0 ){
+            return $result;
+        }
+
+        throw new Exception(
+                "There was an error with the Rest call ".$command->getName() . PHP_EOL .
+                $result['code'] . ' : ' . $result['message'] . PHP_EOL .
+                print_r($result['errors'], true) . PHP_EOL .
+                'Parameters : ' . print_r($parameters, true) . PHP_EOL, $response['code']
+            );
+
+    }
+
+    /**
+     * Get library version from composer.json file
+     * @return string
+     */
     private static function getLibraryVersion(){
 
         $path = dirname(__FILE__).'/../../composer.json';
