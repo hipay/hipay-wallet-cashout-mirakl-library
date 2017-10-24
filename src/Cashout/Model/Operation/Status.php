@@ -17,6 +17,7 @@ class Status extends AbstractEnumeration
 {
     //Initial status of the operation
     const CREATED = 1;
+    const ADJUSTED_OPERATIONS = 2;
 
     //Transfer status
     const TRANSFER_SUCCESS = 3;
