@@ -100,27 +100,30 @@ class HiPay implements ApiInterface
         $this->locale = $locale;
         $this->rest = $rest;
 
+        $userAgent = "connector-mirakl-hipay-".self::getLibraryVersion();
+
         $defaults = array(
             'compression' => SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP,
-            'cache_wsdl' => WSDL_CACHE_NONE,
+            'cache_wsdl' => WSDL_CACHE_BOTH,
             'soap_version' => SOAP_1_1,
             'encoding' => 'UTF-8',
-            'trace' => true
+            'trace' => true,
+            'stream_context' => stream_context_create(['http' => ['user_agent' => $userAgent]])
         );
 
         $options = array_merge($defaults, $options);
-        /* $this->userAccountClient = new SmileClient(
-          $baseSoapUrl.'/soap/user-account-v2?wsdl',
-          $options
-          ); */
+
         $this->transferClient = new SmileClient(
             $baseSoapUrl . '/soap/transfer?wsdl', $options
         );
+        
         $this->withdrawalClient = new SmileClient(
             $baseSoapUrl . '/soap/withdrawal?wsdl', $options
         );
 
         $this->restClient = new Client();
+
+        $this->restClient->setUserAgent($userAgent);
 
         $this->description = ServiceDescription::factory(__DIR__ . '../../../data/api/hipay.json');
         $this->description->setBaseUrl($baseRestUrl);
@@ -952,5 +955,21 @@ class HiPay implements ApiInterface
     private function resetRestClient()
     {
         $this->restClient->getConfig()->clear();
+    }
+
+    private static function getLibraryVersion(){
+
+        $path = dirname(__FILE__).'/../../composer.json';
+
+        if (file_exists($path)) {
+            $contents = file_get_contents($path);
+            $contents = utf8_encode($contents);
+
+            $composer = json_decode($contents, true);
+        } else {
+            $composer["version"] = "N/A";
+        }
+
+        return $composer["version"];
     }
 }
