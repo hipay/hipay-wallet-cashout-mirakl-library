@@ -921,29 +921,25 @@ class HiPay implements ApiInterface
     protected function callSoap($name, array $parameters)
     {
         $parameters = $this->mergeLoginParametersSoap($parameters);
-        try {
-            //Make the call
-            $response = $this->getClient($name)->$name(
-                array('parameters' => $parameters)
-            );
+        //Make the call
+        $response = $this->getClient($name)->$name(
+            array('parameters' => $parameters)
+        );
 
-            //Parse the response
-            $response = (array)$response;
-            $response = (array)current($response);
-            if ($response['code'] > 0) {
-                throw new Exception(
-                    "There was an error with the soap call $name" . PHP_EOL .
-                    $response['code'] . ' : ' . $response['description'] . PHP_EOL .
-                    'Date : ' . date('Y-m-d H:i:s') . PHP_EOL .
-                    'Parameters :' . PHP_EOL .
-                    print_r($parameters, true), $response['code']
-                );
-            } else {
-                unset($response['code']);
-                unset($response['description']);
-            }
-        } catch (Exception $e) {
-            echo $e->getMessage();
+        //Parse the response
+        $response = (array)$response;
+        $response = (array)current($response);
+        if ($response['code'] > 0) {
+            throw new Exception(
+                "There was an error with the soap call $name" . PHP_EOL .
+                $response['code'] . ' : ' . $response['description'] . PHP_EOL .
+                'Date : ' . date('Y-m-d H:i:s') . PHP_EOL .
+                'Parameters :' . PHP_EOL .
+                print_r($parameters, true), $response['code']
+            );
+        } else {
+            unset($response['code']);
+            unset($response['description']);
         }
 
         return $response ?: true;
