@@ -57,12 +57,25 @@ class Initializer extends AbstractOperationProcessor
      * @throws ValidationFailedException
      */
     public function __construct(
-    EventDispatcherInterface $dispatcher, LoggerInterface $logger, Factory $factory, VendorInterface $operatorAccount,
-    VendorInterface $technicalAccount, ValidatorInterface $transactionValidator, OperationManager $operationHandler,
-    LogOperationsManager $logOperationsManager, VendorManager $vendorManager
-    )
-    {
-        parent::__construct($dispatcher, $logger, $factory, $operationHandler, $vendorManager, $logOperationsManager, $operatorAccount);
+        EventDispatcherInterface $dispatcher,
+        LoggerInterface $logger,
+        Factory $factory,
+        VendorInterface $operatorAccount,
+        VendorInterface $technicalAccount,
+        ValidatorInterface $transactionValidator,
+        OperationManager $operationHandler,
+        LogOperationsManager $logOperationsManager,
+        VendorManager $vendorManager
+    ) {
+        parent::__construct(
+            $dispatcher,
+            $logger,
+            $factory,
+            $operationHandler,
+            $vendorManager,
+            $logOperationsManager,
+            $operatorAccount
+        );
 
         ModelValidator::validate($technicalAccount, 'Operator');
         $this->technicalAccount = $technicalAccount;
@@ -95,31 +108,34 @@ class Initializer extends AbstractOperationProcessor
         $boolControl = $this->getControlMiraklSettings($this->documentTypes);
         if ($boolControl === false) {
             // log critical
-            $title   = $this->criticalMessageMiraklSettings;
+            $title = $this->criticalMessageMiraklSettings;
             $message = $this->formatNotification->formatMessage($title);
             $this->logger->critical($message, array('miraklId' => null, "action" => "Operations creation"));
         } else {
-            $this->logger->info('Control Mirakl Settings OK',
-                                array('miraklId' => null, "action" => "Operations creation"));
+            $this->logger->info(
+                'Control Mirakl Settings OK',
+                array('miraklId' => null, "action" => "Operations creation")
+            );
         }
 
         $this->logger->info('Cashout Initializer', array('miraklId' => null, "action" => "Operations creation"));
 
         //Fetch Invoices
         $this->logger->info(
-            'Fetch invoices documents from Mirakl from '.
-            $startDate->format('Y-m-d H:i').
-            ' to '.
+            'Fetch invoices documents from Mirakl from ' .
+            $startDate->format('Y-m-d H:i') .
+            ' to ' .
             $endDate->format('Y-m-d H:i')
-            , array('miraklId' => null, "action" => "Operations creation")
+            ,
+            array('miraklId' => null, "action" => "Operations creation")
         );
 
-        $invoices = $this->getInvoices(
-            $startDate, $endDate
-        );
+        $invoices = $this->getInvoices($startDate, $endDate);
 
-        $this->logger->info('[OK] Fetched '.count($invoices).' invoices',
-                                                  array('miraklId' => null, "action" => "Operations creation"));
+        $this->logger->info(
+            '[OK] Fetched ' . count($invoices) . ' invoices',
+            array('miraklId' => null, "action" => "Operations creation")
+        );
 
         $this->logger->info('Process invoices', array('miraklId' => null, "action" => "Operations creation"));
 
@@ -139,8 +155,14 @@ class Initializer extends AbstractOperationProcessor
      *
      * @return OperationInterface|null
      */
-    public function createOperation($amount, $originAmount, DateTime $cycleDate, $paymentVoucher, $vendor, $adujstedOperationsIds = null)
-    {
+    public function createOperation(
+        $amount,
+        $originAmount,
+        DateTime $cycleDate,
+        $paymentVoucher,
+        $vendor,
+        $adujstedOperationsIds = null
+    ) {
         //Set hipay id
         $hipayId = $vendor->getHiPayId();
 
@@ -158,15 +180,19 @@ class Initializer extends AbstractOperationProcessor
         $operation->setCycleDate($cycleDate);
         $operation->setPaymentVoucher((string)$paymentVoucher);
 
-        if($adujstedOperationsIds !== null){
+        if ($adujstedOperationsIds !== null) {
             $operation->setAdjustmentIds(json_encode($adujstedOperationsIds));
         }
 
         $this->isOperationValid($operation);
 
-        $this->operationsLogs[] = $this->logOperationsManager->create($vendor->getMiraklId(), $hipayId,
-                                                                      (string) $paymentVoucher, $amount,
-                                                                      $this->hipay->getBalance($vendor));
+        $this->operationsLogs[] = $this->logOperationsManager->create(
+            $vendor->getMiraklId(),
+            $hipayId,
+            (string)$paymentVoucher,
+            $amount,
+            $this->hipay->getBalance($vendor)
+        );
         return $operation;
     }
 
@@ -179,10 +205,10 @@ class Initializer extends AbstractOperationProcessor
      */
     public function isOperationValid(OperationInterface $operation)
     {
-        if ($this->operationManager
-                ->findByMiraklIdAndPaymentVoucherNumber(
-                    $operation->getMiraklId(), $operation->getPaymentVoucher()
-                )
+        if ($this->operationManager->findByMiraklIdAndPaymentVoucherNumber(
+            $operation->getMiraklId(),
+            $operation->getPaymentVoucher()
+        )
         ) {
             throw new AlreadyCreatedOperationException($operation);
         }
@@ -232,9 +258,9 @@ class Initializer extends AbstractOperationProcessor
         foreach ($invoices as $invoice) {
 
             $this->logger->debug(
-                "ShopId : ".$invoice['shop_id'],
-                array('miraklId' => $shopId, "action" => "Operations creation")
-                );
+                "ShopId : " . $invoice['shop_id'],
+                array('miraklId' =>  $invoice['shop_id'], "action" => "Operations creation")
+            );
 
             $vendor = $this->vendorManager->findByMiraklId($invoice['shop_id']);
 
@@ -242,13 +268,13 @@ class Initializer extends AbstractOperationProcessor
                 $this->logger->info(
                     "Operation wasn't created because vendor doesn't exit in database (verify HiPay process value in Mirakl BO)",
                     array('miraklId' => $invoice['shop_id'], "action" => "Operations creation")
-                    );
+                );
             } else {
                 $operationsFromInvoice = $this->createOperationsFromInvoice($invoice, $vendor, $cycleDate);
                 if ($operationsFromInvoice) {
                     $operations = array_merge($operations, $operationsFromInvoice);
                 } else {
-                    $title   = "The operations for invoice n° ".$invoice['invoice_id']." are wrong";
+                    $title = "The operations for invoice n° " . $invoice['invoice_id'] . " are wrong";
                     $message = $this->formatNotification->formatMessage($title);
                     $this->logger->error($message, array('miraklId' => null, "action" => "Operations creation"));
                 }
@@ -276,14 +302,18 @@ class Initializer extends AbstractOperationProcessor
                 $adjustedInfos = $this->getAdjustedAmount($invoice['summary']['amount_transferred'], $vendor);
 
                 $this->logger->debug(
-                    "Vendor origin amount ".$invoice['summary']['amount_transferred'],
+                    "Vendor origin amount " . $invoice['summary']['amount_transferred'],
                     array('miraklId' => $invoice['shop_id'], "action" => "Operations creation")
-                    );
+                );
 
                 $this->logger->debug(
-                    "Vendor adjusted amount ".$adjustedInfos['adjustedAmount']." (".count($adjustedInfos['adujstedOperationsIds'])." operations adjusted)",
+                    "Vendor adjusted amount " .
+                    $adjustedInfos['adjustedAmount'] .
+                    " (" .
+                    count($adjustedInfos['adujstedOperationsIds']) .
+                    " operations adjusted)",
                     array('miraklId' => $invoice['shop_id'], "action" => "Operations creation")
-                    );
+                );
 
                 $operations[] = $this->createOperation(
                     $adjustedInfos['adjustedAmount'],
@@ -292,7 +322,7 @@ class Initializer extends AbstractOperationProcessor
                     $invoice['invoice_id'],
                     $vendor,
                     $adjustedInfos['adujstedOperationsIds']
-                    );
+                );
 
                 $operations[] = $this->createOperation(
                     $invoice['total_charged_amount'],
@@ -300,7 +330,7 @@ class Initializer extends AbstractOperationProcessor
                     $cycleDate,
                     $invoice['invoice_id'],
                     $this->operator
-                    );
+                );
 
                 $this->saveAdjustedOperations($adjustedInfos["adujstedOperations"]);
 
@@ -311,9 +341,9 @@ class Initializer extends AbstractOperationProcessor
             }
         } else {
             $this->logger->warning(
-                "Invoice n° ".$invoice['invoice_id']." has a negative amount, will not be treated",
+                "Invoice n° " . $invoice['invoice_id'] . " has a negative amount, will not be treated",
                 array('miraklId' => $invoice['shop_id'], "action" => "Operations creation")
-                );
+            );
         }
     }
 
@@ -322,9 +352,10 @@ class Initializer extends AbstractOperationProcessor
      *
      * @param array $adujstedOperations
      */
-    private function saveAdjustedOperations(array $adujstedOperations){
+    private function saveAdjustedOperations(array $adjustedOperations)
+    {
 
-        foreach($adujstedOperations as $op){
+        foreach ($adjustedOperations as $op) {
             $op->setStatus(new Status(Status::ADJUSTED_OPERATIONS));
             $this->operationManager->save($op);
         }
@@ -337,26 +368,27 @@ class Initializer extends AbstractOperationProcessor
      * @param type $vendor
      * @return type
      */
-    private function getAdjustedAmount($originAmount, $vendor){
+    private function getAdjustedAmount($originAmount, $vendor)
+    {
 
-        $adujstedOperations = array();
-        $adujstedOperationsIds = array();
+        $adjustedOperations = array();
+        $adjustedOperationsIds = array();
 
         $negativeOperations = $this->operationManager->findNegativeOperations($vendor->getHipayId());
 
-        foreach($negativeOperations as $nop){
-            if($originAmount + $nop->getAmount() > 0){
+        foreach ($negativeOperations as $nop) {
+            if ($originAmount + $nop->getAmount() > 0) {
                 $originAmount += $nop->getAmount();
-                $adujstedOperations[] = $nop;
-                $adujstedOperationsIds[] = $nop->getId();
+                $adjustedOperations[] = $nop;
+                $adjustedOperationsIds[] = $nop->getId();
             }
         }
 
         return array(
             'adjustedAmount' => $originAmount,
-            'adujstedOperations' => $adujstedOperations,
-            'adujstedOperationsIds' => $adujstedOperationsIds
-            );
+            'adujstedOperations' => $adjustedOperations,
+            'adujstedOperationsIds' => $adjustedOperationsIds
+        );
     }
 
     /**
@@ -368,7 +400,11 @@ class Initializer extends AbstractOperationProcessor
     private function getInvoices(DateTime $startDate, DateTime $endDate)
     {
         $invoices = $this->mirakl->getInvoices(
-            $startDate, $endDate, null, null, null
+            $startDate,
+            $endDate,
+            null,
+            null,
+            null
         );
 
         return $invoices;

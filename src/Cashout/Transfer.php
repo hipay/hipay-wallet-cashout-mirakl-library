@@ -49,10 +49,18 @@ class Transfer extends AbstractOperationProcessor
         VendorInterface $technicalAccount,
         OperationManager $operationHandler,
         LogOperationsManager $logOperationsManager,
-        VendorManager $vendorManager)
-    {
+        VendorManager $vendorManager
+    ) {
 
-        parent::__construct($dispatcher, $logger, $factory, $operationHandler, $vendorManager, $logOperationsManager, $operatorAccount);
+        parent::__construct(
+            $dispatcher,
+            $logger,
+            $factory,
+            $operationHandler,
+            $vendorManager,
+            $logOperationsManager,
+            $operatorAccount
+        );
 
         ModelValidator::validate($technicalAccount, 'Operator');
 
@@ -72,8 +80,10 @@ class Transfer extends AbstractOperationProcessor
 
         $this->transferOperations($toTransfer);
 
-        $this->logger->info("Operation to transfer : ".count($toTransfer),
-                                                             array('miraklId' => null, "action" => "Transfer"));
+        $this->logger->info(
+            "Operation to transfer : " . count($toTransfer),
+            array('miraklId' => null, "action" => "Transfer")
+        );
     }
 
     /**
@@ -87,15 +97,15 @@ class Transfer extends AbstractOperationProcessor
 
                 $this->transfer($operation);
                 $this->logger->info(
-                    "[OK] Transfer operation ".$operation->getTransferId()." executed",
+                    "[OK] Transfer operation " . $operation->getTransferId() . " executed",
                     array('miraklId' => $operation->getMiraklId(), "action" => "Transfer")
-                    );
+                );
 
             } catch (Exception $e) {
                 $this->logger->warning(
                     "[KO] Transfer operation failed",
                     array('miraklId' => $operation->getMiraklId(), "action" => "Transfer")
-                    );
+                );
                 $this->handleException($e, 'critical');
             }
         }
@@ -110,7 +120,8 @@ class Transfer extends AbstractOperationProcessor
      * @throws Exception
      * @throws WalletNotFoundException
      */
-    public function transfer(OperationInterface $operation){
+    public function transfer(OperationInterface $operation)
+    {
         try {
             $vendor = $this->getVendor($operation);
 
@@ -151,7 +162,10 @@ class Transfer extends AbstractOperationProcessor
             $this->operationManager->save($operation);
 
             $this->logOperation(
-                $operation->getMiraklId(), $operation->getPaymentVoucher(), Status::TRANSFER_NEGATIVE, $e->getMessage()
+                $operation->getMiraklId(),
+                $operation->getPaymentVoucher(),
+                Status::TRANSFER_NEGATIVE,
+                $e->getMessage()
             );
 
             throw $e;
@@ -178,17 +192,11 @@ class Transfer extends AbstractOperationProcessor
     protected function getTransferableOperations()
     {
         //Transfer
-        $toTransferCreated = $this->operationManager->findByStatus(
-            new Status(Status::CREATED)
-        );
+        $toTransferCreated = $this->operationManager->findByStatus(new Status(Status::CREATED));
 
-        $toTransferFailed = $this->operationManager->findByStatus(
-            new Status(Status::TRANSFER_FAILED)
-        );
+        $toTransferFailed = $this->operationManager->findByStatus(new Status(Status::TRANSFER_FAILED));
 
-        $toTransferNegative = $this->operationManager->findByStatus(
-            new Status(Status::TRANSFER_NEGATIVE)
-        );
+        $toTransferNegative = $this->operationManager->findByStatus(new Status(Status::TRANSFER_NEGATIVE));
 
         $toTransfer = array_merge($toTransferNegative, $toTransferFailed, $toTransferCreated);
 
