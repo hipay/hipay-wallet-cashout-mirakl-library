@@ -95,6 +95,10 @@ abstract class AbstractOperationProcessor extends AbstractApiProcessor
                 case Status::TRANSFER_SUCCESS :
                     $logOperation->setStatusTransferts($status);
                     break;
+                case Status::ADJUSTED_OPERATIONS :
+                    $logOperation->setStatusTransferts($status);
+                    $logOperation->setStatusWithDrawal($status);
+                    break;
             }
             $logOperation->setMessage($message);
             $this->logOperationsManager->save($logOperation);

@@ -27,26 +27,14 @@ use HiPay\Wallet\Mirakl\Notification\FormatNotification;
  * @author    HiPay <support.wallet@hipay.com>
  * @copyright 2017 HiPay
  */
-class Initializer extends AbstractApiProcessor
+class Initializer extends AbstractOperationProcessor
 {
-
-    /** @var VendorInterface */
-    protected $operator;
 
     /** @var VendorInterface */
     protected $technicalAccount;
 
     /** @var  ValidatorInterface */
     protected $transactionValidator;
-
-    /** @var OperationManager */
-    protected $operationManager;
-
-    /** @var  VendorManager */
-    protected $vendorManager;
-
-    /** @var  LogOperationsManager */
-    protected $logOperationsManager;
 
     /**
      * @var FormatNotification class
@@ -74,23 +62,14 @@ class Initializer extends AbstractApiProcessor
     LogOperationsManager $logOperationsManager, VendorManager $vendorManager
     )
     {
-        parent::__construct($dispatcher, $logger, $factory);
-
-        ModelValidator::validate($operatorAccount, 'Operator');
-        $this->operator = $operatorAccount;
+        parent::__construct($dispatcher, $logger, $factory, $operationHandler, $vendorManager, $logOperationsManager, $operatorAccount);
 
         ModelValidator::validate($technicalAccount, 'Operator');
         $this->technicalAccount = $technicalAccount;
 
-        $this->operationManager = $operationHandler;
-
         $this->transactionValidator = $transactionValidator;
 
-        $this->vendorManager = $vendorManager;
-
         $this->formatNotification = new FormatNotification();
-
-        $this->logOperationsManager = $logOperationsManager;
 
         $this->operationsLogs = array();
 
