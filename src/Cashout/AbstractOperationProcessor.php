@@ -102,6 +102,7 @@ abstract class AbstractOperationProcessor extends AbstractApiProcessor
                     break;
             }
             $logOperation->setMessage($message);
+            $logOperation->setDateCreated(new \DateTime());
             $this->logOperationsManager->save($logOperation);
         }
     }

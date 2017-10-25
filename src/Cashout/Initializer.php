@@ -142,6 +142,7 @@ class Initializer extends AbstractOperationProcessor
         $operations = $this->processInvoices($invoices, $cycleDate);
 
         $this->saveOperations($operations);
+
     }
 
     /**
@@ -191,6 +192,7 @@ class Initializer extends AbstractOperationProcessor
             $hipayId,
             (string)$paymentVoucher,
             $amount,
+            $originAmount,
             $this->hipay->getBalance($vendor)
         );
         return $operation;
@@ -233,6 +235,7 @@ class Initializer extends AbstractOperationProcessor
         $this->logger->info('Save operations', array('miraklId' => null, "action" => "Operations creation"));
         $this->operationManager->saveAll($operations);
         $this->logOperationsManager->saveAll($this->operationsLogs);
+        $this->saveAdjustedOperations($this->adjustedOperations);
         $this->logger->info('[OK] Operations saved', array('miraklId' => null, "action" => "Operations creation"));
     }
 
@@ -332,7 +335,7 @@ class Initializer extends AbstractOperationProcessor
                     $this->operator
                 );
 
-                $this->saveAdjustedOperations($adjustedInfos["adujstedOperations"]);
+                $this->adjustedOperations = array_merge($this->adjustedOperations, $adjustedInfos["adujstedOperations"]);
 
                 return $operations;
             } catch (Exception $e) {
@@ -358,6 +361,12 @@ class Initializer extends AbstractOperationProcessor
         foreach ($adjustedOperations as $op) {
             $op->setStatus(new Status(Status::ADJUSTED_OPERATIONS));
             $this->operationManager->save($op);
+            $this->logOperation(
+                $op->getMiraklId(),
+                $op->getPaymentVoucher(),
+                Status::ADJUSTED_OPERATIONS,
+                ""
+                );
         }
     }
 
@@ -377,7 +386,7 @@ class Initializer extends AbstractOperationProcessor
         $negativeOperations = $this->operationManager->findNegativeOperations($vendor->getHipayId());
 
         foreach ($negativeOperations as $nop) {
-            if ($originAmount + $nop->getAmount() > 0) {
+            if (!in_array($nop, $this->adjustedOperations) && $originAmount + $nop->getAmount() > 0) {
                 $originAmount += $nop->getAmount();
                 $adjustedOperations[] = $nop;
                 $adjustedOperationsIds[] = $nop->getId();
