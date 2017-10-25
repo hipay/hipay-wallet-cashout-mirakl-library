@@ -38,6 +38,8 @@ class LogOperations implements LogOperationsInterface
 
     protected $balance;
 
+    protected $originAmount;
+
     /**
      * Operation constructor.
      * @param $miraklId
@@ -96,6 +98,12 @@ class LogOperations implements LogOperationsInterface
         return $this->balance;
     }
 
+    function getOriginAmount()
+    {
+        return $this->originAmount;
+    }
+
+
     function setMiraklId($miraklId)
     {
         $this->miraklId = $miraklId;
@@ -141,6 +149,10 @@ class LogOperations implements LogOperationsInterface
         $this->balance = $balance;
     }
 
+    function setOriginAmount($originAmount)
+    {
+        $this->originAmount = $originAmount;
+    }
 
-    
+
 }
