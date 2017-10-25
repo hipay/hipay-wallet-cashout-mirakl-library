@@ -27,7 +27,17 @@ abstract class AbstractOperationProcessor extends AbstractApiProcessor
     protected $operator;
 
     protected $logOperationsManager;
-    
+
+    /**
+     * AbstractOperationProcessor constructor.
+     * @param EventDispatcherInterface $dispatcher
+     * @param LoggerInterface $logger
+     * @param Factory $factory
+     * @param OperationManager $operationManager
+     * @param VendorManager $vendorManager
+     * @param LogOperationsManager $logOperationsManager
+     * @param VendorInterface $operator
+     */
     public function __construct(
         EventDispatcherInterface $dispatcher,
         LoggerInterface $logger,
@@ -36,8 +46,7 @@ abstract class AbstractOperationProcessor extends AbstractApiProcessor
         VendorManager $vendorManager,
         LogOperationsManager $logOperationsManager,
         VendorInterface $operator
-    )
-    {
+    ) {
         parent::__construct($dispatcher, $logger, $factory);
 
         ModelValidator::validate($operator, 'Operator');
@@ -76,11 +85,13 @@ abstract class AbstractOperationProcessor extends AbstractApiProcessor
      */
     protected function logOperation($miraklId, $paymentVoucherNumber, $status, $message)
     {
-        $logOperation = $this->logOperationsManager->findByMiraklIdAndPaymentVoucherNumber($miraklId,
-                                                                                           $paymentVoucherNumber);
+        $logOperation = $this->logOperationsManager->findByMiraklIdAndPaymentVoucherNumber(
+            $miraklId,
+            $paymentVoucherNumber
+        );
         if ($logOperation == null) {
             $this->logger->warning(
-                "Could not fnd existing log for this operations : paymentVoucherNumber = ".$paymentVoucherNumber,
+                "Could not find existing log for this operations : paymentVoucherNumber = " . $paymentVoucherNumber,
                 array("action" => "Operation process", "miraklId" => $miraklId)
             );
         } else {
@@ -95,8 +106,13 @@ abstract class AbstractOperationProcessor extends AbstractApiProcessor
                 case Status::TRANSFER_SUCCESS :
                     $logOperation->setStatusTransferts($status);
                     break;
+                case Status::ADJUSTED_OPERATIONS :
+                    $logOperation->setStatusTransferts($status);
+                    $logOperation->setStatusWithDrawal($status);
+                    break;
             }
             $logOperation->setMessage($message);
+            $logOperation->setDateCreated(new \DateTime());
             $this->logOperationsManager->save($logOperation);
         }
     }
@@ -105,19 +121,20 @@ abstract class AbstractOperationProcessor extends AbstractApiProcessor
      * Check if technical account has sufficient funds.
      *
      * @param $amount
-     *
-     * @returns boolean
+     * @param $vendor
+     * @param bool $transfer
+     * @throws WrongWalletBalance
      */
     public function hasSufficientFunds($amount, $vendor, $transfer = false)
     {
         $balance = round($this->hipay->getBalance($vendor), static::SCALE);
 
-        if( $balance < round($amount, static::SCALE)){
-            if($transfer){
-                throw new WrongWalletBalance('technical', 'transfer' ,$amount, $balance);
+        if ($balance < round($amount, static::SCALE)) {
+            if ($transfer) {
+                throw new WrongWalletBalance('technical', 'transfer', $amount, $balance);
             }
 
-            throw new WrongWalletBalance($vendor->getHipayId(), 'withdraw' ,$amount, $balance);
+            throw new WrongWalletBalance($vendor->getHipayId(), 'withdraw', $amount, $balance);
         }
     }
 }

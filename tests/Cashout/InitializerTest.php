@@ -63,6 +63,8 @@ class InitializerTest extends AbstractProcessorTest
 
         $expectedOperation = new Operation(200, new DateTime(), "000001", 2001);
 
+        $expectedOperation->setOriginAmount(200);
+
         $expectedOperation->setHipayId(109);
 
         $this->operationManager->findByMiraklIdAndPaymentVoucherNumber(Argument::type('int'), Argument::type("string"))
@@ -71,7 +73,7 @@ class InitializerTest extends AbstractProcessorTest
 
         $vendor = new Vendor("test@test.com", 109, 2001);
 
-        $resultOperation = $this->cashoutInitializer->createOperation((float) 200, new DateTime(), "000001", $vendor);
+        $resultOperation = $this->cashoutInitializer->createOperation((float) 200, (float) 200, new DateTime(), "000001", $vendor);
 
         $this->assertEquals($expectedOperation, $resultOperation);
     }

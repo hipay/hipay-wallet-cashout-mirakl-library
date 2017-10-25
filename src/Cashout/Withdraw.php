@@ -22,7 +22,7 @@ use HiPay\Wallet\Mirakl\Notification\FormatNotification;
 use HiPay\Wallet\Mirakl\Notification\Model\LogOperationsManagerInterface as LogOperationsManager;
 
 /**
- * Process the operations created by the cashout/initializer
+ * Process withdraw
  *
  * @author    HiPay <support.wallet@hipay.com>
  * @copyright 2017 HiPay
@@ -32,16 +32,14 @@ class Withdraw extends AbstractOperationProcessor
     protected $formatNotification;
 
     /**
-     * Processor constructor.
-     *
+     * Withdraw constructor.
      * @param EventDispatcherInterface $dispatcher
      * @param LoggerInterface $logger
      * @param Factory $factory
-     * @param OperationManager $operationManager ,
+     * @param OperationManager $operationManager
      * @param VendorManager $vendorManager
      * @param VendorInterface $operator
-     *
-     * @throws \HiPay\Wallet\Mirakl\Exception\ValidationFailedException
+     * @param LogOperationsManager $logOperationsManager
      */
     public function __construct(
         EventDispatcherInterface $dispatcher,
@@ -51,9 +49,16 @@ class Withdraw extends AbstractOperationProcessor
         VendorManager $vendorManager,
         VendorInterface $operator,
         LogOperationsManager $logOperationsManager
-    )
-    {
-        parent::__construct($dispatcher, $logger, $factory, $operationManager, $vendorManager, $logOperationsManager, $operator);
+    ) {
+        parent::__construct(
+            $dispatcher,
+            $logger,
+            $factory,
+            $operationManager,
+            $vendorManager,
+            $logOperationsManager,
+            $operator
+        );
 
         $this->formatNotification = new FormatNotification();
 
@@ -61,14 +66,7 @@ class Withdraw extends AbstractOperationProcessor
     }
 
     /**
-     * Main processing function.
-     *
-     * @throws WrongWalletBalance
-     * @throws WalletNotFoundException
-     * @throws UnconfirmedBankAccountException
-     * @throws UnidentifiedWalletException
-     *
-     * @codeCoverageIgnore
+     * Process withdraw
      */
     public function process()
     {
@@ -77,42 +75,38 @@ class Withdraw extends AbstractOperationProcessor
         $this->withdrawOperations();
     }
 
-    /**
-     * Execute the operation needing withdrawal.
-     *
-     */
     protected function withdrawOperations()
     {
 
         $toWithdraw = $this->getWithdrawableOperations();
 
         $this->logger->info(
-            "Operation to withdraw : ".count($toWithdraw),
+            "Operation to withdraw : " . count($toWithdraw),
             array('miraklId' => null, "action" => "Withdraw")
-            );
+        );
 
         /** @var OperationInterface $operation */
         foreach ($toWithdraw as $operation) {
             try {
 
                 //Execute the withdrawal
-                $withdrawId = $this->withdraw($operation);
+                $this->withdraw($operation);
 
                 //Set operation new data
                 $this->logger->info(
-                    "[OK] Withdraw operation ".$operation->getWithdrawId()." executed",
+                    "[OK] Withdraw operation " . $operation->getWithdrawId() . " executed",
                     array('miraklId' => $operation->getMiraklId(), "action" => "Withdraw")
-                    );
+                );
             } catch (Exception $e) {
                 $this->logger->info(
                     "[OK] Withdraw operation failed",
                     array('miraklId' => $operation->getMiraklId(), "action" => "Withdraw")
-                    );
+                );
                 $this->handleException(
                     $e,
                     'critical',
                     array('miraklId' => $operation->getMiraklId(), "action" => "Withdraw")
-                    );
+                );
             }
         }
     }
@@ -123,6 +117,7 @@ class Withdraw extends AbstractOperationProcessor
      * @param OperationInterface $operation
      * @return int
      * @throws Exception
+     * @throws WrongWalletBalance
      */
     public function withdraw(OperationInterface $operation)
     {
@@ -141,15 +136,15 @@ class Withdraw extends AbstractOperationProcessor
 
             if ($bankInfoStatus != BankInfoStatus::VALIDATED) {
                 throw new UnconfirmedBankAccountException(
-                new BankInfoStatus(BankInfoStatus::getLabel($bankInfoStatus)), $operation->getMiraklId()
+                    new BankInfoStatus(BankInfoStatus::getLabel($bankInfoStatus)), $operation->getMiraklId()
                 );
             }
 
-            try{
+            try {
                 $this->hasSufficientFunds($operation->getAmount(), $vendor);
-                $amount =round(($operation->getAmount()), self::SCALE);
+                $amount = round(($operation->getAmount()), self::SCALE);
             } catch (WrongWalletBalance $ex) {
-                if ($operation->getMiraklId() === null || !$operation->getMiraklId() ) {
+                if ($operation->getMiraklId() === null || !$operation->getMiraklId()) {
                     $amount = $ex->getBalance();
                     //Vendor operation
                 } else {
@@ -161,7 +156,9 @@ class Withdraw extends AbstractOperationProcessor
 
             //Withdraw
             $withdrawId = $this->hipay->withdraw(
-                $vendor, $amount, $this->operationManager->generateWithdrawLabel($operation)
+                $vendor,
+                $amount,
+                $this->operationManager->generateWithdrawLabel($operation)
             );
 
             $operation->setWithdrawId($withdrawId);
@@ -171,7 +168,10 @@ class Withdraw extends AbstractOperationProcessor
             $this->operationManager->save($operation);
 
             $this->logOperation(
-                $operation->getMiraklId(), $operation->getPaymentVoucher(), Status::WITHDRAW_REQUESTED, ""
+                $operation->getMiraklId(),
+                $operation->getPaymentVoucher(),
+                Status::WITHDRAW_REQUESTED,
+                ""
             );
 
             return $withdrawId;
@@ -182,7 +182,10 @@ class Withdraw extends AbstractOperationProcessor
             $this->operationManager->save($operation);
 
             $this->logOperation(
-                $operation->getMiraklId(), $operation->getPaymentVoucher(), Status::WITHDRAW_NEGATIVE, $e->getMessage()
+                $operation->getMiraklId(),
+                $operation->getPaymentVoucher(),
+                Status::WITHDRAW_NEGATIVE,
+                $e->getMessage()
             );
 
             throw $e;
@@ -192,7 +195,10 @@ class Withdraw extends AbstractOperationProcessor
             $this->operationManager->save($operation);
 
             $this->logOperation(
-                $operation->getMiraklId(), $operation->getPaymentVoucher(), Status::WITHDRAW_FAILED, $e->getMessage()
+                $operation->getMiraklId(),
+                $operation->getPaymentVoucher(),
+                Status::WITHDRAW_FAILED,
+                $e->getMessage()
             );
 
             throw $e;
@@ -207,17 +213,11 @@ class Withdraw extends AbstractOperationProcessor
     protected function getWithdrawableOperations()
     {
 
-        $toWithdrawSuccess = $this->operationManager->findByStatus(
-            new Status(Status::TRANSFER_SUCCESS)
-        );
+        $toWithdrawSuccess = $this->operationManager->findByStatus(new Status(Status::TRANSFER_SUCCESS));
 
-        $toWithdrawFailed = $this->operationManager->findByStatus(
-            new Status(Status::WITHDRAW_FAILED)
-        );
+        $toWithdrawFailed = $this->operationManager->findByStatus(new Status(Status::WITHDRAW_FAILED));
 
-        $toWithdrawNegative = $this->operationManager->findByStatus(
-            new Status(Status::WITHDRAW_NEGATIVE)
-        );
+        $toWithdrawNegative = $this->operationManager->findByStatus(new Status(Status::WITHDRAW_NEGATIVE));
 
         $toWithdraw = array_merge($toWithdrawNegative, $toWithdrawFailed, $toWithdrawSuccess);
 

@@ -31,6 +31,7 @@ class Operation implements OperationInterface
     protected $updatedAt;
     /** @var  float */
     protected $withdrawnAmount;
+    protected $originAmount;
 
     /**
      * Operation constructor.
@@ -212,4 +213,16 @@ class Operation implements OperationInterface
     {
         $this->withdrawnAmount = $withdrawnAmount;
     }
+    function getOriginAmount()
+    {
+        return $this->originAmount;
+    }
+
+    function setOriginAmount($originAmount)
+    {
+        $this->originAmount = $originAmount;
+    }
+
+
+
 }

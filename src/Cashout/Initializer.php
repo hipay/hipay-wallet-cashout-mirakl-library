@@ -27,11 +27,8 @@ use HiPay\Wallet\Mirakl\Notification\FormatNotification;
  * @author    HiPay <support.wallet@hipay.com>
  * @copyright 2017 HiPay
  */
-class Initializer extends AbstractApiProcessor
+class Initializer extends AbstractOperationProcessor
 {
-
-    /** @var VendorInterface */
-    protected $operator;
 
     /** @var VendorInterface */
     protected $technicalAccount;
@@ -39,24 +36,17 @@ class Initializer extends AbstractApiProcessor
     /** @var  ValidatorInterface */
     protected $transactionValidator;
 
-    /** @var OperationManager */
-    protected $operationManager;
-
-    /** @var  VendorManager */
-    protected $vendorManager;
-
-    /** @var  LogOperationsManager */
-    protected $logOperationsManager;
-
     /**
      * @var FormatNotification class
      */
     protected $formatNotification;
+
     protected $operationsLogs;
+
+    protected $adjustedOperations;
 
     /**
      * Initializer constructor.
-     *
      * @param EventDispatcherInterface $dispatcher
      * @param LoggerInterface $logger
      * @param Factory $factory
@@ -64,34 +54,40 @@ class Initializer extends AbstractApiProcessor
      * @param VendorInterface $technicalAccount
      * @param ValidatorInterface $transactionValidator
      * @param OperationManager $operationHandler
+     * @param LogOperationsManager $logOperationsManager
      * @param VendorManager $vendorManager
-     * @throws ValidationFailedException
      */
     public function __construct(
-    EventDispatcherInterface $dispatcher, LoggerInterface $logger, Factory $factory, VendorInterface $operatorAccount,
-    VendorInterface $technicalAccount, ValidatorInterface $transactionValidator, OperationManager $operationHandler,
-    LogOperationsManager $logOperationsManager, VendorManager $vendorManager
-    )
-    {
-        parent::__construct($dispatcher, $logger, $factory);
-
-        ModelValidator::validate($operatorAccount, 'Operator');
-        $this->operator = $operatorAccount;
+        EventDispatcherInterface $dispatcher,
+        LoggerInterface $logger,
+        Factory $factory,
+        VendorInterface $operatorAccount,
+        VendorInterface $technicalAccount,
+        ValidatorInterface $transactionValidator,
+        OperationManager $operationHandler,
+        LogOperationsManager $logOperationsManager,
+        VendorManager $vendorManager
+    ) {
+        parent::__construct(
+            $dispatcher,
+            $logger,
+            $factory,
+            $operationHandler,
+            $vendorManager,
+            $logOperationsManager,
+            $operatorAccount
+        );
 
         ModelValidator::validate($technicalAccount, 'Operator');
         $this->technicalAccount = $technicalAccount;
 
-        $this->operationManager = $operationHandler;
-
         $this->transactionValidator = $transactionValidator;
-
-        $this->vendorManager = $vendorManager;
 
         $this->formatNotification = new FormatNotification();
 
-        $this->logOperationsManager = $logOperationsManager;
-
         $this->operationsLogs = array();
+
+        $this->adjustedOperations = array();
     }
 
     /**
@@ -113,110 +109,64 @@ class Initializer extends AbstractApiProcessor
         $boolControl = $this->getControlMiraklSettings($this->documentTypes);
         if ($boolControl === false) {
             // log critical
-            $title   = $this->criticalMessageMiraklSettings;
+            $title = $this->criticalMessageMiraklSettings;
             $message = $this->formatNotification->formatMessage($title);
             $this->logger->critical($message, array('miraklId' => null, "action" => "Operations creation"));
         } else {
-            $this->logger->info('Control Mirakl Settings OK',
-                                array('miraklId' => null, "action" => "Operations creation"));
+            $this->logger->info(
+                'Control Mirakl Settings OK',
+                array('miraklId' => null, "action" => "Operations creation")
+            );
         }
 
         $this->logger->info('Cashout Initializer', array('miraklId' => null, "action" => "Operations creation"));
 
         //Fetch Invoices
         $this->logger->info(
-            'Fetch invoices documents from Mirakl from '.
-            $startDate->format('Y-m-d H:i').
-            ' to '.
+            'Fetch invoices documents from Mirakl from ' .
+            $startDate->format('Y-m-d H:i') .
+            ' to ' .
             $endDate->format('Y-m-d H:i')
-            , array('miraklId' => null, "action" => "Operations creation")
+            ,
+            array('miraklId' => null, "action" => "Operations creation")
         );
 
-        $invoices = $this->getInvoices(
-            $startDate, $endDate
+        // get invoices from Mirakl API
+        $invoices = $this->getInvoices($startDate, $endDate);
+
+        $this->logger->info(
+            '[OK] Fetched ' . count($invoices) . ' invoices',
+            array('miraklId' => null, "action" => "Operations creation")
         );
-
-        //var_dump($invoices);
-
-        $this->logger->info('[OK] Fetched '.count($invoices).' invoices',
-                                                  array('miraklId' => null, "action" => "Operations creation"));
 
         $this->logger->info('Process invoices', array('miraklId' => null, "action" => "Operations creation"));
 
         $operations = $this->processInvoices($invoices, $cycleDate);
 
         $this->saveOperations($operations);
-    }
 
-    private function processInvoices(array $invoices, DateTime $cycleDate)
-    {
-
-        $operations = array();
-
-        foreach ($invoices as $invoice) {
-
-            $this->logger->debug("ShopId : ".$invoice['shop_id'],
-                                 array('miraklId' => $shopId, "action" => "Operations creation"));
-
-            $vendor = $this->vendorManager->findByMiraklId($invoice['shop_id']);
-
-            if ($vendor === null) {
-                $this->logger->info("Operation wasn't created because vendor doesn't exit in database (verify HiPay process value in Mirakl BO)",
-                                    array('miraklId' => $invoice['shop_id'], "action" => "Operations creation"));
-            } else {
-                $operationsFromInvoice = $this->createOperationsFromInvoice($invoice, $vendor, $cycleDate);
-                if ($operationsFromInvoice) {
-                    $operations = array_merge($operations, $operationsFromInvoice);
-                } else {
-                    $title   = "The operations for invoice n° ".$invoice['invoice_id']." are wrong";
-                    $message = $this->formatNotification->formatMessage($title);
-                    $this->logger->error($message, array('miraklId' => null, "action" => "Operations creation"));
-                }
-            }
-        }
-
-        return $operations;
-    }
-
-    private function createOperationsFromInvoice(array $invoice, VendorInterface $vendor, DateTime $cycleDate)
-    {
-        if ($invoice['summary']['amount_transferred'] > 0) {
-
-            $operations = array();
-
-            $this->logger->debug("Vendor amount ".$invoice['summary']['amount_transferred'],
-                                 array('miraklId' => $invoice['shop_id'], "action" => "Operations creation"));
-            try {
-                $operations[] = $this->createOperation($invoice['summary']['amount_transferred'], $cycleDate,
-                                                       $invoice['invoice_id'], $vendor);
-
-                $operations[] = $this->createOperation($invoice['total_charged_amount'], $cycleDate,
-                                                       $invoice['invoice_id'], $this->operator);
-
-                return $operations;
-            } catch (Exception $e) {
-                $this->handleException($e);
-                return false;
-            }
-        } else {
-            $this->logger->warning("Invoice n° ".$invoice['invoice_id']." has a negative amount, will not be treated",
-                                   array('miraklId' => $invoice['shop_id'], "action" => "Operations creation"));
-        }
     }
 
     /**
      * Create the vendor operation
      * dispatch <b>after.operation.create</b>.
      *
-     * @param int $amount
+     * @param $amount
+     * @param $originAmount
      * @param DateTime $cycleDate
-     * @param string $paymentVoucher
-     * @param bool|int $miraklId false if it an operator operation
-     *
-     * @return OperationInterface|null
+     * @param $paymentVoucher
+     * @param $vendor
+     * @param null $adjustedOperationsIds
+     * @return OperationInterface
      */
-    public function createOperation($amount, DateTime $cycleDate, $paymentVoucher, $vendor)
-    {
+    public function createOperation(
+        $amount,
+        $originAmount,
+        DateTime $cycleDate,
+        $paymentVoucher,
+        $vendor,
+        $adjustedOperationsIds = null
+    ) {
         //Set hipay id
         $hipayId = $vendor->getHiPayId();
 
@@ -230,14 +180,25 @@ class Initializer extends AbstractApiProcessor
         $operation->setStatus(new Status(Status::CREATED));
         $operation->setUpdatedAt(new DateTime());
         $operation->setAmount($amount);
+        $operation->setOriginAmount($originAmount);
         $operation->setCycleDate($cycleDate);
         $operation->setPaymentVoucher((string)$paymentVoucher);
 
+        // if adjustments were made, save adjusted operations
+        if ($adjustedOperationsIds !== null) {
+            $operation->setAdjustmentIds(json_encode($adjustedOperationsIds));
+        }
+
         $this->isOperationValid($operation);
 
-        $this->operationsLogs[] = $this->logOperationsManager->create($vendor->getMiraklId(), $hipayId,
-                                                                      (string) $paymentVoucher, $amount,
-                                                                      $this->hipay->getBalance($vendor));
+        $this->operationsLogs[] = $this->logOperationsManager->create(
+            $vendor->getMiraklId(),
+            $hipayId,
+            (string)$paymentVoucher,
+            $amount,
+            $originAmount,
+            $this->hipay->getBalance($vendor)
+        );
         return $operation;
     }
 
@@ -245,15 +206,16 @@ class Initializer extends AbstractApiProcessor
      * Validate an operation
      *
      * @param OperationInterface $operation
-     *
      * @return bool
+     * @throws AlreadyCreatedOperationException
+     * @throws InvalidOperationException
      */
     public function isOperationValid(OperationInterface $operation)
     {
-        if ($this->operationManager
-                ->findByMiraklIdAndPaymentVoucherNumber(
-                    $operation->getMiraklId(), $operation->getPaymentVoucher()
-                )
+        if ($this->operationManager->findByMiraklIdAndPaymentVoucherNumber(
+            $operation->getMiraklId(),
+            $operation->getPaymentVoucher()
+        )
         ) {
             throw new AlreadyCreatedOperationException($operation);
         }
@@ -278,23 +240,200 @@ class Initializer extends AbstractApiProcessor
         $this->logger->info('Save operations', array('miraklId' => null, "action" => "Operations creation"));
         $this->operationManager->saveAll($operations);
         $this->logOperationsManager->saveAll($this->operationsLogs);
+        $this->saveAdjustedOperations($this->adjustedOperations);
         $this->logger->info('[OK] Operations saved', array('miraklId' => null, "action" => "Operations creation"));
-    }
-
-    private function getInvoices(DateTime $startDate, DateTime $endDate)
-    {
-        $invoices = $this->mirakl->getInvoices(
-            $startDate, $endDate, null, null, null
-        );
-
-        return $invoices;
     }
 
     /**
      * Control if Mirakl Setting is ok with HiPay prerequisites
+     *
+     * @param $docTypes
      */
     public function getControlMiraklSettings($docTypes)
     {
         $this->mirakl->controlMiraklSettings($docTypes);
     }
+
+    /**
+     * Create operations from Mirakl invoices
+     *
+     * @param array $invoices
+     * @param DateTime $cycleDate
+     * @return type
+     */
+    private function processInvoices(array $invoices, DateTime $cycleDate)
+    {
+
+        $operations = array();
+
+        foreach ($invoices as $invoice) {
+
+            $this->logger->debug(
+                "ShopId : " . $invoice['shop_id'],
+                array('miraklId' => $invoice['shop_id'], "action" => "Operations creation")
+            );
+
+            $vendor = $this->vendorManager->findByMiraklId($invoice['shop_id']);
+
+            if ($vendor === null) {
+                $this->logger->info(
+                    "Operation wasn't created because vendor doesn't exit in database (verify HiPay process value in Mirakl BO)",
+                    array('miraklId' => $invoice['shop_id'], "action" => "Operations creation")
+                );
+            } else {
+                $operationsFromInvoice = $this->createOperationsFromInvoice($invoice, $vendor, $cycleDate);
+                if ($operationsFromInvoice) {
+                    $operations = array_merge($operations, $operationsFromInvoice);
+                } else {
+                    //something went wrong
+                    $title = "The operations for invoice n° " . $invoice['invoice_id'] . " are wrong";
+                    $message = $this->formatNotification->formatMessage($title);
+                    $this->logger->error($message, array('miraklId' => null, "action" => "Operations creation"));
+                }
+            }
+        }
+
+        return $operations;
+    }
+
+    /**
+     * Create operations from Mirakl invoice
+     *
+     * @param array $invoice
+     * @param VendorInterface $vendor
+     * @param DateTime $cycleDate
+     * @return boolean
+     */
+    private function createOperationsFromInvoice(array $invoice, VendorInterface $vendor, DateTime $cycleDate)
+    {
+        if ($invoice['summary']['amount_transferred'] > 0) {
+
+            $operations = array();
+
+            try {
+                // Calculate adjusted amount (for past negative operations)
+                $adjustedInfos = $this->getAdjustedAmount($invoice['summary']['amount_transferred'], $vendor);
+
+                $this->logger->debug(
+                    "Vendor origin amount " . $invoice['summary']['amount_transferred'],
+                    array('miraklId' => $invoice['shop_id'], "action" => "Operations creation")
+                );
+
+                $this->logger->debug(
+                    "Vendor adjusted amount " .
+                    $adjustedInfos['adjustedAmount'] .
+                    " (" .
+                    count($adjustedInfos['adujstedOperationsIds']) .
+                    " operations adjusted)",
+                    array('miraklId' => $invoice['shop_id'], "action" => "Operations creation")
+                );
+
+                // Vendor operation
+                $operations[] = $this->createOperation(
+                    $adjustedInfos['adjustedAmount'],
+                    $invoice['summary']['amount_transferred'],
+                    $cycleDate,
+                    $invoice['invoice_id'],
+                    $vendor,
+                    $adjustedInfos['adujstedOperationsIds']
+                );
+
+                // operator operation
+                $operations[] = $this->createOperation(
+                    $invoice['total_charged_amount'],
+                    null,
+                    $cycleDate,
+                    $invoice['invoice_id'],
+                    $this->operator
+                );
+
+                // save in memory for future saving in database
+                $this->adjustedOperations = array_merge(
+                    $this->adjustedOperations,
+                    $adjustedInfos["adujstedOperations"]
+                );
+
+                return $operations;
+            } catch (Exception $e) {
+                $this->handleException($e);
+                return false;
+            }
+        } else {
+            $this->logger->warning(
+                "Invoice n° " . $invoice['invoice_id'] . " has a negative amount, will not be treated",
+                array('miraklId' => $invoice['shop_id'], "action" => "Operations creation")
+            );
+        }
+    }
+
+    /**
+     * Set adjusted operations to the right status
+     *
+     * @param array $adjustedOperations
+     */
+    private function saveAdjustedOperations(array $adjustedOperations)
+    {
+
+        foreach ($adjustedOperations as $op) {
+            $op->setStatus(new Status(Status::ADJUSTED_OPERATIONS));
+            $this->operationManager->save($op);
+            $this->logOperation(
+                $op->getMiraklId(),
+                $op->getPaymentVoucher(),
+                Status::ADJUSTED_OPERATIONS,
+                ""
+            );
+        }
+    }
+
+    /**
+     * Calculate adjusted amount for this invoice
+     *
+     * @param type $originAmount
+     * @param type $vendor
+     * @return type
+     */
+    private function getAdjustedAmount($originAmount, $vendor)
+    {
+
+        $adjustedOperations = array();
+        $adjustedOperationsIds = array();
+        // retrieve not adjusted negative operations for vendor ID
+        $negativeOperations = $this->operationManager->findNegativeOperations($vendor->getHipayId());
+
+        foreach ($negativeOperations as $nop) {
+            if (!in_array($nop, $this->adjustedOperations) && $originAmount + $nop->getAmount() > 0) {
+                $originAmount += $nop->getAmount();
+                $adjustedOperations[] = $nop;
+                $adjustedOperationsIds[] = $nop->getId();
+            }
+        }
+
+        return array(
+            'adjustedAmount' => $originAmount,
+            'adujstedOperations' => $adjustedOperations,
+            'adujstedOperationsIds' => $adjustedOperationsIds
+        );
+    }
+
+    /**
+     * Get invoices from Mirakl API
+     *
+     * @param DateTime $startDate
+     * @param DateTime $endDate
+     * @return type
+     */
+    private function getInvoices(DateTime $startDate, DateTime $endDate)
+    {
+        $invoices = $this->mirakl->getInvoices(
+            $startDate,
+            $endDate,
+            null,
+            null,
+            null
+        );
+
+        return $invoices;
+    }
+
 }
