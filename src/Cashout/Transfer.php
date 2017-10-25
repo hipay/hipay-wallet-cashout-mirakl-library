@@ -20,7 +20,7 @@ use Psr\Log\LoggerInterface;
 use HiPay\Wallet\Mirakl\Exception\WrongWalletBalance;
 
 /**
- * Generate and save the operation to be executed by the processor.
+ * Execute transfer
  *
  * @author    HiPay <support.wallet@hipay.com>
  * @copyright 2017 HiPay
@@ -31,7 +31,7 @@ class Transfer extends AbstractOperationProcessor
     protected $technicalAccount;
 
     /**
-     *
+     * Transfer constructor.
      * @param EventDispatcherInterface $dispatcher
      * @param LoggerInterface $logger
      * @param Factory $factory
@@ -69,7 +69,7 @@ class Transfer extends AbstractOperationProcessor
     }
 
     /**
-     *
+     * Process transfer
      */
     public function process()
     {
@@ -88,6 +88,7 @@ class Transfer extends AbstractOperationProcessor
 
     /**
      * Execute the operation needing transfer.
+     *
      * @param array $operations
      */
     public function transferOperations(array $operations)

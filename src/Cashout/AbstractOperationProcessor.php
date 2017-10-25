@@ -28,6 +28,16 @@ abstract class AbstractOperationProcessor extends AbstractApiProcessor
 
     protected $logOperationsManager;
 
+    /**
+     * AbstractOperationProcessor constructor.
+     * @param EventDispatcherInterface $dispatcher
+     * @param LoggerInterface $logger
+     * @param Factory $factory
+     * @param OperationManager $operationManager
+     * @param VendorManager $vendorManager
+     * @param LogOperationsManager $logOperationsManager
+     * @param VendorInterface $operator
+     */
     public function __construct(
         EventDispatcherInterface $dispatcher,
         LoggerInterface $logger,
@@ -81,7 +91,7 @@ abstract class AbstractOperationProcessor extends AbstractApiProcessor
         );
         if ($logOperation == null) {
             $this->logger->warning(
-                "Could not fnd existing log for this operations : paymentVoucherNumber = " . $paymentVoucherNumber,
+                "Could not find existing log for this operations : paymentVoucherNumber = " . $paymentVoucherNumber,
                 array("action" => "Operation process", "miraklId" => $miraklId)
             );
         } else {
@@ -111,8 +121,9 @@ abstract class AbstractOperationProcessor extends AbstractApiProcessor
      * Check if technical account has sufficient funds.
      *
      * @param $amount
-     *
-     * @returns boolean
+     * @param $vendor
+     * @param bool $transfer
+     * @throws WrongWalletBalance
      */
     public function hasSufficientFunds($amount, $vendor, $transfer = false)
     {

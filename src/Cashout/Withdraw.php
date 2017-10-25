@@ -22,7 +22,7 @@ use HiPay\Wallet\Mirakl\Notification\FormatNotification;
 use HiPay\Wallet\Mirakl\Notification\Model\LogOperationsManagerInterface as LogOperationsManager;
 
 /**
- * Process the operations created by the cashout/initializer
+ * Process withdraw
  *
  * @author    HiPay <support.wallet@hipay.com>
  * @copyright 2017 HiPay
@@ -32,16 +32,14 @@ class Withdraw extends AbstractOperationProcessor
     protected $formatNotification;
 
     /**
-     * Processor constructor.
-     *
+     * Withdraw constructor.
      * @param EventDispatcherInterface $dispatcher
      * @param LoggerInterface $logger
      * @param Factory $factory
-     * @param OperationManager $operationManager ,
+     * @param OperationManager $operationManager
      * @param VendorManager $vendorManager
      * @param VendorInterface $operator
-     *
-     * @throws \HiPay\Wallet\Mirakl\Exception\ValidationFailedException
+     * @param LogOperationsManager $logOperationsManager
      */
     public function __construct(
         EventDispatcherInterface $dispatcher,
@@ -68,14 +66,7 @@ class Withdraw extends AbstractOperationProcessor
     }
 
     /**
-     * Main processing function.
-     *
-     * @throws WrongWalletBalance
-     * @throws WalletNotFoundException
-     * @throws UnconfirmedBankAccountException
-     * @throws UnidentifiedWalletException
-     *
-     * @codeCoverageIgnore
+     * Process withdraw
      */
     public function process()
     {
@@ -84,10 +75,6 @@ class Withdraw extends AbstractOperationProcessor
         $this->withdrawOperations();
     }
 
-    /**
-     * Execute the operation needing withdrawal.
-     *
-     */
     protected function withdrawOperations()
     {
 
@@ -103,7 +90,7 @@ class Withdraw extends AbstractOperationProcessor
             try {
 
                 //Execute the withdrawal
-                $withdrawId = $this->withdraw($operation);
+                $this->withdraw($operation);
 
                 //Set operation new data
                 $this->logger->info(
@@ -130,6 +117,7 @@ class Withdraw extends AbstractOperationProcessor
      * @param OperationInterface $operation
      * @return int
      * @throws Exception
+     * @throws WrongWalletBalance
      */
     public function withdraw(OperationInterface $operation)
     {
