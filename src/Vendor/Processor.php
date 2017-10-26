@@ -151,7 +151,7 @@ class Processor extends AbstractApiProcessor
             $this->logger->info('[OK] Bank info updated', array('miraklId' => null, "action" => "Wallet creation"));
 
             $this->logVendorManager->saveAll($this->vendorsLogs);
-        } catch (ClientErrorResponseException $e) {
+        } catch (Exception $e) {
             try {
                 // log critical
                 $title = 'Error Vendor:Process ';
@@ -161,20 +161,7 @@ class Processor extends AbstractApiProcessor
             } catch (\Exception $ex) {
                 $this->handleException($e, "critical", array('miraklId' => null, "action" => "Wallet creation"));
             }
-        } catch (\Exception $e) {
-            $trace = array_map(
-                function ($item) {
-                    return array(
-                        'file' => $item['file'],
-                        'line' => $item['line'],
-                        'action' => 'Wallet creation'
-                    );
-                },
-                $e->getTrace()
-            );
-
-            $this->handleException($e, "critical", $trace);
-        }
+        } 
     }
 
     /**
@@ -588,7 +575,7 @@ class Processor extends AbstractApiProcessor
                                 array('miraklId' => $shopId, "action" => "Wallet creation")
                             );
                         } // If this upload fails, we log the error but we continue for other files
-                        catch (ClientErrorResponseException $e) {
+                        catch (Exception $e) {
                             try {
                                 // log critical
                                 $title = 'The document ' .

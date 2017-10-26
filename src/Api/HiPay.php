@@ -517,13 +517,6 @@ class HiPay implements ApiInterface
             $this->password
         );
 
-        if (!empty($userAccount->getLogin())) {
-            $this->restClient->getConfig()->setPath(
-                'request.options/headers/php-auth-subaccount-login',
-                $userAccount->getLogin()
-            );
-        }
-
         $command = $this->restClient->getCommand(
             'GetUserAccount',
             array()
