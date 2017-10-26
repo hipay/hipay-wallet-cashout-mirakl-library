@@ -442,9 +442,9 @@ class HiPay implements ApiInterface
      *
      * @throws Exception
      */
-    public function getWalletInfo(UserAccount $userAccount)
+    public function getWalletInfo(UserAccount $userAccount, $vendor)
     {
-        $result = $this->getAccountInfos($userAccount);
+        $result = $this->getAccountInfos($userAccount, $vendor);
 
         return new AccountInfo(
             $result['user_account_id'],
@@ -503,7 +503,7 @@ class HiPay implements ApiInterface
      *
      * @throws Exception
      */
-    public function getAccountInfos(UserAccount $userAccount)
+    public function getAccountInfos(UserAccount $userAccount, $vendor = null)
     {
         $this->resetRestClient();
 
@@ -516,6 +516,18 @@ class HiPay implements ApiInterface
             'request.options/headers/php-auth-pw',
             $this->password
         );
+
+        if( $vendor !== null ){
+            $this->restClient->getConfig()->setPath(
+                'request.options/headers/php-auth-subaccount-id',
+                $vendor->getHiPayId()
+            );
+        }else if (!empty($userAccount->getLogin())) {
+            $this->restClient->getConfig()->setPath(
+                'request.options/headers/php-auth-subaccount-login',
+                $userAccount->getLogin()
+            );
+        }
 
         $command = $this->restClient->getCommand(
             'GetUserAccount',

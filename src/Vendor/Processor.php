@@ -161,7 +161,7 @@ class Processor extends AbstractApiProcessor
             } catch (\Exception $ex) {
                 $this->handleException($e, "critical", array('miraklId' => null, "action" => "Wallet creation"));
             }
-        } 
+        }
     }
 
     /**
@@ -223,6 +223,7 @@ class Processor extends AbstractApiProcessor
                 $miraklId = $vendorData['shop_id'];
 
                 $vendor = $this->vendorManager->findByMiraklId($miraklId);
+
                 if (!$vendor) {
                     if (!$this->hasWallet($email)) {
                         //Wallet create (call to HiPay)
@@ -258,7 +259,7 @@ class Processor extends AbstractApiProcessor
                     );
                 } elseif ($vendor) {
                     //Fetch the wallet id from HiPay
-                    $walletInfo = $this->getWalletUserInfo($vendorData);
+                    $walletInfo = $this->getWalletUserInfo($vendorData, $vendor);
                     $vendor->setVatNumber($vendorData['pro_details']['VAT_number']);
                     $vendor->setCallbackSalt($walletInfo->getCallbackSalt());
                     $vendor->setHiPayIdentified($walletInfo->getIdentified());
@@ -377,7 +378,7 @@ class Processor extends AbstractApiProcessor
      *
      * @return AccountInfo the get account info
      */
-    protected function getWalletUserInfo(array $shopData)
+    protected function getWalletUserInfo(array $shopData, VendorInterface $vendor = null)
     {
         $userAccount = new UserAccount($shopData);
 
@@ -385,7 +386,7 @@ class Processor extends AbstractApiProcessor
             $userAccount
         );
 
-        $walletInfo = $this->hipay->getWalletInfo($event->getUserAccount());
+        $walletInfo = $this->hipay->getWalletInfo($event->getUserAccount(), $vendor);
 
         return $walletInfo;
     }
@@ -1028,7 +1029,7 @@ class Processor extends AbstractApiProcessor
         $missingFile = array("check" => false, "message" => "");
 
         $key = $this->searchForType($type, $theFiles);
-        
+
         $fileOk = (!$key)?false: $this->checkExtensionFile($theFiles[$key]['file_name']);
 
         if(!$fileOk){
