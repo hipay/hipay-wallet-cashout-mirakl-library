@@ -482,6 +482,16 @@ class Processor extends AbstractApiProcessor
                 }
             );
 
+            $backFilesType = $this->backDocumentTypes;
+
+            // We only keep the files with types we know
+            $backFiles = array_filter(
+                $allMiraklFiles,
+                function ($aFile) use ($backFilesType) {
+                    return in_array($aFile['type'], $backFilesType);
+                }
+            );
+
             foreach ($shopIds as $shopId) {
                 $this->logger->info(
                     'Will check files for Mirakl shop ' . $shopId,
@@ -500,6 +510,17 @@ class Processor extends AbstractApiProcessor
                     }
                 );
 
+                if (!empty($backFiles)) {
+                    $shopBackFilesType = array_filter(
+                        $backFiles,
+                        function ($file) use ($shopId) {
+                            return $file['shop_id'] == $shopId;
+                        }
+                    );
+                } else {
+                    $shopBackFilesType = array();
+                }
+
                 $this->logger->info(
                     'Found ' . count($theFiles) . ' files on Mirakl for shop ' . $shopId,
                     array('miraklId' => $shopId, "action" => "Wallet creation")
@@ -517,50 +538,52 @@ class Processor extends AbstractApiProcessor
                         )
                     );
 
-                    $fileExtensionOk = $this->checkExtensionFile($theFile['file_name']);
 
-                    $missingFile = $this->missingFile($theFile, $theFiles, $shopId);
+                    try {
+                        $this->checkExtensionFile($theFile['file_name'], $theFile, $shopId);
 
-                    // File not uploaded (or outdated)
-                    if (count($filesAlreadyUploaded) === 0 && !$missingFile["check"] && $fileExtensionOk) {
-                        $this->logger->info(
-                            'Document ' .
-                            $theFile['id'] .
-                            ' (type: ' .
-                            $theFile['type'] .
-                            ') for Mirakl for shop ' .
-                            $shopId .
-                            ' is not uploaded or not up to date. Will upload',
-                            array('miraklId' => $shopId, "action" => "Wallet creation")
-                        );
+                        // File not uploaded (or outdated)
+                        if (count($filesAlreadyUploaded) === 0) {
+                            $this->logger->info(
+                                'Document ' .
+                                $theFile['id'] .
+                                ' (type: ' .
+                                $theFile['type'] .
+                                ') for Mirakl for shop ' .
+                                $shopId .
+                                ' is not uploaded or not up to date. Will upload',
+                                array('miraklId' => $shopId, "action" => "Wallet creation")
+                            );
 
-                        $validityDate = null;
+                            $validityDate = null;
 
-                        if (in_array(
-                            $this->documentTypes[$theFile['type']],
-                            array(
-                                HiPay::DOCUMENT_SOLE_MAN_BUS_IDENTITY,
-                                HiPay::DOCUMENT_INDIVIDUAL_IDENTITY,
-                                HiPay::DOCUMENT_LEGAL_IDENTITY_OF_REPRESENTATIVE
-                            )
-                        )) {
-                            $validityDate = new DateTime('+1 year');
-                        }
+                            if (in_array(
+                                $this->documentTypes[$theFile['type']],
+                                array(
+                                    HiPay::DOCUMENT_SOLE_MAN_BUS_IDENTITY,
+                                    HiPay::DOCUMENT_INDIVIDUAL_IDENTITY,
+                                    HiPay::DOCUMENT_LEGAL_IDENTITY_OF_REPRESENTATIVE
+                                )
+                            )) {
+                                $validityDate = new DateTime('+1 year');
+                            }
 
-                        $tmpFile = $tmpFilePath . '/'.preg_replace("/[^A-Za-z0-9\.]/", '', $theFile['file_name']);
+                            $tmpFile = $tmpFilePath . '/' . preg_replace("/[^A-Za-z0-9\.]/", '', $theFile['file_name']);
 
-                        file_put_contents(
-                            $tmpFile,
-                            $this->mirakl->downloadDocuments(array($theFile['id']))
-                        );
+                            file_put_contents(
+                                $tmpFile,
+                                $this->mirakl->downloadDocuments(array($theFile['id']))
+                            );
 
-                        try {
+                            $back = $this->getFileBack($theFile['type'], $shopBackFilesType, $theFile, $shopId, $tmpFilePath);
+
                             $this->hipay->uploadDocument(
                                 $vendor->getHiPayUserSpaceId(),
                                 $vendor->getHiPayId(),
                                 $this->documentTypes[$theFile['type']],
                                 $tmpFile,
-                                $validityDate
+                                $validityDate,
+                                $back['filePath']
                             );
 
                             $newDocument = $this->documentManager->create(
@@ -571,48 +594,21 @@ class Processor extends AbstractApiProcessor
                             );
                             $this->documentManager->save($newDocument);
 
+                            if ($back !== null) {
+                                $newDocument = $this->documentManager->create(
+                                    $back['fileObject']['id'],
+                                    new \DateTime($back['fileObject']['date_uploaded']),
+                                    $back['fileObject']['type'],
+                                    $vendor
+                                );
+                                $this->documentManager->save($newDocument);
+                            }
+
                             $this->logger->info(
                                 'Upload done. Document saved with ID: ' . $newDocument->getId(),
                                 array('miraklId' => $shopId, "action" => "Wallet creation")
                             );
-                        } // If this upload fails, we log the error but we continue for other files
-                        catch (Exception $e) {
-                            try {
-                                // log critical
-                                $title = 'The document ' .
-                                    $theFile['type'] .
-                                    ' for Mirakl shop ' .
-                                    $shopId .
-                                    ' could not be uploaded to HiPay Wallet for the following reason:';
-                                $infos = array(
-                                    'shopId' => $shopId,
-                                    'HipayId' => $vendor->getHiPayId(),
-                                    'Email' => $vendor->getEmail(),
-                                    'Type' => 'Critical'
-                                );
-                                $exceptionMsg = $e->getMessage();
-                                $message = $this->formatNotification->formatMessage($title, $infos, $exceptionMsg);
-                                $this->logger->critical(
-                                    $message,
-                                    array('miraklId' => $shopId, "action" => "Wallet creation")
-                                );
-                            } catch (\Exception $ex) {
-                                throw $ex;
-                            }
-                        }
-                    } else {
-                    if(!$fileExtensionOk){
-                        $this->logger->warning(
-                                'Document ' .
-                                $theFile['id'] .
-                                ' (type: ' .
-                                $theFile['type'] .
-                                ') for Mirakl for shop ' .
-                                $shopId .
-                                ' will not be uploaded because extension is wrong, should be jpg, jpeg, png, gif or pdf',
-                                array('miraklId' => $shopId, "action" => "Wallet creation")
-                            );
-                    }else if (!$missingFile["check"]) {
+                        } else {
                             $this->logger->info(
                                 'Document ' .
                                 $theFile['id'] .
@@ -624,11 +620,30 @@ class Processor extends AbstractApiProcessor
                                 $filesAlreadyUploaded[0]->getId(),
                                 array('miraklId' => $shopId, "action" => "Wallet creation")
                             );
-                        } else {
-                            $this->logger->warning(
-                                $missingFile["message"],
+                        }
+                    } // If this upload fails, we log the error but we continue for other files
+                    catch (Exception $e) {
+                        try {
+                            // log critical
+                            $title = 'The document ' .
+                                $theFile['type'] .
+                                ' for Mirakl shop ' .
+                                $shopId .
+                                ' could not be uploaded to HiPay Wallet for the following reason:';
+                            $infos = array(
+                                'shopId' => $shopId,
+                                'HipayId' => $vendor->getHiPayId(),
+                                'Email' => $vendor->getEmail(),
+                                'Type' => 'Critical'
+                            );
+                            $exceptionMsg = $e->getMessage();
+                            $message = $this->formatNotification->formatMessage($title, $infos, $exceptionMsg);
+                            $this->logger->critical(
+                                $message,
                                 array('miraklId' => $shopId, "action" => "Wallet creation")
                             );
+                        } catch (\Exception $ex) {
+                            throw $ex;
                         }
                     }
                 }
@@ -984,7 +999,7 @@ class Processor extends AbstractApiProcessor
 
         if (!empty($files)) {
             $file = end($files);
-            $tmpFile = $tmpFilePath . '/'.preg_replace("/[^A-Za-z0-9\.]/", '', $file['file_name']);
+            $tmpFile = $tmpFilePath . '/' . preg_replace("/[^A-Za-z0-9\.]/", '', $file['file_name']);
             file_put_contents($tmpFile, $this->mirakl->downloadDocuments(array($file['id'])));
 
             return $tmpFile;
@@ -993,82 +1008,103 @@ class Processor extends AbstractApiProcessor
         return null;
     }
 
+
     /**
-     * check if one of two parts documents is missing
-     * @param type $type
-     * @param type $theFiles
-     * @return boolean
+     * @param $fileName
+     * @param $file
+     * @param $shopId
+     * @throws Exception
      */
-    private function missingFile($file, $theFiles, $shopId)
+    private function checkExtensionFile($fileName, $file, $shopId)
     {
 
-        switch($file['type']){
-            case Mirakl::DOCUMENT_LEGAL_IDENTITY_OF_REPRESENTATIVE:
-                return $this->checkMissingFile($file, Mirakl::DOCUMENT_LEGAL_IDENTITY_OF_REP_REAR, $theFiles, $shopId);
-            case Mirakl::DOCUMENT_LEGAL_IDENTITY_OF_REP_REAR:
-                return $this->checkMissingFile($file, Mirakl::DOCUMENT_LEGAL_IDENTITY_OF_REPRESENTATIVE, $theFiles, $shopId);
-            case Mirakl::DOCUMENT_SOLE_MAN_BUS_IDENTITY:
-                return $this->checkMissingFile($file, Mirakl::DOCUMENT_SOLE_MAN_BUS_IDENTITY_REAR, $theFiles, $shopId);
-            case Mirakl::DOCUMENT_SOLE_MAN_BUS_IDENTITY_REAR:
-                return $this->checkMissingFile($file, Mirakl::DOCUMENT_SOLE_MAN_BUS_IDENTITY, $theFiles, $shopId);
-            default:
-                return array("check" => false, "message" => "");
-        }
-    }
-
-    /**
-     * check if one of two parts documents is missing, if not check if second part file extension is ok
-     * @param type $file
-     * @param type $type
-     * @param type $theFiles
-     * @param type $shopId
-     * @return string
-     */
-    private function checkMissingFile($file, $type, $theFiles, $shopId){
-
-        $missingFile = array("check" => false, "message" => "");
-
-        $key = $this->searchForType($type, $theFiles);
-
-        $fileOk = (!$key)?false: $this->checkExtensionFile($theFiles[$key]['file_name']);
-
-        if(!$fileOk){
-            $missingFile["check"] = true;
-            $missingFile["message"] = 'Document ' .
+        if (!preg_match('/^.*\.(jpg|jpeg|png|gif|pdf)$/i', $fileName)) {
+            throw new Exception(
+                'Document ' .
                 $file['id'] .
                 ' (type: ' .
                 $file['type'] .
                 ') for Mirakl for shop ' .
                 $shopId .
-                ' will not be uploaded because file of type ' .
-                $type .
-                ' not uploaded in Mirakl or uploaded with wrong extension';
+                ' will not be uploaded because extension is wrong, should be jpg, jpeg, png, gif or pdf'
+            );
         }
-
-        return $missingFile;
     }
 
     /**
-     * check if extension file is img or pdf
-     * @param type $fileName
-     * @return type
-     */
-    private function checkExtensionFile($fileName){
-        return preg_match('/^.*\.(jpg|jpeg|png|gif|pdf)$/i', $fileName);
-    }
-
-    /**
+     * get file corresponding to the back of a file type
      *
-     * @param type $type
-     * @param type $array
-     * @return boolean
+     * @param $fileType
+     * @param $allMiraklFiles
+     * @param $frontFile
+     * @param $shopId
+     * @return array|null
+     * @throws Exception
      */
-    private function searchForType($type, $array) {
-        foreach ($array as $key => $val) {
-            if ($val['type'] === $type) {
-                return $key;
+    private function getFileBack($fileType, $allMiraklFiles, $frontFile, $shopId, $tmpFilePath)
+    {
+
+        try {
+
+            $backType = $this->getFileBackType($fileType);
+
+            // this file type has no backs
+            if (!$backType) {
+                return null;
             }
+
+            $files = array_filter(
+                $allMiraklFiles,
+                function ($aFile) use ($backType) {
+                    return $aFile['type'] == $backType;
+                }
+            );
+
+            // No back has been found in Mirakl files
+            if (empty($files)) {
+                return null;
+            }
+
+            $file = end($files);
+            // check if extension of file is correct
+            $this->checkExtensionFile($file['file_name'], $file, $shopId);
+            // save file
+            $tmpFile = $tmpFilePath . '/' . time() . preg_replace("/[^A-Za-z0-9\.]/", '', $file['file_name']);
+            file_put_contents($tmpFile, $this->mirakl->downloadDocuments(array($file['id'])));
+
+            return array('filePath' => $tmpFile, 'fileObject' => $file);
+
+        } catch (Exception $e) {
+            throw new Exception(
+                'Document ' .
+                $frontFile['id'] .
+                ' (type: ' .
+                $fileType .
+                ') for Mirakl for shop ' .
+                $shopId .
+                ' will not be uploaded because file of type ' .
+                $backType .
+                ' not uploaded in Mirakl or uploaded with wrong extension'
+            );
         }
-        return false;
+
+    }
+
+    /**
+     * return back of a document type
+     *
+     * @param $type
+     * @return bool|string
+     */
+    private function getFileBackType($type)
+    {
+        switch ($type) {
+            case Mirakl::DOCUMENT_LEGAL_IDENTITY_OF_REPRESENTATIVE:
+                return Mirakl::DOCUMENT_LEGAL_IDENTITY_OF_REP_REAR;
+            case Mirakl::DOCUMENT_SOLE_MAN_BUS_IDENTITY:
+                return Mirakl::DOCUMENT_SOLE_MAN_BUS_IDENTITY_REAR;
+            default:
+                return false;
+        }
     }
 }
