@@ -151,7 +151,7 @@ class Processor extends AbstractApiProcessor
             $this->logger->info('[OK] Bank info updated', array('miraklId' => null, "action" => "Wallet creation"));
 
             $this->logVendorManager->saveAll($this->vendorsLogs);
-        } catch (ClientErrorResponseException $e) {
+        } catch (Exception $e) {
             try {
                 // log critical
                 $title = 'Error Vendor:Process ';
@@ -161,19 +161,6 @@ class Processor extends AbstractApiProcessor
             } catch (\Exception $ex) {
                 $this->handleException($e, "critical", array('miraklId' => null, "action" => "Wallet creation"));
             }
-        } catch (\Exception $e) {
-            $trace = array_map(
-                function ($item) {
-                    return array(
-                        'file' => $item['file'],
-                        'line' => $item['line'],
-                        'action' => 'Wallet creation'
-                    );
-                },
-                $e->getTrace()
-            );
-
-            $this->handleException($e, "critical", $trace);
         }
     }
 
@@ -236,6 +223,7 @@ class Processor extends AbstractApiProcessor
                 $miraklId = $vendorData['shop_id'];
 
                 $vendor = $this->vendorManager->findByMiraklId($miraklId);
+
                 if (!$vendor) {
                     if (!$this->hasWallet($email)) {
                         //Wallet create (call to HiPay)
@@ -271,7 +259,7 @@ class Processor extends AbstractApiProcessor
                     );
                 } elseif ($vendor) {
                     //Fetch the wallet id from HiPay
-                    $walletInfo = $this->getWalletUserInfo($vendorData);
+                    $walletInfo = $this->getWalletUserInfo($vendorData, $vendor);
                     $vendor->setVatNumber($vendorData['pro_details']['VAT_number']);
                     $vendor->setCallbackSalt($walletInfo->getCallbackSalt());
                     $vendor->setHiPayIdentified($walletInfo->getIdentified());
@@ -390,7 +378,7 @@ class Processor extends AbstractApiProcessor
      *
      * @return AccountInfo the get account info
      */
-    protected function getWalletUserInfo(array $shopData)
+    protected function getWalletUserInfo(array $shopData, VendorInterface $vendor = null)
     {
         $userAccount = new UserAccount($shopData);
 
@@ -398,7 +386,7 @@ class Processor extends AbstractApiProcessor
             $userAccount
         );
 
-        $walletInfo = $this->hipay->getWalletInfo($event->getUserAccount());
+        $walletInfo = $this->hipay->getWalletInfo($event->getUserAccount(), $vendor);
 
         return $walletInfo;
     }
@@ -588,7 +576,7 @@ class Processor extends AbstractApiProcessor
                                 array('miraklId' => $shopId, "action" => "Wallet creation")
                             );
                         } // If this upload fails, we log the error but we continue for other files
-                        catch (ClientErrorResponseException $e) {
+                        catch (Exception $e) {
                             try {
                                 // log critical
                                 $title = 'The document ' .
@@ -1041,7 +1029,7 @@ class Processor extends AbstractApiProcessor
         $missingFile = array("check" => false, "message" => "");
 
         $key = $this->searchForType($type, $theFiles);
-        
+
         $fileOk = (!$key)?false: $this->checkExtensionFile($theFiles[$key]['file_name']);
 
         if(!$fileOk){

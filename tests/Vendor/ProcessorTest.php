@@ -167,7 +167,8 @@ class ProcessorTest extends AbstractProcessorTest
         $walletInfo = new HiPay\Wallet\AccountInfo(mt_rand(), mt_rand(), true, mt_rand());
 
         $this->hipay->getWalletInfo(
-            Argument::type("\\HiPay\\Wallet\\Mirakl\\Api\\HiPay\\Model\\Rest\\UserAccount")
+            Argument::type("\\HiPay\\Wallet\\Mirakl\\Api\\HiPay\\Model\\Rest\\UserAccount"),
+            Argument::type("HiPay\\Wallet\\Mirakl\\Vendor\\Model\\VendorInterface")
         )->willReturn($walletInfo)->shouldBeCalled();
 
         $vendors = $this->vendorProcessor->registerWallets(Mirakl::getVendor());
