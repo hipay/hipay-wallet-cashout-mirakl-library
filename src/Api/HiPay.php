@@ -131,7 +131,8 @@ class HiPay implements ApiInterface
         $accountId,
         $documentType,
         $fileName,
-        \DateTime $validityDate = null
+        \DateTime $validityDate = null,
+        $back = null
     ) {
         $this->resetRestClient();
 
@@ -146,11 +147,16 @@ class HiPay implements ApiInterface
             );
         }
 
+        if ($back !== null) {
+            $back = new PostFile('back', $back);
+        }
+
         $parameters = array(
             'userSpaceId' => $userSpaceId,
             'validityDate' => $validityDate,
             'type' => $documentType,
-            'file' => new PostFile('file', $fileName)
+            'file' => new PostFile('file', $fileName),
+            'back' => $back
         );
 
         $command = $this->restClient->getCommand(
@@ -517,12 +523,12 @@ class HiPay implements ApiInterface
             $this->password
         );
 
-        if( $vendor !== null ){
+        if ($vendor !== null) {
             $this->restClient->getConfig()->setPath(
                 'request.options/headers/php-auth-subaccount-id',
                 $vendor->getHiPayId()
             );
-        }else if (!empty($userAccount->getLogin())) {
+        } else if (!empty($userAccount->getLogin())) {
             $this->restClient->getConfig()->setPath(
                 'request.options/headers/php-auth-subaccount-login',
                 $userAccount->getLogin()

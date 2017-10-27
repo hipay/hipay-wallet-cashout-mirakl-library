@@ -297,9 +297,9 @@ class ProcessorTest extends AbstractProcessorTest
         $prophecy->reveal();
 
         // Sending documents to HiPay Wallet
-        $this->hipay->uploadDocument(771, 120001, HiPay::DOCUMENT_ALL_PROOF_OF_BANK_ACCOUNT, Argument::any(), Argument::any())->shouldBeCalledTimes(1);
-        $this->hipay->uploadDocument(772, 120002, HiPay::DOCUMENT_LEGAL_IDENTITY_OF_REPRESENTATIVE, Argument::any(), Argument::any())->willThrow(new ClientErrorResponseException())->shouldBeCalledTimes(2);
-        $this->hipay->uploadDocument(772, 120002, HiPay::DOCUMENT_LEGAL_PROOF_OF_REGISTRATION_NUMBER, Argument::any(), Argument::any())->shouldBeCalledTimes(1);
+        $this->hipay->uploadDocument(771, 120001, HiPay::DOCUMENT_ALL_PROOF_OF_BANK_ACCOUNT, Argument::any(), Argument::any(), null)->shouldBeCalledTimes(1);
+        $this->hipay->uploadDocument(772, 120002, HiPay::DOCUMENT_LEGAL_IDENTITY_OF_REPRESENTATIVE, Argument::any(), Argument::any(), Argument::any())->willThrow(new ClientErrorResponseException())->shouldBeCalledTimes(1);
+        $this->hipay->uploadDocument(772, 120002, HiPay::DOCUMENT_LEGAL_PROOF_OF_REGISTRATION_NUMBER, Argument::any(), Argument::any(), null)->shouldBeCalledTimes(1);
 
         // Save document in DB
         $this->documentManager->create(2006, Argument::type("DateTime"), "ALL_PROOF_OF_BANK_ACCOUNT", $vendor1)->willReturn($document1)->shouldBeCalledTimes(1);
@@ -311,28 +311,6 @@ class ProcessorTest extends AbstractProcessorTest
         $this->vendorProcessor->transferFiles($shops, $tmpDir);
 
         $prophet->checkPredictions();
-    }
-
-    /**
-     *
-     * @covers ::transferFiles
-     */
-    public function testMissingTransferFiles(){
-        $shops = array(666, 888);
-        $tmpDir = '/tmp/dir';
-        $vendor = new Vendor('test@ex1.com', 120001, mt_rand(), 771);
-
-        // Getting documents list
-        $this->mirakl->getFiles($shops)->willReturn(Mirakl::getShopDocuments($shops))->shouldBeCalled();
-
-        $this->vendorManager->findByMiraklId(666)->willReturn($vendor)->shouldBeCalledTimes(1);
-        $this->vendorManager->findByMiraklId(888)->willReturn($vendor)->shouldBeCalledTimes(1);
-
-        $this->documentManager->findByVendor($vendor)->willReturn(array())->shouldBeCalledTimes(2);
-
-        $this->mirakl->downloadDocuments(Argument::any(), Argument::any())->shouldNotBeCalled();
-        $this->hipay->uploadDocument(Argument::any(), Argument::any(), Argument::any(), Argument::any(), Argument::any())->shouldNotBeCalled();
-        $this->vendorProcessor->transferFiles($shops, $tmpDir);
     }
 
     /**

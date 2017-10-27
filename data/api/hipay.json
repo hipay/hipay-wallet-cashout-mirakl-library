@@ -29,6 +29,13 @@
                     "sentAs": "file",
                     "required": true
                 },
+                "back": {
+                    "type": "any",
+                    "description": "The document to be uploaded",
+                    "location": "postFile",
+                    "sentAs": "back",
+                    "required": false
+                },
                 "validityDate": {
                     "type": "object",
                     "instanceOf": "DateTime",
