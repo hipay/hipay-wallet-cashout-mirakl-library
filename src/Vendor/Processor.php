@@ -574,7 +574,7 @@ class Processor extends AbstractApiProcessor
                                 $tmpFile,
                                 $this->mirakl->downloadDocuments(array($theFile['id']))
                             );
-
+                            
                             $back = $this->getFileBack($theFile['type'], $shopBackFilesType, $theFile, $shopId, $tmpFilePath);
 
                             $this->hipay->uploadDocument(
@@ -583,7 +583,7 @@ class Processor extends AbstractApiProcessor
                                 $this->documentTypes[$theFile['type']],
                                 $tmpFile,
                                 $validityDate,
-                                $back['filePath']
+                                ($back !== null)? $back['filePath'] : null
                             );
 
                             $newDocument = $this->documentManager->create(
