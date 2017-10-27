@@ -300,7 +300,7 @@ class Processor extends AbstractApiProcessor
                     $this->generateLogin($vendorData),
                     LogVendorsInterface::WALLET_NOT_CREATED,
                     LogVendorsInterface::CRITICAL,
-                    $exception->getMessage(),
+                    $e->getMessage(),
                     0
                 );
                 $this->handleException(
