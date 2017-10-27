@@ -293,10 +293,10 @@ class Processor extends AbstractApiProcessor
                     '[OK] The vendor is treated',
                     array('miraklId' => $vendor->getMiraklId(), "action" => "Wallet creation")
                 );
-            } catch (DispatchableException $e) {
+            } catch (Exception $e) {
                 $this->logVendor(
                     $vendorData['shop_id'],
-                    null,
+                    -1,
                     $this->generateLogin($vendorData),
                     LogVendorsInterface::WALLET_NOT_CREATED,
                     LogVendorsInterface::CRITICAL,
