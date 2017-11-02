@@ -55,20 +55,20 @@ class HiPay implements ApiInterface
     protected $restClient;
 
     // For all types of businesses
-    CONST DOCUMENT_ALL_PROOF_OF_BANK_ACCOUNT = 6;
+    const DOCUMENT_ALL_PROOF_OF_BANK_ACCOUNT = 6;
     // For individual only
-    CONST DOCUMENT_INDIVIDUAL_IDENTITY = 1;
-    CONST DOCUMENT_INDIVIDUAL_PROOF_OF_ADDRESS = 2;
+    const DOCUMENT_INDIVIDUAL_IDENTITY = 1;
+    const DOCUMENT_INDIVIDUAL_PROOF_OF_ADDRESS = 2;
     // For legal entity businesses only
-    CONST DOCUMENT_LEGAL_IDENTITY_OF_REPRESENTATIVE = 3;
-    CONST DOCUMENT_LEGAL_PROOF_OF_REGISTRATION_NUMBER = 4;
-    CONST DOCUMENT_LEGAL_ARTICLES_DISTR_OF_POWERS = 5;
+    const DOCUMENT_LEGAL_IDENTITY_OF_REPRESENTATIVE = 3;
+    const DOCUMENT_LEGAL_PROOF_OF_REGISTRATION_NUMBER = 4;
+    const DOCUMENT_LEGAL_ARTICLES_DISTR_OF_POWERS = 5;
     // For one man businesses only
-    CONST DOCUMENT_SOLE_MAN_BUS_IDENTITY = 7;
-    CONST DOCUMENT_SOLE_MAN_BUS_PROOF_OF_REG_NUMBER = 8;
-    CONST DOCUMENT_SOLE_MAN_BUS_PROOF_OF_TAX_STATUS = 9;
+    const DOCUMENT_SOLE_MAN_BUS_IDENTITY = 7;
+    const DOCUMENT_SOLE_MAN_BUS_PROOF_OF_REG_NUMBER = 8;
+    const DOCUMENT_SOLE_MAN_BUS_PROOF_OF_TAX_STATUS = 9;
     // For log separator for markdown
-    CONST LINEMKD = "\r";
+    const LINEMKD = "\r";
 
     /**
      * Constructor.
@@ -91,7 +91,7 @@ class HiPay implements ApiInterface
         $locale = 'fr_FR',
         $timeZone = 'Europe/Paris',
         $options = array(),
-        $rest
+        $rest = true
     ) {
         $this->login = $login;
         $this->password = $password;
@@ -950,7 +950,8 @@ class HiPay implements ApiInterface
                 PHP_EOL .
                 'Parameters :' .
                 PHP_EOL .
-                print_r($parameters, true), $response['code']
+                print_r($parameters, true),
+                $response['code']
             );
         } else {
             unset($response['code']);
@@ -999,7 +1000,8 @@ class HiPay implements ApiInterface
             PHP_EOL .
             'Parameters : ' .
             print_r($parameters, true) .
-            PHP_EOL, $result['code']
+            PHP_EOL,
+            $result['code']
         );
 
     }

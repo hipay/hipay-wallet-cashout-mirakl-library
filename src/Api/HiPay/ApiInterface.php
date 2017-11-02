@@ -47,25 +47,6 @@ interface ApiInterface
      * Enforce the locale to the one given on object construction if false
      * Enforce the timezone to the one given on object construction if false.
      *
-     * @param UserAccountBasic $accountBasic
-     * @param UserAccountDetails $accountDetails
-     * @param MerchantData $merchantData
-     *
-     * @return int the user account id
-     *
-     * @throws Exception
-     */
-    /*public function createFullUseraccount(
-        UserAccountBasic $accountBasic,
-        UserAccountDetails $accountDetails,
-        MerchantData $merchantData
-    );*/
-    /**
-     * Create an new account on HiPay wallet
-     * Enforce the entity to the one given on object construction
-     * Enforce the locale to the one given on object construction if false
-     * Enforce the timezone to the one given on object construction if false.
-     *
      * @param UserAccount $userAccount
      * @param MerchantData $merchantData
      *
@@ -213,6 +194,13 @@ interface ApiInterface
      */
     public function getMerchantsGroupAccounts($merchantGroupId, DateTime $pastDate);
 
-
-    public function uploadDocument($userSpaceId,$accountId, $documentType, $fileName, \DateTime $validityDate = null);
+    /**
+     *
+     * @param type $userSpaceId
+     * @param type $accountId
+     * @param type $documentType
+     * @param type $fileName
+     * @param DateTime $validityDate
+     */
+    public function uploadDocument($userSpaceId, $accountId, $documentType, $fileName, \DateTime $validityDate = null);
 }
