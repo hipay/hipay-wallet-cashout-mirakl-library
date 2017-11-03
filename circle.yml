@@ -4,4 +4,4 @@ machine:
 
 test:
   override:
-    - phpunit -c tests/phpunit.xml --coverage-clover coverage.xml --log-junit logs.xml
+    - phpunit -c tests/phpunit.xml --coverage-clover $CIRCLE_ARTIFACTS/coverage.xml --log-junit $CIRCLE_ARTIFACTS/logs.xml
