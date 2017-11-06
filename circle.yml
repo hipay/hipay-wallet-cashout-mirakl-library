@@ -3,6 +3,9 @@ machine:
     - perl -pi -e 's/; z/z/' ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/xdebug.ini 
   php:
     version: 5.6.14
+dependencies:
+  pre:
+    - pecl install xdebug    
 test:
   override:
     - phpunit -c tests/phpunit.xml --coverage-clover $CIRCLE_ARTIFACTS/coverage.xml --log-junit $CIRCLE_ARTIFACTS/logs.xml
