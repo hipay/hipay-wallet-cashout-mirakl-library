@@ -5,7 +5,7 @@ machine:
     version: 5.6.14
 dependencies:
   pre:
-    - pecl install xdebug    
+    - pecl install xdebug 2.2.7    
 test:
   override:
     - phpunit -c tests/phpunit.xml --coverage-clover $CIRCLE_ARTIFACTS/coverage.xml --log-junit $CIRCLE_ARTIFACTS/logs.xml
