@@ -1,3 +1,11 @@
+# Version 2.8.0
+- Fix Identification API bug
+- Fix Wallet api login bug when shop name is changed
+- Switch from TL01 Mirakl API to IV01
+- Add negative operations adjustment process
+- Set Rest and SOAP user agent
+- Fix REST wallet API calls
+
 # Version 2.7.0
 - Add support for new KYC rules in HiPay Wallet API
 - Fix bug in bank information api call
