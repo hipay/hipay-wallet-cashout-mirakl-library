@@ -133,7 +133,7 @@ interface ApiInterface
      *
      * @throws Exception
      */
-    public function getWalletInfo(UserAccount $userAccount);
+    public function getWalletInfo(UserAccount $userAccount, $vendor);
 
     /**
      * Return the identified status of the account.

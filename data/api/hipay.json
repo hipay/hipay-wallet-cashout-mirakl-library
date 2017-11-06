@@ -29,6 +29,13 @@
                     "sentAs": "file",
                     "required": true
                 },
+                "back": {
+                    "type": "any",
+                    "description": "The document to be uploaded",
+                    "location": "postFile",
+                    "sentAs": "back",
+                    "required": false
+                },
                 "validityDate": {
                     "type": "object",
                     "instanceOf": "DateTime",
@@ -549,7 +556,7 @@
                     "description": "Label of the transfer known by you and the recipient user",
                     "location": "postField",
                     "required": true,
-                    "sentAs": "public_label"
+                    "sentAs": "label"
                 }
             }
         }
