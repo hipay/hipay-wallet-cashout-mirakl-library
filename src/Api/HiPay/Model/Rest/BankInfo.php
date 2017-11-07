@@ -15,7 +15,6 @@ class BankInfo extends ModelAbstract
     /**
      * @var string
      *
-     * @Assert\NotBlank
      * @Assert\Regex(
      *     pattern="/^[a-zA-Z0-9 ]+$/",
      *      message="Only alphanumeric characters allowed"
@@ -26,21 +25,18 @@ class BankInfo extends ModelAbstract
     /**
      * @var string
      *
-     * @Assert\NotBlank
      */
     protected $bankAddress;
 
     /**
      * @var string
      *
-     * @Assert\NotBlank
      */
     protected $bankZipCode;
 
     /**
      * @var string
      *
-     * @Assert\NotBlank
      * @Assert\Regex(
      *     pattern="/^[a-zA-Z0-9 ]+$/",
      *      message="Only alphanumeric characters allowed"
@@ -58,7 +54,6 @@ class BankInfo extends ModelAbstract
     /**
      * @var string
      *
-     * @Assert\NotBlank
      * @Assert\Iban
      */
     protected $iban;
@@ -126,10 +121,10 @@ class BankInfo extends ModelAbstract
      */
     public function setHiPayData(array $hipayData)
     {
-        $this->bankName = $hipayData['bankName'];
-        $this->bankAddress = $hipayData['bankAddress'];
-        $this->bankZipCode = $hipayData['bankZipCode'];
-        $this->bankCity = $hipayData['bankCity'];
+        $this->bankName = $hipayData['bank_name'];
+        $this->bankAddress = $hipayData['bank_address'];
+        $this->bankZipCode = $hipayData['bank_zip_code'];
+        $this->bankCity = $hipayData['bank_city'];
         $this->swift = $hipayData['swift'];
         $this->iban = $hipayData['iban'];
         $this->bankCountry = $hipayData['bankCountry'];
