@@ -20,6 +20,7 @@ use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use HiPay\Wallet\Mirakl\Notification\FormatNotification;
+use HiPay\Wallet\Mirakl\Api\Mirakl;
 
 /**
  * Generate and save the operation to be executed by the processor.
@@ -425,13 +426,30 @@ class Initializer extends AbstractOperationProcessor
      */
     private function getInvoices(DateTime $startDate, DateTime $endDate)
     {
-        $invoices = $this->mirakl->getInvoices(
+        $offset = Mirakl::MIRAKL_API_MAX_PAGINATE;
+
+        $invoicesData = $this->mirakl->getInvoices(
             $startDate,
-            $endDate,
-            null,
-            null,
-            null
+            $endDate
         );
+
+        $invoices = array_merge(array(), $invoicesData['invoices']);
+
+        $total = $invoicesData['total_count'];
+
+        while ( $total % $offset !== $total){
+
+            $invoicesData = $this->mirakl->getInvoices(
+                $startDate,
+                $endDate,
+                Mirakl::MIRAKL_API_MAX_PAGINATE,
+                $offset
+            );
+
+            $invoices = array_merge($invoices, $invoicesData['invoices']);
+
+            $offset += Mirakl::MIRAKL_API_MAX_PAGINATE;
+        }
 
         return $invoices;
     }
