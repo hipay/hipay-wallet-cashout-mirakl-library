@@ -163,6 +163,20 @@
           "description": "[optional] Currency iso code for filtering",
           "location": "query",
           "sentAs": "currency"
+        },
+        "max": {
+          "required": false,
+          "type": "integer",
+          "description": "The max parameter is used to indicate the maximum number of items returned per page.",
+          "location": "query",
+          "sentAs": "max"
+        },
+        "offset": {
+          "required": false,
+          "type": "integer",
+          "description": "The offset parameter is used to indicate the index of the first item (among all the results) in the returned page.",
+          "location": "query",
+          "sentAs": "offset"
         }
       }
     },
