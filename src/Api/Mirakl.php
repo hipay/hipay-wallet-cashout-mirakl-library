@@ -31,6 +31,9 @@ class Mirakl implements ApiInterface
     CONST DOCUMENT_SOLE_MAN_BUS_PROOF_OF_REG_NUMBER = 'SOLE_MAN_BUS_PROOF_OF_REG_NUMBER';
     CONST DOCUMENT_SOLE_MAN_BUS_PROOF_OF_TAX_STATUS = 'SOLE_MAN_BUS_PROOF_OF_TAX_STATUS';
 
+    const MIRAKL_API_MAX_PAGINATE = 100;
+    const MIRAKL_API_DEFAULT_OFFSET_PAGINATE = 0;
+
     /** @var Client guzzle client used for the request */
     protected $restClient;
 
@@ -186,6 +189,8 @@ class Mirakl implements ApiInterface
     public function getInvoices(
         DateTime $startDate = null,
         DateTime $endDate = null,
+        $max = self::MIRAKL_API_MAX_PAGINATE,
+        $offset = self::MIRAKL_API_DEFAULT_OFFSET_PAGINATE,
         $shopId = null,
         $type = 'AUTO_INVOICE',
         $currency = null
@@ -201,12 +206,14 @@ class Mirakl implements ApiInterface
                 'startDate' => $startDate,
                 'endDate' => $endDate,
                 'type' => $type,
-                'currency' => $currency
+                'currency' => $currency,
+                'max' => $max,
+                'offset' => $offset
             )
         );
         $result = $this->restClient->execute($command);
 
-        return $result['invoices'];
+        return $result;
     }
 
     /**
@@ -285,4 +292,5 @@ class Mirakl implements ApiInterface
         }
         return $bool;
     }
+
 }

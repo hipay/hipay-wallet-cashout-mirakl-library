@@ -1,3 +1,6 @@
+# Version 2.8.1
+- Fix Mirakl Api pagination bug
+
 # Version 2.8.0
 - Fix Identification API bug
 - Fix Wallet api login bug when shop name is changed
