@@ -193,7 +193,7 @@ class UserAccount extends ModelAbstract
         $this->civility = static::formatTitle(
             $miraklData['contact_informations']['civility']
         );
-        $this->companyName = $miraklData['shop_name'];
+        $this->companyName = $miraklData['pro_details']['corporate_name'];
         $this->vatNumber = $miraklData['pro_details']['VAT_number'];
 
         $address = $miraklData['contact_informations']['street1'] .' '. $miraklData['contact_informations']['street2'];
