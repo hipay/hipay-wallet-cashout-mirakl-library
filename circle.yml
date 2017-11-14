@@ -9,10 +9,4 @@ test:
   override:
     - phpunit -c tests/phpunit.xml --coverage-clover $CIRCLE_ARTIFACTS/coverage.xml --log-junit $CIRCLE_ARTIFACTS/logs.xml
   post:
-    - sh ./bin/deployment/sonar.sh > /dev/null  
-deployment:
-  prod:
-    branch: /.*?/
-    tag: /.*?/
-    commands:
-      - sh ./bin/deployment/deploy_project.sh
+    - sh ./bin/deployment/sonar.sh > /dev/null
