@@ -189,7 +189,10 @@ class UserAccount extends ModelAbstract
         $this->firstname = $miraklData['contact_informations']['firstname'];
         $this->lastname = $miraklData['contact_informations']['lastname'];
         $this->currency = $miraklData['currency_iso_code'];
-        $this->login = 'mirakl_' . preg_replace("/[^A-Za-z0-9]/", '',$miraklData['shop_name']) . '_' . $miraklData['shop_id'];
+        $this->login = 'mirakl_' .
+            preg_replace("/[^A-Za-z0-9]/", '', $miraklData['shop_name']) .
+            '_' .
+            $miraklData['shop_id'];
         $this->civility = static::formatTitle(
             $miraklData['contact_informations']['civility']
         );
@@ -203,22 +206,22 @@ class UserAccount extends ModelAbstract
         $phone = $miraklData['contact_informations']['phone'];
         $fax = $miraklData['contact_informations']['fax'];
 
-        if(!empty($address)) {
+        if (!empty($address)) {
             $this->address["address"] = $address;
         }
-        if(!empty($zipcode)) {
+        if (!empty($zipcode)) {
             $this->address["zipcode"] = $zipcode;
         }
-        if(!empty($city)) {
+        if (!empty($city)) {
             $this->address["city"] = $city;
         }
-        if(!empty($country)) {
+        if (!empty($country)) {
             $this->address["country"] = $country;
         }
-        if(!empty($phone)) {
+        if (!empty($phone)) {
             $this->address["phone_number"] = $phone;
         }
-        if(!empty($fax)) {
+        if (!empty($fax)) {
             $this->address["fax_number"] = $fax;
         }
 

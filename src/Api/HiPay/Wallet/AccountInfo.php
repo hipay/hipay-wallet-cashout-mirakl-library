@@ -17,13 +17,12 @@ class AccountInfo
     private $requestMessage;
 
     /**
-     * AccountInfo constructor.
      *
-     * @param $userAccountld User account ID
-     * @param $userSpaceld User space ID
-     * @param $identified Whether the account is identified or not
-     * @param $vatNumber User VAT Number
-     * @param $callbackSalt User Security key
+     * @param type $userAccountld
+     * @param type $userSpaceld
+     * @param type $identified
+     * @param type $callbackSalt
+     * @param type $requestMessage
      */
     public function __construct($userAccountld, $userSpaceld, $identified, $callbackSalt, $requestMessage = "")
     {
