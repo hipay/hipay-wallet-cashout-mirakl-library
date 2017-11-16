@@ -528,7 +528,7 @@ class HiPay implements ApiInterface
                 'request.options/headers/php-auth-subaccount-id',
                 $vendor->getHiPayId()
             );
-        } else if (!empty($userAccount->getLogin())) {
+        } elseif (!empty($userAccount->getLogin())) {
             $this->restClient->getConfig()->setPath(
                 'request.options/headers/php-auth-subaccount-login',
                 $userAccount->getLogin()
@@ -629,7 +629,7 @@ class HiPay implements ApiInterface
                 'request.options/headers/php-auth-subaccount-id',
                 $vendor->getHiPayId()
             );
-        } else if (!is_null($vendor->getLogin())) {
+        } elseif (!is_null($vendor->getLogin())) {
             $this->restClient->getConfig()->setPath(
                 'request.options/headers/php-auth-subaccount-login',
                 $vendor->getLogin()

@@ -40,7 +40,8 @@ abstract class AbstractProcessor
      * @param EventDispatcherInterface $dispatcher
      * @param LoggerInterface          $logger
      */
-    public function __construct(EventDispatcherInterface $dispatcher, LoggerInterface $logger) {
+    public function __construct(EventDispatcherInterface $dispatcher, LoggerInterface $logger)
+    {
 
         $this->dispatcher = $dispatcher;
 
