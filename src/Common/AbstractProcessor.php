@@ -85,9 +85,9 @@ abstract class AbstractProcessor
     {
         $title = 'Handle Exception: '. $level;
         $messageException = $exception->getMessage();
-        $message = $this->formatNotification->formatMessage($title,false,$messageException);
+        $message = $this->formatNotification->formatMessage($title, false, $messageException);
         $this->logger->$level($message, $context);
-        
+
         $this->dispatcher->dispatch(
             $exception instanceof DispatchableException ? $exception->getEventName() : 'exception.thrown',
             new ThrowException($exception)
