@@ -133,7 +133,7 @@
                     "description": "Bank Name",
                     "location": "postField",
                     "sentAs": "bank_name",
-                    "required": true
+                    "required": false
                 },
                 "bankAddress": {
                     "type": "string",
@@ -161,14 +161,14 @@
                     "description": "IBAN",
                     "location": "postField",
                     "sentAs": "iban",
-                    "required": true
+                    "required": false
                 },
                 "swift": {
                     "type": "string",
                     "description": "SWIFT \/ BIC ",
                     "location": "postField",
                     "sentAs": "swift",
-                    "required": true
+                    "required": false
                 },
                 "abaNum": {
                     "type": "string",
