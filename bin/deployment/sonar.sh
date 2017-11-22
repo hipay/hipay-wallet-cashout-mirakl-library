@@ -8,6 +8,6 @@ fi
 if [ -z $CIRCLE_BRANCH ];then
     echo "Not a branch merge"
 elif [ $CIRCLE_BRANCH = "develop" ];then
-    sudo sonar-scanner -Dsonar.host.url=$SONAR_URL -Dsonar.login=$SONAR_LOGIN -Dsonar.sources=. -Dsonar.php.tests.reportPath=$CIRCLE_ARTIFACTS/logs.xml  -Dsonar.php.coverage.reportPaths=$CIRCLE_ARTIFACTS/coverage.xml
+    sudo sonar-scanner -Dsonar.host.url=$SONAR_URL -Dsonar.login=$SONAR_LOGIN -Dsonar.sources=. -Dsonar.php.tests.reportPath=~/logs.xml  -Dsonar.php.coverage.reportPaths=~/coverage.xml
 fi
 
