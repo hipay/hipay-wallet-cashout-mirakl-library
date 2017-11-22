@@ -23,6 +23,12 @@ jobs:
       steps:
         - checkout
         - run:
+            name: Install Wget
+            command: sudo apt install -y wget
+        - run:
+            name: Install php-soap
+            command: sudo apt install -y php-soap
+        - run:
             <<: *install_composer
         - run:
             name: Setup Sonar
