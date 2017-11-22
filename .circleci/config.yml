@@ -36,7 +36,7 @@ jobs:
             <<: *install_composer
         - run:
             name: Setup Sonar
-            command: sudo sh ./bin/deployment/setup_sonar.sh
+            command: sh ./bin/deployment/setup_sonar.sh
         - run:
             name: Update composer
             command: sudo composer self-update
