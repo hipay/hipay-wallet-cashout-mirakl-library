@@ -23,6 +23,9 @@ jobs:
       steps:
         - checkout
         - run:
+            name: Update dependencies
+            command: sudo apt-get update
+        - run:
             name: Install Wget
             command: sudo apt install -y wget
         - run:
