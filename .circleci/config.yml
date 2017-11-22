@@ -30,12 +30,12 @@ jobs:
             command: sudo apt install -y wget
         - run:
             name: Install php-soap
-            command: sudo apt install -y php-soap
+            command: sudo docker-php-ext-install soap
         - run:
             <<: *install_composer
         - run:
             name: Setup Sonar
-            command: sh ./bin/deployment/setup_sonar.sh
+            command: sudo sh ./bin/deployment/setup_sonar.sh
         - run:
             name: Update composer
             command: sudo composer self-update
