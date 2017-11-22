@@ -27,6 +27,9 @@ jobs:
             name: Update dependencies
             command: sudo apt-get update
         - run:
+            name: Install Xdebug
+            command: sudo pecl channel-update pecl.php.net && sudo pecl install xdebug && sudo docker-php-ext-enable xdebug
+        - run:
             name: Install Wget
             command: sudo apt install -y wget
         - run:
