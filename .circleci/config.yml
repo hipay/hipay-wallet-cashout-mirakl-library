@@ -6,9 +6,6 @@ jobs:
       steps:
         - checkout
         - run:
-            name: Install Xdebug
-            command: pecl install xdebug
-        - run:
             name: Setup Sonar
             command: sh ./bin/deployment/setup_sonar.sh
         - run:
