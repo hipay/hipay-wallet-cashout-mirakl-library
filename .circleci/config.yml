@@ -1,0 +1,33 @@
+version: 2
+jobs:
+    build:
+      docker:
+        - image: circleci/php:5.6.14
+      steps:
+        - checkout
+        - run:
+            name: Install Xdebug
+            command: pecl install xdebug
+        - run:
+            name: Setup Sonar
+            command: sh ./bin/deployment/setup_sonar.sh
+        - run:
+            - name: Update composer
+            - command: sudo composer self-update
+        - restore_cache:
+            keys:
+              - composer-v1-{{ checksum "composer.json" }}
+              - composer-v1-
+        - run:
+            - name: Install project dependencies
+            - command: composer install -n --prefer-dist
+        - save_cache:
+            key: composer-v1-{{ checksum "composer.json" }}
+            paths:
+              - vendor
+        - run:
+              - name: Run unit tests
+              - command: phpunit -c tests/phpunit.xml --coverage-clover $CIRCLE_ARTIFACTS/coverage.xml --log-junit $CIRCLE_ARTIFACTS/logs.xml
+        - run:
+             - name: Run sonar analysis
+             - command: sh ./bin/deployment/sonar.sh > /dev/null
