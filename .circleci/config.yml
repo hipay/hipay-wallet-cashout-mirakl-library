@@ -51,7 +51,7 @@ jobs:
             key: composer-v1-{{ checksum "composer.json" }}
             paths:
               - vendor
-        - run: sudo mkdir /tmp/test-results/phpunit
+        - run: sudo mkdir -p /tmp/test-results/phpunit
         - run:
             name: Run unit tests
             command: sudo ./vendor/phpunit/phpunit/phpunit -c tests/phpunit.xml --coverage-clover /tmp/test-results/phpunit/coverage.xml --log-junit /tmp/test-results/phpunit/logs.xml
