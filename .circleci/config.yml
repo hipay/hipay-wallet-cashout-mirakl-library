@@ -51,19 +51,15 @@ jobs:
             key: composer-v1-{{ checksum "composer.json" }}
             paths:
               - vendor
+        - run: sudo mkdir /tmp/test-results/phpunit
         - run:
             name: Run unit tests
-            command: sudo ./vendor/phpunit/phpunit/phpunit -c tests/phpunit.xml --coverage-clover ~/coverage.xml --log-junit ~/logs.xml
+            command: sudo ./vendor/phpunit/phpunit/phpunit -c tests/phpunit.xml --coverage-clover /tmp/test-results/phpunit/coverage.xml --log-junit /tmp/test-results/phpunit/logs.xml
         - store_artifacts:
-            path: ~/coverage.xml
+            path: /tmp/test-results/phpunit/
             destination: tests
         - store_test_results:
-            path: ~/coverage.xml
-        - store_artifacts:
-            path: ~/logs.xml
-            destination: tests
-        - store_test_results:
-            path: ~/logs.xml
+            path: /tmp/test-results/phpunit/
         - run:
             name: Run sonar analysis
             command: sh ./bin/deployment/sonar.sh > /dev/null
