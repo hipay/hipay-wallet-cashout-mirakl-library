@@ -30,7 +30,7 @@ jobs:
             command: sudo apt install -y wget
         - run:
             name: Install php-soap
-            command: sudo docker-php-ext-install soap
+            command: sudo apt install libxml2 && sudo docker-php-ext-install soap
         - run:
             <<: *install_composer
         - run:
