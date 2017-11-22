@@ -20,6 +20,7 @@ jobs:
     build:
       docker:
         - image: circleci/php:5.6.30
+      working_directory: ~/mirakl
       steps:
         - checkout
         - run:
@@ -52,7 +53,7 @@ jobs:
               - vendor
         - run:
             name: Run unit tests
-            command: phpunit -c tests/phpunit.xml --coverage-clover $CIRCLE_ARTIFACTS/coverage.xml --log-junit $CIRCLE_ARTIFACTS/logs.xml
+            command: ./vendor/phpunit/phpunit/phpunit -c tests/phpunit.xml --coverage-clover $CIRCLE_ARTIFACTS/coverage.xml --log-junit $CIRCLE_ARTIFACTS/logs.xml
         - run:
             name: Run sonar analysis
             command: sh ./bin/deployment/sonar.sh > /dev/null
