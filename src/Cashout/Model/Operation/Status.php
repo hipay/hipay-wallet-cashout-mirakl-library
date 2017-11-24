@@ -19,6 +19,8 @@ class Status extends AbstractEnumeration
     const CREATED = 1;
     const ADJUSTED_OPERATIONS = 2;
 
+    const INVALID_AMOUNT = -1;
+
     //Transfer status
     const TRANSFER_SUCCESS = 3;
     const TRANSFER_FAILED = -9;

@@ -111,7 +111,7 @@ interface OperationInterface
      * @return float
      *
      * @Assert\NotBlank()
-     * @Assert\GreaterThan(value = 0)
+     * @Assert\GreaterThanOrEqual(value = 0)
      * @Assert\Type(type="float")
      */
     public function getAmount();
