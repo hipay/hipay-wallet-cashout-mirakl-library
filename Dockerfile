@@ -6,11 +6,11 @@ WORKDIR /usr/src/myapp
 RUN apt-get update && apt-get install -y git-all
 
 # PHP Unit
-RUN apt-get update && apt-get install -y wget \
-    && wget https://phar.phpunit.de/phpunit.phar \
-    && chmod +x phpunit.phar \
-    && mv phpunit.phar /usr/local/bin/phpunit \
-    && phpunit --version
+RUN apt-get update && apt-get install -y wget 
+RUN wget https://phar.phpunit.de/phpunit.phar -O phpunit.phar
+RUN chmod +x phpunit.phar 
+RUN mv phpunit.phar /usr/local/bin/phpunit 
+#RUN phpunit --version
 
 # soap
 RUN buildRequirements="libxml2-dev" \
@@ -34,4 +34,6 @@ RUN echo "date.timezone = Europe/Paris" > /usr/local/etc/php/conf.d/date.ini
 # composer
 RUN curl -sS https://getcomposer.org/installer | php
 
-ENTRYPOINT /bin/bash
+RUN chmod +x /usr/src/myapp/docker/entrypoint.sh
+
+ENTRYPOINT ["/usr/src/myapp/docker/entrypoint.sh"]

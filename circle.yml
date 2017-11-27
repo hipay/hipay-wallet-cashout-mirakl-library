@@ -1,7 +1,12 @@
 machine:
   php:
-    version: 5.6.14
-
+    version: 5.6.14  
+dependencies:
+  pre:
+    - pecl install xdebug  
+    - sh ./bin/deployment/setup_sonar.sh
 test:
   override:
-    - phpunit -c tests/phpunit.xml    
+    - phpunit -c tests/phpunit.xml --coverage-clover $CIRCLE_ARTIFACTS/coverage.xml --log-junit $CIRCLE_ARTIFACTS/logs.xml
+  post:
+    - sh ./bin/deployment/sonar.sh > /dev/null

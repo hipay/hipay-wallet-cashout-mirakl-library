@@ -213,12 +213,13 @@ class Operation implements OperationInterface
     {
         $this->withdrawnAmount = $withdrawnAmount;
     }
-    function getOriginAmount()
+    
+    public function getOriginAmount()
     {
         return $this->originAmount;
     }
 
-    function setOriginAmount($originAmount)
+    public function setOriginAmount($originAmount)
     {
         $this->originAmount = $originAmount;
     }

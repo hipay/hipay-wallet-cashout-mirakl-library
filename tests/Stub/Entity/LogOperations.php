@@ -53,103 +53,103 @@ class LogOperations implements LogOperationsInterface
         $this->hipayId = $hipayId;
     }
 
-    function getMiraklId()
+    public function getMiraklId()
     {
         return $this->miraklId;
     }
 
-    function getHipayId()
+    public function getHipayId()
     {
         return $this->hipayId;
     }
 
-    function getPaymentVoucher()
+    public function getPaymentVoucher()
     {
         return $this->paymentVoucher;
     }
 
-    function getDateCreated()
+    public function getDateCreated()
     {
         return $this->dateCreated;
     }
 
-    function getAmount()
+    public function getAmount()
     {
         return $this->amount;
     }
 
-    function getStatusTransferts()
+    public function getStatusTransferts()
     {
         return $this->statusTransferts;
     }
 
-    function getStatusWithDrawal()
+    public function getStatusWithDrawal()
     {
         return $this->statusWithDrawal;
     }
 
-    function getMessage()
+    public function getMessage()
     {
         return $this->message;
     }
 
-    function getBalance()
+    public function getBalance()
     {
         return $this->balance;
     }
 
-    function getOriginAmount()
+    public function getOriginAmount()
     {
         return $this->originAmount;
     }
 
 
-    function setMiraklId($miraklId)
+    public function setMiraklId($miraklId)
     {
         $this->miraklId = $miraklId;
     }
 
-    function setHipayId($hipayId)
+    public function setHipayId($hipayId)
     {
         $this->hipayId = $hipayId;
     }
 
-    function setPaymentVoucher($paymentVoucher)
+    public function setPaymentVoucher($paymentVoucher)
     {
         $this->paymentVoucher = $paymentVoucher;
     }
 
-    function setDateCreated($dateCreated)
+    public function setDateCreated($dateCreated)
     {
         $this->dateCreated = $dateCreated;
     }
 
-    function setAmount($amount)
+    public function setAmount($amount)
     {
         $this->amount = $amount;
     }
 
-    function setStatusTransferts($statusTransferts)
+    public function setStatusTransferts($statusTransferts)
     {
         $this->statusTransferts = $statusTransferts;
     }
 
-    function setStatusWithDrawal($statusWithDrawal)
+    public function setStatusWithDrawal($statusWithDrawal)
     {
         $this->statusWithDrawal = $statusWithDrawal;
     }
 
-    function setMessage($message)
+    public function setMessage($message)
     {
         $this->message = $message;
     }
 
-    function setBalance($balance)
+    public function setBalance($balance)
     {
         $this->balance = $balance;
     }
 
-    function setOriginAmount($originAmount)
+    public function setOriginAmount($originAmount)
     {
         $this->originAmount = $originAmount;
     }

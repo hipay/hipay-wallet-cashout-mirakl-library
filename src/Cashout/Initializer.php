@@ -278,7 +278,8 @@ class Initializer extends AbstractOperationProcessor
 
             if ($vendor === null) {
                 $this->logger->info(
-                    "Operation wasn't created because vendor doesn't exit in database (verify HiPay process value in Mirakl BO)",
+                    "Operation wasn't created because vendor doesn't exit in database".
+                    " (verify HiPay process value in Mirakl BO)",
                     array('miraklId' => $invoice['shop_id'], "action" => "Operations creation")
                 );
             } else {

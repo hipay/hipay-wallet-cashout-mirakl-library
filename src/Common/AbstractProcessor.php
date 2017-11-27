@@ -40,10 +40,8 @@ abstract class AbstractProcessor
      * @param EventDispatcherInterface $dispatcher
      * @param LoggerInterface          $logger
      */
-    public function __construct(
-        EventDispatcherInterface $dispatcher,
-        LoggerInterface $logger
-    ) {
+    public function __construct(EventDispatcherInterface $dispatcher, LoggerInterface $logger)
+    {
 
         $this->dispatcher = $dispatcher;
 
@@ -87,10 +85,9 @@ abstract class AbstractProcessor
     {
         $title = 'Handle Exception: '. $level;
         $messageException = $exception->getMessage();
-        $message = $this->formatNotification->formatMessage($title,false,$messageException);
-        $this->logger->$level(
-            $message, $context
-        );
+        $message = $this->formatNotification->formatMessage($title, false, $messageException);
+        $this->logger->$level($message, $context);
+
         $this->dispatcher->dispatch(
             $exception instanceof DispatchableException ? $exception->getEventName() : 'exception.thrown',
             new ThrowException($exception)

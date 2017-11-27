@@ -6,7 +6,7 @@ use HiPay\Wallet\Mirakl\Common\AbstractEnumeration;
 
 /**
  * Constants for the status of identification
- * 
+ *
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
  */
