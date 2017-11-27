@@ -1,3 +1,7 @@
+# Version 2.9.0
+- Fix company name matching between HiPay API and Mirakl API
+- Change bank informations requirements to match Mirakl
+
 # Version 2.8.1
 - Fix Mirakl Api pagination bug
 
