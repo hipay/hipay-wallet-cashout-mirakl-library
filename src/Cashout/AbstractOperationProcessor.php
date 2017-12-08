@@ -106,6 +106,7 @@ abstract class AbstractOperationProcessor extends AbstractApiProcessor
                 case Status::TRANSFER_SUCCESS :
                     $logOperation->setStatusTransferts($status);
                     break;
+                case Status::INVALID_AMOUNT:
                 case Status::ADJUSTED_OPERATIONS :
                     $logOperation->setStatusTransferts($status);
                     $logOperation->setStatusWithDrawal($status);

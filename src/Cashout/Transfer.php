@@ -18,6 +18,7 @@ use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\Transfer as TransferModel;
 use HiPay\Wallet\Mirakl\Exception\WalletNotFoundException;
 use Psr\Log\LoggerInterface;
 use HiPay\Wallet\Mirakl\Exception\WrongWalletBalance;
+use HiPay\Wallet\Mirakl\Exception\InvalidAmountException;
 
 /**
  * Execute transfer
@@ -101,7 +102,11 @@ class Transfer extends AbstractOperationProcessor
                     "[OK] Transfer operation " . $operation->getTransferId() . " executed",
                     array('miraklId' => $operation->getMiraklId(), "action" => "Transfer")
                 );
-
+            } catch (InvalidAmountException $e) {
+                $this->logger->info(
+                    $e->getMessage(),
+                    array('miraklId' => $operation->getMiraklId(), "action" => "Transfer")
+                );
             } catch (Exception $e) {
                 $this->logger->warning(
                     "[KO] Transfer operation failed",
@@ -128,6 +133,10 @@ class Transfer extends AbstractOperationProcessor
 
             if (!$vendor || $this->hipay->isAvailable($vendor->getEmail())) {
                 throw new WalletNotFoundException($vendor);
+            }
+
+            if ($operation->getAmount() <= 0) {
+                throw new InvalidAmountException($operation);
             }
 
             $this->hasSufficientFunds($operation->getAmount(), $this->technicalAccount, true);
@@ -166,6 +175,19 @@ class Transfer extends AbstractOperationProcessor
                 $operation->getMiraklId(),
                 $operation->getPaymentVoucher(),
                 Status::TRANSFER_NEGATIVE,
+                $e->getMessage()
+            );
+
+            throw $e;
+        } catch (InvalidAmountException $e) {
+            $operation->setStatus(new Status(Status::INVALID_AMOUNT));
+            $operation->setUpdatedAt(new DateTime());
+            $this->operationManager->save($operation);
+
+            $this->logOperation(
+                $operation->getMiraklId(),
+                $operation->getPaymentVoucher(),
+                Status::INVALID_AMOUNT,
                 $e->getMessage()
             );
 
