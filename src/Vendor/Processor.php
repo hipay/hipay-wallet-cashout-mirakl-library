@@ -182,24 +182,6 @@ class Processor extends AbstractApiProcessor
         return $return;
     }
 
-    private function filterVendors($element)
-    {
-        $additionnalField = array('code' => 'hipay-process', 'type' => 'BOOLEAN', 'value' => 'true');
-
-        if (isset($element['shop_additional_fields']) &&
-            in_array($additionnalField, $element['shop_additional_fields'])
-        ) {
-            return true;
-        } else {
-            $this->logger->info(
-                'Shop ' .
-                $element['shop_id'] .
-                ' will not be processed beacause additionnal field hipay-process set to false',
-                array('miraklId' => $element['shop_id'], "action" => "Wallet creation")
-            );
-        }
-    }
-
     /**
      * Register wallets into HiPay.
      *
@@ -214,7 +196,11 @@ class Processor extends AbstractApiProcessor
         foreach ($miraklData as $vendorData) {
             $this->logger->debug(
                 'Shop id : {shopId}',
-                array('shopId' => $vendorData['shop_id'], 'miraklId' => $vendorData['shop_id'], "action" => "Wallet creation")
+                array(
+                    'shopId' => $vendorData['shop_id'],
+                    'miraklId' => $vendorData['shop_id'],
+                    "action" => "Wallet creation"
+                )
             );
 
             try {
@@ -247,22 +233,14 @@ class Processor extends AbstractApiProcessor
                         $walletInfo->getCallbackSalt(),
                         $vendorData
                     );
-                    $this->logVendor(
-                        $vendorData['shop_id'],
-                        $walletInfo->getUserAccountld(),
-                        $this->generateLogin($vendorData),
-                        ($walletInfo->getIdentified())
-                            ? LogVendorsInterface::WALLET_IDENTIFIED : LogVendorsInterface::WALLET_NOT_IDENTIFIED,
-                        LogVendorsInterface::SUCCESS,
-                        $walletInfo->getRequestMessage(),
-                        0
-                    );
+
                 } elseif ($vendor) {
                     //Fetch the wallet id from HiPay
                     $walletInfo = $this->getWalletUserInfo($vendorData, $vendor);
                     $vendor->setVatNumber($vendorData['pro_details']['VAT_number']);
                     $vendor->setCallbackSalt($walletInfo->getCallbackSalt());
                     $vendor->setHiPayIdentified($walletInfo->getIdentified());
+                    $vendor->setEnabled(true);
 
                     if ($vendor->getEmail() !== $email) {
                         $this->logger->warning(
@@ -275,6 +253,17 @@ class Processor extends AbstractApiProcessor
                         );
                     }
                 }
+
+                $this->logVendor(
+                    $vendorData['shop_id'],
+                    $walletInfo->getUserAccountld(),
+                    $this->generateLogin($vendorData),
+                    ($walletInfo->getIdentified())
+                        ? LogVendorsInterface::WALLET_IDENTIFIED : LogVendorsInterface::WALLET_NOT_IDENTIFIED,
+                    LogVendorsInterface::SUCCESS,
+                    $walletInfo->getRequestMessage(),
+                    0
+                );
 
                 $previousValues = $this->getImmutableValues($vendor);
                 //Put more data into the vendor
@@ -301,7 +290,8 @@ class Processor extends AbstractApiProcessor
                     LogVendorsInterface::WALLET_NOT_CREATED,
                     LogVendorsInterface::CRITICAL,
                     $e->getMessage(),
-                    0
+                    0,
+                    false
                 );
                 $this->handleException(
                     $e,
@@ -434,6 +424,7 @@ class Processor extends AbstractApiProcessor
         $vendor->setHiPayIdentified($identified);
         $vendor->setVatNumber($vatNumber);
         $vendor->setCallbackSalt($callbackSalt);
+        $vendor->setEnabled(true);
 
         $this->logger->info('[OK] Wallet recorded', array('miraklId' => $miraklId, "action" => "Wallet creation"));
 
@@ -533,7 +524,7 @@ class Processor extends AbstractApiProcessor
                             $documents,
                             function (DocumentInterface $document) use ($theFile) {
                                 return $document->getDocumentType() == $theFile['type'] &&
-                                    $document->getMiraklDocumentId() == $theFile['id'];
+                                $document->getMiraklDocumentId() == $theFile['id'];
                             }
                         )
                     );
@@ -574,8 +565,14 @@ class Processor extends AbstractApiProcessor
                                 $tmpFile,
                                 $this->mirakl->downloadDocuments(array($theFile['id']))
                             );
-                            
-                            $back = $this->getFileBack($theFile['type'], $shopBackFilesType, $theFile, $shopId, $tmpFilePath);
+
+                            $back = $this->getFileBack(
+                                $theFile['type'],
+                                $shopBackFilesType,
+                                $theFile,
+                                $shopId,
+                                $tmpFilePath
+                            );
 
                             $this->hipay->uploadDocument(
                                 $vendor->getHiPayUserSpaceId(),
@@ -583,7 +580,7 @@ class Processor extends AbstractApiProcessor
                                 $this->documentTypes[$theFile['type']],
                                 $tmpFile,
                                 $validityDate,
-                                ($back !== null)? $back['filePath'] : null
+                                ($back !== null) ? $back['filePath'] : null
                             );
 
                             $newDocument = $this->documentManager->create(
@@ -948,26 +945,46 @@ class Processor extends AbstractApiProcessor
     }
 
     /**
-     * log vendor creation
-     * @param type $miraklId
-     * @param type $hipayId
-     * @param type $login
-     * @param type $statusWalletAccount
-     * @param type $status
-     * @param type $message
-     * @param type $nbDoc
+     * log vendor creation/update
+     *
+     * @param $miraklId
+     * @param $hipayId
+     * @param $login
+     * @param $statusWalletAccount
+     * @param $status
+     * @param $message
+     * @param int $nbDoc
+     * @param bool $enabled
      */
-    private function logVendor($miraklId, $hipayId, $login, $statusWalletAccount, $status, $message, $nbDoc = 0)
-    {
-        $this->vendorsLogs[] = $this->logVendorManager->create(
-            $miraklId,
-            $hipayId,
-            $login,
-            $statusWalletAccount,
-            $status,
-            $message,
-            $nbDoc
-        );
+    private function logVendor(
+        $miraklId,
+        $hipayId,
+        $login,
+        $statusWalletAccount,
+        $status,
+        $message,
+        $nbDoc = 0,
+        $enabled = true
+    ) {
+        $logVendor = $this->logVendorManager->findByMiraklId($miraklId);
+
+        if ($logVendor !== null) {
+            $logVendor->setStatusWalletAccount($statusWalletAccount);
+            $logVendor->setStatus($status);
+            $logVendor->setMessage($message);
+            $logVendor->setEnabled($enabled);
+            $this->vendorsLogs[] = $logVendor;
+        } else {
+            $this->vendorsLogs[] = $this->logVendorManager->create(
+                $miraklId,
+                $hipayId,
+                $login,
+                $statusWalletAccount,
+                $status,
+                $message,
+                $nbDoc
+            );
+        }
     }
 
     /**
@@ -1105,6 +1122,69 @@ class Processor extends AbstractApiProcessor
                 return Mirakl::DOCUMENT_SOLE_MAN_BUS_IDENTITY_REAR;
             default:
                 return false;
+        }
+    }
+
+    /**
+     * Filter function for Vendors array from Mirakl
+     *
+     * @param $element
+     * @return bool
+     */
+    private function filterVendors($element)
+    {
+        $additionnalField = array('code' => 'hipay-process', 'type' => 'BOOLEAN', 'value' => 'true');
+
+        if (isset($element['shop_additional_fields']) &&
+            in_array($additionnalField, $element['shop_additional_fields'])
+        ) {
+            return true;
+        } else {
+
+            $this->logger->info(
+                'Shop ' .
+                $element['shop_id'] .
+                ' will not be processed beacause additionnal field hipay-process set to false',
+                array('miraklId' => $element['shop_id'], "action" => "Wallet creation")
+            );
+
+            $this->disableVendor($element);
+        }
+    }
+
+    /**
+     * If Vendor exist and HIPAY_PROCESS = NO, disable it
+     *
+     * @param $vendorData
+     */
+    private function disableVendor($vendorData)
+    {
+
+        $vendor = $this->vendorManager->findByMiraklId($vendorData['shop_id']);
+        $logVendor = $this->logVendorManager->findByMiraklId($vendorData['shop_id']);
+
+        if ($vendor) {
+            $this->logger->info(
+                'Shop ' . $vendorData['shop_id'] . ' found in database',
+                array('miraklId' => $vendorData['shop_id'], "action" => "Wallet creation")
+            );
+            if ($vendor->getEnabled() || $vendor->getEnabled() === null) {
+                $vendor->setEnabled(false);
+                $this->vendorManager->save($vendor);
+                if ($logVendor !== null) {
+                    $logVendor->setEnabled(false);
+                    $this->logVendorManager->save($logVendor);
+                }
+                $this->logger->info(
+                    'Shop ' . $vendorData['shop_id'] . ' disabled',
+                    array('miraklId' => $vendorData['shop_id'], "action" => "Wallet creation")
+                );
+            } else {
+                $this->logger->info(
+                    'Shop ' . $vendorData['shop_id'] . ' already disabled',
+                    array('miraklId' => $vendorData['shop_id'], "action" => "Wallet creation")
+                );
+            }
         }
     }
 }

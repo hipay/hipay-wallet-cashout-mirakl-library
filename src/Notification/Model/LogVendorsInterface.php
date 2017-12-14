@@ -99,4 +99,7 @@ interface LogVendorsInterface
      */
     public function setDate($datetime);
 
+    public function getEnabled();
+
+    public function setEnabled($enabled);
 }

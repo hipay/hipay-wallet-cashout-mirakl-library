@@ -18,6 +18,7 @@ use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\Transfer as TransferModel;
 use HiPay\Wallet\Mirakl\Exception\WalletNotFoundException;
 use Psr\Log\LoggerInterface;
 use HiPay\Wallet\Mirakl\Exception\WrongWalletBalance;
+use HiPay\Wallet\Mirakl\Exception\VendorDisabledException;
 
 /**
  * Execute transfer
@@ -130,6 +131,10 @@ class Transfer extends AbstractOperationProcessor
                 throw new WalletNotFoundException($vendor);
             }
 
+            if (!$this->checkOperationVendorEnabled($vendor, $operation)) {
+                throw new VendorDisabledException($vendor->getMiraklId(), 'transfer');
+            }
+
             $this->hasSufficientFunds($operation->getAmount(), $this->technicalAccount, true);
 
             $operation->setHiPayId($vendor->getHiPayId());
@@ -157,6 +162,19 @@ class Transfer extends AbstractOperationProcessor
             );
 
             return $transferId;
+        } catch (VendorDisabledException $e) {
+            $operation->setStatus(new Status(Status::TRANSFER_VENDOR_DISABLED));
+            $operation->setUpdatedAt(new DateTime());
+            $this->operationManager->save($operation);
+
+            $this->logOperation(
+                $operation->getMiraklId(),
+                $operation->getPaymentVoucher(),
+                Status::TRANSFER_VENDOR_DISABLED,
+                $e->getMessage()
+            );
+
+            throw $e;
         } catch (WrongWalletBalance $e) {
             $operation->setStatus(new Status(Status::TRANSFER_NEGATIVE));
             $operation->setUpdatedAt(new DateTime());
