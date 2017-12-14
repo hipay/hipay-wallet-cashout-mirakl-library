@@ -99,11 +99,13 @@ abstract class AbstractOperationProcessor extends AbstractApiProcessor
                 case Status::WITHDRAW_FAILED :
                 case Status::WITHDRAW_NEGATIVE :
                 case Status::WITHDRAW_REQUESTED :
+                case Status::WITHDRAW_VENDOR_DISABLED :
                     $logOperation->setStatusWithDrawal($status);
                     break;
                 case Status::TRANSFER_FAILED :
                 case Status::TRANSFER_NEGATIVE :
                 case Status::TRANSFER_SUCCESS :
+                case Status::TRANSFER_VENDOR_DISABLED :
                     $logOperation->setStatusTransferts($status);
                     break;
                 case Status::ADJUSTED_OPERATIONS :
@@ -136,5 +138,35 @@ abstract class AbstractOperationProcessor extends AbstractApiProcessor
 
             throw new WrongWalletBalance($vendor->getHipayId(), 'withdraw', $amount, $balance);
         }
+    }
+
+    protected function checkOperationVendorEnabled($vendor, $operation)
+    {
+        if($vendor === $this->operator){
+            $vendorOperation = $this->operationManager->findVendorOperationsByPaymentVoucherId($operation);
+            $vendor = $this->vendorManager->findByMiraklId($vendorOperation->getMiraklId());
+        }
+
+        return $this->vendorEnabled($vendor);
+    }
+
+    /**
+     * Check if vendor account is enable for HiPay
+     *
+     * @param $vendor
+     * @return bool
+     */
+    protected function vendorEnabled($vendor)
+    {
+        if ($vendor === null) {
+            return false;
+        }
+
+        if ($vendor->getEnabled() === null) {
+            return $this->mirakl->vendorIsEnabled($vendor->getMiraklId());
+        } else {
+            return (bool)$vendor->getEnabled();
+        }
+
     }
 }
