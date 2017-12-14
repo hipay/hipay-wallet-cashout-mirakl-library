@@ -87,6 +87,10 @@ class WithdrawTest extends AbstractProcessorTest
 
         $this->logOperationsManager->findByMiraklIdAndPaymentVoucherNumber(Argument::any(), Argument::any())->willReturn(new LogOperations(200, 2001))->shouldBeCalled();
 
+        $this->operationManager->findVendorOperationsByPaymentVoucherId(Argument::any())->willReturn(new Operation(2000, new DateTime(), "000001", false));
+
+        $this->vendorManager->findByMiraklId(Argument::any())->willReturn(new Vendor("test@test.com", rand(), rand()));
+        
         $result = $this->withdrawProcessor->withdraw($operation);
 
         $this->assertEquals($withdrawId, $result);
@@ -123,6 +127,10 @@ class WithdrawTest extends AbstractProcessorTest
         $this->logOperationsManager->save(Argument::any())->willReturn()->shouldBeCalled();
 
         $this->logOperationsManager->findByMiraklIdAndPaymentVoucherNumber(Argument::any(), Argument::any())->willReturn(new LogOperations(200, 2001))->shouldBeCalled();
+
+        $this->operationManager->findVendorOperationsByPaymentVoucherId(Argument::any())->willReturn(new Operation(2000, new DateTime(), "000001", false));
+
+        $this->vendorManager->findByMiraklId(Argument::any())->willReturn(new Vendor("test@test.com", rand(), rand()));
 
         $result = $this->withdrawProcessor->withdraw($operation);
 
