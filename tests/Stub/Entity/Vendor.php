@@ -27,6 +27,7 @@ class Vendor implements VendorInterface
     protected $hipayIdentified;
     protected $vatNumber;
     protected $callbackSalt;
+    protected $enabled;
 
     /**
      * Vendor constructor.
@@ -38,8 +39,16 @@ class Vendor implements VendorInterface
      * @param $vatNumber
      * @param $callbackSalt
      */
-    public function __construct($email = null, $hipayId = null, $miraklId = null, $hipayUserSpaceId = null, $hipayIdentified = true, $vatNumber = null, $callbackSalt = null)
-    {
+    public function __construct(
+        $email = null,
+        $hipayId = null,
+        $miraklId = null,
+        $hipayUserSpaceId = null,
+        $hipayIdentified = true,
+        $vatNumber = null,
+        $callbackSalt = null,
+        $enabled = true
+    ) {
         $this->miraklId = $miraklId;
         $this->hipayId = $hipayId;
         $this->email = $email;
@@ -47,6 +56,7 @@ class Vendor implements VendorInterface
         $this->hipayIdentified = $hipayIdentified;
         $this->vatNumber = $vatNumber;
         $this->callbackSalt = $callbackSalt;
+        $this->enabled = $enabled;
     }
 
     /**
@@ -159,5 +169,21 @@ class Vendor implements VendorInterface
     public function setCallbackSalt($callbackSalt)
     {
         $this->callbackSalt = $callbackSalt;
+    }
+
+    /**
+     * @return Vendor
+     */
+    public function getEnabled()
+    {
+        return $this->enabled;
+    }
+
+    /**
+     * @param Vendor $enabled
+     */
+    public function setEnabled($enabled)
+    {
+        $this->enabled = $enabled;
     }
 }

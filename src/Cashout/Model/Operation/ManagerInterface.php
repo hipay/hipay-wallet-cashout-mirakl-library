@@ -125,4 +125,7 @@ interface ManagerInterface
      * @return string
      */
     public function generateWithdrawLabel(OperationInterface $operation);
+
+
+    public function findVendorOperationsByPaymentVoucherId(OperationInterface $operation);
 }
