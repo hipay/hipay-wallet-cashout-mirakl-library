@@ -26,8 +26,8 @@ class TransferTest extends AbstractProcessorTest
     /** @var  VendorInterface */
     protected $vendorArgument;
 
-    
-    
+
+
     public function setUp()
     {
         parent::setUp();
@@ -58,7 +58,7 @@ class TransferTest extends AbstractProcessorTest
         $this->operationManager->generateWithdrawLabel($this->operationArgument)->willReturn($this->getRandomString());
 
         $this->transferArgument = Argument::type("\\HiPay\\Wallet\\Mirakl\\Api\\HiPay\\Model\\Soap\\Transfer");
-        
+
     }
 
     /**
@@ -92,16 +92,16 @@ class TransferTest extends AbstractProcessorTest
         $transferId = rand();
 
         $this->vendorManager->findByMiraklId(Argument::type("integer"))
-                            ->willReturn(new Vendor("test@test.com", rand(), rand()))
-                            ->shouldBeCalled();
+            ->willReturn(new Vendor("test@test.com", rand(), rand()))
+            ->shouldBeCalled();
 
         $this->hipay->isAvailable(Argument::containingString("@"), Argument::any())
-                    ->willReturn(false)
-                    ->shouldBeCalled();
+            ->willReturn(false)
+            ->shouldBeCalled();
 
         $this->hipay->transfer($this->transferArgument, Argument::cetera())
-                    ->willReturn($transferId)
-                    ->shouldBeCalled();
+            ->willReturn($transferId)
+            ->shouldBeCalled();
 
         $operation = new Operation(2000, new DateTime(), "000001", rand());
 
@@ -121,7 +121,7 @@ class TransferTest extends AbstractProcessorTest
     }
 
 
-     /**
+    /**
      * @cover ::transfer
      * @group transfer
      */
@@ -143,6 +143,10 @@ class TransferTest extends AbstractProcessorTest
 
         $this->logOperationsManager->findByMiraklIdAndPaymentVoucherNumber(Argument::any(), Argument::any())->willReturn(new LogOperations(200, 2001))->shouldBeCalled();
 
+        $this->operationManager->findVendorOperationsByPaymentVoucherId(Argument::any())->willReturn(new Operation(2000, new DateTime(), "000001", false));
+
+        $this->vendorManager->findByMiraklId(Argument::any())->willReturn(new Vendor("test@test.com", rand(), rand()));
+
         $result = $this->transferProcessor->transfer($operation);
 
         $this->assertInternalType("integer", $result);
@@ -160,16 +164,16 @@ class TransferTest extends AbstractProcessorTest
         $transferId = rand();
 
         $this->vendorManager->findByMiraklId(Argument::type("integer"))
-                            ->willReturn(new Vendor("test@test.com", rand(), rand()))
-                            ->shouldBeCalled();
+            ->willReturn(new Vendor("test@test.com", rand(), rand()))
+            ->shouldBeCalled();
 
         $this->hipay->isAvailable(Argument::containingString("@"), Argument::any())
-                    ->willReturn(false)
-                    ->shouldBeCalled();
+            ->willReturn(false)
+            ->shouldBeCalled();
 
         $this->hipay->transfer($this->transferArgument, Argument::cetera())
-                    ->willReturn($transferId)
-                    ->shouldNotBeCalled();
+            ->willReturn($transferId)
+            ->shouldNotBeCalled();
 
         $operation = new Operation(2000, new DateTime(), "000001", rand());
 
@@ -186,7 +190,7 @@ class TransferTest extends AbstractProcessorTest
         $result = $this->transferProcessor->transfer($operation);
 
         $this->assertEquals(Status::TRANSFER_NEGATIVE, $operation->getStatus());
-        
+
     }
 
     /**
@@ -198,16 +202,16 @@ class TransferTest extends AbstractProcessorTest
         $transferId = rand();
 
         $this->vendorManager->findByMiraklId(Argument::type("integer"))
-                            ->willReturn(new Vendor("test@test.com", rand(), rand()))
-                            ->shouldBeCalled();
+            ->willReturn(new Vendor("test@test.com", rand(), rand()))
+            ->shouldBeCalled();
 
         $this->hipay->isAvailable(Argument::containingString("@"), Argument::any())
-                    ->willReturn(true)
-                    ->shouldBeCalled();
+            ->willReturn(true)
+            ->shouldBeCalled();
 
         $this->hipay->transfer($this->transferArgument, Argument::cetera())
-                    ->willReturn($transferId)
-                    ->shouldNotBeCalled();
+            ->willReturn($transferId)
+            ->shouldNotBeCalled();
 
         $operation = new Operation(2000, new DateTime(), "000001", rand());
 

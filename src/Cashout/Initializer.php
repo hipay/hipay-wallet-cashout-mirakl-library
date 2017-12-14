@@ -276,9 +276,9 @@ class Initializer extends AbstractOperationProcessor
 
             $vendor = $this->vendorManager->findByMiraklId($invoice['shop_id']);
 
-            if ($vendor === null) {
+            if (!$this->vendorEnabled($vendor)) {
                 $this->logger->info(
-                    "Operation wasn't created because vendor doesn't exit in database".
+                    "Operation wasn't created because vendor doesn't exit in database or vendor is disabled " .
                     " (verify HiPay process value in Mirakl BO)",
                     array('miraklId' => $invoice['shop_id'], "action" => "Operations creation")
                 );
@@ -438,7 +438,7 @@ class Initializer extends AbstractOperationProcessor
 
         $total = $invoicesData['total_count'];
 
-        while ( $total % $offset !== $total){
+        while ($total % $offset !== $total) {
 
             $invoicesData = $this->mirakl->getInvoices(
                 $startDate,

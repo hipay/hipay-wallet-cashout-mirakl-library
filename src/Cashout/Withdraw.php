@@ -20,6 +20,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use HiPay\Wallet\Mirakl\Notification\FormatNotification;
 use HiPay\Wallet\Mirakl\Notification\Model\LogOperationsManagerInterface as LogOperationsManager;
+use HiPay\Wallet\Mirakl\Exception\VendorDisabledException;
 
 /**
  * Process withdraw
@@ -128,6 +129,10 @@ class Withdraw extends AbstractOperationProcessor
                 throw new WalletNotFoundException($vendor);
             }
 
+            if (!$this->checkOperationVendorEnabled($vendor, $operation)) {
+                throw new VendorDisabledException($vendor->getMiraklId(), 'withdraw');
+            }
+
             if (!$this->hipay->isIdentified($vendor)) {
                 throw new UnidentifiedWalletException($vendor);
             }
@@ -176,7 +181,19 @@ class Withdraw extends AbstractOperationProcessor
             );
 
             return $withdrawId;
+        } catch (VendorDisabledException $e) {
+            $operation->setStatus(new Status(Status::WITHDRAW_VENDOR_DISABLED));
+            $operation->setUpdatedAt(new DateTime());
+            $this->operationManager->save($operation);
 
+            $this->logOperation(
+                $operation->getMiraklId(),
+                $operation->getPaymentVoucher(),
+                Status::WITHDRAW_VENDOR_DISABLED,
+                $e->getMessage()
+            );
+
+            throw $e;
         } catch (WrongWalletBalance $e) {
             $operation->setStatus(new Status(Status::WITHDRAW_NEGATIVE));
             $operation->setUpdatedAt(new DateTime());
