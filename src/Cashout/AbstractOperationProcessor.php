@@ -108,6 +108,7 @@ abstract class AbstractOperationProcessor extends AbstractApiProcessor
                 case Status::TRANSFER_VENDOR_DISABLED :
                     $logOperation->setStatusTransferts($status);
                     break;
+                case Status::INVALID_AMOUNT:
                 case Status::ADJUSTED_OPERATIONS :
                     $logOperation->setStatusTransferts($status);
                     $logOperation->setStatusWithDrawal($status);
@@ -139,6 +140,7 @@ abstract class AbstractOperationProcessor extends AbstractApiProcessor
             throw new WrongWalletBalance($vendor->getHipayId(), 'withdraw', $amount, $balance);
         }
     }
+
 
     protected function checkOperationVendorEnabled($vendor, $operation)
     {
