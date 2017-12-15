@@ -144,7 +144,7 @@ abstract class AbstractOperationProcessor extends AbstractApiProcessor
 
     protected function checkOperationVendorEnabled($vendor, $operation)
     {
-        if($vendor === $this->operator){
+        if ($vendor === $this->operator) {
             $vendorOperation = $this->operationManager->findVendorOperationsByPaymentVoucherId($operation);
             $vendor = $this->vendorManager->findByMiraklId($vendorOperation->getMiraklId());
         }
