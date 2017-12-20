@@ -293,4 +293,33 @@ class Mirakl implements ApiInterface
         return $bool;
     }
 
+    /**
+     * @param $shopId
+     * @return bool
+     */
+    public function vendorIsEnabled($shopId)
+    {
+
+        $this->restClient->getConfig()->setPath(
+            'request.options/headers/Authorization',
+            $this->frontKey
+        );
+        $command = $this->restClient->getCommand(
+            'GetVendors',
+            array(
+                'shopIds' => array($shopId)
+            )
+        );
+
+        $result = $this->restClient->execute($command);
+
+        $additionnalField = array('code' => 'hipay-process', 'type' => 'BOOLEAN', 'value' => 'true');
+
+        if (isset($result['shops'][0]) && !empty($result['shops'][0])) {
+            return isset($result['shops'][0]['shop_additional_fields'])
+            && in_array($additionnalField, $result['shops'][0]['shop_additional_fields']);
+        }
+
+        return false;
+    }
 }

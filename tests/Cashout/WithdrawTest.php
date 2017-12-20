@@ -22,8 +22,8 @@ class WithdrawTest extends AbstractProcessorTest
     /** @var  VendorInterface */
     protected $vendorArgument;
 
-    
-    
+
+
     public function setUp()
     {
         parent::setUp();
@@ -51,7 +51,7 @@ class WithdrawTest extends AbstractProcessorTest
         $this->operationManager->generateWithdrawLabel($operationArgument)->willReturn($this->getRandomString());
 
         $this->operationManager->save($operationArgument)->willReturn()->shouldBeCalled();
-        
+
     }
 
     /**
@@ -68,24 +68,28 @@ class WithdrawTest extends AbstractProcessorTest
         $operatorArgument = Argument::is($this->operator);
 
         $this->hipay->isAvailable(Argument::containingString("@"), Argument::any())
-                    ->willReturn(false)
-                    ->shouldBeCalled();
+            ->willReturn(false)
+            ->shouldBeCalled();
         $this->hipay->isIdentified($operatorArgument)
-                    ->willReturn(true)
-                    ->shouldBeCalled();
+            ->willReturn(true)
+            ->shouldBeCalled();
         $this->hipay->bankInfosStatus($operatorArgument)
             ->willReturn(BankInfo::VALIDATED)
             ->shouldBeCalled();
         $this->hipay->getBalance($operatorArgument)
-                    ->willReturn($amount + 1)
-                    ->shouldBeCalled();
+            ->willReturn($amount + 1)
+            ->shouldBeCalled();
         $this->hipay->withdraw($operatorArgument, Argument::is($amount), Argument::type("string"))
-                    ->willReturn($withdrawId)
-                    ->shouldBeCalled();
+            ->willReturn($withdrawId)
+            ->shouldBeCalled();
 
         $this->logOperationsManager->save(Argument::any())->willReturn()->shouldBeCalled();
 
         $this->logOperationsManager->findByMiraklIdAndPaymentVoucherNumber(Argument::any(), Argument::any())->willReturn(new LogOperations(200, 2001))->shouldBeCalled();
+
+        $this->operationManager->findVendorOperationsByPaymentVoucherId(Argument::any())->willReturn(new Operation(2000, new DateTime(), "000001", false));
+
+        $this->vendorManager->findByMiraklId(Argument::any())->willReturn(new Vendor("test@test.com", rand(), rand()));
 
         $result = $this->withdrawProcessor->withdraw($operation);
 
@@ -123,6 +127,10 @@ class WithdrawTest extends AbstractProcessorTest
         $this->logOperationsManager->save(Argument::any())->willReturn()->shouldBeCalled();
 
         $this->logOperationsManager->findByMiraklIdAndPaymentVoucherNumber(Argument::any(), Argument::any())->willReturn(new LogOperations(200, 2001))->shouldBeCalled();
+
+        $this->operationManager->findVendorOperationsByPaymentVoucherId(Argument::any())->willReturn(new Operation(2000, new DateTime(), "000001", false));
+
+        $this->vendorManager->findByMiraklId(Argument::any())->willReturn(new Vendor("test@test.com", rand(), rand()));
 
         $result = $this->withdrawProcessor->withdraw($operation);
 
@@ -245,10 +253,10 @@ class WithdrawTest extends AbstractProcessorTest
         $this->hipay->getBalance($vendorArgument)
             ->willReturn($amount + 1);
         $this->hipay->withdraw(Argument::cetera())
-                    ->shouldNotBeCalled();
+            ->shouldNotBeCalled();
 
         $this->logOperationsManager->save(Argument::any())->willReturn()->shouldBeCalled();
-        
+
         $this->logOperationsManager->findByMiraklIdAndPaymentVoucherNumber(Argument::any(), Argument::any())->willReturn(new LogOperations(200, 2001))->shouldBeCalled();
 
         $this->setExpectedException("\\HiPay\\Wallet\\Mirakl\\Exception\\WalletNotFoundException");

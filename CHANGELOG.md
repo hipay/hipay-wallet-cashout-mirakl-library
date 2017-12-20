@@ -1,3 +1,6 @@
+# Version 2.9.1
+- Handle vendor already database with HIPA_PROCESS = NO
+
 # Version 2.9.0
 - Fix company name matching between HiPay API and Mirakl API
 - Change bank informations requirements to match Mirakl
