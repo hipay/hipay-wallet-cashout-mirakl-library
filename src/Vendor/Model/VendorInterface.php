@@ -105,4 +105,15 @@ interface VendorInterface
      * @return void
      */
     public function setCallbackSalt($string);
+
+    /**
+     * @return Vendor
+     */
+    public function getEnabled();
+
+    /**
+     * @param Vendor $enabled
+     */
+    public function setEnabled($enabled);
+
 }

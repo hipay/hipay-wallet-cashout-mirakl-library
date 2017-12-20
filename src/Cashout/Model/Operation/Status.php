@@ -25,6 +25,7 @@ class Status extends AbstractEnumeration
     const TRANSFER_SUCCESS = 3;
     const TRANSFER_FAILED = -9;
     const TRANSFER_NEGATIVE = -10;
+    const TRANSFER_VENDOR_DISABLED = -5;
 
     //Withdraw statuses
     const WITHDRAW_REQUESTED = 5;
@@ -32,4 +33,5 @@ class Status extends AbstractEnumeration
     const WITHDRAW_FAILED = -7;
     const WITHDRAW_CANCELED = -8;
     const WITHDRAW_NEGATIVE = -11;
+    const WITHDRAW_VENDOR_DISABLED = -6;
 }
