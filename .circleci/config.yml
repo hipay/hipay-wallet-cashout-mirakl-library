@@ -1,0 +1,68 @@
+install_composer: &install_composer
+    command: |
+        cd /tmp
+        EXPECTED_SIGNATURE=$(curl -q https://composer.github.io/installer.sig)
+        php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+        ACTUAL_SIGNATURE=$(php -r "echo hash_file('SHA384', 'composer-setup.php');")
+        if [ "$EXPECTED_SIGNATURE" != "$ACTUAL_SIGNATURE" ]
+        then
+            >&2 echo 'ERROR: Invalid installer signature'
+            rm composer-setup.php
+            exit 1
+        fi
+        sudo php composer-setup.php --quiet --install-dir /usr/local/bin --filename composer
+        RESULT=$?
+        rm composer-setup.php
+        exit $RESULT
+
+version: 2
+jobs:
+    build:
+      docker:
+        - image: circleci/php:5.6.30
+      working_directory: ~/mirakl
+      steps:
+        - checkout
+        - run:
+            name: Update dependencies
+            command: sudo apt-get update
+        - run:
+            name: Install Xdebug
+            command: sudo pecl channel-update pecl.php.net && sudo pecl install xdebug && sudo docker-php-ext-enable xdebug
+        - run:
+            name: Install Wget
+            command: sudo apt install -y wget
+        - run:
+            name: Install php-soap
+            command: sudo apt install libxml2-dev && sudo docker-php-ext-install soap
+        - run:
+            <<: *install_composer
+        - run:
+            name: Setup Sonar
+            command: sh ./bin/deployment/setup_sonar.sh
+        - run:
+            name: Update composer
+            command: sudo composer self-update
+        - restore_cache:
+            keys:
+              - composer-v1-{{ checksum "composer.json" }}
+              - composer-v1-
+        - run:
+            name: Install project dependencies
+            command: composer install -n --prefer-dist
+        - save_cache:
+            key: composer-v1-{{ checksum "composer.json" }}
+            paths:
+              - vendor
+        - run: sudo mkdir -p /tmp/test-results/phpunit
+        - run:
+            name: Run unit tests
+            command: sudo ./vendor/phpunit/phpunit/phpunit -c tests/phpunit.xml --coverage-clover /tmp/test-results/phpunit/coverage.xml --log-junit /tmp/test-results/phpunit/logs.xml
+        - store_artifacts:
+            path: /tmp/test-results/phpunit/
+            destination: tests
+        - store_test_results:
+            path: /tmp/test-results/phpunit/
+        - run:
+            name: Run sonar analysis
+            command: sh ./bin/deployment/sonar.sh > /dev/null
