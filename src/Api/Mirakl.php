@@ -81,7 +81,7 @@ class Mirakl implements ApiInterface
     ) {
         $this->restClient->getConfig()->setPath(
             'request.options/headers/Authorization',
-            $this->frontKey
+            $this->operatorKey
         );
         $command = $this->restClient->getCommand(
             'GetVendors',
@@ -107,7 +107,7 @@ class Mirakl implements ApiInterface
     {
         $this->restClient->getConfig()->setPath(
             'request.options/headers/Authorization',
-            $this->frontKey
+            $this->operatorKey
         );
         $command = $this->restClient->getCommand(
             'GetDocuments',
@@ -135,7 +135,7 @@ class Mirakl implements ApiInterface
     ) {
         $this->restClient->getConfig()->setPath(
             'request.options/headers/Authorization',
-            $this->frontKey
+            $this->operatorKey
         );
         $command = $this->restClient->getCommand(
             'DownloadDocuments',
@@ -197,7 +197,7 @@ class Mirakl implements ApiInterface
     ) {
         $this->restClient->getConfig()->setPath(
             'request.options/headers/Authorization',
-            $this->frontKey
+            $this->operatorKey
         );
         $command = $this->restClient->getCommand(
             'GetInvoices',
@@ -302,7 +302,7 @@ class Mirakl implements ApiInterface
 
         $this->restClient->getConfig()->setPath(
             'request.options/headers/Authorization',
-            $this->frontKey
+            $this->operatorKey
         );
         $command = $this->restClient->getCommand(
             'GetVendors',
