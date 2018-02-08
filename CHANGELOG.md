@@ -1,3 +1,6 @@
+# Version 2.9.2
+- Switch from front key to operator key (Mirakl API)
+
 # Version 2.9.1
 - Handle vendor already database with HIPA_PROCESS = NO
 
