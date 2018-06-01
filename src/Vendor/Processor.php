@@ -57,6 +57,10 @@ class Processor extends AbstractApiProcessor
      * @var FormatNotification class
      */
     protected $formatNotification;
+
+    /**
+     * @var array
+     */
     protected $vendorsLogs;
 
     /**
@@ -233,7 +237,6 @@ class Processor extends AbstractApiProcessor
                         $walletInfo->getCallbackSalt(),
                         $vendorData
                     );
-
                 } elseif ($vendor) {
                     //Fetch the wallet id from HiPay
                     $walletInfo = $this->getWalletUserInfo($vendorData, $vendor);
@@ -241,6 +244,7 @@ class Processor extends AbstractApiProcessor
                     $vendor->setCallbackSalt($walletInfo->getCallbackSalt());
                     $vendor->setHiPayIdentified($walletInfo->getIdentified());
                     $vendor->setEnabled(true);
+                    $vendor->setCountry($vendorData["contact_informations"]["country"]);
 
                     if ($vendor->getEmail() !== $email) {
                         $this->logger->warning(
@@ -262,7 +266,9 @@ class Processor extends AbstractApiProcessor
                         ? LogVendorsInterface::WALLET_IDENTIFIED : LogVendorsInterface::WALLET_NOT_IDENTIFIED,
                     LogVendorsInterface::SUCCESS,
                     $walletInfo->getRequestMessage(),
-                    0
+                    0,
+                    true,
+                    $vendorData["contact_informations"]["country"]
                 );
 
                 $previousValues = $this->getImmutableValues($vendor);
@@ -271,7 +277,7 @@ class Processor extends AbstractApiProcessor
 
                 if (!$this->vendorManager->isValid($vendor)) {
                     throw new InvalidVendorException($vendor);
-                };
+                }
 
                 ModelValidator::validate($vendor);
 
@@ -291,7 +297,8 @@ class Processor extends AbstractApiProcessor
                     LogVendorsInterface::CRITICAL,
                     $e->getMessage(),
                     0,
-                    false
+                    false,
+                    $vendorData["contact_informations"]["country"]
                 );
                 $this->handleException(
                     $e,
@@ -425,6 +432,7 @@ class Processor extends AbstractApiProcessor
         $vendor->setVatNumber($vatNumber);
         $vendor->setCallbackSalt($callbackSalt);
         $vendor->setEnabled(true);
+        $vendor->setCountry($miraklData["contact_informations"]["country"]);
 
         $this->logger->info('[OK] Wallet recorded', array('miraklId' => $miraklId, "action" => "Wallet creation"));
 
@@ -935,13 +943,30 @@ class Processor extends AbstractApiProcessor
 
     /**
      * get login from Mirakl Id
-     * @param type $shopId
+     *
+     * @param $shopId
      * @return type
+     * @throws Exception
      */
     public function getLogin($shopId)
     {
+        return $this->generateLogin($this->getVendorByShopId($shopId));
+    }
+
+    /**
+     * @param $shopId
+     * @return mixed
+     * @throws Exception
+     */
+    public function getVendorByShopId($shopId)
+    {
         $shop = $this->mirakl->getVendors(null, null, array($shopId));
-        return $this->generateLogin($shop[0]);
+
+        if (empty($shop)) {
+            throw new \Exception("No mirakl data for this shop ID ($shopId)");
+        }
+
+        return $shop[0];
     }
 
     /**
@@ -964,7 +989,8 @@ class Processor extends AbstractApiProcessor
         $status,
         $message,
         $nbDoc = 0,
-        $enabled = true
+        $enabled = true,
+        $country = null
     ) {
         $logVendor = $this->logVendorManager->findByMiraklId($miraklId);
 
@@ -973,6 +999,7 @@ class Processor extends AbstractApiProcessor
             $logVendor->setStatus($status);
             $logVendor->setMessage($message);
             $logVendor->setEnabled($enabled);
+            $logVendor->setCountry($country);
             $this->vendorsLogs[] = $logVendor;
         } else {
             $this->vendorsLogs[] = $this->logVendorManager->create(
@@ -982,7 +1009,8 @@ class Processor extends AbstractApiProcessor
                 $statusWalletAccount,
                 $status,
                 $message,
-                $nbDoc
+                $nbDoc,
+                $country
             );
         }
     }

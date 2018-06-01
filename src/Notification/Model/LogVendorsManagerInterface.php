@@ -19,7 +19,8 @@ interface LogVendorsManagerInterface
         $statusWalletAccount,
         $status,
         $message,
-        $nbDoc
+        $nbDoc,
+        $country
     );
 
     /**
@@ -27,7 +28,7 @@ interface LogVendorsManagerInterface
      * Do not save it.
      *
      * @param VendorInterface $vendor
-     * @param array           $miraklData
+     * @param array $miraklData
      */
     public function update(
         LogVendorsInterface $logVendors,

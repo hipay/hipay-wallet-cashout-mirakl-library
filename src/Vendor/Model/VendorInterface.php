@@ -116,4 +116,13 @@ interface VendorInterface
      */
     public function setEnabled($enabled);
 
+    /**
+     * @return string
+     */
+    public function getCountry();
+
+    /**
+     * @param string $country
+     */
+    public function setCountry($country);
 }
