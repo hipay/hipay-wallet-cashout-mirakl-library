@@ -186,4 +186,20 @@ class Vendor implements VendorInterface
     {
         $this->enabled = $enabled;
     }
+
+    /**
+     * @return Vendor
+     */
+    public function getCountry()
+    {
+        return $this->country;
+    }
+
+    /**
+     * @param Vendor $enabled
+     */
+    public function setCountry($country)
+    {
+        $this->country = $country;
+    }
 }

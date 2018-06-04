@@ -1,6 +1,6 @@
 machine:
   php:
-    version: 5.6.14  
+    version: 5.6.14
 dependencies:
   pre:
     - pecl install xdebug-2.5.5

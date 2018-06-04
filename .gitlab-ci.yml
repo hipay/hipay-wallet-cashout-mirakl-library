@@ -1,16 +1,16 @@
 image: hipay/gitlab-ci-base:jessie
 
 stages:
- - build
+ - test
  - analysis
  - sync
 
-casperjs-part1:
-  stage: build
+phpunit:
+  stage: test
   before_script:
-    - composer install
+    - docker build -t phpunit .
   script:
-    - phpunit -c tests/phpunit.xml
+    - docker run --rm --name my-running-app phpunit vendor/phpunit/phpunit/phpunit -c tests/phpunit.xml
   allow_failure: false
   tags:
     - mirakl-library
