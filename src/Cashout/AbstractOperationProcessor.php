@@ -57,7 +57,6 @@ abstract class AbstractOperationProcessor extends AbstractApiProcessor
         $this->vendorManager = $vendorManager;
 
         $this->logOperationsManager = $logOperationsManager;
-
     }
 
 
@@ -96,20 +95,21 @@ abstract class AbstractOperationProcessor extends AbstractApiProcessor
             );
         } else {
             switch ($status) {
-                case Status::WITHDRAW_FAILED :
-                case Status::WITHDRAW_NEGATIVE :
-                case Status::WITHDRAW_REQUESTED :
-                case Status::WITHDRAW_VENDOR_DISABLED :
+                case Status::WITHDRAW_FAILED:
+                case Status::WITHDRAW_NEGATIVE:
+                case Status::WITHDRAW_REQUESTED:
+                case Status::WITHDRAW_VENDOR_DISABLED:
+                case Status::WITHDRAW_PAYMENT_BLOCKED:
                     $logOperation->setStatusWithDrawal($status);
                     break;
-                case Status::TRANSFER_FAILED :
-                case Status::TRANSFER_NEGATIVE :
-                case Status::TRANSFER_SUCCESS :
-                case Status::TRANSFER_VENDOR_DISABLED :
+                case Status::TRANSFER_FAILED:
+                case Status::TRANSFER_NEGATIVE:
+                case Status::TRANSFER_SUCCESS:
+                case Status::TRANSFER_VENDOR_DISABLED:
                     $logOperation->setStatusTransferts($status);
                     break;
                 case Status::INVALID_AMOUNT:
-                case Status::ADJUSTED_OPERATIONS :
+                case Status::ADJUSTED_OPERATIONS:
                     $logOperation->setStatusTransferts($status);
                     $logOperation->setStatusWithDrawal($status);
                     break;
@@ -169,6 +169,5 @@ abstract class AbstractOperationProcessor extends AbstractApiProcessor
         } else {
             return (bool)$vendor->getEnabled();
         }
-
     }
 }

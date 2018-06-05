@@ -118,4 +118,14 @@ interface LogVendorsInterface
      * @param string $country
      */
     public function setCountry($country);
+
+    /**
+     * @return Boolean
+     */
+    public function isPaymentBlocked();
+
+    /**
+     * @param Boolean $paymentBlocked
+     */
+    public function setPaymentBlocked($paymentBlocked);
 }

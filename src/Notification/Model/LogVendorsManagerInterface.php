@@ -20,20 +20,19 @@ interface LogVendorsManagerInterface
         $status,
         $message,
         $nbDoc,
-        $country
+        $country,
+        $paymentBlocked
     );
 
     /**
      * Insert more data into the vendor.
      * Do not save it.
      *
-     * @param VendorInterface $vendor
-     * @param array $miraklData
+     * @param LogVendorsInterface $logVendors
+     * @param array $logData
+     * @return mixed
      */
-    public function update(
-        LogVendorsInterface $logVendors,
-        array $logData
-    );
+    public function update(LogVendorsInterface $logVendors, array $logData);
 
     /**
      * Save an array of vendors.
