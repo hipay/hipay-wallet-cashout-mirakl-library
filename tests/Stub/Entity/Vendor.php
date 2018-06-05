@@ -202,4 +202,20 @@ class Vendor implements VendorInterface
     {
         $this->country = $country;
     }
+
+    /**
+     * @return Boolean
+     */
+    public function isPaymentBlocked()
+    {
+        return $this->paymentBlocked;
+    }
+
+    /**
+     * @param Boolean $paymentBlocked
+     */
+    public function setPaymentBlocked($paymentBlocked)
+    {
+        $this->paymentBlocked = $paymentBlocked;
+    }
 }
