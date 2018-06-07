@@ -28,6 +28,8 @@ class Vendor implements VendorInterface
     protected $vatNumber;
     protected $callbackSalt;
     protected $enabled;
+    protected $country;
+    protected $paymentBlocked;
 
     /**
      * Vendor constructor.
@@ -47,7 +49,9 @@ class Vendor implements VendorInterface
         $hipayIdentified = true,
         $vatNumber = null,
         $callbackSalt = null,
-        $enabled = true
+        $enabled = true,
+        $country = null,
+        $paymentBlocked = false
     ) {
         $this->miraklId = $miraklId;
         $this->hipayId = $hipayId;
@@ -57,6 +61,8 @@ class Vendor implements VendorInterface
         $this->vatNumber = $vatNumber;
         $this->callbackSalt = $callbackSalt;
         $this->enabled = $enabled;
+        $this->country = $country;
+        $this->paymentBlocked = $paymentBlocked;
     }
 
     /**
