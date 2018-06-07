@@ -34,4 +34,5 @@ class Status extends AbstractEnumeration
     const WITHDRAW_CANCELED = -8;
     const WITHDRAW_NEGATIVE = -11;
     const WITHDRAW_VENDOR_DISABLED = -6;
+    const WITHDRAW_PAYMENT_BLOCKED = -12;
 }
