@@ -21,6 +21,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use HiPay\Wallet\Mirakl\Notification\FormatNotification;
 use HiPay\Wallet\Mirakl\Notification\Model\LogOperationsManagerInterface as LogOperationsManager;
 use HiPay\Wallet\Mirakl\Exception\VendorDisabledException;
+use HiPay\Wallet\Mirakl\Exception\PaymentBlockedException;
 
 /**
  * Process withdraw
@@ -78,7 +79,6 @@ class Withdraw extends AbstractOperationProcessor
 
     protected function withdrawOperations()
     {
-
         $toWithdraw = $this->getWithdrawableOperations();
 
         $this->logger->info(
@@ -89,7 +89,6 @@ class Withdraw extends AbstractOperationProcessor
         /** @var OperationInterface $operation */
         foreach ($toWithdraw as $operation) {
             try {
-
                 //Execute the withdrawal
                 $this->withdraw($operation);
 
@@ -135,6 +134,10 @@ class Withdraw extends AbstractOperationProcessor
 
             if (!$this->hipay->isIdentified($vendor)) {
                 throw new UnidentifiedWalletException($vendor);
+            }
+
+            if ($vendor->isPaymentBlocked()) {
+                throw new PaymentBlockedException($vendor->getMiraklId(), 'withdraw');
             }
 
             $bankInfoStatus = trim($this->hipay->bankInfosStatus($vendor));
@@ -207,6 +210,19 @@ class Withdraw extends AbstractOperationProcessor
             );
 
             throw $e;
+        } catch (PaymentBlockedException $e) {
+            $operation->setStatus(new Status(Status::WITHDRAW_PAYMENT_BLOCKED));
+            $operation->setUpdatedAt(new DateTime());
+            $this->operationManager->save($operation);
+
+            $this->logOperation(
+                $operation->getMiraklId(),
+                $operation->getPaymentVoucher(),
+                Status::WITHDRAW_PAYMENT_BLOCKED,
+                $e->getMessage()
+            );
+
+            throw $e;
         } catch (Exception $e) {
             $operation->setStatus(new Status(Status::WITHDRAW_FAILED));
             $operation->setUpdatedAt(new DateTime());
@@ -230,16 +246,14 @@ class Withdraw extends AbstractOperationProcessor
      */
     protected function getWithdrawableOperations()
     {
-
         $toWithdrawSuccess = $this->operationManager->findByStatus(new Status(Status::TRANSFER_SUCCESS));
 
         $toWithdrawFailed = $this->operationManager->findByStatus(new Status(Status::WITHDRAW_FAILED));
 
         $toWithdrawNegative = $this->operationManager->findByStatus(new Status(Status::WITHDRAW_NEGATIVE));
 
-        $toWithdraw = array_merge($toWithdrawNegative, $toWithdrawFailed, $toWithdrawSuccess);
+        $toWithdrawBlocked = $this->operationManager->findByStatus(new Status(Status::WITHDRAW_PAYMENT_BLOCKED));
 
-        return $toWithdraw;
+        return array_merge($toWithdrawBlocked, $toWithdrawNegative, $toWithdrawFailed, $toWithdrawSuccess);
     }
-
 }

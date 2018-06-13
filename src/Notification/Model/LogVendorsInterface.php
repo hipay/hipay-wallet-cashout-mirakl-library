@@ -99,7 +99,33 @@ interface LogVendorsInterface
      */
     public function setDate($datetime);
 
+    /**
+     * @return Vendor
+     */
     public function getEnabled();
 
+    /**
+     * @param Vendor $enabled
+     */
     public function setEnabled($enabled);
+
+    /**
+     * @return string
+     */
+    public function getCountry();
+
+    /**
+     * @param string $country
+     */
+    public function setCountry($country);
+
+    /**
+     * @return Boolean
+     */
+    public function isPaymentBlocked();
+
+    /**
+     * @param Boolean $paymentBlocked
+     */
+    public function setPaymentBlocked($paymentBlocked);
 }

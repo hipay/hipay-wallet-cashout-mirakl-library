@@ -14,7 +14,7 @@ use Prophecy\Argument\Token\TypeToken;
 
 class InitializerTest extends AbstractProcessorTest
 {
-    
+
     /** @var  OperationInterface|TypeToken */
     private $operationArgument;
 
@@ -110,8 +110,8 @@ class InitializerTest extends AbstractProcessorTest
         $this->setExpectedException("HiPay\Wallet\Mirakl\Exception\AlreadyCreatedOperationException");
 
         $this->cashoutInitializer->isOperationValid($operation);
-            
-        //$this->assertFalse($this->cashoutInitializer->isOperationValid($operation));
+
+        $this->assertFalse($this->cashoutInitializer->isOperationValid($operation));
     }
 
     /**
@@ -157,5 +157,5 @@ class InitializerTest extends AbstractProcessorTest
 
         $this->cashoutInitializer->saveOperations(array(new Operation(200, new DateTime(), "000001", false)));
     }
-    
+
 }

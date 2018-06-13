@@ -68,7 +68,6 @@ class Transfer extends AbstractOperationProcessor
         ModelValidator::validate($technicalAccount, 'Operator');
 
         $this->technicalAccount = $technicalAccount;
-
     }
 
     /**
@@ -98,7 +97,6 @@ class Transfer extends AbstractOperationProcessor
     {
         foreach ($operations as $operation) {
             try {
-
                 $this->transfer($operation);
                 $this->logger->info(
                     "[OK] Transfer operation " . $operation->getTransferId() . " executed",

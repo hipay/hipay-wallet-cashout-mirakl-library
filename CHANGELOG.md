@@ -1,3 +1,7 @@
+# Version 2.10.0
+- Add country to vendor data
+- Block withdraw for vendor flag as "Payment Bocked" (Mirakl BO)
+
 # Version 2.9.2
 - Switch from front key to operator key (Mirakl API)
 

@@ -1,6 +1,6 @@
 FROM php:5.6-cli
-COPY . /usr/src/myapp
-WORKDIR /usr/src/myapp
+COPY . /var/www/html
+WORKDIR /var/www/html
 
 # Git
 RUN apt-get update && apt-get install -y git-all
@@ -12,6 +12,13 @@ RUN chmod +x phpunit.phar
 RUN mv phpunit.phar /usr/local/bin/phpunit 
 #RUN phpunit --version
 
+# zip
+RUN buildRequirements="zlib1g-dev" \
+	&& apt-get update && apt-get install -y ${buildRequirements} \
+	&& docker-php-ext-install zip \
+	&& apt-get purge -y ${buildRequirements} \
+	&& rm -rf /var/lib/apt/lists/*
+
 # soap
 RUN buildRequirements="libxml2-dev" \
 	&& apt-get update && apt-get install -y ${buildRequirements} \
@@ -20,7 +27,7 @@ RUN buildRequirements="libxml2-dev" \
 	&& rm -rf /var/lib/apt/lists/*
 
 #XDebug
-RUN yes | pecl install xdebug \
+RUN yes | pecl install xdebug-2.5.0 \
     && echo "zend_extension=$(find /usr/local/lib/php/extensions/ -name xdebug.so)" > /usr/local/etc/php/conf.d/xdebug.ini \
     && echo "xdebug.remote_enable=on" >> /usr/local/etc/php/conf.d/xdebug.ini \
     && echo "xdebug.remote_port=9000" >> /usr/local/etc/php/conf.d/xdebug.ini \
@@ -32,8 +39,8 @@ RUN yes | pecl install xdebug \
 RUN echo "date.timezone = Europe/Paris" > /usr/local/etc/php/conf.d/date.ini
 
 # composer
-RUN curl -sS https://getcomposer.org/installer | php
+RUN curl -sS https://getcomposer.org/installer | php -- --filename=composer -- --install-dir=/usr/local/bin
+RUN composer install --no-interaction
+RUN chmod 777 tests/phpunit.xml
 
-RUN chmod +x /usr/src/myapp/docker/entrypoint.sh
-
-ENTRYPOINT ["/usr/src/myapp/docker/entrypoint.sh"]
+CMD ["vendor/phpunit/phpunit/phpunit", "-c tests/phpunit.xml"]

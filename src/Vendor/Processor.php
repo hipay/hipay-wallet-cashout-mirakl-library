@@ -57,6 +57,10 @@ class Processor extends AbstractApiProcessor
      * @var FormatNotification class
      */
     protected $formatNotification;
+
+    /**
+     * @var array
+     */
     protected $vendorsLogs;
 
     /**
@@ -233,7 +237,6 @@ class Processor extends AbstractApiProcessor
                         $walletInfo->getCallbackSalt(),
                         $vendorData
                     );
-
                 } elseif ($vendor) {
                     //Fetch the wallet id from HiPay
                     $walletInfo = $this->getWalletUserInfo($vendorData, $vendor);
@@ -241,6 +244,8 @@ class Processor extends AbstractApiProcessor
                     $vendor->setCallbackSalt($walletInfo->getCallbackSalt());
                     $vendor->setHiPayIdentified($walletInfo->getIdentified());
                     $vendor->setEnabled(true);
+                    $vendor->setCountry($vendorData["contact_informations"]["country"]);
+                    $vendor->setPaymentBlocked($vendorData["payment_details"]["payment_blocked"]);
 
                     if ($vendor->getEmail() !== $email) {
                         $this->logger->warning(
@@ -262,7 +267,10 @@ class Processor extends AbstractApiProcessor
                         ? LogVendorsInterface::WALLET_IDENTIFIED : LogVendorsInterface::WALLET_NOT_IDENTIFIED,
                     LogVendorsInterface::SUCCESS,
                     $walletInfo->getRequestMessage(),
-                    0
+                    0,
+                    true,
+                    $vendorData["contact_informations"]["country"],
+                    $vendorData["payment_details"]["payment_blocked"]
                 );
 
                 $previousValues = $this->getImmutableValues($vendor);
@@ -271,7 +279,7 @@ class Processor extends AbstractApiProcessor
 
                 if (!$this->vendorManager->isValid($vendor)) {
                     throw new InvalidVendorException($vendor);
-                };
+                }
 
                 ModelValidator::validate($vendor);
 
@@ -291,7 +299,9 @@ class Processor extends AbstractApiProcessor
                     LogVendorsInterface::CRITICAL,
                     $e->getMessage(),
                     0,
-                    false
+                    false,
+                    $vendorData["contact_informations"]["country"],
+                    $vendorData["payment_details"]["payment_blocked"]
                 );
                 $this->handleException(
                     $e,
@@ -425,6 +435,8 @@ class Processor extends AbstractApiProcessor
         $vendor->setVatNumber($vatNumber);
         $vendor->setCallbackSalt($callbackSalt);
         $vendor->setEnabled(true);
+        $vendor->setCountry($miraklData["contact_informations"]["country"]);
+        $vendor->setPaymentBlocked($miraklData["payment_details"]["payment_blocked"]);
 
         $this->logger->info('[OK] Wallet recorded', array('miraklId' => $miraklId, "action" => "Wallet creation"));
 
@@ -434,8 +446,8 @@ class Processor extends AbstractApiProcessor
     /**
      * Return the values who should't
      * change after the registration of the hipay wallet.
-     *
      * @param VendorInterface $vendor
+     * @return mixed
      */
     protected function getImmutableValues(VendorInterface $vendor)
     {
@@ -698,19 +710,13 @@ class Processor extends AbstractApiProcessor
                                     array('miraklId' => $vendor->getMiraklId(), "action" => "Wallet creation")
                                 );
                             } else {
-                                throw new BankAccountCreationFailedException(
-                                    $vendor, $miraklBankInfo
-                                );
+                                throw new BankAccountCreationFailedException($vendor, $miraklBankInfo);
                             }
                             break;
                         case BankInfoStatus::VALIDATED:
-                            $miraklBankInfo->setMiraklData(
-                                $miraklDataCollection[$vendor->getMiraklId()]
-                            );
+                            $miraklBankInfo->setMiraklData($miraklDataCollection[$vendor->getMiraklId()]);
                             if (!$this->isBankInfosSynchronised($vendor, $miraklBankInfo)) {
-                                throw new InvalidBankInfoException(
-                                    $vendor, $miraklBankInfo
-                                );
+                                throw new InvalidBankInfoException($vendor, $miraklBankInfo);
                             } else {
                                 $this->logger->info(
                                     '[OK] The bank information is synchronized',
@@ -935,13 +941,30 @@ class Processor extends AbstractApiProcessor
 
     /**
      * get login from Mirakl Id
-     * @param type $shopId
+     *
+     * @param $shopId
      * @return type
+     * @throws Exception
      */
     public function getLogin($shopId)
     {
+        return $this->generateLogin($this->getVendorByShopId($shopId));
+    }
+
+    /**
+     * @param $shopId
+     * @return mixed
+     * @throws Exception
+     */
+    public function getVendorByShopId($shopId)
+    {
         $shop = $this->mirakl->getVendors(null, null, array($shopId));
-        return $this->generateLogin($shop[0]);
+
+        if (empty($shop)) {
+            throw new \Exception("No mirakl data for this shop ID ($shopId)");
+        }
+
+        return $shop[0];
     }
 
     /**
@@ -964,7 +987,9 @@ class Processor extends AbstractApiProcessor
         $status,
         $message,
         $nbDoc = 0,
-        $enabled = true
+        $enabled = true,
+        $country = null,
+        $paymentBlocked = false
     ) {
         $logVendor = $this->logVendorManager->findByMiraklId($miraklId);
 
@@ -973,6 +998,8 @@ class Processor extends AbstractApiProcessor
             $logVendor->setStatus($status);
             $logVendor->setMessage($message);
             $logVendor->setEnabled($enabled);
+            $logVendor->setCountry($country);
+            $logVendor->setPaymentBlocked($paymentBlocked);
             $this->vendorsLogs[] = $logVendor;
         } else {
             $this->vendorsLogs[] = $this->logVendorManager->create(
@@ -982,7 +1009,9 @@ class Processor extends AbstractApiProcessor
                 $statusWalletAccount,
                 $status,
                 $message,
-                $nbDoc
+                $nbDoc,
+                $country,
+                $paymentBlocked
             );
         }
     }
@@ -1062,7 +1091,6 @@ class Processor extends AbstractApiProcessor
     {
 
         try {
-
             $backType = $this->getFileBackType($fileType);
 
             // this file type has no backs
@@ -1104,7 +1132,6 @@ class Processor extends AbstractApiProcessor
                 ' not uploaded in Mirakl or uploaded with wrong extension'
             );
         }
-
     }
 
     /**
@@ -1140,7 +1167,6 @@ class Processor extends AbstractApiProcessor
         ) {
             return true;
         } else {
-
             $this->logger->info(
                 'Shop ' .
                 $element['shop_id'] .

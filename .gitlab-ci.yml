@@ -1,0 +1,44 @@
+image: hipay/gitlab-ci-base:jessie
+
+stages:
+ - test
+ - analysis
+ - sync
+
+phpunit:
+  stage: test
+  before_script:
+    - docker build -t phpunit .
+  script:
+    - docker run --rm --name my-running-app phpunit vendor/phpunit/phpunit/phpunit -c tests/phpunit.xml
+  allow_failure: false
+  tags:
+    - mirakl-library
+
+sonarqube:
+  stage: analysis
+  image: ciricihq/gitlab-sonar-scanner
+  variables:
+    SONAR_URL: http://172.17.0.1:19000
+    SONAR_ANALYSIS_MODE: preview
+    SONAR_TOKEN: $SONAR_LOGIN
+  script:
+  - /usr/bin/sonar-scanner-run.sh -X
+
+sonarqube-reports:
+  stage: analysis
+  image: ciricihq/gitlab-sonar-scanner
+  variables:
+    SONAR_URL: http://172.17.0.1:19000
+    SONAR_ANALYSIS_MODE: "publish"
+    SONAR_TOKEN: $SONAR_LOGIN
+  script:
+  - unset CI_BUILD_REF && /usr/bin/sonar-scanner-run.sh
+
+sync:
+  stage: sync
+  script:
+  - git clone --mirror https://$GITLAB_USER:$GITLAB_PASSWORD@gitlab.hipay.org/pi-ecommerce/hipay-wallet-cashout-mirakl-library.git
+  - cd hipay-wallet-cashout-mirakl-library.git
+  - git push --mirror https://$GITHUB_USER:$GITHUB_PASSWORD@github.com/hipay/hipay-wallet-cashout-mirakl-library.git
+  allow_failure: true
