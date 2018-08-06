@@ -260,6 +260,8 @@ class Handler extends AbstractProcessor
         }
 
         switch ($status) {
+            case Status::WITHDRAW_SUCCESS:
+            case Status::WITHDRAW_CANCELED:
             case Status::WITHDRAW_FAILED:
             case Status::WITHDRAW_REQUESTED:
                 $logOperation->setStatusWithDrawal($status);
