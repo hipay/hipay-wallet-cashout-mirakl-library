@@ -13,11 +13,13 @@ phpunit:
     - docker run --rm --name my-running-app phpunit vendor/phpunit/phpunit/phpunit -c tests/phpunit.xml
   allow_failure: false
   tags:
-    - mirakl-library
+    - pi-commerce-no-overlay
 
 sonarqube:
   stage: analysis
   image: ciricihq/gitlab-sonar-scanner
+  tags:
+    - pi-commerce-no-overlay
   variables:
     SONAR_URL: http://172.17.0.1:19000
     SONAR_ANALYSIS_MODE: preview
@@ -28,6 +30,8 @@ sonarqube:
 sonarqube-reports:
   stage: analysis
   image: ciricihq/gitlab-sonar-scanner
+  tags:
+    - pi-commerce-no-overlay
   variables:
     SONAR_URL: http://172.17.0.1:19000
     SONAR_ANALYSIS_MODE: "publish"
@@ -37,6 +41,8 @@ sonarqube-reports:
 
 sync:
   stage: sync
+  tags:
+    - pi-commerce-no-overlay
   script:
   - git clone --mirror https://$GITLAB_USER:$GITLAB_PASSWORD@gitlab.hipay.org/pi-ecommerce/hipay-wallet-cashout-mirakl-library.git
   - cd hipay-wallet-cashout-mirakl-library.git

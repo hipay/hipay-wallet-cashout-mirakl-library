@@ -1,3 +1,6 @@
+# Version 2.10.1
+- Fix notification
+
 # Version 2.10.0
 - Add country to vendor data
 - Block withdraw for vendor flag as "Payment Bocked" (Mirakl BO)
