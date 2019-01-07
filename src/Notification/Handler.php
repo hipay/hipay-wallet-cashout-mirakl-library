@@ -58,11 +58,13 @@ class Handler extends AbstractProcessor
 
     /**
      * Handler constructor.
-     *
-     * @param OperationManager $operationManager
      * @param EventDispatcherInterface $dispatcher
      * @param LoggerInterface $logger
+     * @param OperationManager $operationManager
      * @param VendorManagerInterface $vendorManager
+     * @param LogVendorsManagerInterface $logVendorManager
+     * @param ApiFactory $factory
+     * @param LogOperationsManagerInterface $logOperationsManager
      */
     public function __construct(
         EventDispatcherInterface $dispatcher,
@@ -86,9 +88,7 @@ class Handler extends AbstractProcessor
      * Handle the notification sent by HiPay.
      *
      * @param $xml
-     *
-     * @throws Exception
-     * @throws IllegalNotificationOperationException
+     * @throws ChecksumFailedException
      */
     public function handleHiPayNotification($xml)
     {
@@ -129,7 +129,7 @@ class Handler extends AbstractProcessor
 
         /** @noinspection PhpUndefinedFieldInspection */
         if (md5($md5string . $callback_salt) != $xml->md5content) {
-            throw new ChecksumFailedException();
+            throw new ChecksumFailedException($md5string, $callback_salt, $hipayId);
         }
 
         /** @noinspection PhpUndefinedFieldInspection */
@@ -162,23 +162,12 @@ class Handler extends AbstractProcessor
                 );
                 break;
             case Notification::DOCUMENT_VALIDATION:
-                $title = 'Error - Document validation';
+                $title = 'Document validation';
                 $infos = array(
                     'shopId' => '-',
                     'HipayId' => $hipayId,
                     'Email' => '-',
                     'Type' => 'Error'
-                );
-                $exceptionMsg = implode(
-                    HiPay::LINEMKD,
-                    array(
-                        'Operation' => $operation,
-                        'Status' => $xml->result->status,
-                        'Message' => $xml->result->message,
-                        'Date' => $date->format('Y-m-d H:i:s'),
-                        'Document_type' => $xml->result->document_type,
-                        'Document_type_label' => $xml->result->document_type_label,
-                    )
                 );
                 $exceptionMsg = HiPay::LINEMKD . '- Operation: ' . $operation .
                     HiPay::LINEMKD . '- Status: ' . $xml->result->status .
@@ -188,10 +177,11 @@ class Handler extends AbstractProcessor
                     HiPay::LINEMKD . '- Document_type_label: ' . $xml->result->document_type_label .
                     HiPay::LINEMKD;
                 $message = $this->formatNotification->formatMessage($title, $infos, $exceptionMsg);
-                $this->logger->error($message, array('miraklId' => null, "action" => "Notification"));
+                $this->logger->info($message, array('miraklId' => null, "action" => "Notification"));
                 break;
             default:
-                throw new IllegalNotificationOperationException($operation);
+                $message = "The operation $operation is not a viable notification operation (hipayId: $hipayId)";
+                $this->logger->notice($message, array('miraklId' => null, "action" => "Notification"));
         }
     }
 
@@ -213,7 +203,10 @@ class Handler extends AbstractProcessor
             ->findByWithdrawalId($withdrawalId);
 
         if (!$operation) {
-            throw new OperationNotFound($withdrawalId);
+            $message = "No operation was found with this operation Id :
+             $withdrawalId, this operation might not be related to the connector";
+            $this->logger->notice($message, array('miraklId' => null, "action" => "Notification"));
+            return;
         }
 
         if ($operation->getStatus() != Status::WITHDRAW_REQUESTED) {
@@ -246,36 +239,6 @@ class Handler extends AbstractProcessor
 
         $event = new Withdraw($hipayId, $date, $operation);
         $this->dispatcher->dispatch($eventName, $event);
-    }
-
-    private function logOperation($miraklId, $paymentVoucherNumber, $status, $message)
-    {
-        $logOperation = $this->logOperationsManager->findByMiraklIdAndPaymentVoucherNumber($miraklId, $paymentVoucherNumber);
-
-        if ($logOperation == null) {
-            $this->logger->warning(
-                "Could not fnd existing log for this operations : paymentVoucherNumber = " . $paymentVoucherNumber,
-                array("action" => "Process notification", "miraklId" => $miraklId)
-            );
-        }
-
-        switch ($status) {
-            case Status::WITHDRAW_SUCCESS:
-            case Status::WITHDRAW_CANCELED:
-            case Status::WITHDRAW_FAILED:
-            case Status::WITHDRAW_REQUESTED:
-                $logOperation->setStatusWithDrawal($status);
-                break;
-            case Status::TRANSFER_FAILED:
-            case Status::TRANSFER_SUCCESS:
-                $logOperation->setStatusTransferts($status);
-                break;
-        }
-
-        $logOperation->setMessage($message);
-        $logOperation->setDateCreated(new \DateTime());
-
-        $this->logOperationsManager->save($logOperation);
     }
 
     /**
@@ -369,5 +332,46 @@ class Handler extends AbstractProcessor
         $event = new Other($hipayId, $date, $amount, $currency, $label);
 
         $this->dispatcher->dispatch($eventName, $event);
+    }
+
+    /**
+     * @param $miraklId
+     * @param $paymentVoucherNumber
+     * @param $status
+     * @param $message
+     */
+    private function logOperation($miraklId, $paymentVoucherNumber, $status, $message)
+    {
+        $logOperation = $this->logOperationsManager->findByMiraklIdAndPaymentVoucherNumber(
+            $miraklId,
+            $paymentVoucherNumber
+        );
+
+        if ($logOperation === null) {
+            $this->logger->notice(
+                "Could not find existing log for this operations : paymentVoucherNumber = " . $paymentVoucherNumber,
+                array("action" => "Process notification", "miraklId" => $miraklId)
+            );
+
+            return;
+        }
+
+        switch ($status) {
+            case Status::WITHDRAW_SUCCESS:
+            case Status::WITHDRAW_CANCELED:
+            case Status::WITHDRAW_FAILED:
+            case Status::WITHDRAW_REQUESTED:
+                $logOperation->setStatusWithDrawal($status);
+                break;
+            case Status::TRANSFER_FAILED:
+            case Status::TRANSFER_SUCCESS:
+                $logOperation->setStatusTransferts($status);
+                break;
+        }
+
+        $logOperation->setMessage($message);
+        $logOperation->setDateCreated(new \DateTime());
+
+        $this->logOperationsManager->save($logOperation);
     }
 }
