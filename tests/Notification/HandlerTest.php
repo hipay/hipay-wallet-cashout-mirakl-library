@@ -121,7 +121,6 @@ class HandlerTest extends AbstractProcessorTest
     {
         $xml = $this->readFile("unknownOperation.xml");
         $this->eventDispatcher->dispatch(Argument::any())->shouldNotBeCalled();
-        $this->setExpectedException("HiPay\\Wallet\\Mirakl\\Exception\\IllegalNotificationOperationException");
         $this->notificationHandler->handleHiPayNotification($xml);
     }
     /**
