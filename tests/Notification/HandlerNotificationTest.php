@@ -1,5 +1,7 @@
 <?php
+
 namespace HiPay\Wallet\Mirakl\Test\Notification;
+
 use DateTime;
 use Exception;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Status\Notification;
@@ -8,8 +10,6 @@ use HiPay\Wallet\Mirakl\Cashout\Model\Operation\ManagerInterface as OperationMan
 use HiPay\Wallet\Mirakl\Cashout\Model\Operation\Status;
 use HiPay\Wallet\Mirakl\Common\AbstractProcessor;
 use HiPay\Wallet\Mirakl\Exception\ChecksumFailedException;
-use HiPay\Wallet\Mirakl\Exception\IllegalNotificationOperationException;
-use HiPay\Wallet\Mirakl\Exception\OperationNotFound;
 use HiPay\Wallet\Mirakl\Exception\WrongOperationStatus;
 use HiPay\Wallet\Mirakl\Notification\Event\BankInfo;
 use HiPay\Wallet\Mirakl\Notification\Event\Identification;
@@ -75,7 +75,7 @@ class HandlerNotif extends AbstractProcessor
         $md5string = trim(preg_replace("#\>( )+?\<#", "><", $md5string));
         /** @noinspection PhpUndefinedFieldInspection */
         if (md5($md5string . $callback_salt) !=  $xml->md5content) {
-            throw new ChecksumFailedException();
+            throw new ChecksumFailedException($md5string, $callback_salt, 1);
         }
         /** @noinspection PhpUndefinedFieldInspection */
         $operation = (string) $xml->result->operation;
@@ -135,7 +135,8 @@ class HandlerNotif extends AbstractProcessor
                 $bool_semdmail = false;
                 break;
             default:
-                throw new IllegalNotificationOperationException($operation);
+                $message = "The operation $operation is not a viable notification operation (hipayId: $hipayId)";
+                $this->logger->notice($message, array('miraklId' => null, "action" => "Notification"));
         }
         if ( !$bool_semdmail ) {
             return $bool_semdmail;

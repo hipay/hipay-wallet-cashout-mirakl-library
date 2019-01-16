@@ -38,7 +38,12 @@ class WrongOperationStatus extends DispatchableException
         $code = 0,
         Exception $previous = null
     ) {
-        parent::__construct($message ?: "This operation's status is incorrect", $code, $previous);
+        parent::__construct(
+            $message ?: "This operation's status is incorrect (withdtrawId:
+             {$operation->getWithdrawId()} | miraklId: $operation->getMiraklId())",
+            $code,
+            $previous
+        );
         $this->operation = $operation;
     }
 
