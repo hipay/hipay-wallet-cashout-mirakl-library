@@ -1,3 +1,6 @@
+# Version 2.10.2
+- Fix: Add logs on notifications
+
 # Version 2.10.1
 - Fix notification
 
