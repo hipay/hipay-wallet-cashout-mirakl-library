@@ -3,7 +3,6 @@ image: hipay/gitlab-ci-base:jessie
 stages:
  - test
  - analysis
- - sync
 
 phpunit:
   stage: test
@@ -38,13 +37,3 @@ sonarqube-reports:
     SONAR_TOKEN: $SONAR_LOGIN
   script:
   - unset CI_BUILD_REF && /usr/bin/sonar-scanner-run.sh
-
-sync:
-  stage: sync
-  tags:
-    - pi-commerce-no-overlay
-  script:
-  - git clone --mirror https://$GITLAB_USER:$GITLAB_PASSWORD@gitlab.hipay.org/pi-ecommerce/hipay-wallet-cashout-mirakl-library.git
-  - cd hipay-wallet-cashout-mirakl-library.git
-  - git push --mirror https://$GITHUB_USER:$GITHUB_PASSWORD@github.com/hipay/hipay-wallet-cashout-mirakl-library.git
-  allow_failure: true
