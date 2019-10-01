@@ -301,7 +301,7 @@ class Processor extends AbstractApiProcessor
                     $this->generateLogin($vendorData),
                     LogVendorsInterface::WALLET_NOT_CREATED,
                     LogVendorsInterface::CRITICAL,
-                    $e->getMessage(),
+                    substr($e->getMessage(), 0, 255),
                     0,
                     false,
                     $vendorData["contact_informations"]["country"],
