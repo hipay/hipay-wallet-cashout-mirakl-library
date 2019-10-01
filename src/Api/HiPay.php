@@ -235,6 +235,34 @@ class HiPay implements ApiInterface
         return $result['is_available'];
     }
 
+    public function updateEmail($email, VendorInterface $vendor)
+    {
+        $this->resetRestClient();
+
+        $this->restClient->getConfig()->setPath(
+            'request.options/headers/php-auth-user',
+            $this->login
+        );
+
+        $this->restClient->getConfig()->setPath(
+            'request.options/headers/php-auth-pw',
+            $this->password
+        );
+
+        $this->restClient->getConfig()->setPath(
+            'request.options/headers/php-auth-subaccount-id',
+            $vendor->getHiPayId()
+        );
+
+        $parameters = array('email' => $email);
+
+        $command = $this->restClient->getCommand('UpdateAccount', $parameters);
+
+        $result = $this->executeRest($command, $parameters);
+
+        return $result;
+    }
+
     /**
      * Create an new account on HiPay wallet
      * Enforce the entity to the one given on object construction
@@ -543,6 +571,7 @@ class HiPay implements ApiInterface
         try {
             $result = $this->executeRest($command);
         } catch (ClientErrorResponseException $e) {
+
             if ($e->getResponse()->getStatusCode() == '401') {
                 /** retry with email in php-auth-subaccount-login */
                 $this->restClient->getConfig()->setPath(
@@ -569,9 +598,8 @@ class HiPay implements ApiInterface
      *
      * @throws Exception
      */
-    public function getAccountHiPay(
-        $account_id
-    ) {
+    public function getAccountHiPay($account_id)
+    {
         $this->resetRestClient();
 
         $this->restClient->getConfig()->setPath(
@@ -599,6 +627,16 @@ class HiPay implements ApiInterface
         $result = $this->executeRest($command);
 
         return $result;
+    }
+
+    public function isWalletExist($account_id)
+    {
+        try {
+            $this->getAccountHiPay($account_id);
+            return true;
+        } catch (Exception $e) {
+            return false;
+        }
     }
 
     /**
@@ -982,7 +1020,12 @@ class HiPay implements ApiInterface
     private function executeRest($command, $parameters = array())
     {
 
-        $result = $this->restClient->execute($command);
+        try {
+            $result = $this->restClient->execute($command);
+        } catch (\Guzzle\Http\Exception\ClientErrorResponseException $e) {
+            $result  = $e->getResponse()->json();
+        }
+
 
         if (isset($result['code']) && $result['code'] === 0) {
             return $result;
@@ -1003,7 +1046,6 @@ class HiPay implements ApiInterface
             PHP_EOL,
             $result['code']
         );
-
     }
 
     /**

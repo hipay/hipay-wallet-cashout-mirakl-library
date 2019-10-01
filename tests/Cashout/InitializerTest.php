@@ -61,9 +61,11 @@ class InitializerTest extends AbstractProcessorTest
 
         $this->operationManager->isValid($this->operationArgument)->willReturn(true)->shouldBeCalled();
 
-        $expectedOperation = new Operation(200, new DateTime(), "000001", 2001);
+        $now = new DateTime();
 
-        $expectedOperation->setOriginAmount(200);
+        $expectedOperation = new Operation(200, $now, "000001", 2001);
+
+        $expectedOperation->setOriginAmount(200.0);
 
         $expectedOperation->setHipayId(109);
 
@@ -73,7 +75,9 @@ class InitializerTest extends AbstractProcessorTest
 
         $vendor = new Vendor("test@test.com", 109, 2001);
 
-        $resultOperation = $this->cashoutInitializer->createOperation((float) 200, (float) 200, new DateTime(), "000001", $vendor);
+        $resultOperation = $this->cashoutInitializer->createOperation((float) 200, (float) 200, $now, "000001", $vendor);
+
+        $expectedOperation->setUpdatedAt($resultOperation->getUpdatedAt());
 
         $this->assertEquals($expectedOperation, $resultOperation);
     }
@@ -96,6 +100,7 @@ class InitializerTest extends AbstractProcessorTest
 
     /**
      * @cover ::isOperationValid
+     * @expectedException \HiPay\Wallet\Mirakl\Exception\AlreadyCreatedOperationException
      */
     public function testOperationAlreadyCreated()
     {
@@ -107,8 +112,6 @@ class InitializerTest extends AbstractProcessorTest
 
         $this->operationManager->isValid($this->operationArgument)->willReturn(true)->shouldNotBeCalled();
 
-        $this->setExpectedException("HiPay\Wallet\Mirakl\Exception\AlreadyCreatedOperationException");
-
         $this->cashoutInitializer->isOperationValid($operation);
 
         $this->assertFalse($this->cashoutInitializer->isOperationValid($operation));
@@ -116,6 +119,7 @@ class InitializerTest extends AbstractProcessorTest
 
     /**
      * @cover ::isOperationValid
+     * @expectedException \HiPay\Wallet\Mirakl\Exception\InvalidOperationException
      */
     public function testInvalidOperation()
     {
@@ -126,8 +130,6 @@ class InitializerTest extends AbstractProcessorTest
             ->shouldBeCalled();
 
         $this->operationManager->isValid($this->operationArgument)->willReturn(false)->shouldBeCalled();
-
-        $this->setExpectedException("HiPay\Wallet\Mirakl\Exception\InvalidOperationException");
 
         $this->cashoutInitializer->isOperationValid($operation);
     }

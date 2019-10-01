@@ -72,12 +72,11 @@ class TransferTest extends AbstractProcessorTest
 
     /**
      * @cover ::hasSufficientFunds
+     * @expectedException \HiPay\Wallet\Mirakl\Exception\WrongWalletBalance
      */
     public function testHasNotEnoughFunds()
     {
         $this->hipay->getBalance($this->technicalAccountArgument)->willReturn(2001)->shouldBeCalled();
-
-        $this->setExpectedException("HiPay\Wallet\Mirakl\Exception\WrongWalletBalance");
 
         $this->transferProcessor->hasSufficientFunds(3000, $this->technical);
     }
@@ -91,17 +90,18 @@ class TransferTest extends AbstractProcessorTest
     {
         $transferId = rand();
 
-        $this->vendorManager->findByMiraklId(Argument::type("integer"))
-            ->willReturn(new Vendor("test@test.com", rand(), rand()))
+        $this->hipay->isWalletExist(Argument::cetera())
+            ->willReturn(true)
             ->shouldBeCalled();
 
-        $this->hipay->isAvailable(Argument::containingString("@"), Argument::any())
-            ->willReturn(false)
+        $this->vendorManager->findByMiraklId(Argument::type("integer"))
+            ->willReturn(new Vendor("test@test.com", rand(), rand()))
             ->shouldBeCalled();
 
         $this->hipay->transfer($this->transferArgument, Argument::cetera())
             ->willReturn($transferId)
             ->shouldBeCalled();
+
 
         $operation = new Operation(2000, new DateTime(), "000001", rand());
 
@@ -131,11 +131,13 @@ class TransferTest extends AbstractProcessorTest
 
         $operation = new Operation(2000, new DateTime(), "000001", false);
 
+        $this->hipay->isWalletExist(Argument::cetera())
+            ->willReturn(true)
+            ->shouldBeCalled();
+
         $this->hipay->getBalance($this->technicalAccountArgument)->willReturn(2001)->shouldBeCalled();
 
         $this->operationManager->save($this->operationArgument)->willReturn()->shouldBeCalled();
-
-        $this->hipay->isAvailable(Argument::containingString("@"), Argument::any())->willReturn(false)->shouldBeCalled();
 
         $this->hipay->transfer($this->transferArgument, Argument::cetera())->willReturn($transferId)->shouldBeCalled();
 
@@ -158,17 +160,18 @@ class TransferTest extends AbstractProcessorTest
     /**
      * @cover ::transfer
      * @group transfer
+     * @expectedException \HiPay\Wallet\Mirakl\Exception\WrongWalletBalance
      */
     public function testVendorTransferWrongWalletBalance()
     {
         $transferId = rand();
 
-        $this->vendorManager->findByMiraklId(Argument::type("integer"))
-            ->willReturn(new Vendor("test@test.com", rand(), rand()))
+        $this->hipay->isWalletExist(Argument::cetera())
+            ->willReturn(true)
             ->shouldBeCalled();
 
-        $this->hipay->isAvailable(Argument::containingString("@"), Argument::any())
-            ->willReturn(false)
+        $this->vendorManager->findByMiraklId(Argument::type("integer"))
+            ->willReturn(new Vendor("test@test.com", rand(), rand()))
             ->shouldBeCalled();
 
         $this->hipay->transfer($this->transferArgument, Argument::cetera())
@@ -185,7 +188,6 @@ class TransferTest extends AbstractProcessorTest
 
         $this->logOperationsManager->findByMiraklIdAndPaymentVoucherNumber(Argument::any(), Argument::any())->willReturn(new LogOperations(200, 2001))->shouldBeCalled();
 
-        $this->setExpectedException("HiPay\Wallet\Mirakl\Exception\WrongWalletBalance");
 
         $result = $this->transferProcessor->transfer($operation);
 
@@ -196,17 +198,18 @@ class TransferTest extends AbstractProcessorTest
     /**
      * @cover ::transfer
      * @group transfer
+     * @expectedException \HiPay\Wallet\Mirakl\Exception\WalletNotFoundException
      */
     public function testTransferWalletNotFound()
     {
         $transferId = rand();
 
-        $this->vendorManager->findByMiraklId(Argument::type("integer"))
-            ->willReturn(new Vendor("test@test.com", rand(), rand()))
+        $this->hipay->isWalletExist(Argument::cetera())
+            ->willReturn(false)
             ->shouldBeCalled();
 
-        $this->hipay->isAvailable(Argument::containingString("@"), Argument::any())
-            ->willReturn(true)
+        $this->vendorManager->findByMiraklId(Argument::type("integer"))
+            ->willReturn(new Vendor("test@test.com", rand(), rand()))
             ->shouldBeCalled();
 
         $this->hipay->transfer($this->transferArgument, Argument::cetera())
@@ -223,12 +226,9 @@ class TransferTest extends AbstractProcessorTest
 
         $this->logOperationsManager->findByMiraklIdAndPaymentVoucherNumber(Argument::any(), Argument::any())->willReturn(new LogOperations(200, 2001))->shouldBeCalled();
 
-        $this->setExpectedException("HiPay\Wallet\Mirakl\Exception\WalletNotFoundException");
-
         $result = $this->transferProcessor->transfer($operation);
 
         $this->assertEquals(Status::TRANSFER_NEGATIVE, $operation->getStatus());
-
     }
 
     /**

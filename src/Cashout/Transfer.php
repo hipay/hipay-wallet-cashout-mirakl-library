@@ -108,7 +108,7 @@ class Transfer extends AbstractOperationProcessor
                     array('miraklId' => $operation->getMiraklId(), "action" => "Transfer")
                 );
             } catch (Exception $e) {
-                $this->logger->warning(
+                $this->logger->critical(
                     "[KO] Transfer operation failed",
                     array('miraklId' => $operation->getMiraklId(), "action" => "Transfer")
                 );
@@ -131,7 +131,11 @@ class Transfer extends AbstractOperationProcessor
         try {
             $vendor = $this->getVendor($operation);
 
-            if (!$vendor || $this->hipay->isAvailable($vendor->getEmail())) {
+            if (!$vendor) {
+                throw new WalletNotFoundException($vendor);
+            }
+
+            if (!$this->hipay->isWalletExist($vendor->getHiPayId())) {
                 throw new WalletNotFoundException($vendor);
             }
 
@@ -241,5 +245,4 @@ class Transfer extends AbstractOperationProcessor
 
         return $toTransfer;
     }
-
 }

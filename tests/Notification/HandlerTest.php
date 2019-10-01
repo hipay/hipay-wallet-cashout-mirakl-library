@@ -33,11 +33,11 @@ class HandlerTest extends AbstractProcessorTest
      * @cover ::handleHiPayNotification
      * @throws \HiPay\Wallet\Mirakl\Exception\ChecksumFailedException
      * @throws \HiPay\Wallet\Mirakl\Exception\IllegalNotificationOperationException
+     * @expectedException \HiPay\Wallet\Mirakl\Exception\ChecksumFailedException
      */
     public function testMd5Failure()
     {
         $xml = $this->readFile("md5Fail.xml");
-        $this->setExpectedException("\\HiPay\\Wallet\\Mirakl\\Exception\\ChecksumFailedException");
         $this->eventDispatcher->dispatch(Argument::any())->shouldNotBeCalled();
         $this->notificationHandler->handleHiPayNotification($xml);
     }

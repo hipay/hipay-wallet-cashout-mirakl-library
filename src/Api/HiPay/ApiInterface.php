@@ -203,4 +203,17 @@ interface ApiInterface
      * @param DateTime $validityDate
      */
     public function uploadDocument($userSpaceId, $accountId, $documentType, $fileName, \DateTime $validityDate = null);
+
+    /**
+     * @param $hipayId
+     * @return mixed
+     */
+    public function isWalletExist($hipayId);
+
+    /**
+     * @param $email
+     * @param VendorInterface $vendor
+     * @return mixed
+     */
+    public function updateEmail($email, VendorInterface $vendor);
 }

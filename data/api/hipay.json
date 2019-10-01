@@ -497,6 +497,111 @@
                 }
             }
         },
+        "UpdateAccount": {
+            "httpMethod": "PATCH",
+            "uri": "/api/user-account",
+            "summary": "Update a HiPay account",
+            "parameters": {
+                "email": {
+                    "type": "string",
+                    "description": "New account email",
+                    "location": "postField",
+                    "sentAs": "email",
+                    "required": false
+                },
+                "alias": {
+                    "type": "string",
+                    "description": "Type of company (ltd..)",
+                    "location": "postField",
+                    "sentAs": "alias",
+                    "required": false
+                },
+                "vatNumber": {
+                    "type": "string",
+                    "description": "VAT company number.",
+                    "location": "postField",
+                    "sentAs": "vat_number",
+                    "required": false
+                },
+                "address": {
+                    "type": "object",
+                    "location": "postField",
+                    "sentAs": "address",
+                    "properties": {
+                        "address": {
+                            "description": "Street address.",
+                            "location": "postField",
+                            "type": "string",
+                            "required": false
+                        },
+                        "zipcode": {
+                            "description": "The zip or postal code.",
+                            "location": "postField",
+                            "type": "string",
+                            "required": false
+                        },
+                        "city": {
+                            "description": "City.",
+                            "location": "postField",
+                            "type": "string",
+                            "required": false
+                        },
+                        "country": {
+                            "description": "The country code. This two-letter country code complies with ISO 3166-1",
+                            "location": "postField",
+                            "type": "string",
+                            "required": false
+                        },
+                        "phone_number": {
+                            "description": "Phone number",
+                            "location": "postField",
+                            "type": "string",
+                            "required": false
+                        },
+                        "mobile_phone_number": {
+                            "description": "Mobile phone number",
+                            "location": "postField",
+                            "type": "string",
+                            "required": false
+                        },
+                        "fax_number": {
+                            "description": "Fax number",
+                            "location": "postField",
+                            "type": "string",
+                            "required": false
+                        }
+                    }
+                },
+                "hipayInformation": {
+                    "type": "integer",
+                    "description": "0 or 1 if user agrees.",
+                    "location": "postField",
+                    "sentAs": "hipay_information",
+                    "required": false
+                },
+                "commercialInformation": {
+                    "type": "integer",
+                    "description": "0 or 1 if user agrees.",
+                    "location": "postField",
+                    "sentAs": "commercial_information",
+                    "required": false
+                },
+                "callbackUrl": {
+                    "type": "string",
+                    "description": "URL where the notifications concerning this account will be sent",
+                    "location": "postField",
+                    "sentAs": "callback_url",
+                    "required": false
+                },
+                "callbackSalt": {
+                    "type": "string",
+                    "description": "salt used in notification signature",
+                    "location": "postField",
+                    "sentAs": "callback_salt",
+                    "required": false
+                }
+            }
+        },
         "transfer": {
             "httpMethod": "POST",
             "uri": "/api/transfer",

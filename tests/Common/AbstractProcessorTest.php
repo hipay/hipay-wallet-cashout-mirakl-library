@@ -10,7 +10,7 @@ use HiPay\Wallet\Mirakl\Cashout\Model\Transaction\ValidatorInterface;
 use HiPay\Wallet\Mirakl\Test\Stub\Entity\Vendor;
 use HiPay\Wallet\Mirakl\Vendor\Model\DocumentManagerInterface as DocumentManagerInterface;
 use HiPay\Wallet\Mirakl\Vendor\Model\VendorManagerInterface as VendorManagerInterface;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Prophecy\Prophecy\ObjectProphecy;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -21,7 +21,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
  */
-abstract class AbstractProcessorTest extends PHPUnit_Framework_TestCase
+abstract class AbstractProcessorTest extends TestCase
 {
     /** @var  EventDispatcherInterface|ObjectProphecy */
     protected $eventDispatcher;

@@ -13,6 +13,7 @@ use Psr\Log\LoggerInterface;
 use HiPay\Wallet\Mirakl\Api\Factory;
 use HiPay\Wallet\Mirakl\Cashout\Model\Operation\ManagerInterface as OperationManager;
 use HiPay\Wallet\Mirakl\Exception\WrongWalletBalance;
+use HiPay\Wallet\Mirakl\Exception\WalletNotFoundException;
 use HiPay\Wallet\Mirakl\Cashout\Model\Operation\OperationInterface;
 use HiPay\Wallet\Mirakl\Cashout\Model\Operation\Status;
 
@@ -161,7 +162,7 @@ abstract class AbstractOperationProcessor extends AbstractApiProcessor
     protected function vendorEnabled($vendor)
     {
         if ($vendor === null) {
-            return false;
+            throw new WalletNotFoundException($vendor);
         }
 
         if ($vendor->getEnabled() === null) {
