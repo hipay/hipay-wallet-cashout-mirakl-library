@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <notification>
-    <md5content>48f2b2e15337a267a5d19a7f342b1aec</md5content>
+    <md5content>353ec40c9b926ae67eff6401ec455ddb</md5content>
     <result>
         <operation>bank_info_validation</operation>
         <status>ok</status>
