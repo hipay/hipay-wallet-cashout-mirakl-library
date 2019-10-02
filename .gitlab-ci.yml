@@ -7,33 +7,9 @@ stages:
 phpunit:
   stage: test
   before_script:
-    - docker build -t phpunit .
+    - composer install
   script:
-    - docker run --rm --name my-running-app phpunit vendor/phpunit/phpunit/phpunit -c tests/phpunit.xml
+    - phpunit -c tests/phpunit.xml
   allow_failure: false
   tags:
-    - pi-commerce-no-overlay
-
-sonarqube:
-  stage: analysis
-  image: ciricihq/gitlab-sonar-scanner
-  tags:
-    - pi-commerce-no-overlay
-  variables:
-    SONAR_URL: http://172.17.0.1:19000
-    SONAR_ANALYSIS_MODE: preview
-    SONAR_TOKEN: $SONAR_LOGIN
-  script:
-  - /usr/bin/sonar-scanner-run.sh -X
-
-sonarqube-reports:
-  stage: analysis
-  image: ciricihq/gitlab-sonar-scanner
-  tags:
-    - pi-commerce-no-overlay
-  variables:
-    SONAR_URL: http://172.17.0.1:19000
-    SONAR_ANALYSIS_MODE: "publish"
-    SONAR_TOKEN: $SONAR_LOGIN
-  script:
-  - unset CI_BUILD_REF && /usr/bin/sonar-scanner-run.sh
+    - pi-ecommerce
