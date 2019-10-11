@@ -18,6 +18,7 @@ use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 use Guzzle\Service\Client;
 use Guzzle\Service\Description\ServiceDescription;
 use Guzzle\Http\Exception\ClientErrorResponseException;
+use HiPay\Wallet\Mirakl\Exception\HipayRestResponseException;
 
 /**
  * Make the SOAP & REST call to the HiPay API.
@@ -570,7 +571,7 @@ class HiPay implements ApiInterface
 
         try {
             $result = $this->executeRest($command);
-        } catch (ClientErrorResponseException $e) {
+        } catch (HipayRestResponseException $e) {
 
             if ($e->getResponse()->getStatusCode() == '401') {
                 /** retry with email in php-auth-subaccount-login */
@@ -586,6 +587,7 @@ class HiPay implements ApiInterface
                 $result = $this->executeRest($command);
             }
         }
+
         return $result;
     }
 
@@ -681,7 +683,7 @@ class HiPay implements ApiInterface
 
         try {
             $result = $this->executeRest($command);
-        } catch (ClientErrorResponseException $e) {
+        } catch (HipayRestResponseException $e) {
             /** retro compatible if old account */
             if ($e->getResponse()->getStatusCode() == '401') {
                 /** retry with email in php-auth-subaccount-login */
@@ -1012,18 +1014,19 @@ class HiPay implements ApiInterface
      * Wallet API doesn't send HTTP error code in case of parameters errors, send 200 instead
      * Error is in request body
      *
-     * @param type $command
+     * @param $command
      * @param array $parameters
-     * @return type
-     * @throws Exception
+     * @return array|\Guzzle\Http\Message\Response|mixed
+     * @throws HipayRestResponseException
+     * @throws \Guzzle\Service\Exception\CommandTransferException
      */
     private function executeRest($command, $parameters = array())
     {
 
         try {
             $result = $this->restClient->execute($command);
-        } catch (\Guzzle\Http\Exception\ClientErrorResponseException $e) {
-            $result  = $e->getResponse()->json();
+        } catch (ClientErrorResponseException $e) {
+            throw new HipayRestResponseException($e, $command, $parameters);
         }
 
 
