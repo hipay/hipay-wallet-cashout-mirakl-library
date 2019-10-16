@@ -149,20 +149,18 @@ class ProcessorTest extends AbstractProcessorTest
     /**
      * @cover ::registerWallets
      */
-    public function testAlreadyRecordedWallets()
+    public function testAlreadyRecordedWalletsNewEmail()
     {
         $this->vendorManager->findByMiraklId(2001)->will(function ($email) {
             return new Vendor("foo@bar.com", rand(), rand());
         })->shouldBeCalled();
 
-        $this->vendorManager->update(
-            $this->vendorArgument,
-            Argument::type('array')
-        )->willReturn()->shouldBeCalled();
+        $this->vendorManager
+            ->update($this->vendorArgument, Argument::type('array'))
+            ->willReturn()
+            ->shouldBeCalled();
 
-        $this->vendorManager->isValid(
-            $this->vendorArgument
-        )->willReturn(true)->shouldBeCalled();
+        $this->vendorManager->isValid($this->vendorArgument)->willReturn(true)->shouldBeCalled();
 
         $walletInfo = new HiPay\Wallet\AccountInfo(mt_rand(), mt_rand(), true, mt_rand());
 
@@ -171,6 +169,12 @@ class ProcessorTest extends AbstractProcessorTest
             Argument::type("HiPay\\Wallet\\Mirakl\\Vendor\\Model\\VendorInterface")
         )->willReturn($walletInfo)->shouldBeCalled();
 
+        $this->hipay->updateEmail(
+            "test+1@test.com",
+            Argument::type("HiPay\\Wallet\\Mirakl\\Vendor\\Model\\VendorInterface")
+        )->willReturn(true)->shouldBeCalled();
+
+
         $vendors = $this->vendorProcessor->registerWallets(Mirakl::getVendor());
 
         $this->assertInternalType('array', $vendors);
@@ -178,6 +182,79 @@ class ProcessorTest extends AbstractProcessorTest
         $this->assertEquals(1, count($vendors));
 
         $this->assertContainsOnlyInstancesOf("HiPay\\Wallet\\Mirakl\\Vendor\\Model\\VendorInterface", $vendors);
+    }
+
+    /**
+     * @cover ::registerWallets
+     */
+    public function testAlreadyRecordedWalletsSameEmail()
+    {
+        $this->vendorManager->findByMiraklId(2001)->will(function ($email) {
+            return new Vendor("test+1@test.com", rand(), rand());
+        })->shouldBeCalled();
+
+        $this->vendorManager
+            ->update($this->vendorArgument, Argument::type('array'))
+            ->willReturn()
+            ->shouldBeCalled();
+
+        $this->vendorManager->isValid($this->vendorArgument)->willReturn(true)->shouldBeCalled();
+
+        $walletInfo = new HiPay\Wallet\AccountInfo(mt_rand(), mt_rand(), true, mt_rand());
+
+        $this->hipay->getWalletInfo(
+            Argument::type("\\HiPay\\Wallet\\Mirakl\\Api\\HiPay\\Model\\Rest\\UserAccount"),
+            Argument::type("HiPay\\Wallet\\Mirakl\\Vendor\\Model\\VendorInterface")
+        )->willReturn($walletInfo)->shouldBeCalled();
+
+        $this->hipay->updateEmail(
+            "test+1@test.com",
+            Argument::type("HiPay\\Wallet\\Mirakl\\Vendor\\Model\\VendorInterface")
+        )->shouldNotBeCalled();
+
+
+        $vendors = $this->vendorProcessor->registerWallets(Mirakl::getVendor());
+
+        $this->assertInternalType('array', $vendors);
+
+        $this->assertEquals(1, count($vendors));
+
+        $this->assertContainsOnlyInstancesOf("HiPay\\Wallet\\Mirakl\\Vendor\\Model\\VendorInterface", $vendors);
+    }
+
+    /**
+     * @cover ::registerWallets
+     */
+    public function testAlreadyRecordedWalletsUpdateException()
+    {
+        $this->vendorManager->findByMiraklId(2001)->will(function ($email) {
+            return new Vendor("foo@bar.com", rand(), rand());
+        })->shouldBeCalled();
+
+        $this->vendorManager
+            ->update($this->vendorArgument, Argument::type('array'))
+            ->willReturn()
+            ->shouldNotBeCalled();
+
+        $walletInfo = new HiPay\Wallet\AccountInfo(mt_rand(), mt_rand(), true, mt_rand());
+
+        $this->hipay->getWalletInfo(
+            Argument::type("\\HiPay\\Wallet\\Mirakl\\Api\\HiPay\\Model\\Rest\\UserAccount"),
+            Argument::type("HiPay\\Wallet\\Mirakl\\Vendor\\Model\\VendorInterface")
+        )->willReturn($walletInfo)->shouldBeCalled();
+
+        $this->hipay->updateEmail(
+            "test+1@test.com",
+            Argument::type("HiPay\\Wallet\\Mirakl\\Vendor\\Model\\VendorInterface")
+        )->willThrow(new \Exception())
+            ->shouldBeCalled();
+
+
+        $vendors = $this->vendorProcessor->registerWallets(Mirakl::getVendor());
+
+        $this->assertInternalType('array', $vendors);
+
+        $this->assertEquals(0, count($vendors));
     }
 
     /**
@@ -212,13 +289,55 @@ class ProcessorTest extends AbstractProcessorTest
     /**
      * @cover ::handleBankInfo
      */
-    public function testBankInfoValidate()
+    public function testBankInfoValidatedAndNotSynchronized()
     {
         $tmpDir = '/tmp/dir';
         $vendors = Mirakl::getVendor();
         $miraklData = reset($vendors);
         $vendor = $this->getVendorInstance($miraklData);
         $miraklData = array($vendor->getMiraklId() => $miraklData);
+
+        /** @var VendorInterface $vendorArgument */
+        $vendorArgument = Argument::is($vendor);
+
+        $this->mirakl->getFiles(
+            array($vendor->getMiraklId()))->willReturn(Mirakl::getShopDocuments(array($vendor->getMiraklId()))
+        )->shouldBeCalled();
+
+        $this->hipay->bankInfosStatus($this->vendorArgument)
+                    ->willReturn(BankInfoStatus::VALIDATED)
+                    ->shouldBeCalled();
+
+        $this->hipay->bankInfosCheck(Argument::is($vendor))->will(function () use ($miraklData, $vendor) {
+            $bankInfo = new BankInfo();
+            return $bankInfo->setMiraklData(array("payment_info" => array("iban"=> "test")));
+        })->shouldBeCalled();
+
+        $this->hipay
+            ->bankInfosRegister($vendorArgument, $this->bankInfoArgument)
+            ->willReturn(true)
+            ->shouldBeCalled();
+
+        $this->vendorProcessor->handleBankInfo(array($vendor), $miraklData, $tmpDir);
+    }
+
+    /**
+     * @cover ::handleBankInfo
+     */
+    public function testBankInfoValidatedAndSynchronized()
+    {
+        $tmpDir = '/tmp/dir';
+        $vendors = Mirakl::getVendor();
+        $miraklData = reset($vendors);
+        $vendor = $this->getVendorInstance($miraklData);
+        $miraklData = array($vendor->getMiraklId() => $miraklData);
+
+        /** @var VendorInterface $vendorArgument */
+        $vendorArgument = Argument::is($vendor);
+
+        $this->mirakl->getFiles(
+            array($vendor->getMiraklId()))->willReturn(Mirakl::getShopDocuments(array($vendor->getMiraklId()))
+        )->shouldBeCalled();
 
         $this->hipay->bankInfosStatus($this->vendorArgument)
                     ->willReturn(BankInfoStatus::VALIDATED)
@@ -229,23 +348,10 @@ class ProcessorTest extends AbstractProcessorTest
             return $bankInfo->setMiraklData($miraklData[$vendor->getMiraklId()]);
         })->shouldBeCalled();
 
-        $this->vendorProcessor->handleBankInfo(array($vendor), $miraklData, $tmpDir);
-    }
-
-    /**
-     * @covers ::handleBankInfo
-     */
-    public function testBankInfoOther()
-    {
-        $tmpDir = '/tmp/dir';
-        $vendors = Mirakl::getVendor();
-        $miraklData = reset($vendors);
-        $vendor = $this->getVendorInstance($miraklData);
-        $miraklData = array($vendor->getMiraklId() => $miraklData);
-
-        $this->hipay->bankInfosStatus($this->vendorArgument)
-            ->willReturn(-1)
-            ->shouldBeCalled();
+        $this->hipay
+            ->bankInfosRegister($vendorArgument, $this->bankInfoArgument)
+            ->willReturn(true)
+            ->shouldNotBeCalled();
 
         $this->vendorProcessor->handleBankInfo(array($vendor), $miraklData, $tmpDir);
     }

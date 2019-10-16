@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<notification>
+    <md5content>2d0c070ea9a0ebd941d06ab1854eea25</md5content>
+    <result>
+        <operation>authorization</operation>
+        <status>nok</status>
+        <date>2019-10-01</date>
+        <time>13:41:25 UTC+0000</time>
+        <transid>5d935783d9cd316415</transid>
+        <account_id>123456</account_id>
+        <amount>5</amount>
+        <currency>EUR</currency>
+        <label>public  – 476029 - 2019-09-21 - 230196</label>
+    </result>
+</notification>

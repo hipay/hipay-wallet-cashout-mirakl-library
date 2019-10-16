@@ -108,6 +108,8 @@ class Handler extends AbstractProcessor
         //Call API user-account
         $userAccount = $this->hipay->getAccountHiPay($hipayId);
 
+
+
         if ($vendor !== null) {
             $callback_salt = $vendor->getCallbackSalt();
         } else {
@@ -150,6 +152,10 @@ class Handler extends AbstractProcessor
                 /** @noinspection PhpUndefinedFieldInspection */
                 $this->withdrawalValidation($hipayId, $date, (string)$xml->result->transid, $status);
                 break;
+            case Notification::AUTHORIZATION:
+            case Notification::CAPTURE:
+                $this->transferValidation((string)$xml->result->transid, $status, $operation);
+                break;
             case Notification::OTHER:
                 /** @noinspection PhpUndefinedFieldInspection */
                 $this->other(
@@ -185,6 +191,47 @@ class Handler extends AbstractProcessor
         }
     }
 
+
+    protected function transferValidation($transferId, $status, $notificationType)
+    {
+        $operation = $this->operationManager->findOneByTransferId($transferId);
+
+        if (!$operation) {
+            $this->logNotFoundOperation($transferId);
+            return;
+        }
+
+        if ($operation->getStatus() != Status::TRANSFER_REQUESTED) {
+            throw new WrongOperationStatus($operation);
+        }
+
+        if (!$status) {
+            $operation->setStatus(new Status(Status::TRANSFER_FAILED));
+            $this->logger->warning(
+                "Transfer {$operation->getTransferId()} failed",
+                array('miraklId' => $operation->getMiraklId(), "action" => "transfer")
+            );
+            $eventName = 'transfer.notification.failed';
+
+            $status = Status::TRANSFER_FAILED;
+        } elseif ($notificationType === Notification::CAPTURE) {
+            $operation->setStatus(new Status(Status::TRANSFER_SUCCESS));
+            $this->logger->info(
+                "Transfer {$operation->getTransferId()} successful",
+                array('miraklId' => $operation->getMiraklId(), "action" => "transfer")
+            );
+            $eventName = 'transfer.notification.success';
+
+            $status = Status::TRANSFER_SUCCESS;
+        } else {
+            return;
+        }
+
+        $this->operationManager->save($operation);
+
+        $this->logOperation($operation->getMiraklId(), $operation->getPaymentVoucher(), $status, $eventName);
+    }
+
     /**
      * @param int $withdrawalId
      * @param int $hipayId
@@ -193,19 +240,13 @@ class Handler extends AbstractProcessor
      *
      * @throws Exception
      */
-    protected function withdrawalValidation(
-        $hipayId,
-        DateTime $date,
-        $withdrawalId,
-        $status
-    ) {
+    protected function withdrawalValidation($hipayId, DateTime $date, $withdrawalId, $status)
+    {
         $operation = $this->operationManager
             ->findByWithdrawalId($withdrawalId);
 
         if (!$operation) {
-            $message = "No operation was found with this operation Id :
-             $withdrawalId, this operation might not be related to the connector";
-            $this->logger->notice($message, array('miraklId' => null, "action" => "Notification"));
+            $this->logNotFoundOperation($withdrawalId);
             return;
         }
 
@@ -239,6 +280,13 @@ class Handler extends AbstractProcessor
 
         $event = new Withdraw($hipayId, $date, $operation);
         $this->dispatcher->dispatch($eventName, $event);
+    }
+
+    private function logNotFoundOperation($operationId)
+    {
+        $message = "No operation was found with this operation Id : 
+                        $operationId, this operation might not be related to the connector";
+        $this->logger->notice($message, array('miraklId' => null, "action" => "Notification"));
     }
 
     /**
@@ -296,7 +344,9 @@ class Handler extends AbstractProcessor
                     $statusWalletAccount,
                     $statusRequest,
                     $eventName,
-                    0
+                    0,
+                    $vendor->getCountry(),
+                    $vendor->isPaymentBlocked()
                 );
                 $this->logVendorManager->save($logVendor);
             }
@@ -365,6 +415,7 @@ class Handler extends AbstractProcessor
                 break;
             case Status::TRANSFER_FAILED:
             case Status::TRANSFER_SUCCESS:
+            case Status::TRANSFER_REQUESTED:
                 $logOperation->setStatusTransferts($status);
                 break;
         }

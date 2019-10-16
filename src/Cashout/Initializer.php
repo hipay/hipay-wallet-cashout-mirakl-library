@@ -276,13 +276,13 @@ class Initializer extends AbstractOperationProcessor
 
             $vendor = $this->vendorManager->findByMiraklId($invoice['shop_id']);
 
-            if (!$this->vendorEnabled($vendor)) {
-                $this->logger->info(
-                    "Operation wasn't created because vendor doesn't exit in database or vendor is disabled " .
-                    " (verify HiPay process value in Mirakl BO)",
-                    array('miraklId' => $invoice['shop_id'], "action" => "Operations creation")
-                );
-            } else {
+            try {
+                $enabled = $this->vendorEnabled($vendor);
+
+                if (!$enabled) {
+                    throw new Exception("vendor is disabled");
+                }
+
                 $operationsFromInvoice = $this->createOperationsFromInvoice($invoice, $vendor, $cycleDate);
                 if ($operationsFromInvoice) {
                     $operations = array_merge($operations, $operationsFromInvoice);
@@ -292,6 +292,13 @@ class Initializer extends AbstractOperationProcessor
                     $message = $this->formatNotification->formatMessage($title);
                     $this->logger->error($message, array('miraklId' => null, "action" => "Operations creation"));
                 }
+
+            } catch (Exception $e) {
+                $this->logger->info(
+                    "Operation wasn't created because vendor doesn't exit in database or vendor is disabled " .
+                    " (verify HiPay process value in Mirakl BO)",
+                    array('miraklId' => $invoice['shop_id'], "action" => "Operations creation")
+                );
             }
         }
 

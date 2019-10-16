@@ -23,6 +23,7 @@ class Status extends AbstractEnumeration
 
     //Transfer status
     const TRANSFER_SUCCESS = 3;
+    const TRANSFER_REQUESTED = 4;
     const TRANSFER_FAILED = -9;
     const TRANSFER_NEGATIVE = -10;
     const TRANSFER_VENDOR_DISABLED = -5;
