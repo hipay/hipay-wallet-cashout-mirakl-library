@@ -117,7 +117,7 @@ class TransferTest extends AbstractProcessorTest
 
         $this->assertInternalType("integer", $result);
         $this->assertEquals($transferId, $result);
-        $this->assertEquals(Status::TRANSFER_SUCCESS, $operation->getStatus());
+        $this->assertEquals(Status::TRANSFER_REQUESTED, $operation->getStatus());
     }
 
 
@@ -153,7 +153,7 @@ class TransferTest extends AbstractProcessorTest
 
         $this->assertInternalType("integer", $result);
         $this->assertEquals($transferId, $result);
-        $this->assertEquals(Status::TRANSFER_SUCCESS, $operation->getStatus());
+        $this->assertEquals(Status::TRANSFER_REQUESTED, $operation->getStatus());
     }
 
 

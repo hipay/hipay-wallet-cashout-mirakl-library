@@ -106,6 +106,7 @@ abstract class AbstractOperationProcessor extends AbstractApiProcessor
                 case Status::TRANSFER_FAILED:
                 case Status::TRANSFER_NEGATIVE:
                 case Status::TRANSFER_SUCCESS:
+                case Status::TRANSFER_REQUESTED:
                 case Status::TRANSFER_VENDOR_DISABLED:
                     $logOperation->setStatusTransferts($status);
                     break;

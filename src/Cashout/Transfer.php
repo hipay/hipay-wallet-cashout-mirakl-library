@@ -160,7 +160,7 @@ class Transfer extends AbstractOperationProcessor
             //Transfer
             $transferId = $this->hipay->transfer($transfer, $vendor);
 
-            $operation->setStatus(new Status(Status::TRANSFER_SUCCESS));
+            $operation->setStatus(new Status(Status::TRANSFER_REQUESTED));
             $operation->setTransferId($transferId);
             $operation->setUpdatedAt(new DateTime());
             $this->operationManager->save($operation);
@@ -168,7 +168,7 @@ class Transfer extends AbstractOperationProcessor
             $this->logOperation(
                 $operation->getMiraklId(),
                 $operation->getPaymentVoucher(),
-                Status::TRANSFER_SUCCESS,
+                Status::TRANSFER_REQUESTED,
                 ""
             );
 

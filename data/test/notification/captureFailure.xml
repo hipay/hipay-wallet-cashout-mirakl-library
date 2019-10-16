@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<notification>
+    <md5content>8a7cbf5258f276b5efc1be0eea76af68</md5content>
+    <result>
+        <operation>capture</operation>
+        <status>nok</status>
+        <date>2019-10-01</date>
+        <time>13:41:28 UTC+0000</time>
+        <transid>5d935783d9cd316415</transid>
+        <account_id>470153</account_id>
+        <amount>5</amount>
+        <currency>EUR</currency>
+        <label>public  – 476029 - 2019-09-21 - 230196</label>
+    </result>
+</notification>

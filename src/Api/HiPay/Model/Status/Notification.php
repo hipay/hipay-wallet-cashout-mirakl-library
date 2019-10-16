@@ -15,4 +15,6 @@ class Notification
     const IDENTIFICATION = 'identification';
     const OTHER = 'other_transaction';
     const DOCUMENT_VALIDATION = 'document_validation';
+    const AUTHORIZATION = 'authorization';
+    const CAPTURE = 'capture';
 }
