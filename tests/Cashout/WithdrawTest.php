@@ -67,9 +67,10 @@ class WithdrawTest extends AbstractProcessorTest
         /** @var VendorInterface $operatorArgument */
         $operatorArgument = Argument::is($this->operator);
 
-        $this->hipay->isAvailable(Argument::containingString("@"), Argument::any())
-            ->willReturn(false)
+        $this->hipay->isWalletExist(Argument::cetera())
+            ->willReturn(true)
             ->shouldBeCalled();
+
         $this->hipay->isIdentified($operatorArgument)
             ->willReturn(true)
             ->shouldBeCalled();
@@ -102,6 +103,9 @@ class WithdrawTest extends AbstractProcessorTest
         $this->assertEquals($withdrawId, $operation->getWithdrawId());
     }
 
+    /**
+     * @throws \Exception
+     */
     public function testOperatorWithdrawWrongBalance()
     {
         $withdrawId = rand();
@@ -112,8 +116,10 @@ class WithdrawTest extends AbstractProcessorTest
         /** @var VendorInterface $operatorArgument */
         $operatorArgument = Argument::is($this->operator);
 
-        $this->hipay->isAvailable(Argument::containingString("@"), Argument::any())
-            ->willReturn(false);
+        $this->hipay->isWalletExist(Argument::cetera())
+            ->willReturn(true)
+            ->shouldBeCalled();
+
         $this->hipay->isIdentified($operatorArgument)
             ->willReturn(true);
         $this->hipay->bankInfosStatus($operatorArgument)
@@ -161,12 +167,14 @@ class WithdrawTest extends AbstractProcessorTest
 
         $this->vendorManager->findByMiraklId(Argument::is($operation->getMiraklId()))->willReturn($vendor);
 
-        $this->hipay->isAvailable(Argument::containingString("@"), Argument::any())
-            ->willReturn(false)
+        $this->hipay->isWalletExist(Argument::cetera())
+            ->willReturn(true)
             ->shouldBeCalled();
+
         $this->hipay->isIdentified($vendorArgument)
             ->willReturn(true)
             ->shouldBeCalled();
+
         $this->hipay->getBalance($vendorArgument)
             ->willReturn($balance)
             ->shouldBeCalled();
@@ -195,6 +203,7 @@ class WithdrawTest extends AbstractProcessorTest
     /**
      * @cover ::withdraw
      * @group withdraw
+     * @expectedException \HiPay\Wallet\Mirakl\Exception\WrongWalletBalance
      */
     public function testVendorWithdrawWrongBalance()
     {
@@ -208,8 +217,10 @@ class WithdrawTest extends AbstractProcessorTest
 
         $this->vendorManager->findByMiraklId(Argument::is($operation->getMiraklId()))->willReturn($vendor);
 
-        $this->hipay->isAvailable(Argument::containingString("@"), Argument::any())
-            ->willReturn(false);
+        $this->hipay->isWalletExist(Argument::cetera())
+            ->willReturn(true)
+            ->shouldBeCalled();
+
         $this->hipay->isIdentified($vendorArgument)
             ->willReturn(true);
         $this->hipay->bankInfosStatus($vendorArgument)
@@ -223,14 +234,13 @@ class WithdrawTest extends AbstractProcessorTest
 
         $this->logOperationsManager->findByMiraklIdAndPaymentVoucherNumber(Argument::any(), Argument::any())->willReturn(new LogOperations(200, 2001))->shouldBeCalled();
 
-        $this->setExpectedException("\\HiPay\\Wallet\\Mirakl\\Exception\\WrongWalletBalance");
-
         $this->withdrawProcessor->withdraw($operation);
     }
 
     /**
      * @cover ::withdraw
      * @group withdraw
+     * @expectedException \HiPay\Wallet\Mirakl\Exception\WalletNotFoundException
      */
     public function testWithdrawWalletNotFound()
     {
@@ -244,8 +254,10 @@ class WithdrawTest extends AbstractProcessorTest
 
         $this->vendorManager->findByMiraklId(Argument::is($operation->getMiraklId()))->willReturn($vendor);
 
-        $this->hipay->isAvailable(Argument::containingString("@"), Argument::any())
-            ->willReturn(true)->shouldBeCalled();
+        $this->hipay->isWalletExist(Argument::cetera())
+            ->willReturn(false)
+            ->shouldBeCalled();
+
         $this->hipay->isIdentified($vendorArgument)
             ->willReturn(true);
         $this->hipay->bankInfosStatus($vendorArgument)
@@ -259,14 +271,13 @@ class WithdrawTest extends AbstractProcessorTest
 
         $this->logOperationsManager->findByMiraklIdAndPaymentVoucherNumber(Argument::any(), Argument::any())->willReturn(new LogOperations(200, 2001))->shouldBeCalled();
 
-        $this->setExpectedException("\\HiPay\\Wallet\\Mirakl\\Exception\\WalletNotFoundException");
-
         $this->withdrawProcessor->withdraw($operation);
     }
 
     /**
      * @cover ::withdraw
      * @group withdraw
+     * @expectedException \HiPay\Wallet\Mirakl\Exception\UnidentifiedWalletException
      */
     public function testWithdrawUnidentifiedWallet()
     {
@@ -280,8 +291,10 @@ class WithdrawTest extends AbstractProcessorTest
 
         $this->vendorManager->findByMiraklId(Argument::is($operation->getMiraklId()))->willReturn($vendor);
 
-        $this->hipay->isAvailable(Argument::containingString("@"), Argument::any())
-            ->willReturn(false);
+        $this->hipay->isWalletExist(Argument::cetera())
+            ->willReturn(true)
+            ->shouldBeCalled();
+
         $this->hipay->isIdentified($vendorArgument)
             ->willReturn(false)->shouldBeCalled();
         $this->hipay->bankInfosStatus($vendorArgument)
@@ -295,14 +308,13 @@ class WithdrawTest extends AbstractProcessorTest
 
         $this->logOperationsManager->findByMiraklIdAndPaymentVoucherNumber(Argument::any(), Argument::any())->willReturn(new LogOperations(200, 2001))->shouldBeCalled();
 
-        $this->setExpectedException("\\HiPay\\Wallet\\Mirakl\\Exception\\UnidentifiedWalletException");
-
         $this->withdrawProcessor->withdraw($operation);
     }
 
     /**
      * @cover ::withdraw
      * @group withdraw
+     * @expectedException \HiPay\Wallet\Mirakl\Exception\UnconfirmedBankAccountException
      */
     public function testWithdrawUnvalidatedBankInfo()
     {
@@ -316,8 +328,10 @@ class WithdrawTest extends AbstractProcessorTest
 
         $this->vendorManager->findByMiraklId(Argument::is($operation->getMiraklId()))->willReturn($vendor);
 
-        $this->hipay->isAvailable(Argument::containingString("@"), Argument::any())
-            ->willReturn(false);
+        $this->hipay->isWalletExist(Argument::cetera())
+            ->willReturn(true)
+            ->shouldBeCalled();
+
         $this->hipay->isIdentified($vendorArgument)
             ->willReturn(true);
         $this->hipay->bankInfosStatus($vendorArgument)
@@ -330,8 +344,6 @@ class WithdrawTest extends AbstractProcessorTest
         $this->logOperationsManager->save(Argument::any())->willReturn()->shouldBeCalled();
 
         $this->logOperationsManager->findByMiraklIdAndPaymentVoucherNumber(Argument::any(), Argument::any())->willReturn(new LogOperations(200, 2001))->shouldBeCalled();
-
-        $this->setExpectedException("\\HiPay\\Wallet\\Mirakl\\Exception\\UnconfirmedBankAccountException");
 
         $this->withdrawProcessor->withdraw($operation);
     }

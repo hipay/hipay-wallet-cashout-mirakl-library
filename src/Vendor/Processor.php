@@ -17,6 +17,7 @@ use HiPay\Wallet\Mirakl\Exception\BankAccountCreationFailedException;
 use HiPay\Wallet\Mirakl\Exception\DispatchableException;
 use HiPay\Wallet\Mirakl\Exception\InvalidBankInfoException;
 use HiPay\Wallet\Mirakl\Exception\InvalidVendorException;
+use HiPay\Wallet\Mirakl\Exception\WalletAccountUpdateException;
 use HiPay\Wallet\Mirakl\Service\Validation\ModelValidator;
 use HiPay\Wallet\Mirakl\Vendor\Event\AddBankAccount;
 use HiPay\Wallet\Mirakl\Vendor\Event\CheckAvailability;
@@ -238,25 +239,21 @@ class Processor extends AbstractApiProcessor
                         $vendorData
                     );
                 } elseif ($vendor) {
+
                     //Fetch the wallet id from HiPay
                     $walletInfo = $this->getWalletUserInfo($vendorData, $vendor);
+
+                    if ($vendor->getEmail() !== $email) {
+                        $this->updateWalletEmail($email, $vendor);
+                    }
+
                     $vendor->setVatNumber($vendorData['pro_details']['VAT_number']);
                     $vendor->setCallbackSalt($walletInfo->getCallbackSalt());
                     $vendor->setHiPayIdentified($walletInfo->getIdentified());
                     $vendor->setEnabled(true);
                     $vendor->setCountry($vendorData["contact_informations"]["country"]);
                     $vendor->setPaymentBlocked($vendorData["payment_details"]["payment_blocked"]);
-
-                    if ($vendor->getEmail() !== $email) {
-                        $this->logger->warning(
-                            'The e-mail has changed in Mirakl (' .
-                            $email .
-                            ') but cannot be updated in HiPay Wallet (' .
-                            $vendor->getEmail() .
-                            ').',
-                            array('miraklId' => $miraklId, "action" => "Wallet creation")
-                        );
-                    }
+                    $vendor->setEmail($email);
                 }
 
                 $this->logVendor(
@@ -286,9 +283,16 @@ class Processor extends AbstractApiProcessor
                 ModelValidator::checkImmutability($vendor, $previousValues);
 
                 $vendorCollection[$vendor->getMiraklId()] = $vendor;
+
                 $this->logger->info(
                     '[OK] The vendor is treated',
                     array('miraklId' => $vendor->getMiraklId(), "action" => "Wallet creation")
+                );
+            } catch (WalletAccountUpdateException $waue) {
+                $this->handleException(
+                    $waue,
+                    'warning',
+                    array('miraklId' => $vendorData['shop_id'], "action" => "Wallet creation")
                 );
             } catch (Exception $e) {
                 $this->logVendor(
@@ -297,7 +301,7 @@ class Processor extends AbstractApiProcessor
                     $this->generateLogin($vendorData),
                     LogVendorsInterface::WALLET_NOT_CREATED,
                     LogVendorsInterface::CRITICAL,
-                    $e->getMessage(),
+                    substr($e->getMessage(), 0, 255),
                     0,
                     false,
                     $vendorData["contact_informations"]["country"],
@@ -331,6 +335,15 @@ class Processor extends AbstractApiProcessor
         $result = $this->hipay->isAvailable($email, $event->getEntity());
         $this->dispatcher->dispatch('after.availability.check', $event);
         return !$result;
+    }
+
+    protected function updateWalletEmail($email, $vendor)
+    {
+        try {
+            $this->hipay->updateEmail($email, $vendor);
+        } catch (Exception $e) {
+            throw new WalletAccountUpdateException($vendor, $e);
+        }
     }
 
     /**
@@ -536,7 +549,7 @@ class Processor extends AbstractApiProcessor
                             $documents,
                             function (DocumentInterface $document) use ($theFile) {
                                 return $document->getDocumentType() == $theFile['type'] &&
-                                $document->getMiraklDocumentId() == $theFile['id'];
+                                    $document->getMiraklDocumentId() == $theFile['id'];
                             }
                         )
                     );
@@ -697,52 +710,32 @@ class Processor extends AbstractApiProcessor
                         BankInfoStatus::getLabel($bankInfoStatus),
                         array('miraklId' => $vendor->getMiraklId(), "action" => "Wallet creation")
                     );
-                    switch (trim($bankInfoStatus)) {
-                        case BankInfoStatus::BLANK:
-                            $miraklBankInfo->setMiraklData(
-                                $miraklDataCollection[$vendor->getMiraklId()],
-                                $this->getBankDocument($vendor->getMiraklId(), $tmpFilePath)
+
+                    $miraklBankInfo->setMiraklData(
+                        $miraklDataCollection[$vendor->getMiraklId()],
+                        $this->getBankDocument($vendor->getMiraklId(), $tmpFilePath)
+                    );
+
+                    if (
+                        $bankInfoStatus === BankInfoStatus::BLANK
+                        || !$this->isBankInfosSynchronised($vendor, $miraklBankInfo)
+                    ) {
+                        if ($this->sendBankAccount($vendor, $miraklBankInfo)) {
+                            $this->logger->info(
+                                '[OK] Created bank account for : ' .
+                                $vendor->getMiraklId(),
+                                array('miraklId' => $vendor->getMiraklId(), "action" => "Wallet creation")
                             );
-                            if ($this->sendBankAccount($vendor, $miraklBankInfo)) {
-                                $this->logger->info(
-                                    '[OK] Created bank account for : ' .
-                                    $vendor->getMiraklId(),
-                                    array('miraklId' => $vendor->getMiraklId(), "action" => "Wallet creation")
-                                );
-                            } else {
-                                throw new BankAccountCreationFailedException($vendor, $miraklBankInfo);
-                            }
-                            break;
-                        case BankInfoStatus::VALIDATED:
-                            $miraklBankInfo->setMiraklData($miraklDataCollection[$vendor->getMiraklId()]);
-                            if (!$this->isBankInfosSynchronised($vendor, $miraklBankInfo)) {
-                                throw new InvalidBankInfoException($vendor, $miraklBankInfo);
-                            } else {
-                                $this->logger->info(
-                                    '[OK] The bank information is synchronized',
-                                    array('miraklId' => $vendor->getMiraklId(), "action" => "Wallet creation")
-                                );
-                            }
-                            break;
-                        default:
+                        } else {
+                            throw new BankAccountCreationFailedException($vendor, $miraklBankInfo);
+                        }
+                    } else {
+                        $this->logger->info(
+                            '[OK] Bank information are synchronized',
+                            array('miraklId' => $vendor->getMiraklId(), "action" => "Wallet creation")
+                        );
                     }
                 }
-            } catch (InvalidBankInfoException $e) {
-                // log critical
-                $shopId = $vendor->getHiPayId();
-                $title = 'Invalid Bank Information for Mirakl shop ' . $shopId . ':';
-                $infos = array(
-                    'shopId' => $vendor->getMiraklId(),
-                    'HipayId' => $shopId,
-                    'Email' => $vendor->getEmail(),
-                    'Type' => 'Critical'
-                );
-                $exceptionMsg = $e->getMessage();
-                $message = $this->formatNotification->formatMessage($title, $infos, $exceptionMsg);
-                $this->logger->critical(
-                    $message,
-                    array('miraklId' => $vendor->getMiraklId(), "action" => "Wallet creation")
-                );
             } catch (Exception $e) {
                 // log critical
                 $shopId = $vendor->getHiPayId();
@@ -817,14 +810,16 @@ class Processor extends AbstractApiProcessor
      *
      * @return bool
      */
-    protected function isBankInfosSynchronised(
-        VendorInterface $vendor,
-        BankInfo $miraklBankInfo
-    ) {
+    protected function isBankInfosSynchronised(VendorInterface $vendor, BankInfo $miraklBankInfo)
+    {
         $hipayBankInfo = $this->getBankInfo($vendor);
+
         $event = new CheckBankInfos($miraklBankInfo, $hipayBankInfo);
+
         $ibanCheck = ($hipayBankInfo->getIban() == $miraklBankInfo->getIban());
+
         $this->dispatcher->dispatch('check.bankInfos.synchronicity', $event);
+
         return $ibanCheck && $event->isSynchrony();
     }
 

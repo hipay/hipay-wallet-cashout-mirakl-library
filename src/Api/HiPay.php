@@ -18,6 +18,7 @@ use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 use Guzzle\Service\Client;
 use Guzzle\Service\Description\ServiceDescription;
 use Guzzle\Http\Exception\ClientErrorResponseException;
+use HiPay\Wallet\Mirakl\Exception\HipayRestResponseException;
 
 /**
  * Make the SOAP & REST call to the HiPay API.
@@ -233,6 +234,34 @@ class HiPay implements ApiInterface
         $result = $this->executeRest($command, $parameters);
 
         return $result['is_available'];
+    }
+
+    public function updateEmail($email, VendorInterface $vendor)
+    {
+        $this->resetRestClient();
+
+        $this->restClient->getConfig()->setPath(
+            'request.options/headers/php-auth-user',
+            $this->login
+        );
+
+        $this->restClient->getConfig()->setPath(
+            'request.options/headers/php-auth-pw',
+            $this->password
+        );
+
+        $this->restClient->getConfig()->setPath(
+            'request.options/headers/php-auth-subaccount-id',
+            $vendor->getHiPayId()
+        );
+
+        $parameters = array('email' => $email);
+
+        $command = $this->restClient->getCommand('UpdateAccount', $parameters);
+
+        $result = $this->executeRest($command, $parameters);
+
+        return $result;
     }
 
     /**
@@ -542,7 +571,8 @@ class HiPay implements ApiInterface
 
         try {
             $result = $this->executeRest($command);
-        } catch (ClientErrorResponseException $e) {
+        } catch (HipayRestResponseException $e) {
+
             if ($e->getResponse()->getStatusCode() == '401') {
                 /** retry with email in php-auth-subaccount-login */
                 $this->restClient->getConfig()->setPath(
@@ -557,6 +587,7 @@ class HiPay implements ApiInterface
                 $result = $this->executeRest($command);
             }
         }
+
         return $result;
     }
 
@@ -569,9 +600,8 @@ class HiPay implements ApiInterface
      *
      * @throws Exception
      */
-    public function getAccountHiPay(
-        $account_id
-    ) {
+    public function getAccountHiPay($account_id)
+    {
         $this->resetRestClient();
 
         $this->restClient->getConfig()->setPath(
@@ -599,6 +629,16 @@ class HiPay implements ApiInterface
         $result = $this->executeRest($command);
 
         return $result;
+    }
+
+    public function isWalletExist($account_id)
+    {
+        try {
+            $this->getAccountHiPay($account_id);
+            return true;
+        } catch (Exception $e) {
+            return false;
+        }
     }
 
     /**
@@ -643,7 +683,7 @@ class HiPay implements ApiInterface
 
         try {
             $result = $this->executeRest($command);
-        } catch (ClientErrorResponseException $e) {
+        } catch (HipayRestResponseException $e) {
             /** retro compatible if old account */
             if ($e->getResponse()->getStatusCode() == '401') {
                 /** retry with email in php-auth-subaccount-login */
@@ -974,15 +1014,21 @@ class HiPay implements ApiInterface
      * Wallet API doesn't send HTTP error code in case of parameters errors, send 200 instead
      * Error is in request body
      *
-     * @param type $command
+     * @param $command
      * @param array $parameters
-     * @return type
-     * @throws Exception
+     * @return array|\Guzzle\Http\Message\Response|mixed
+     * @throws HipayRestResponseException
+     * @throws \Guzzle\Service\Exception\CommandTransferException
      */
     private function executeRest($command, $parameters = array())
     {
 
-        $result = $this->restClient->execute($command);
+        try {
+            $result = $this->restClient->execute($command);
+        } catch (ClientErrorResponseException $e) {
+            throw new HipayRestResponseException($e, $command, $parameters);
+        }
+
 
         if (isset($result['code']) && $result['code'] === 0) {
             return $result;
@@ -1003,7 +1049,6 @@ class HiPay implements ApiInterface
             PHP_EOL,
             $result['code']
         );
-
     }
 
     /**

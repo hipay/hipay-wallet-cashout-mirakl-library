@@ -1,3 +1,8 @@
+# Version 2.11.0
+- Vendor:process updates wallet account email
+- Handle authorization & capture notifications
+- Update Bank information even if already validated
+
 # Version 2.10.2
 - Fix: Add logs on notifications
 

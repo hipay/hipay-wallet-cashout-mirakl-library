@@ -100,6 +100,12 @@ interface ManagerInterface
     public function findByWithdrawalId($withdrawalId);
 
     /**
+     * @param $transferId
+     * @return mixed
+     */
+    public function findOneByTransferId($transferId);
+
+    /**
      * Generate the public label of a transfer operation
      *
      * @param OperationInterface $operation

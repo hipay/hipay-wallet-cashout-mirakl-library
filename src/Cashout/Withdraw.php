@@ -98,8 +98,8 @@ class Withdraw extends AbstractOperationProcessor
                     array('miraklId' => $operation->getMiraklId(), "action" => "Withdraw")
                 );
             } catch (Exception $e) {
-                $this->logger->info(
-                    "[OK] Withdraw operation failed",
+                $this->logger->critical(
+                    "[KO] Withdraw operation failed",
                     array('miraklId' => $operation->getMiraklId(), "action" => "Withdraw")
                 );
                 $this->handleException(
@@ -124,7 +124,11 @@ class Withdraw extends AbstractOperationProcessor
         try {
             $vendor = $this->getVendor($operation);
 
-            if (!$vendor || $this->hipay->isAvailable($vendor->getEmail())) {
+            if (!$vendor) {
+                throw new WalletNotFoundException($vendor);
+            }
+
+            if (!$this->hipay->isWalletExist($vendor->getHiPayId())) {
                 throw new WalletNotFoundException($vendor);
             }
 
