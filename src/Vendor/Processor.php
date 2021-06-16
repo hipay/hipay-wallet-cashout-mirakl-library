@@ -103,8 +103,12 @@ class Processor extends AbstractApiProcessor
     {
         try {
             $this->logger->info('Control Mirakl Settings', array('miraklId' => null, "action" => "Wallet creation"));
+
             // control mirakl settings
-            $boolControl = $this->getControlMiraklSettings($this->documentTypes);
+            $boolControl = $this->getControlMiraklSettings(
+                array_merge($this->documentTypes,$this->bankInfoDocumentType)
+            );
+
             if ($boolControl === false) {
                 // log critical
                 $title = $this->criticalMessageMiraklSettings;
