@@ -1,3 +1,8 @@
+# Version 2.11.1
+- **Fix** IBAN uploaded during KYC sync
+- **Fix** Commission amount field
+- **Fix** Add rule for negative amount on payment vouchers
+
 # Version 2.11.0
 - Vendor:process updates wallet account email
 - Handle authorization & capture notifications
