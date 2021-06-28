@@ -311,31 +311,32 @@ class Initializer extends AbstractOperationProcessor
      * @param array $invoice
      * @param VendorInterface $vendor
      * @param DateTime $cycleDate
-     * @return boolean
+     * @return array
      */
     private function createOperationsFromInvoice(array $invoice, VendorInterface $vendor, DateTime $cycleDate)
     {
-        if ($invoice['summary']['amount_transferred'] > 0) {
 
-            $operations = array();
+        $operations = array();
 
-            try {
-                // Calculate adjusted amount (for past negative operations)
-                $adjustedInfos = $this->getAdjustedAmount($invoice['summary']['amount_transferred'], $vendor);
+        try {
+            // Calculate adjusted amount (for past negative operations)
+            $adjustedInfos = $this->getAdjustedAmount($invoice['summary']['amount_transferred'], $vendor);
 
-                $this->logger->debug(
-                    "Vendor origin amount " . $invoice['summary']['amount_transferred'],
-                    array('miraklId' => $invoice['shop_id'], "action" => "Operations creation")
-                );
+            $this->logger->debug(
+                "Vendor origin amount " . $invoice['summary']['amount_transferred'],
+                array('miraklId' => $invoice['shop_id'], "action" => "Operations creation")
+            );
 
-                $this->logger->debug(
-                    "Vendor adjusted amount " .
-                    $adjustedInfos['adjustedAmount'] .
-                    " (" .
-                    count($adjustedInfos['adujstedOperationsIds']) .
-                    " operations adjusted)",
-                    array('miraklId' => $invoice['shop_id'], "action" => "Operations creation")
-                );
+            $this->logger->debug(
+                "Vendor adjusted amount " .
+                $adjustedInfos['adjustedAmount'] .
+                " (" .
+                count($adjustedInfos['adujstedOperationsIds']) .
+                " operations adjusted)",
+                array('miraklId' => $invoice['shop_id'], "action" => "Operations creation")
+            );
+
+            if ($invoice['summary']['amount_transferred'] > 0) {
 
                 // Vendor operation
                 $operations[] = $this->createOperation(
@@ -347,31 +348,39 @@ class Initializer extends AbstractOperationProcessor
                     $adjustedInfos['adujstedOperationsIds']
                 );
 
+            } else {
+                $this->logger->warning(
+                    "Amount to transfer to vendor for Invoice n° " . $invoice['invoice_id'] . " is negative, will not be treated",
+                    array('miraklId' => $invoice['shop_id'], "action" => "Operations creation")
+                );
+            }
+
+            if ($invoice['summary']['amount_transferred_to_operator'] > 0) {
                 // operator operation
                 $operations[] = $this->createOperation(
-                    $invoice['total_charged_amount'],
+                    $invoice['summary']['amount_transferred_to_operator'],
                     null,
                     $cycleDate,
                     $invoice['invoice_id'],
                     $this->operator
                 );
-
-                // save in memory for future saving in database
-                $this->adjustedOperations = array_merge(
-                    $this->adjustedOperations,
-                    $adjustedInfos["adujstedOperations"]
+            } else {
+                $this->logger->warning(
+                    "Amount to operator to vendor for Invoice n° " . $invoice['invoice_id'] . " is negative, will not be treated",
+                    array('miraklId' => $invoice['shop_id'], "action" => "Operations creation")
                 );
-
-                return $operations;
-            } catch (Exception $e) {
-                $this->handleException($e);
-                return false;
             }
-        } else {
-            $this->logger->warning(
-                "Invoice n° " . $invoice['invoice_id'] . " has a negative amount, will not be treated",
-                array('miraklId' => $invoice['shop_id'], "action" => "Operations creation")
+
+            // save in memory for future saving in database
+            $this->adjustedOperations = array_merge(
+                $this->adjustedOperations,
+                $adjustedInfos["adujstedOperations"]
             );
+
+            return $operations;
+        } catch (Exception $e) {
+            $this->handleException($e);
+            return false;
         }
     }
 

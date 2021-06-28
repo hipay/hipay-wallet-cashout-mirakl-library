@@ -390,7 +390,7 @@ class ProcessorTest extends AbstractProcessorTest
             ))->shouldBeCalledTimes(1);
 
         // Download missing documents
-        $this->mirakl->downloadDocuments(array(2006), Argument::any())->willReturn($docContent1)->shouldBeCalledTimes(1);
+        $this->mirakl->downloadDocuments(array(2006), Argument::any())->willReturn($docContent1)->shouldBeCalledTimes(0);
         $this->mirakl->downloadDocuments(array(3008), Argument::any())->willReturn($docContent2)->shouldBeCalledTimes(1);
         $this->mirakl->downloadDocuments(array(30082), Argument::any())->willReturn($docContent2)->shouldBeCalledTimes(1);
         $this->mirakl->downloadDocuments(array(3011), Argument::any())->willReturn($docContent3)->shouldBeCalledTimes(1);
@@ -399,19 +399,19 @@ class ProcessorTest extends AbstractProcessorTest
         $prophet = new PHPProphet();
 
         $prophecy = $prophet->prophesize('HiPay\Wallet\Mirakl\Vendor');
-        $prophecy->file_put_contents(Argument::containingString('/tmp/dir/'), Argument::containingString('data'))->willReturn(true)->shouldBeCalledTimes(4);
+        $prophecy->file_put_contents(Argument::containingString('/tmp/dir/'), Argument::containingString('data'))->willReturn(true)->shouldBeCalledTimes(3);
         $prophecy->reveal();
 
         // Sending documents to HiPay Wallet
-        $this->hipay->uploadDocument(771, 120001, HiPay::DOCUMENT_ALL_PROOF_OF_BANK_ACCOUNT, Argument::any(), Argument::any(), null)->shouldBeCalledTimes(1);
+        $this->hipay->uploadDocument(771, 120001, HiPay::DOCUMENT_ALL_PROOF_OF_BANK_ACCOUNT, Argument::any(), Argument::any(), null)->shouldBeCalledTimes(0);
         $this->hipay->uploadDocument(772, 120002, HiPay::DOCUMENT_LEGAL_IDENTITY_OF_REPRESENTATIVE, Argument::any(), Argument::any(), Argument::any())->willThrow(new ClientErrorResponseException())->shouldBeCalledTimes(1);
         $this->hipay->uploadDocument(772, 120002, HiPay::DOCUMENT_LEGAL_PROOF_OF_REGISTRATION_NUMBER, Argument::any(), Argument::any(), null)->shouldBeCalledTimes(1);
 
         // Save document in DB
-        $this->documentManager->create(2006, Argument::type("DateTime"), "ALL_PROOF_OF_BANK_ACCOUNT", $vendor1)->willReturn($document1)->shouldBeCalledTimes(1);
+        $this->documentManager->create(2006, Argument::type("DateTime"), "ALL_PROOF_OF_BANK_ACCOUNT", $vendor1)->willReturn($document1)->shouldBeCalledTimes(0);
         $this->documentManager->create(3011, Argument::type("DateTime"), "LEGAL_PROOF_OF_REGISTRATION_NUMBER", $vendor2)->willReturn($document2)->shouldBeCalledTimes(1);
 
-        $this->documentManager->save(Argument::exact($document1))->shouldBeCalledTimes(1);
+        $this->documentManager->save(Argument::exact($document1))->shouldBeCalledTimes(0);
         $this->documentManager->save(Argument::exact($document2))->shouldBeCalledTimes(1);
 
         $this->vendorProcessor->transferFiles($shops, $tmpDir);
