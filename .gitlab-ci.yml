@@ -1,7 +1,15 @@
-image: hipay/gitlab-ci-base:jessie
+image: $REGISTRY_CI/gitlab-ci-base:buster
 
 stages:
  - test
+
+variables:
+  DOCKER_HOST: tcp://localhost:2375/
+  DOCKER_DRIVER: overlay2
+  DOCKER_TLS_CERTDIR: ""
+
+services:
+  - docker:19.03.1-dind
 
 phpunit:
   stage: test
@@ -11,4 +19,4 @@ phpunit:
     - docker run --rm --name my-running-app phpunit vendor/phpunit/phpunit/phpunit -c tests/phpunit.xml
   allow_failure: false
   tags:
-    - pi-ecommerce
+    - gcp-high-load-runner-prod

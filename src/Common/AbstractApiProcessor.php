@@ -35,11 +35,13 @@ abstract class AbstractApiProcessor extends AbstractProcessor
     /** @var Mirakl\ConfigurationInterface $miraklConfig */
     protected $miraklConfig;
 
+    public $bankInfoDocumentType = array(
+        Mirakl::DOCUMENT_ALL_PROOF_OF_BANK_ACCOUNT => HiPay::DOCUMENT_ALL_PROOF_OF_BANK_ACCOUNT
+    );
+
     /** @var HiPay documents $documentTypes */
     /** @var array documents additional fields */
     public $documentTypes = array(
-        // For all types of businesses
-        Mirakl::DOCUMENT_ALL_PROOF_OF_BANK_ACCOUNT => HiPay::DOCUMENT_ALL_PROOF_OF_BANK_ACCOUNT,
         // For individual only
         //'INDIVIDUAL_IDENTITY' => HiPay::DOCUMENT_INDIVIDUAL_IDENTITY,
         //'INDIVIDUAL_PROOF_OF_ADDRESS' => HiPay::DOCUMENT_INDIVIDUAL_PROOF_OF_ADDRESS,

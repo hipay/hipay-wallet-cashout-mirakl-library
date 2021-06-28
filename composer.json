@@ -2,7 +2,7 @@
   "name": "hipay/hipay-wallet-cashout-mirakl-library",
   "description": "This library intends to facilitate cash-out operations between HiPay and the Mirakl marketplace solution.",
   "minimum-stability": "stable",
-  "version" : "2.11.0",
+  "version" : "2.11.1",
   "license": "Apache-2.0",
   "authors": [
     {
@@ -23,9 +23,8 @@
   },
   "require-dev": {
     "phpunit/phpunit" : "6.2.*",
-    "phpspec/prophecy": "~1.0",
     "symfony/phpunit-bridge": "^4.3.5",
-    "php-mock/php-mock-prophecy": "dev-master"
+    "php-mock/php-mock-prophecy": "0.0.2"
   },
   "autoload": {
     "psr-4": {
