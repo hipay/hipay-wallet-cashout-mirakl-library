@@ -2,13 +2,11 @@
 
 namespace HiPay\Wallet\Mirakl\Cashout;
 
-use DateTime;
 use Exception;
 use HiPay\Wallet\Mirakl\Api\Factory;
 use HiPay\Wallet\Mirakl\Cashout\Model\Operation\ManagerInterface as OperationManager;
 use HiPay\Wallet\Mirakl\Cashout\Model\Operation\OperationInterface;
 use HiPay\Wallet\Mirakl\Cashout\Model\Operation\Status;
-use HiPay\Wallet\Mirakl\Cashout\AbstractOperationProcessor;
 use HiPay\Wallet\Mirakl\Vendor\Model\VendorManagerInterface as VendorManager;
 use HiPay\Wallet\Mirakl\Vendor\Model\VendorInterface;
 use Psr\Log\LoggerInterface;
@@ -69,12 +67,45 @@ class TransactionStatus extends AbstractOperationProcessor
 
         $operations = $this->getSyncableOperations();
 
-        foreach ($operations as $op){
-            var_dump($op->getTransferId());
-            $transactinInfo = $this->hipay->getTransaction($op->getTransferId());
-            var_dump($transactinInfo["transaction_status"]);
+        foreach ($operations as $op) {
+            $this->syncStatus($op);
         }
 
+    }
+
+    private function syncStatus(OperationInterface $operation)
+    {
+        var_dump($operation->getTransferId());
+        if ($operation->getStatus() === Status::TRANSFER_REQUESTED) {
+            $transactionInfo = $this->hipay->getTransaction($operation->getTransferId());
+            if ($transactionInfo["transaction_status"]) {
+                $this->setStatus($operation, Status::TRANSFER_SUCCESS);
+            } else {
+                $this->setStatus($operation, Status::TRANSFER_FAILED);
+            }
+        } else {
+            $transactionInfo = $this->hipay->getTransaction($operation->getWithdrawId(), $operation->getHiPayId());
+            if ($transactionInfo["transaction_status"]) {
+                $this->setStatus($operation, Status::WITHDRAW_SUCCESS);
+            } else {
+                $this->setStatus($operation, Status::WITHDRAW_FAILED);
+            }
+        }
+
+        var_dump($transactionInfo["transaction_status"]);
+    }
+
+    private function setStatus($operation, $status)
+    {
+        $operation->setStatus(new Status($status));
+        $this->operationManager->save($operation);
+
+        $this->logOperation(
+            $operation->getMiraklId(),
+            $operation->getPaymentVoucher(),
+            $status,
+            ""
+        );
     }
 
 

@@ -739,7 +739,7 @@ class HiPay implements ApiInterface
      *
      * @throws Exception
      */
-    public function getTransaction( $transactionId)
+    public function getTransaction($transactionId, $accountId)
     {
         $this->resetRestClient();
 
@@ -754,9 +754,17 @@ class HiPay implements ApiInterface
         );
 
 
+        if (!is_null($accountId)) {
+            $this->restClient->getConfig()->setPath(
+                'request.options/headers/php-auth-subaccount-id',
+                $accountId
+            );
+        }
+
+
         $command = $this->restClient->getCommand(
             'GetTransactionInfo',
-            array("id"=> $transactionId)
+            array("id" => $transactionId)
         );
 
         return $this->executeRest($command);
