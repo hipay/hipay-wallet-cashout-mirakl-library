@@ -155,6 +155,17 @@ interface ApiInterface
     public function getBalance(VendorInterface $vendor);
 
     /**
+     * Get transaction data
+     *
+     * @param $transactionId
+     * @param null $accountId
+     * @return mixed
+     *
+     * @throws Exception
+     */
+    public function getTransaction($transactionId, $accountId);
+
+    /**
      * Make a transfer.
      *
      * @param Transfer $transfer
