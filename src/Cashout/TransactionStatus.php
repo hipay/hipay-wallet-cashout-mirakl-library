@@ -28,7 +28,21 @@ class TransactionStatus extends AbstractOperationProcessor
 
     private $transferValidatedStatus = array(TransferStatus::CAPTURED);
 
-    private $withdrawValidatedStatus = array(WithdrawStatus::AUTHED);
+    private $transferFailedStatus = array(
+        TransferStatus::ABORTED,
+        TransferStatus::REJECTED_END,
+        TransferStatus::UNAUTHED
+    );
+
+    private $withdrawValidatedStatus = array(WithdrawStatus::CAPTURED);
+
+    private $withdrawFailedStatus =array(
+        WithdrawStatus::ABORTED,
+        WithdrawStatus::REJECTED_END,
+        WithdrawStatus::UNAUTHED,
+        WithdrawStatus::CANCELLED_END,
+        WithdrawStatus::STANDBY
+    );
 
     /**
      * Withdraw constructor.
@@ -90,7 +104,8 @@ class TransactionStatus extends AbstractOperationProcessor
                 $operation,
                 Status::TRANSFER_SUCCESS,
                 Status::TRANSFER_FAILED,
-                $this->transferValidatedStatus
+                $this->transferValidatedStatus,
+                $this->transferFailedStatus
             );
         } elseif ($operation->getStatus() === Status::WITHDRAW_REQUESTED) {
             $this->setNewStatus(
@@ -99,6 +114,7 @@ class TransactionStatus extends AbstractOperationProcessor
                 Status::WITHDRAW_SUCCESS,
                 Status::WITHDRAW_FAILED,
                 $this->withdrawValidatedStatus,
+                $this->withdrawFailedStatus,
                 $operation->getHiPayId()
             );
         }
@@ -110,6 +126,7 @@ class TransactionStatus extends AbstractOperationProcessor
         $successStatus,
         $failStatus,
         $validatedStatus,
+        $failedStatus,
         $accountId = null
     ) {
         $this->logger->info(
@@ -132,11 +149,18 @@ class TransactionStatus extends AbstractOperationProcessor
                     array('miraklId' => null, "action" => "transactionSync")
                 );
             } else {
-                $this->setStatus($operation, $failStatus);
-                $this->logger->info(
-                    "New status : " . $failStatus,
-                    array('miraklId' => null, "action" => "transactionSync")
-                );
+                if (in_array($transactionInfo["transaction_status"], $failedStatus)) {
+                    $this->setStatus($operation, $failStatus);
+                    $this->logger->info(
+                        "New status : " . $failStatus,
+                        array('miraklId' => null, "action" => "transactionSync")
+                    );
+                } else {
+                    $this->logger->info(
+                        "No change to status, HiPay status : " . $transactionInfo["transaction_status"],
+                        array('miraklId' => null, "action" => "transactionSync")
+                    );
+                }
             }
         } catch (Exception $e) {
             $this->logger->critical(

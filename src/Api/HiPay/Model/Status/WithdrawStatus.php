@@ -13,5 +13,10 @@ use HiPay\Wallet\Mirakl\Common\AbstractEnumeration;
 class WithdrawStatus extends AbstractEnumeration
 {
     // HiPay Wallet transfer statuses.
-    const AUTHED = 'AUTHED';
+    const CAPTURED = 'CAPTURED';
+    const UNAUTHED = 'UNAUTHED';
+    const ABORTED = 'ABORTED';
+    const REJECTED_END = 'REJECTED_END';
+    const CANCELLED_END = 'CANCELLED_END';
+    const STANDBY = 'STANDBY';
 }

@@ -14,4 +14,7 @@ class TransferStatus extends AbstractEnumeration
 {
     // HiPay Wallet transfer statuses.
     const CAPTURED = 'CAPTURED';
+    const UNAUTHED = 'UNAUTHED';
+    const ABORTED = 'ABORTED';
+    const REJECTED_END = 'REJECTED_END';
 }
