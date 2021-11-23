@@ -10,11 +10,13 @@ use HiPay\Wallet\Mirakl\Common\AbstractEnumeration;
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
  */
-class TransferStatus extends AbstractEnumeration
+class WithdrawStatus extends AbstractEnumeration
 {
     // HiPay Wallet transfer statuses.
     const CAPTURED = 'CAPTURED';
     const UNAUTHED = 'UNAUTHED';
     const ABORTED = 'ABORTED';
     const REJECTED_END = 'REJECTED_END';
+    const CANCELLED_END = 'CANCELLED_END';
+    const STANDBY = 'STANDBY';
 }

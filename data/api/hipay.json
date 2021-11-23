@@ -664,6 +664,19 @@
                     "sentAs": "label"
                 }
             }
+        },
+        "GetTransactionInfo": {
+            "httpMethod": "GET",
+            "uri": "/api/transaction/{id}",
+            "summary": "Get HiPay transaction details.",
+            "parameters": {
+                "id": {
+                    "type": "string",
+                    "description": "",
+                    "location": "uri",
+                    "required": true
+                }
+            }
         }
     }
 }
