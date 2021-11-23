@@ -1,3 +1,6 @@
+# Version 2.12.0
+- **Add** transaction Status sync command
+
 # Version 2.11.1
 - **Fix** IBAN uploaded during KYC sync
 - **Fix** Commission amount field
