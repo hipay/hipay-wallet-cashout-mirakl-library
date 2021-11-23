@@ -730,6 +730,45 @@ class HiPay implements ApiInterface
         }
     }
 
+    /**
+     * Return the wallet current balance
+     *
+     * @param VendorInterface $vendor
+     *
+     * @return int
+     *
+     * @throws Exception
+     */
+    public function getTransaction($transactionId, $accountId)
+    {
+        $this->resetRestClient();
+
+        $this->restClient->getConfig()->setPath(
+            'request.options/headers/php-auth-user',
+            $this->login
+        );
+
+        $this->restClient->getConfig()->setPath(
+            'request.options/headers/php-auth-pw',
+            $this->password
+        );
+
+
+        if (!is_null($accountId)) {
+            $this->restClient->getConfig()->setPath(
+                'request.options/headers/php-auth-subaccount-id',
+                $accountId
+            );
+        }
+
+
+        $command = $this->restClient->getCommand(
+            'GetTransactionInfo',
+            array("id" => $transactionId)
+        );
+
+        return $this->executeRest($command);
+    }
 
     /**
      * Make a transfer.
