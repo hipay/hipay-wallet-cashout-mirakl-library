@@ -154,12 +154,12 @@ class Processor extends AbstractApiProcessor
                 $tmpFilesPath
             );
 
+            $this->logVendorManager->saveAll($this->vendorsLogs);
+
             // Bank data updating
             $this->logger->info('Update bank data', array('miraklId' => null, "action" => "Wallet creation"));
             $this->handleBankInfo($vendorCollection, $miraklData, $tmpFilesPath);
             $this->logger->info('[OK] Bank info updated', array('miraklId' => null, "action" => "Wallet creation"));
-
-            $this->logVendorManager->saveAll($this->vendorsLogs);
         } catch (Exception $e) {
             try {
                 // log critical
