@@ -56,6 +56,9 @@ class Handler extends AbstractProcessor
     /** @var  HiPay */
     protected $hipay;
 
+    /** @var  Mirakl */
+    protected $mirakl;
+
     /**
      * Handler constructor.
      * @param EventDispatcherInterface $dispatcher
@@ -80,6 +83,7 @@ class Handler extends AbstractProcessor
         $this->vendorManager = $vendorManager;
         $this->formatNotification = new FormatNotification();
         $this->hipay = $factory->getHiPay();
+        $this->mirakl = $factory->getMirakl();
         $this->logVendorManager = $logVendorManager;
         $this->logOperationsManager = $logOperationsManager;
     }
@@ -107,7 +111,6 @@ class Handler extends AbstractProcessor
 
         //Call API user-account
         $userAccount = $this->hipay->getAccountHiPay($hipayId);
-
 
 
         if ($vendor !== null) {
@@ -143,7 +146,7 @@ class Handler extends AbstractProcessor
 
         switch ($operation) {
             case Notification::BANK_INFO_VALIDATION:
-                $this->bankInfoValidation($hipayId, $date, $status);
+                $this->bankInfoValidation($vendor, $date, $status);
                 break;
             case Notification::IDENTIFICATION:
                 $this->identification($hipayId, $date, $status);
@@ -290,19 +293,51 @@ class Handler extends AbstractProcessor
     }
 
     /**
-     * @param int $hipayId
+     * @param VendorInterface $vendor
      * @param DateTime $date
      * @param bool $status
      */
-    protected function bankInfoValidation($hipayId, $date, $status)
+    protected function bankInfoValidation($vendor, $date, $status)
     {
+        // if status is OK
         if ($status) {
+            $this->mirakl->updateOneVendor(
+                array(
+                    'kyc' => array(
+                        'reason' => '',
+                        'status' => 'APPROVED'
+                    ),
+                    'shop_id' => $vendor->getMiraklId(),
+                    'payment_blocked' => false,
+                    'suspend' => false
+                ));
+
+            $vendor->setPaymentBlocked(false);
+
+            $this->vendorManager->save($vendor);
+
+            $logVendor = $this->logVendorManager->findByMiraklId($vendor->getMiraklId());
+
+            if ($logVendor !== null) {
+                $logVendor->setPaymentBlocked(false);
+                $this->logVendorManager->save($logVendor);
+            }
+
             $eventName = 'bankInfos.validation.notification.success';
         } else {
+            $this->mirakl->updateOneVendor(
+                array(
+                    'kyc' => array(
+                        'reason' => 'Bank info not valid, please upload a new one.',
+                        'status' => 'REFUSED'
+                    ),
+                    'shop_id' => $vendor->getMiraklId(),
+                    'suspend' => true
+                ));
             $eventName = 'bankInfos.validation.notification.failed';
         }
 
-        $event = new BankInfo($hipayId, $date);
+        $event = new BankInfo($vendor->getHiPayId(), $date);
 
         $this->dispatcher->dispatch($eventName, $event);
     }

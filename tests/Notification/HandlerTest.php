@@ -127,9 +127,22 @@ class HandlerTest extends AbstractProcessorTest
             'FR'
         );
 
+        $expectedVendor  = clone $vendor;
+
+        $expectedVendor->setPaymentBlocked(false);
+
+        $this->mirakl->updateOneVendor(array(
+            "kyc" => array("reason" => "", "status" => "APPROVED"),
+            "shop_id" => $vendor->getMiraklId(),
+            "payment_blocked" => false,
+            "suspend" => false
+        ))->shouldBeCalled();
+
         $this->vendorManager->findByHiPayId(Argument::any())
             ->willReturn($vendor)
             ->shouldBeCalled();
+
+        $this->vendorManager->save($expectedVendor)->shouldBeCalled();
 
         $this->hipay->getAccountHiPay(Argument::any())
             ->willReturn(array("callback_salt" => "test"))

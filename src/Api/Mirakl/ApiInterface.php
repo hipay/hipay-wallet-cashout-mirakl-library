@@ -6,6 +6,7 @@
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
  */
+
 namespace HiPay\Wallet\Mirakl\Api\Mirakl;
 
 use DateTime;
@@ -19,6 +20,25 @@ use HiPay\Wallet\Mirakl\Api\Mirakl;
  */
 interface ApiInterface
 {
+
+    /**
+     * Update shops information field by field: unspecified fields will not be updated. (Uses S07)
+     *
+     * @param $data
+     * @return void
+     * @throws \Guzzle\Service\Exception\CommandTransferException
+     */
+    public function updateVendors($data);
+
+    /**
+     * Update only one vendor
+     *
+     * @param $data
+     * @return void
+     * @throws \Guzzle\Service\Exception\CommandTransferException
+     */
+    public function updateOneVendor($data);
+
     /**
      * Fetch from Mirakl all vendors (uses S20).
      *
