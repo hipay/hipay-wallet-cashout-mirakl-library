@@ -1,3 +1,6 @@
+# Version 2.13.0
+- **Add** Legal compliance
+- 
 # Version 2.12.0
 - **Add** transaction Status sync command
 

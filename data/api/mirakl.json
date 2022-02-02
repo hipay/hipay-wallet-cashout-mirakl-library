@@ -3,6 +3,109 @@
   "apiVersion": 3.20,
   "description": "",
   "operations": {
+    "UpdateVendors": {
+      "httpMethod": "PUT",
+      "uri": "/api/shops",
+      "summary": "Update shops information field by field",
+      "parameters": {
+        "shops": {
+          "type": "array",
+          "location": "json",
+          "sentAs": "shops",
+          "items": {
+            "type": "object",
+            "properties": {
+              "address": {
+                "description": "Street address.",
+                "location": "json",
+                "type": "string",
+                "required": false
+              },
+              "channel_codes": {
+                "description": "List of the channel codes associated to the shop.",
+                "location": "json",
+                "type": "string",
+                "required": false
+              },
+              "closed_from_date": {
+                "description": "Date: if defined, this shop will be closed on this date. Nullable.",
+                "location": "json",
+                "type": "string",
+                "required": false
+              },
+              "description": {
+                "description": "Description of the shop. Nullable.",
+                "location": "json",
+                "type": "string",
+                "required": false
+              },
+              "email": {
+                "description": "Email of the shop. Cannot be null.",
+                "location": "json",
+                "type": "string",
+                "required": false
+              },
+              "fax": {
+                "description": "Fax of the shop. Nullable.",
+                "location": "json",
+                "type": "string",
+                "required": false
+              },
+              "immunity_date": {
+                "description": "The date until the shop is immunized from being suspended by the batch. Must be in the future. Nullable.",
+                "location": "json",
+                "type": "string",
+                "required": false
+              },
+              "is_professional": {
+                "description": "Whether or not the shop is professional. Cannot be null.",
+                "location": "json",
+                "type": "string",
+                "required": false
+              },
+              "kyc": {
+                "description": "KYC information (only supported when KYC feature is enabled)",
+                "location": "json",
+                "type": "object",
+                "required": false,
+                "properties": {
+                  "reason": {
+                    "description": "KYC refusal reason. Ignored if KYC status is not REFUSED. Max length: 1000 characters.",
+                    "location": "json",
+                    "type": "string",
+                    "required": false
+                  },
+                  "status": {
+                    "description": "KYC status",
+                    "location": "json",
+                    "type": "string",
+                    "required": false
+                  }
+                }
+              },
+              "operator_internal_id": {
+                "description": "Operator internal id for the shop. Nullable.",
+                "location": "json",
+                "type": "string",
+                "required": false
+              },
+              "shop_id": {
+                "description": "Id of the shop to be updated",
+                "location": "json",
+                "type": "integer",
+                "required": true
+              },
+              "suspend": {
+                "description": "Suspended state of the shop. Cannot be null.\n",
+                "location": "json",
+                "type": "boolean",
+                "required": false
+              }
+            }
+          }
+        }
+      }
+    },
     "GetVendors": {
       "httpMethod": "GET",
       "uri": "/api/shops",
@@ -13,35 +116,43 @@
           "required": false,
           "location": "query",
           "sentAs": "shop_ids",
-          "filters" : [
+          "filters": [
             {
               "method": "join",
-              "args" : [",", "@value"]
+              "args": [
+                ",",
+                "@value"
+              ]
             }
           ]
         },
         "updatedSince": {
           "type": "object",
-          "instanceOf" : "DateTime",
+          "instanceOf": "DateTime",
           "location": "query",
           "sentAs": "updated_since",
-          "filters" : [
+          "filters": [
             {
               "method": "date_format",
-              "args" : ["@value", "Y-m-d"]
+              "args": [
+                "@value",
+                "Y-m-d"
+              ]
             }
           ]
         },
         "paginate": {
           "type": "boolean",
-          "default" : false,
+          "default": false,
           "description": "[optional] Control the pagination usage. Default: false (different from api)",
           "location": "query",
           "sentAs": "paginate",
-          "filters" : [
+          "filters": [
             {
               "method": "json_encode",
-              "args" : ["@value"]
+              "args": [
+                "@value"
+              ]
             }
           ]
         }
@@ -58,10 +169,13 @@
           "description": "",
           "location": "query",
           "sentAs": "shop_ids",
-          "filters" : [
+          "filters": [
             {
               "method": "join",
-              "args" : [",", "@value"]
+              "args": [
+                ",",
+                "@value"
+              ]
             }
           ]
         }
@@ -71,16 +185,19 @@
       "httpMethod": "GET",
       "uri": "/api/shops/documents/download",
       "summary": "Download documents from Mirakl",
-      "parameters" : {
+      "parameters": {
         "shopIds": {
           "type": "array",
           "required": false,
           "location": "query",
           "sentAs": "shop_ids",
-          "filters" : [
+          "filters": [
             {
               "method": "join",
-              "args" : [",", "@value"]
+              "args": [
+                ",",
+                "@value"
+              ]
             }
           ]
         },
@@ -89,10 +206,13 @@
           "required": false,
           "location": "query",
           "sentAs": "document_ids",
-          "filters" : [
+          "filters": [
             {
               "method": "join",
-              "args" : [",", "@value"]
+              "args": [
+                ",",
+                "@value"
+              ]
             }
           ]
         },
@@ -101,16 +221,19 @@
           "required": false,
           "location": "query",
           "sentAs": "type_codes",
-          "filters" : [
+          "filters": [
             {
               "method": "join",
-              "args" : [",", "@value"]
+              "args": [
+                ",",
+                "@value"
+              ]
             }
           ]
         }
       }
     },
-    "GetInvoices":{
+    "GetInvoices": {
       "httpMethod": "GET",
       "uri": "/api/invoices",
       "summary": "List accounting documents",
@@ -123,30 +246,36 @@
           "sentAs": "shop"
         },
         "startDate": {
-          "required": false,  
+          "required": false,
           "type": "object",
-          "instanceOf" : "DateTime",
+          "instanceOf": "DateTime",
           "description": "creation date for filtering. Format: 'yyyy-MM-dd'T'HH:mm:ss'",
           "location": "query",
           "sentAs": "start_date",
-          "filters" : [
+          "filters": [
             {
               "method": "date_format",
-              "args" : ["@value", "Y-m-d\\TH:i:s\\Z"]
+              "args": [
+                "@value",
+                "Y-m-d\\TH:i:s\\Z"
+              ]
             }
           ]
         },
         "endDate": {
-          "required": false,  
+          "required": false,
           "type": "object",
-          "instanceOf" : "DateTime",
+          "instanceOf": "DateTime",
           "description": "creation date for filtering. Format: 'yyyy-MM-dd'T'HH:mm:ss'",
           "location": "query",
           "sentAs": "end_date",
-          "filters" : [
+          "filters": [
             {
               "method": "date_format",
-              "args" : ["@value", "Y-m-d\\TH:i:s\\Z"]
+              "args": [
+                "@value",
+                "Y-m-d\\TH:i:s\\Z"
+              ]
             }
           ]
         },

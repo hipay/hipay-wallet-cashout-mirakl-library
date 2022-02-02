@@ -6,6 +6,7 @@ use DateTime;
 use Guzzle\Http\Exception\BadResponseException;
 use Guzzle\Http\Exception\ClientErrorResponseException;
 use HiPay\Wallet\Mirakl\Api\HiPay;
+
 //use HiPay\Wallet\Mirakl\Api\HiPay\Model\Soap\BankInfo;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Rest\BankInfo;
 use HiPay\Wallet\Mirakl\Api\HiPay\Model\Status\BankInfo as BankInfoStatus;
@@ -123,7 +124,6 @@ class ProcessorTest extends AbstractProcessorTest
             Argument::any(),
             Argument::type('array')
         )
-
             ->will(function ($args) {
                 return new Vendor($args[0], rand(), $args[2], $args[3]);
             })
@@ -272,11 +272,18 @@ class ProcessorTest extends AbstractProcessorTest
         /** @var VendorInterface $vendorArgument */
         $vendorArgument = Argument::is($vendor);
 
+        $this->mirakl->updateOneVendor(array(
+            "kyc" => array("reason" => "", "status" => "APPROVED"),
+            "shop_id" => $vendor->getMiraklId(),
+            "payment_blocked" => true,
+            "suspend" => false
+        ))->shouldBeCalled();
+
         $this->mirakl->getFiles(array($vendor->getMiraklId()))->willReturn(Mirakl::getShopDocuments(array($vendor->getMiraklId())))->shouldBeCalled();
 
         $this->hipay->bankInfosStatus(
-                $vendorArgument
-            )->willReturn(BankInfoStatus::BLANK)->shouldBeCalled();
+            $vendorArgument
+        )->willReturn(BankInfoStatus::BLANK)->shouldBeCalled();
 
         $this->hipay
             ->bankInfosRegister($vendorArgument, $this->bankInfoArgument)
@@ -300,17 +307,24 @@ class ProcessorTest extends AbstractProcessorTest
         /** @var VendorInterface $vendorArgument */
         $vendorArgument = Argument::is($vendor);
 
+        $this->mirakl->updateOneVendor(array(
+            "kyc" => array("reason" => "", "status" => "APPROVED"),
+            "shop_id" => $vendor->getMiraklId(),
+            "payment_blocked" => true,
+            "suspend" => false
+        ))->shouldBeCalled();
+
         $this->mirakl->getFiles(
             array($vendor->getMiraklId()))->willReturn(Mirakl::getShopDocuments(array($vendor->getMiraklId()))
         )->shouldBeCalled();
 
         $this->hipay->bankInfosStatus($this->vendorArgument)
-                    ->willReturn(BankInfoStatus::VALIDATED)
-                    ->shouldBeCalled();
+            ->willReturn(BankInfoStatus::VALIDATED)
+            ->shouldBeCalled();
 
         $this->hipay->bankInfosCheck(Argument::is($vendor))->will(function () use ($miraklData, $vendor) {
             $bankInfo = new BankInfo();
-            return $bankInfo->setMiraklData(array("payment_info" => array("iban"=> "test")));
+            return $bankInfo->setMiraklData(array("payment_info" => array("iban" => "test")));
         })->shouldBeCalled();
 
         $this->hipay
@@ -340,8 +354,8 @@ class ProcessorTest extends AbstractProcessorTest
         )->shouldBeCalled();
 
         $this->hipay->bankInfosStatus($this->vendorArgument)
-                    ->willReturn(BankInfoStatus::VALIDATED)
-                    ->shouldBeCalled();
+            ->willReturn(BankInfoStatus::VALIDATED)
+            ->shouldBeCalled();
 
         $this->hipay->bankInfosCheck(Argument::is($vendor))->will(function () use ($miraklData, $vendor) {
             $bankInfo = new BankInfo();
@@ -382,34 +396,44 @@ class ProcessorTest extends AbstractProcessorTest
 
         // Checking documents
         $this->documentManager->findByVendor($vendor1)->willReturn(array(
-                new Document(2008, "LEGAL_IDENTITY_OF_REPRESENTATIVE")
-            ))->shouldBeCalledTimes(1);
+            new Document(2008, "LEGAL_IDENTITY_OF_REPRESENTATIVE")
+        ))->shouldBeCalledTimes(1);
 
         $this->documentManager->findByVendor($vendor2)->willReturn(array(
-                new Document(3006, "ALL_PROOF_OF_BANK_ACCOUNT")
-            ))->shouldBeCalledTimes(1);
+            new Document(3006, "ALL_PROOF_OF_BANK_ACCOUNT")
+        ))->shouldBeCalledTimes(1);
 
         // Download missing documents
-        $this->mirakl->downloadDocuments(array(2006), Argument::any())->willReturn($docContent1)->shouldBeCalledTimes(0);
-        $this->mirakl->downloadDocuments(array(3008), Argument::any())->willReturn($docContent2)->shouldBeCalledTimes(1);
-        $this->mirakl->downloadDocuments(array(30082), Argument::any())->willReturn($docContent2)->shouldBeCalledTimes(1);
-        $this->mirakl->downloadDocuments(array(3011), Argument::any())->willReturn($docContent3)->shouldBeCalledTimes(1);
+        $this->mirakl->downloadDocuments(array(2006),
+            Argument::any())->willReturn($docContent1)->shouldBeCalledTimes(0);
+        $this->mirakl->downloadDocuments(array(3008),
+            Argument::any())->willReturn($docContent2)->shouldBeCalledTimes(1);
+        $this->mirakl->downloadDocuments(array(30082),
+            Argument::any())->willReturn($docContent2)->shouldBeCalledTimes(1);
+        $this->mirakl->downloadDocuments(array(3011),
+            Argument::any())->willReturn($docContent3)->shouldBeCalledTimes(1);
 
         // Save files on disk
         $prophet = new PHPProphet();
 
         $prophecy = $prophet->prophesize('HiPay\Wallet\Mirakl\Vendor');
-        $prophecy->file_put_contents(Argument::containingString('/tmp/dir/'), Argument::containingString('data'))->willReturn(true)->shouldBeCalledTimes(3);
+        $prophecy->file_put_contents(Argument::containingString('/tmp/dir/'),
+            Argument::containingString('data'))->willReturn(true)->shouldBeCalledTimes(3);
         $prophecy->reveal();
 
         // Sending documents to HiPay Wallet
-        $this->hipay->uploadDocument(771, 120001, HiPay::DOCUMENT_ALL_PROOF_OF_BANK_ACCOUNT, Argument::any(), Argument::any(), null)->shouldBeCalledTimes(0);
-        $this->hipay->uploadDocument(772, 120002, HiPay::DOCUMENT_LEGAL_IDENTITY_OF_REPRESENTATIVE, Argument::any(), Argument::any(), Argument::any())->willThrow(new ClientErrorResponseException())->shouldBeCalledTimes(1);
-        $this->hipay->uploadDocument(772, 120002, HiPay::DOCUMENT_LEGAL_PROOF_OF_REGISTRATION_NUMBER, Argument::any(), Argument::any(), null)->shouldBeCalledTimes(1);
+        $this->hipay->uploadDocument(771, 120001, HiPay::DOCUMENT_ALL_PROOF_OF_BANK_ACCOUNT, Argument::any(),
+            Argument::any(), null)->shouldBeCalledTimes(0);
+        $this->hipay->uploadDocument(772, 120002, HiPay::DOCUMENT_LEGAL_IDENTITY_OF_REPRESENTATIVE, Argument::any(),
+            Argument::any(), Argument::any())->willThrow(new ClientErrorResponseException())->shouldBeCalledTimes(1);
+        $this->hipay->uploadDocument(772, 120002, HiPay::DOCUMENT_LEGAL_PROOF_OF_REGISTRATION_NUMBER, Argument::any(),
+            Argument::any(), null)->shouldBeCalledTimes(1);
 
         // Save document in DB
-        $this->documentManager->create(2006, Argument::type("DateTime"), "ALL_PROOF_OF_BANK_ACCOUNT", $vendor1)->willReturn($document1)->shouldBeCalledTimes(0);
-        $this->documentManager->create(3011, Argument::type("DateTime"), "LEGAL_PROOF_OF_REGISTRATION_NUMBER", $vendor2)->willReturn($document2)->shouldBeCalledTimes(1);
+        $this->documentManager->create(2006, Argument::type("DateTime"), "ALL_PROOF_OF_BANK_ACCOUNT",
+            $vendor1)->willReturn($document1)->shouldBeCalledTimes(0);
+        $this->documentManager->create(3011, Argument::type("DateTime"), "LEGAL_PROOF_OF_REGISTRATION_NUMBER",
+            $vendor2)->willReturn($document2)->shouldBeCalledTimes(1);
 
         $this->documentManager->save(Argument::exact($document1))->shouldBeCalledTimes(0);
         $this->documentManager->save(Argument::exact($document2))->shouldBeCalledTimes(1);
@@ -423,7 +447,8 @@ class ProcessorTest extends AbstractProcessorTest
      *
      * @covers ::transferFiles
      */
-    public function testWrongExtensionTransferFiles(){
+    public function testWrongExtensionTransferFiles()
+    {
         $shops = array(777);
         $tmpDir = '/tmp/dir';
         $vendor = new Vendor('test@ex1.com', 120001, mt_rand(), 771);
@@ -436,7 +461,8 @@ class ProcessorTest extends AbstractProcessorTest
         $this->documentManager->findByVendor($vendor)->willReturn(array())->shouldBeCalledTimes(1);
 
         $this->mirakl->downloadDocuments(Argument::any(), Argument::any())->shouldNotBeCalled();
-        $this->hipay->uploadDocument(Argument::any(), Argument::any(), Argument::any(), Argument::any(), Argument::any())->shouldNotBeCalled();
+        $this->hipay->uploadDocument(Argument::any(), Argument::any(), Argument::any(), Argument::any(),
+            Argument::any())->shouldNotBeCalled();
         $this->vendorProcessor->transferFiles($shops, $tmpDir);
     }
 
@@ -448,6 +474,7 @@ class ProcessorTest extends AbstractProcessorTest
      */
     private function getVendorInstance($miraklData)
     {
-        return new Vendor($miraklData['contact_informations']['email'], rand(), $miraklData['shop_id'], $miraklData['pro_details']['VAT_number']);
+        return new Vendor($miraklData['contact_informations']['email'], rand(), $miraklData['shop_id'],
+            $miraklData['pro_details']['VAT_number']);
     }
 }

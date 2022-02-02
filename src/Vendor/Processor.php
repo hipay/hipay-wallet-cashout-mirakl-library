@@ -106,7 +106,7 @@ class Processor extends AbstractApiProcessor
 
             // control mirakl settings
             $boolControl = $this->getControlMiraklSettings(
-                array_merge($this->documentTypes,$this->bankInfoDocumentType)
+                array_merge($this->documentTypes, $this->bankInfoDocumentType)
             );
 
             if ($boolControl === false) {
@@ -154,12 +154,12 @@ class Processor extends AbstractApiProcessor
                 $tmpFilesPath
             );
 
+            $this->logVendorManager->saveAll($this->vendorsLogs);
+
             // Bank data updating
             $this->logger->info('Update bank data', array('miraklId' => null, "action" => "Wallet creation"));
             $this->handleBankInfo($vendorCollection, $miraklData, $tmpFilesPath);
             $this->logger->info('[OK] Bank info updated', array('miraklId' => null, "action" => "Wallet creation"));
-
-            $this->logVendorManager->saveAll($this->vendorsLogs);
         } catch (Exception $e) {
             try {
                 // log critical
@@ -725,6 +725,7 @@ class Processor extends AbstractApiProcessor
                         || !$this->isBankInfosSynchronised($vendor, $miraklBankInfo)
                     ) {
                         if ($this->sendBankAccount($vendor, $miraklBankInfo)) {
+                            $this->blockPaymentVendor($vendor);
                             $this->logger->info(
                                 '[OK] Created bank account for : ' .
                                 $vendor->getMiraklId(),
@@ -757,6 +758,37 @@ class Processor extends AbstractApiProcessor
                     array('miraklId' => $vendor->getMiraklId(), "action" => "Wallet creation")
                 );
             }
+        }
+    }
+
+    /**
+     * Block user payment in connector and in Mirakl
+     *
+     * @param $vendor
+     * @return void
+     * @throws \Guzzle\Service\Exception\CommandTransferException
+     */
+    protected function blockPaymentVendor($vendor){
+        $this->mirakl->updateOneVendor(
+            array(
+                'kyc' => array(
+                    'reason' => '',
+                    'status' => 'APPROVED'
+                ),
+                'shop_id' => $vendor->getMiraklId(),
+                'payment_blocked' => true,
+                'suspend' => false
+            ));
+
+        $vendor->setPaymentBlocked(true);
+
+        $this->vendorManager->save($vendor);
+
+        $logVendor = $this->logVendorManager->findByMiraklId($vendor->getMiraklId());
+
+        if ($logVendor !== null) {
+            $logVendor->setPaymentBlocked(true);
+            $this->logVendorManager->save($logVendor);
         }
     }
 

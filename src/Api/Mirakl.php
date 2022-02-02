@@ -97,6 +97,44 @@ class Mirakl implements ApiInterface
     }
 
     /**
+     * Update shops information field by field: unspecified fields will not be updated. (Uses S07)
+     *
+     * @param $data
+     * @return void
+     * @throws \Guzzle\Service\Exception\CommandTransferException
+     */
+    public function updateVendors($data)
+    {
+        $this->restClient->getConfig()->setPath(
+            'request.options/headers/Authorization',
+            $this->operatorKey
+        );
+
+        $command = $this->restClient->getCommand(
+            'UpdateVendors',
+            $data
+        );
+
+        $this->restClient->execute($command);
+    }
+
+    /**
+     * Update only one vendor
+     *
+     * @param $data
+     * @return void
+     * @throws \Guzzle\Service\Exception\CommandTransferException
+     */
+    public function updateOneVendor($data)
+    {
+        $formattedRequest = array(
+            'shops' => array($data)
+        );
+
+        $this->updateVendors($formattedRequest);
+    }
+
+    /**
      * List files from Mirakl (Uses S30).
      *
      * @param array $shopIds the shops id to list document from
@@ -317,7 +355,7 @@ class Mirakl implements ApiInterface
 
         if (isset($result['shops'][0]) && !empty($result['shops'][0])) {
             return isset($result['shops'][0]['shop_additional_fields'])
-            && in_array($additionnalField, $result['shops'][0]['shop_additional_fields']);
+                && in_array($additionnalField, $result['shops'][0]['shop_additional_fields']);
         }
 
         return false;
