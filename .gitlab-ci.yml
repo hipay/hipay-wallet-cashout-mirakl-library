@@ -1,22 +1,12 @@
-image: $REGISTRY_CI/gitlab-ci-base:buster
-
 stages:
  - test
 
-variables:
-  DOCKER_HOST: tcp://localhost:2375/
-  DOCKER_DRIVER: overlay2
-  DOCKER_TLS_CERTDIR: ""
-
-services:
-  - docker:19.03.1-dind
 
 phpunit:
   stage: test
-  before_script:
-    - docker build -t phpunit .
+  image: phpunit/phpunit:6.5.3
   script:
-    - docker run --rm --name my-running-app phpunit vendor/phpunit/phpunit/phpunit -c tests/phpunit.xml
+    - phpunit -c tests/phpunit.xml
   allow_failure: false
   tags:
-    - gcp-high-load-runner-prod
+    - small
