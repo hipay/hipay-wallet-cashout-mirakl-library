@@ -57,6 +57,11 @@ class Transfer extends ModelAbstract
      */
     protected $entity;
 
+    /**
+     * @var string
+     *
+     */
+    protected $merchantUniqueId;
 
     /**
      * Transfer constructor.
@@ -70,13 +75,15 @@ class Transfer extends ModelAbstract
         $amount,
         VendorInterface $vendorInterface,
         $privateLabel,
-        $publicLabel
+        $publicLabel,
+        $merchantUniqueId
     ) {
         $this->amount = $amount;
         $this->recipientUserId = $vendorInterface->getHiPayId();
         $this->recipientUsername = $vendorInterface->getEmail();
         $this->privateLabel = $privateLabel;
         $this->publicLabel = $publicLabel;
+        $this->merchantUniqueId = $merchantUniqueId;
     }
 
     /**
@@ -175,4 +182,19 @@ class Transfer extends ModelAbstract
         $this->entity = $entity;
     }
 
+    /**
+     * @return string
+     */
+    public function getMerchantUniqueId()
+    {
+        return $this->merchantUniqueId;
+    }
+
+    /**
+     * @param string $merchantUniqueId
+     */
+    public function setMerchantUniqueId($merchantUniqueId)
+    {
+        $this->merchantUniqueId = $merchantUniqueId;
+    }
 }

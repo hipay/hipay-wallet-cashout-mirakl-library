@@ -6,6 +6,7 @@
  * @author    Ivanis Kouamé <ivanis.kouame@smile.fr>
  * @copyright 2015 Smile
  */
+
 namespace HiPay\Wallet\Mirakl\Api\HiPay;
 
 use DateTime;
@@ -183,12 +184,13 @@ interface ApiInterface
      * @param VendorInterface $vendor
      * @param $amount
      * @param $label
+     * @param $merchantUniqueId
      *
      * @return int
      *
      * @throws Exception
      */
-    public function withdraw(VendorInterface $vendor, $amount, $label);
+    public function withdraw(VendorInterface $vendor, $amount, $label, $merchantUniqueId = null);
 
     /**
      * Return the mandatory fields bank info fields for a specific vendor.
