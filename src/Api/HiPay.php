@@ -122,11 +122,6 @@ class HiPay implements ApiInterface
 
         $this->restClient->setUserAgent($userAgent);
 
-        $this->restClient->getConfig()->setPath(
-            'request.options/headers/x-professional-client-origin',
-            'hipay-mirakl-connector-v1'
-        );
-
         $this->description = ServiceDescription::factory(__DIR__ . '../../../data/api/hipay.json');
         $this->description->setBaseUrl($baseRestUrl);
         $this->restClient->setDescription($this->description);
@@ -1068,6 +1063,10 @@ class HiPay implements ApiInterface
      */
     private function executeRest($command, $parameters = array())
     {
+        $this->restClient->getConfig()->setPath(
+            'request.options/headers/x-professional-client-origin',
+            'hipay-mirakl-connector-v1'
+        );
 
         try {
             $result = $this->restClient->execute($command);
