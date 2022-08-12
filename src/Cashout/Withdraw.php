@@ -167,11 +167,14 @@ class Withdraw extends AbstractOperationProcessor
 
             $operation->setHiPayId($vendor->getHiPayId());
 
+            $merchantUniqueId = is_null($operation->getMerchantUniqueId()) ? null : "WITHDRAWAL_" . $operation->getMerchantUniqueId();
+
             //Withdraw
             $withdrawId = $this->hipay->withdraw(
                 $vendor,
                 $amount,
-                $this->operationManager->generateWithdrawLabel($operation)
+                $this->operationManager->generateWithdrawLabel($operation),
+                $merchantUniqueId
             );
 
             $operation->setWithdrawId($withdrawId);

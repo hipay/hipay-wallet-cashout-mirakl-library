@@ -22,8 +22,6 @@ class WithdrawTest extends AbstractProcessorTest
     /** @var  VendorInterface */
     protected $vendorArgument;
 
-
-
     public function setUp()
     {
         parent::setUp();
@@ -80,7 +78,7 @@ class WithdrawTest extends AbstractProcessorTest
         $this->hipay->getBalance($operatorArgument)
             ->willReturn($amount + 1)
             ->shouldBeCalled();
-        $this->hipay->withdraw($operatorArgument, Argument::is($amount), Argument::type("string"))
+        $this->hipay->withdraw($operatorArgument, Argument::is($amount), Argument::type("string"), null)
             ->willReturn($withdrawId)
             ->shouldBeCalled();
 
@@ -127,7 +125,7 @@ class WithdrawTest extends AbstractProcessorTest
             ->shouldBeCalled();
         $this->hipay->getBalance($operatorArgument)
             ->willReturn($balance)->shouldBeCalled();
-        $this->hipay->withdraw($operatorArgument, Argument::is($balance), Argument::type("string"))
+        $this->hipay->withdraw($operatorArgument, Argument::is($balance), Argument::type("string"), null)
             ->willReturn($withdrawId)->shouldBeCalled();
 
         $this->logOperationsManager->save(Argument::any())->willReturn()->shouldBeCalled();
@@ -181,7 +179,7 @@ class WithdrawTest extends AbstractProcessorTest
         $this->hipay->bankInfosStatus($vendorArgument)
             ->willReturn(BankInfo::VALIDATED)
             ->shouldBeCalled();
-        $this->hipay->withdraw($vendorArgument, Argument::is($amount), Argument::type("string"))
+        $this->hipay->withdraw($vendorArgument, Argument::is($amount), Argument::type("string"), null)
             ->willReturn($withdrawId)
             ->shouldBeCalled();
 
@@ -346,6 +344,56 @@ class WithdrawTest extends AbstractProcessorTest
         $this->logOperationsManager->findByMiraklIdAndPaymentVoucherNumber(Argument::any(), Argument::any())->willReturn(new LogOperations(200, 2001))->shouldBeCalled();
 
         $this->withdrawProcessor->withdraw($operation);
+    }
+
+    /**
+     * @cover ::withdraw
+     * @group withdraw
+     */
+    public function testWithdrawMerchantUniqueIdSuccessful()
+    {
+        $withdrawId = rand();
+        $amount = floatval(rand());
+        $operation = new Operation($amount, new DateTime(), "000001", false);
+        $operation->setStatus(new Status(Status::TRANSFER_SUCCESS));
+        $operation->setMerchantUniqueId('OPERATOR_MUI');
+        /** @var VendorInterface $operatorArgument */
+        $operatorArgument = Argument::is($this->operator);
+
+        $this->hipay->isWalletExist(Argument::cetera())
+            ->willReturn(true)
+            ->shouldBeCalled();
+
+        $this->hipay->isIdentified($operatorArgument)
+            ->willReturn(true)
+            ->shouldBeCalled();
+        $this->hipay->bankInfosStatus($operatorArgument)
+            ->willReturn(BankInfo::VALIDATED)
+            ->shouldBeCalled();
+        $this->hipay->getBalance($operatorArgument)
+            ->willReturn($amount + 1)
+            ->shouldBeCalled();
+        $this->hipay->withdraw($operatorArgument, Argument::is($amount), Argument::type("string"), 'WITHDRAWAL_OPERATOR_MUI')
+            ->willReturn($withdrawId)
+            ->shouldBeCalled();
+
+        $this->logOperationsManager->save(Argument::any())->willReturn()->shouldBeCalled();
+
+        $this->logOperationsManager->findByMiraklIdAndPaymentVoucherNumber(Argument::any(), Argument::any())->willReturn(new LogOperations(200, 2001))->shouldBeCalled();
+
+        $this->operationManager->findVendorOperationsByPaymentVoucherId(Argument::any())->willReturn(new Operation(2000, new DateTime(), "000001", false));
+
+        $this->vendorManager->findByMiraklId(Argument::any())->willReturn(new Vendor("test@test.com", rand(), rand()));
+
+        $result = $this->withdrawProcessor->withdraw($operation);
+
+        $this->assertEquals($withdrawId, $result);
+
+        $this->assertEquals($amount, $operation->getWithdrawnAmount());
+
+        $this->assertEquals(Status::WITHDRAW_REQUESTED, $operation->getStatus());
+
+        $this->assertEquals($withdrawId, $operation->getWithdrawId());
     }
 
     /**

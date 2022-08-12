@@ -152,4 +152,18 @@ interface OperationInterface
      * @return void
      */
     public function setPaymentVoucher($paymentVoucher);
+
+    /**
+     * @return string
+     *
+     * @Assert\Type("string")
+     */
+    public function getMerchantUniqueId();
+
+    /**
+     * @param $merchantUniqueId
+     *
+     * @return void
+     */
+    public function setMerchantUniqueId($merchantUniqueId);
 }
