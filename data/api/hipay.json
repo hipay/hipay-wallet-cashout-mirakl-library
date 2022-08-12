@@ -641,6 +641,13 @@
                     "location": "postField",
                     "required": true,
                     "sentAs": "private_label"
+                },
+                "merchantUniqueId": {
+                    "type": "string",
+                    "description": "Unique ID of the transfer sent by the merchant. HiPay will treat only 1 transfer with this ID.\n",
+                    "location": "postField",
+                    "required": false,
+                    "sentAs": "merchant_unique_id"
                 }
             }
         },
@@ -662,6 +669,13 @@
                     "location": "postField",
                     "required": true,
                     "sentAs": "label"
+                },
+                "merchantUniqueId": {
+                    "type": "string",
+                    "description": "Unique ID of the transfer sent by the merchant. HiPay will treat only 1 transfer with this ID.\n",
+                    "location": "postField",
+                    "required": false,
+                    "sentAs": "merchant_unique_id"
                 }
             }
         },
