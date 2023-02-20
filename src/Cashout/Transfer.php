@@ -150,11 +150,14 @@ class Transfer extends AbstractOperationProcessor
 
             $operation->setHiPayId($vendor->getHiPayId());
 
+            $merchantUniqueId = is_null($operation->getMerchantUniqueId()) ? null : "TRANSFER_" . $operation->getMerchantUniqueId();
+
             $transfer = new TransferModel(
                 round($operation->getAmount(), self::SCALE),
                 $vendor,
                 $this->operationManager->generatePrivateLabel($operation),
-                $this->operationManager->generatePublicLabel($operation)
+                $this->operationManager->generatePublicLabel($operation),
+                $merchantUniqueId
             );
 
             //Transfer

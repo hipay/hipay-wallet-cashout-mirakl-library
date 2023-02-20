@@ -720,11 +720,12 @@ class HiPay implements ApiInterface
      * @param VendorInterface $vendor
      * @param type $amount
      * @param type $label
+     * @param type $merchantUniqueId
      */
-    public function withdraw(VendorInterface $vendor, $amount, $label)
+    public function withdraw(VendorInterface $vendor, $amount, $label, $merchantUniqueId = null)
     {
         if ($this->rest) {
-            return $this->withdrawRest($vendor, $amount, $label);
+            return $this->withdrawRest($vendor, $amount, $label, $merchantUniqueId);
         } else {
             return $this->withdrawSoap($vendor, $amount, $label);
         }
@@ -835,14 +836,15 @@ class HiPay implements ApiInterface
      * @param VendorInterface $vendor
      * @param type $amount
      * @param type $label
+     * @param type $merchantUniqueId
      * @return type
      */
-    private function withdrawRest(VendorInterface $vendor, $amount, $label)
+    private function withdrawRest(VendorInterface $vendor, $amount, $label, $merchantUniqueId)
     {
 
         $this->resetRestClient();
 
-        $parameters = array('amount' => $amount, 'label' => $label);
+        $parameters = array('amount' => $amount, 'label' => $label, 'merchantUniqueId' => $merchantUniqueId);
 
         $this->restClient->getConfig()->setPath(
             'request.options/headers/php-auth-user',
@@ -1061,6 +1063,10 @@ class HiPay implements ApiInterface
      */
     private function executeRest($command, $parameters = array())
     {
+        $this->restClient->getConfig()->setPath(
+            'request.options/headers/x-professional-client-origin',
+            'hipay-mirakl-connector-v1'
+        );
 
         try {
             $result = $this->restClient->execute($command);

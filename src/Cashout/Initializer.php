@@ -46,6 +46,8 @@ class Initializer extends AbstractOperationProcessor
 
     protected $adjustedOperations;
 
+    protected $mkpInternalTechnicalId;
+
     /**
      * Initializer constructor.
      * @param EventDispatcherInterface $dispatcher
@@ -67,7 +69,8 @@ class Initializer extends AbstractOperationProcessor
         ValidatorInterface $transactionValidator,
         OperationManager $operationHandler,
         LogOperationsManager $logOperationsManager,
-        VendorManager $vendorManager
+        VendorManager $vendorManager,
+        $mkpInternalTechnicalId = null
     ) {
         parent::__construct(
             $dispatcher,
@@ -89,6 +92,8 @@ class Initializer extends AbstractOperationProcessor
         $this->operationsLogs = array();
 
         $this->adjustedOperations = array();
+
+        $this->mkpInternalTechnicalId = $mkpInternalTechnicalId;
     }
 
     /**
@@ -166,6 +171,7 @@ class Initializer extends AbstractOperationProcessor
         DateTime $cycleDate,
         $paymentVoucher,
         $vendor,
+        $merchantUniqueId = null,
         $adjustedOperationsIds = null
     ) {
         //Set hipay id
@@ -184,6 +190,7 @@ class Initializer extends AbstractOperationProcessor
         $operation->setOriginAmount($originAmount);
         $operation->setCycleDate($cycleDate);
         $operation->setPaymentVoucher((string)$paymentVoucher);
+        $operation->setMerchantUniqueId($merchantUniqueId);
 
         // if adjustments were made, save adjusted operations
         if ($adjustedOperationsIds !== null) {
@@ -345,6 +352,7 @@ class Initializer extends AbstractOperationProcessor
                     $cycleDate,
                     $invoice['invoice_id'],
                     $vendor,
+                    $this->generateMerchantUniqueId("SALES", $invoice['invoice_id'], $vendor->getHiPayId()),
                     $adjustedInfos['adujstedOperationsIds']
                 );
 
@@ -362,7 +370,8 @@ class Initializer extends AbstractOperationProcessor
                     null,
                     $cycleDate,
                     $invoice['invoice_id'],
-                    $this->operator
+                    $this->operator,
+                    $this->generateMerchantUniqueId("COMMISSION", $invoice['invoice_id'], $vendor->getHiPayId())
                 );
             } else {
                 $this->logger->warning(
@@ -471,4 +480,12 @@ class Initializer extends AbstractOperationProcessor
         return $invoices;
     }
 
+    private function generateMerchantUniqueId($paymentVoucherType, $invoiceId, $hipayId)
+    {
+        if(is_null($this->mkpInternalTechnicalId)){
+            return null;
+        }
+
+        return $paymentVoucherType . "_" . $invoiceId . "_" . $this->mkpInternalTechnicalId . "_" . $hipayId;
+    }
 }

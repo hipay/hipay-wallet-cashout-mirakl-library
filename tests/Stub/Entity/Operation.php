@@ -32,6 +32,7 @@ class Operation implements OperationInterface
     /** @var  float */
     protected $withdrawnAmount;
     protected $originAmount;
+    protected $merchantUniqueId;
 
     /**
      * Operation constructor.
@@ -44,7 +45,7 @@ class Operation implements OperationInterface
     {
         $this->miraklId = $miraklId;
         $this->paymentVoucher = $paymentVoucher;
-        $this->amount = (float) $amount;
+        $this->amount = (float)$amount;
         $this->cycleDate = $cycleDate;
         $this->setUpdatedAt(new DateTime());
         $this->setStatus(new Status(Status::CREATED));
@@ -196,6 +197,7 @@ class Operation implements OperationInterface
     {
         $this->hipayId = $hipayId;
     }
+
     protected $cycleDate;
 
     /**
@@ -213,7 +215,7 @@ class Operation implements OperationInterface
     {
         $this->withdrawnAmount = $withdrawnAmount;
     }
-    
+
     public function getOriginAmount()
     {
         return $this->originAmount;
@@ -224,6 +226,20 @@ class Operation implements OperationInterface
         $this->originAmount = $originAmount;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getMerchantUniqueId()
+    {
+        return $this->merchantUniqueId;
+    }
 
+    /**
+     * @param mixed $merchantUniqueId
+     */
+    public function setMerchantUniqueId($merchantUniqueId)
+    {
+        $this->merchantUniqueId = $merchantUniqueId;
+    }
 
 }
