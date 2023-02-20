@@ -1,6 +1,9 @@
+# Version 2.14.0
+- **Add** Add merchantUniqueId to transaction request
+
 # Version 2.13.0
 - **Add** Legal compliance
-- 
+
 # Version 2.12.0
 - **Add** transaction Status sync command
 
